@@ -18,11 +18,12 @@ services:
     links:
       - db
       - redis
+      - sessions
     environment:
       - PENDING_PCACHE_RECREATION_INTERVAL=15
       - JOBS_INTERVAL=15
       - REDIS_CACHE=redis
-
+      - SESSIONS_SAVE_PATH=tcp://sessions:6379
       - MAILER_SERVER=mailhog
       - MAILER_PORT=1025
       - MAILER_FROM=sysadmin@localhost
@@ -35,6 +36,7 @@ services:
       - db
       - redis
       - mailhog
+      - sessions
       
     stdin_open: true
     tty: true
@@ -47,6 +49,13 @@ services:
   redis:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru  
+  
+  sessions:
+    image: redis:6
+    command: --maxmemory 384Mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    volumes:
+      - ./docker-data/sessions:/data
 
   db:
     image: mdillon/postgis:11
