@@ -23,6 +23,7 @@ services:
       - PENDING_PCACHE_RECREATION_INTERVAL=15
       - JOBS_INTERVAL=15
       - REDIS_CACHE=redis
+      - ACTIVE_THEME=Ceara
       - SESSIONS_SAVE_PATH=tcp://sessions:6379
       - MAILER_SERVER=mailhog
       - MAILER_PORT=1025
