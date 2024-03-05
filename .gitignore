@@ -15,7 +15,7 @@ src/protected/application/themes/mapasculturais-*
 src/protected/vendor
 src/pub
 src/assets
-src/protected/application/themes/Ceara
+# src/protected/application/themes/Ceara
 compose/config.d/z.config.local.php
 *.log
 .idea
