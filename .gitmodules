@@ -1,0 +1,12 @@
+[submodule "src/protected/application/plugins/MultipleLocalAuth"]
+	path = src/protected/application/plugins/MultipleLocalAuth
+	url = https://github.com/mapasculturais/plugin-MultipleLocalAuth
+	branch = master
+[submodule "src/protected/application/plugins/Recourse"]
+	path = src/protected/application/plugins/Recourse
+	url = https://github.com/secultce/plugin-Recourse.git
+	branch = main
+[submodule "src/protected/application/themes/Ceara"]
+	path = src/protected/application/themes/Ceara
+	url = https://github.com/secultce/theme-Ceara.git
+	branch = master

@@ -23,6 +23,7 @@ services:
       - PENDING_PCACHE_RECREATION_INTERVAL=15
       - JOBS_INTERVAL=15
       - REDIS_CACHE=redis
+      - ACTIVE_THEME=Ceara
       - SESSIONS_SAVE_PATH=tcp://sessions:6379
       - MAILER_SERVER=mailhog
       - MAILER_PORT=1025
@@ -58,13 +59,13 @@ services:
       - ./docker-data/sessions:/data
 
   db:
-    image: mdillon/postgis:11
+    image: postgis/postgis:14-master
     environment:
       - POSTGRES_PASSWORD=mapas
       - POSTGRES_USER=mapas
       - POSTGRES_DB=mapas
     ports:
-      - "5470:5432"
+      - "5432:5432"
     volumes:
-      - ../docker-data/postgres:/var/lib/postgresql/data
-      - ../db/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      - ../db:/docker-entrypoint-initdb.d
+      - ../docker-data/db-data:/var/lib/postgresql/data

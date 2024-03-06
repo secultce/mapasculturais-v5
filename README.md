@@ -43,7 +43,58 @@ A plataforma já está em uso em diversos municipios, estados, no governo federa
 - Ipatinga - http://mapacultural.ipatinga.mg.gov.br/
 - Varzea Grande - http://varzeagrande.mt.mapas.cultura.gov.br/
 - João Pessoa - http://jpcultura.joaopessoa.pb.gov.br/
+- Londrina - https://londrinacultura.londrina.pr.gov.br/### Instalações em nível federal ou internacional
+- IberculturaViva - https://mapa.iberculturaviva.org/
+- Mapa Uruguai - http://culturaenlinea.uy/
+- SNIIC - http://mapas.cultura.gov.br/
+- Museus - http://museus.cultura.gov.br/
+- Sistema Nacional de Bibliotecas Públicas - http://bibliotecas.cultura.gov.br/
+- Cultura Viva - http://culturaviva.gov.br/
+- Pontos de Memória - http://pontosdememoria.cultura.gov.br/
+
+### Instalações estaduais
+- Distrito Federal - http://mapa.cultura.df.gov.br/
+- Ceará - https://mapacultural.secult.ce.gov.br/
+- Espírito Santo - https://mapa.cultura.es.gov.br/
+- Goiás - https://mapagoiano.cultura.go.gov.br/
+- Maranhão - http://ma.mapas.cultura.gov.br/
+- Mato Grosso - https://mapas.mt.gov.br/
+- Mato Grosso do Sul - https://www.mapacultural.ms.gov.br/
+- Pará - https://mapacultural.pa.gov.br/
+- Paraíba - http://pb.mapas.cultura.gov.br/
+- Pernambuco - https://www.mapacultural.pe.gov.br/
+- Sergipe - http://mapas.cultura.se.gov.br/
+- Tocantins - http://mapa.cultura.to.gov.br/
+### Instalações municipais
+- Ilheus - http://ilheus.ba.mapas.cultura.gov.br/
+- Camaçari - https://mapacultural.camacari.ba.gov.br/
+- Senhor do Bonfim - http://senhordobonfim.ba.mapas.cultura.gov.br/
+- Chorozinho - https://mapacultural.chorozinho.ce.gov.br/
+- Sobral - https://cultura.sobral.ce.gov.br/
+- Juazeiro do Norte - https://mapacultural.juazeiro.ce.gov.br/
+- Belo Horizonte - http://mapaculturalbh.pbh.gov.br/
+- Santa Luzia - http://mapacultural.santaluzia.mg.gov.br/
+- Ipatinga - http://mapacultural.ipatinga.mg.gov.br/
+- Varzea Grande - http://varzeagrande.mt.mapas.cultura.gov.br/
+- João Pessoa - http://jpcultura.joaopessoa.pb.gov.br/
 - Londrina - https://londrinacultura.londrina.pr.gov.br/
+- Foz do Iguaçu - http://mapadaculturafoz.pmfi.pr.gov.br/
+- Maringa - http://maringacultura.maringa.pr.gov.br:38081/
+- Rio das Ostras - http://mapadacultura.riodasostras.rj.gov.br/
+- Laguna - http://laguna.sc.mapas.cultura.gov.br/
+- Novo Hamburgo - http://mapacultural.novohamburgo.rs.gov.br/
+- Rio Grande - http://mapacultural.riogrande.rs.gov.br/
+- São Paulo - http://spcultura.prefeitura.sp.gov.br/
+- Santo André - http://culturaz.santoandre.sp.gov.br/
+- São Caetano do Sul - http://mapacultural.saocaetanodosul.sp.gov.br/
+- Osasco - http://osasco.sp.mapas.cultura.gov.br/
+- Franco da Rocha - http://francodarocha.sp.mapas.cultura.gov.br/
+- Guaruja - http://mapadacultura.guaruja.sp.gov.br/
+- Varzea Paulista - http://janelacultural.varzeapaulista.sp.gov.br/
+- Itu - http://mapacultural.itu.sp.gov.br/
+- Guarulhos - http://grucultura.guarulhos.sp.gov.br/
+- Itapetininga - http://mapacultural.itapetininga.sp.gov.br/
+
 - Foz do Iguaçu - http://mapadaculturafoz.pmfi.pr.gov.br/
 - Maringa - http://maringacultura.maringa.pr.gov.br:38081/
 - Rio das Ostras - http://mapadacultura.riodasostras.rj.gov.br/
