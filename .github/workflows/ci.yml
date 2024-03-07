@@ -4,8 +4,11 @@ on:
   pull_request:
     branches: 
       - homolog
+  
+  workflow_dispatch:
+
 jobs:
-  CI:
+  BUILD:
     runs-on: ubuntu-latest
     steps: 
       
@@ -29,3 +32,12 @@ jobs:
           tags: |
             secultceara/mapasculturais:5.8.15
             secultceara/mapasculturais:latest
+
+  DEPLOY:
+    needs: BUILD
+    runs-on: mapahomolog
+    steps:
+      - name: Pull da imagem do dockerhub
+        run: sudo docker pull secultceara/mapasculturais:latest
+      - name: Restart do docker-compose para atualizar o container com a nova imagem
+        run: cd /opt/docker/mapa5 && sudo docker-compose down && sudo docker-compose up -d
