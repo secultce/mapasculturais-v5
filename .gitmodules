@@ -10,3 +10,15 @@
 	path = src/protected/application/themes/Ceara
 	url = https://github.com/secultce/theme-Ceara.git
 	branch = master
+[submodule "src/protected/application/plugins/OpinionManagement"]
+	path = src/protected/application/plugins/OpinionManagement
+	url = https://github.com/secultce/plugin-OpinionManagement.git
+	branch = main
+[submodule "src/protected/application/plugins/Accessibility"]
+	path = src/protected/application/plugins/Accessibility
+	url = https://github.com/govce/plugin-Accessibility.git
+	branch = master
+[submodule "src/protected/application/plugins/LocationStateCity"]
+	path = src/protected/application/plugins/LocationStateCity
+	url = https://github.com/secultce/plugin-LocationStateCity.git
+	branch = main
