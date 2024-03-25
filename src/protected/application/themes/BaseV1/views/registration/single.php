@@ -45,8 +45,12 @@ $_params = [
 
 <article class="main-content registration" ng-controller="OpportunityController">
     <?php $this->part('singles/registration--header', $_params); ?>
-
-    <article>
+        <?php $this->applyTemplateHook('content-diligence','begin'); ?>
+            <article id="diligence">
+                
+            </article>
+        <?php $this->applyTemplateHook('content-diligence','end'); ?>
+    <article id="registration-content-all">
         <?php $this->applyTemplateHook('form','begin'); ?>
 
         <?php $this->part('singles/registration-single--header', $_params) ?>

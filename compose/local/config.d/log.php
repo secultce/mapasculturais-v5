@@ -4,7 +4,7 @@ return [
     'slim.log.enabled'      => true,
 
     // 'app.log.query'         => true,
-    'app.log.hook'          => false,
+    'app.log.hook'          => 'registration.view',
     // 'app.log.requestData'   => true,
     // 'app.log.translations'  => true,
     // 'app.log.apiCache'      => true,

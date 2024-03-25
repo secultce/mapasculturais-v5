@@ -5,7 +5,9 @@ services:
       context: ../
       dockerfile: compose/local/Dockerfile
     ports:
-      - "80:80"
+      - "8088:80"
+    networks:
+      - lab
     volumes:
       - ../src/protected:/var/www/html/protected
       - ../scripts:/var/www/scripts
@@ -15,13 +17,14 @@ services:
       - ../docker-data/public-files:/var/www/html/files
       - ../docker-data/private-files:/var/www/private-files
       - ../tests:/var/www/tests
+      - ../src/protected/application/plugins/Diligence:/var/www/html/protected/application/plugins/Diligence
     links:
       - db
       - redis
       - sessions
     environment:
-      - PENDING_PCACHE_RECREATION_INTERVAL=15
-      - JOBS_INTERVAL=15
+      - PENDING_PCACHE_RECREATION_INTERVAL=5
+      - JOBS_INTERVAL=5
       - REDIS_CACHE=redis
       - ACTIVE_THEME=Ceara
       - SESSIONS_SAVE_PATH=tcp://sessions:6379
@@ -38,26 +41,30 @@ services:
       - redis
       - mailhog
       - sessions
-      
+
     stdin_open: true
     tty: true
     
   mailhog: 
     image: mailhog/mailhog
     ports:
-      - "8025:8025"
+      - "8026:8025"
 
   redis:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru  
-  
+    networks:
+      - lab 
+
   sessions:
     image: redis:6
     command: --maxmemory 384Mb --maxmemory-policy allkeys-lru
     restart: unless-stopped
     volumes:
       - ./docker-data/sessions:/data
-
+    networks:
+      - lab
+      
   db:
     image: postgis/postgis:14-master
     environment:
@@ -66,6 +73,12 @@ services:
       - POSTGRES_DB=mapas
     ports:
       - "5432:5432"
+    networks:
+      - lab
     volumes:
       - ../db:/docker-entrypoint-initdb.d
       - ../docker-data/db-data:/var/lib/postgresql/data
+
+networks:
+  lab:
+    external: true
