@@ -1567,7 +1567,7 @@ $$
     },
 
     'create table job' => function () use($conn) {
-        __exec("CREATE TABLE job (
+        __exec("CREATE TABLE IF NOT EXISTS job (
                     id VARCHAR(255) NOT NULL, 
                     name VARCHAR(32) NOT NULL, 
                     iterations INT NOT NULL, 
@@ -1584,8 +1584,8 @@ $$
 
         __exec("COMMENT ON COLUMN job.metadata IS '(DC2Type:json_array)';");
 
-        __exec("CREATE INDEX job_next_execution_timestamp_idx ON job (next_execution_timestamp);");
-        __exec("CREATE INDEX job_search_idx ON job (next_execution_timestamp, iterations_count, status);");
+        __exec("CREATE INDEX IF NOT EXISTS  job_next_execution_timestamp_idx ON job (next_execution_timestamp);");
+        __exec("CREATE INDEX IF NOT EXISTS  job_search_idx ON job (next_execution_timestamp, iterations_count, status);");
     },
 
     'clean existing orphans' => function () {
