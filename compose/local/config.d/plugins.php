@@ -7,7 +7,6 @@ return [
         'EvaluationMethodDocumentary' => ['namespace' => 'EvaluationMethodDocumentary'],
         'EvaluationMethodQualification' => ['namespace' => 'EvaluationMethodQualification'],
         'ValuersManagement' => [ 'namespace' => 'ValuersManagement' ],
-        'OpinionManagement' => [ 'namespace' => 'OpinionManagement' ],        
-        'Diligence' => ['namespace' => 'Diligence'],
+        'OpinionManagement' => [ 'namespace' => 'OpinionManagement' ]
     ]
 ];
