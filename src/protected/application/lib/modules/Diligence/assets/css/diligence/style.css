@@ -1,0 +1,36 @@
+.div-diligence {
+    width: 100%; 
+    text-align: center;
+}
+.div-diligence p {
+    margin-top: 40px;
+}
+.diligence-context-open {
+    width: 100%; margin-top: 20px; border-radius: 10px;
+}
+.div-btn-send-diligence {
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+.btn-send-diligence {
+    font-size: medium;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-send-diligence:hover {
+    border:1px solid #085E55;
+    /* color: white; */
+    border-radius: 8px;
+  }
+.mr-10 {
+    margin-right: 10px;
+}
+.diligence-label-save {
+    display: flex;
+    flex: auto;
+    color: #53b37f;
+    font-weight: 600;
+}
