@@ -15,13 +15,27 @@ class Module extends \MapasCulturais\Module {
        
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
           $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
-          
-         $this->part('diligence/tabs-parent');
+          $entity = $this->controller->requestedEntity;
+         $this->part('diligence/tabs-parent',['entity' => $entity]);
+        });
+
+        $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
+            $entity = $this->controller->requestedEntity;
+            $this->part('diligence/days', ['entity' => $entity]);
         });
     }
     
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
+        //Registrar metadata na tabela opportunity
+        $this->registerOpportunityMetadata('diligence_days', [
+            'label' => i::__('Dias corridos para resposta da diligência'),
+            'type' => 'string',
+            'default' => 3,
+            'validations' => [
+                'v::intVal()->positive()->between(1, 365)' => 'O valor deve ser um número inteiro positivo'
+            ]
+        ]);
     }
 }

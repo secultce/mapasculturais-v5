@@ -34,11 +34,13 @@
 </ul>
 <div class="tabs-content">
     <div id="diligence-principal">
-        <h2>Ficha</h2>
+       
     </div>
     <div id="diligence-diligence">
         <label>
-            <strong>Diligência ao proponente</strong>
+            <strong>
+                <?php \MapasCulturais\i::_e('Diligência ao proponente') ?>
+            </strong>
         </label>
         <div class="div-diligence" id="div-diligence">
             <p id="paragraph_info_status_diligence"></p>            
@@ -51,14 +53,16 @@
                 <div class="item-col"></div>
                     <div class="item-col" style="padding: 8px;">
                         <p>
-                        O Proponente tem apenas 3 dias para responder essa diligência.
+                         <?php \MapasCulturais\i::_e('O Proponente tem apenas ' .
+                         $entity->opportunity->getMetadata('diligence_days') .
+                         ' dias para responder essa diligência.'); ?>
                         </p>
                     </div>
                 <div class="item-col"></div>
             </div>
             <div id="div-info-send" class="div-info-send">
                 <p>
-                    Sua diligência já foi enviada
+                    <?php \MapasCulturais\i::_e('Sua diligência já foi enviada') ?>                    
                 </p>
             </div>
         </div>
