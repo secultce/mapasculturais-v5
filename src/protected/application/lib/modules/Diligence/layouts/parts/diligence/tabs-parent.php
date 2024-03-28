@@ -39,7 +39,7 @@
     <div id="diligence-diligence">
         <label>
             <strong>
-                <?php \MapasCulturais\i::_e('Diligência ao proponente') ?>
+                <?php i::_e('Diligência ao proponente') ?>
             </strong>
         </label>
         <div class="div-diligence" id="div-diligence">
@@ -53,7 +53,7 @@
                 <div class="item-col"></div>
                     <div class="item-col" style="padding: 8px;">
                         <p>
-                         <?php \MapasCulturais\i::_e('O Proponente tem apenas ' .
+                         <?php i::_e('O Proponente tem apenas ' .
                          $entity->opportunity->getMetadata('diligence_days') .
                          ' dias para responder essa diligência.'); ?>
                         </p>
@@ -62,7 +62,7 @@
             </div>
             <div id="div-info-send" class="div-info-send">
                 <p>
-                    <?php \MapasCulturais\i::_e('Sua diligência já foi enviada') ?>                    
+                    <?php i::_e('Sua diligência já foi enviada') ?>                    
                 </p>
             </div>
         </div>
