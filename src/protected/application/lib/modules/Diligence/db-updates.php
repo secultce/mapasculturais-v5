@@ -19,8 +19,6 @@ return [
             description TEXT,
             status INT NOT NULL,
             situation INT NULL,
-            days integer NULL,
-            enable boolean NULL default false,
             PRIMARY KEY(id));");
 
         __exec("ALTER TABLE diligence ADD
@@ -32,7 +30,6 @@ return [
         CONSTRAINT diligence_open_agent_id_fk
         FOREIGN KEY (open_agent_id) REFERENCES agent (id)
         ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
-
         // $conn->executeQuery("UPDATE evaluation_method_configuration SET type = 'documentary' WHERE opportunity_id IN ({$ids})");
     }
 ];

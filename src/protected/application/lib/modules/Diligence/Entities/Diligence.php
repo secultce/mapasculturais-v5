@@ -97,21 +97,6 @@ class Diligence extends \MapasCulturais\Entity
      */
     protected $situation = self::STATUS_OPEN;
 
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="days", type="integer", nullable=false)
-     */
-    protected $days = 3;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="enable", type="boolean", nullable=true)
-     */
-    protected $enable = false;
-
     static public function sendQueue($userDestination)
     {
 
