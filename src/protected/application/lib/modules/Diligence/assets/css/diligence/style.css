@@ -34,3 +34,26 @@
     color: #53b37f;
     font-weight: 600;
 }
+.label-diligence-send{
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: medium;
+}
+.paragraph-createTimestamp {
+    margin-top: 10px;
+    font-size: small;
+}
+.item-col > p {
+    font-weight: 600;
+    font-size: x-small;
+    background: #A3FFF5;
+    padding: 3px;
+    border-radius: 5px;
+}
+.div-info-send {
+    border: 1px solid #dddddd;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 8px;
+}

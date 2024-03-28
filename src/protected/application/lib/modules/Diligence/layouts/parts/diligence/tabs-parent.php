@@ -3,9 +3,13 @@
      $(document).ready(function () {
         $("#btn-save-diligence").hide();
         $("#label-save-content-diligence").hide();
+        $("#div-info-send").hide();
+        $("#div-content-all-diligence-send").hide();
+        $("#descriptionDiligence").show();
         if($(this).val() > 0){
             $("#btn-save-diligence").show();
         }
+        $("#paragraph_info_status_diligence").html('A sua Diligência ainda não foi enviada');
         getContentDiligence();
         $("#descriptionDiligence").on("keyup", function() {
         var texto = $(this).val(); // Obtém o valor do textarea
@@ -36,10 +40,27 @@
         <label>
             <strong>Diligência ao proponente</strong>
         </label>
-        <div style="" class="div-diligence">
-            <p style="">
-                A sua Diligência ainda não foi enviada
-            </p>
+        <div class="div-diligence" id="div-diligence">
+            <p id="paragraph_info_status_diligence"></p>            
+        </div>
+        <div style="margin-top: 30px; width: 100%;" id="div-content-all-diligence-send">
+            <label class="label-diligence-send">Diligência:</label>
+            <p id="paragraph_content_send_diligence"></p>
+            <p id="paragraph_createTimestamp" class="paragraph-createTimestamp"></p>
+            <div style="width: 100%; display: flex;justify-content: space-between;flex-wrap: wrap; ">
+                <div class="item-col"></div>
+                    <div class="item-col" style="padding: 8px;">
+                        <p>
+                        O Proponente tem apenas 3 dias para responder essa diligência.
+                        </p>
+                    </div>
+                <div class="item-col"></div>
+            </div>
+            <div id="div-info-send" class="div-info-send">
+                <p>
+                    Sua diligência já foi enviada
+                </p>
+            </div>
         </div>
         <div>
             <textarea name="description" id="descriptionDiligence" cols="30" rows="10"
@@ -56,14 +77,16 @@
                 class="btn-send-diligence mr-10"
                 title="Salva o conteúdo mas não envia para o proponente"
                 id="btn-save-diligence"
-                onclick="saveDiligence()"
+                onclick="saveDiligence(0)"
             >
                 Salvar
                 <i class="fas fa-save"></i>
             </button>
             <button 
+                id="btn-send-diligence"
                 class="btn-send-diligence"
                 title="Salva e envia para o proponente"
+                onclick="saveDiligence(3)"
             >
                 Enviar
                 <i class="fas fa-paper-plane"></i>
@@ -77,7 +100,7 @@
             function showRegistration() {
                 $("#registration-content-all").show();
             }
-            function saveDiligence()
+            function saveDiligence(status)
             {
                 $.ajax({
                     type: "POST",
@@ -88,15 +111,15 @@
                         agent: MapasCulturais.entity.ownerId,
                         createTimestamp: moment().format("YYYY-MM-DD"),
                         description: $("#descriptionDiligence").val(),
-                        status: 0,
+                        status: status,
                     },
                     dataType: "json",
                     success: function (res) {
                         if(res.status == 200) {
                             $("#label-save-content-diligence").show()
-                            setTimeout(() => {                           
+                            setTimeout(() => {
                                 $("#label-save-content-diligence").hide()
-                            }, 2000);                        
+                            }, 2000);
                        }
                     },
                     error: function(err) {
@@ -111,13 +134,26 @@
                     url: MapasCulturais.createUrl('diligence', 'getcontent/'+MapasCulturais.entity.id),
                     dataType: "json",
                     success: function (res) {
+                        console.log(res);
                         if(res.status == 200){
-                            $("#descriptionDiligence").val(res.message)
-                            $("#btn-save-diligence").show();
+                            $("#descriptionDiligence").val(res.data.description)
+                            $("#btn-save-diligence").show();                            
+                        }
+                        if(res.data.status == 3){
+                            $("#paragraph_info_status_diligence").html('');
+                            $("#paragraph_content_send_diligence").html(res.data.description);
+                            $("#paragraph_createTimestamp").html(moment(res.data.createTimestamp.date).format("LLL"));
+                            $("#div-diligence").hide();
+                            $("#descriptionDiligence").hide();
+                            $("#btn-save-diligence").hide();
+                            $("#btn-send-diligence").hide();
+                            $("#div-info-send").show();
+                            $("#div-content-all-diligence-send").show();
                         }
                     }
                 });
             }
+         
            
         </script>
     </div>

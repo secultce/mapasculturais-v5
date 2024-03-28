@@ -33,7 +33,7 @@ class Controller extends \MapasCulturais\Controller{
         //Se tiver registro com a inscrição passada na requisição
         $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
         if(count($diligenceRepository) > 0) {
-            self::updateContent($diligenceRepository, $this->data['description'], $reg, 0);
+            self::updateContent($diligenceRepository, $this->data['description'], $reg, $this->data['status']);
         }
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
@@ -42,7 +42,7 @@ class Controller extends \MapasCulturais\Controller{
         $diligence->agent           = $agent;
         $diligence->createTimestamp =  new DateTime();
         $diligence->description     = $this->data['description'];
-        $diligence->status          = 0;  
+        $diligence->status          = $this->data['status'];  
        
         $app->em->persist($diligence);
         $app->em->flush();
@@ -59,11 +59,11 @@ class Controller extends \MapasCulturais\Controller{
      */
     public function GET_getcontent() : string
     {
-        
+        //ID é o número da inscrição
         if(isset($this->data['id'])){
             //Repositorio da Diligencia
             $diligence = DiligenceRepo::findBy($this->data['id']);
-            $this->json(['message' =>$diligence[0]->description, 'status' => 200], 200);
+            $this->json(['data' =>$diligence[0], 'status' => 200], 200);
         }
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
