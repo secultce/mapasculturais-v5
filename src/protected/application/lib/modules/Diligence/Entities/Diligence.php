@@ -97,6 +97,13 @@ class Diligence extends \MapasCulturais\Entity
      */
     protected $situation = self::STATUS_OPEN;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="send_diligence", type="datetime", nullable=false)
+     */
+    protected $sendDiligence;
+
     static public function sendQueue($userDestination)
     {
 

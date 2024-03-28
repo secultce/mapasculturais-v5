@@ -19,6 +19,7 @@ return [
             description TEXT,
             status INT NOT NULL,
             situation INT NULL,
+            send_diligence timestamp,
             PRIMARY KEY(id));");
 
         __exec("ALTER TABLE diligence ADD
