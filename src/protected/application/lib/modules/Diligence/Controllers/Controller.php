@@ -6,7 +6,7 @@ require dirname(__DIR__).'/Repositories/Diligence.php';
 
 use DateTime;
 use \MapasCulturais\App;
-use PhpParser\Node\Stmt\TryCatch;
+use MapasCulturais\Entities\Notification;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 // use MapasCulturais\Entities\EntityRevision as Revision;
@@ -24,32 +24,44 @@ class Controller extends \MapasCulturais\Controller{
     }
     public function POST_save()
     {      
-        $this->requireAuthentication();
+        
+        // $this->requireAuthentication();
         $app = App::i();  
-        $reg = $app->repo('Registration')->find($this->data['registration']);
-        $openAgent = $app->repo('Agent')->find($this->data['openAgent']);
-        $agent = $app->repo('Agent')->find($this->data['agent']);
-      
-        //Se tiver registro com a inscrição passada na requisição
-        $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
-        if(count($diligenceRepository) > 0) {
-            self::updateContent($diligenceRepository, $this->data['description'], $reg, $this->data['status']);
-        }
-        //Instanciando para gravar no banco de dados
-        $diligence = new EntityDiligence;
-        $diligence->registration    = $reg;
-        $diligence->openAgent       = $openAgent;
-        $diligence->agent           = $agent;
-        $diligence->createTimestamp =  new DateTime();
-        $diligence->description     = $this->data['description'];
-        $diligence->status          = $this->data['status'];  
+        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
+            $this->data['registration'],
+            $this->data['openAgent'],
+            $this->data['agent']
+        );
+        $openAgent = $regs['openAgent'];
+        $agent = $regs['agent'];
+        $userDestination = [
+            'name' => $agent->name,
+            'email' => $agent->user->email, 
+            'number' => $regs['reg']->id,
+            'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
+        ];
+        dump($userDestination);
+        EntityDiligence::sendQueue($userDestination);
+        // //Se tiver registro com a inscrição passada na requisição
+        // $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
+        // if(count($diligenceRepository) > 0) {
+        //     self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
+        // }
+        // //Instanciando para gravar no banco de dados
+        // $diligence = new EntityDiligence;
+        // $diligence->registration    = $regs['reg'];
+        // $diligence->openAgent       = $openAgent;
+        // $diligence->agent           = $agent;
+        // $diligence->createTimestamp =  new DateTime();
+        // $diligence->description     = $this->data['description'];
+        // $diligence->status          = $this->data['status'];  
        
-        $app->em->persist($diligence);
-        $app->em->flush();
-        $app->disableAccessControl();
-        $save = $diligence->save(true);
-        $app->enableAccessControl();      
-        self::returnJson($save);      
+        // $app->em->persist($diligence);
+        // $app->em->flush();
+        // $app->disableAccessControl();
+        // $save = $diligence->save(true);
+        // $app->enableAccessControl();
+        // self::returnJson($save);  
     }
 
      /**
@@ -79,22 +91,26 @@ class Controller extends \MapasCulturais\Controller{
      */
     public function updateContent($diligences, $description, $registration, $status = 0) : void
     {
-        $this->requireAuthentication();
+        // $this->requireAuthentication();
         $app = App::i();
         $save = null;
-        foreach ($diligences as $diligence) {
-            $diligence->description      = $description;
-            $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
-            $diligence->description     = $this->data['description'];
-            $diligence->status          = $status;
-            $app->em->persist($diligence);
-            $app->em->flush();
-            $app->disableAccessControl();
-            $save = $diligence->save();
-            $app->enableAccessControl();
-        }        
-        self::returnJson($save);
+       
+        // foreach ($diligences as $diligence) {
+        //     $diligence->description      = $description;
+        //     $diligence->registration    = $registration;
+        //     $diligence->createTimestamp =  new DateTime();
+        //     $diligence->description     = $this->data['description'];
+        //     $diligence->status          = $status;
+        //     $app->em->persist($diligence);
+        //     $app->em->flush();
+        //     $app->disableAccessControl();
+        //     $save = $diligence->save();
+        //     $app->enableAccessControl();
+        // }        
+        if($status == 3){
+            self::sendNotification();
+        }
+        // self::returnJson($save);
     }
 
     public function returnJson($instance)
@@ -105,5 +121,25 @@ class Controller extends \MapasCulturais\Controller{
         }else{
             $this->json(['message' => 'Error: ', 'status' => 400], 400);
         }    
+    }
+
+    public function sendNotification()
+    {
+        $app = App::i();
+        $url = $app->createUrl('inscricao', $this->data['registration']);
+        $numberRegis = '<a href="'.$url.'">'.$this->data['registration'].'</a>';
+        $message = 'Um parecerista abriu uma diligência para você responder na inscrição de número: '.$numberRegis;
+       
+        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
+            $this->data['registration'],
+            $this->data['openAgent'],
+            $this->data['agent']
+        );
+        $notification = new Notification;
+        $notification->message = $message;
+        $notification->user = $regs['agent']->user;
+        $app->disableAccessControl();
+        $notification->save(true);
+        $app->enableAccessControl();
     }
 }

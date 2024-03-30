@@ -18,4 +18,15 @@ class Diligence{
         }
         return $diligence;
     }
+    
+    static public function getRegistrationAgentOpenAndAgent($number, $agentOpen, $agent): array
+    {
+        $app = App::i();  
+        $reg = $app->repo('Registration')->find($number);
+        $openAgent = $app->repo('Agent')->find($agentOpen);
+        $agent = $app->repo('Agent')->find($agent);
+
+        return ['reg' => $reg, 'openAgent' => $openAgent, 'agent' => $agent];
+    }
+
 }
