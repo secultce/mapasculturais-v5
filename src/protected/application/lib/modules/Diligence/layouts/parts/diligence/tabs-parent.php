@@ -106,6 +106,30 @@
             }
             function saveDiligence(status)
             {
+                if(status == 3)
+                {
+                    Swal.fire({
+                    title: "Confirmar o envio da diligência?",
+                    text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    denyButtonText: `Não, enviar depois`,
+                    confirmButtonText: "Enviar agora",
+                    }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            sendAjaxDiligence(status)
+                        } else if (result.isDenied) {
+                            Swal.fire("Changes are not saved", "", "info");
+                        }
+                    });
+                }else{
+                    sendAjaxDiligence(status)
+                }
+               
+            }
+            function sendAjaxDiligence(status)
+            {
                 $.ajax({
                     type: "POST",
                     url: MapasCulturais.createUrl('diligence', 'save'),
@@ -124,7 +148,7 @@
                             setTimeout(() => {
                                 $("#label-save-content-diligence").hide()
                             }, 2000);
-                       }
+                    }
                     },
                     error: function(err) {
                         console.log({err})

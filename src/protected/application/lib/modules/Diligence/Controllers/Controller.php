@@ -22,7 +22,7 @@ class Controller extends \MapasCulturais\Controller{
         $diligence = new EntityDiligence();
         dump($diligence);
     }
-    public function POST_save()
+    public function POST_save() : void
     {      
         
         // $this->requireAuthentication();
@@ -34,34 +34,27 @@ class Controller extends \MapasCulturais\Controller{
         );
         $openAgent = $regs['openAgent'];
         $agent = $regs['agent'];
-        $userDestination = [
-            'name' => $agent->name,
-            'email' => $agent->user->email, 
-            'number' => $regs['reg']->id,
-            'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
-        ];
-        dump($userDestination);
-        EntityDiligence::sendQueue($userDestination);
-        // //Se tiver registro com a inscrição passada na requisição
-        // $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
-        // if(count($diligenceRepository) > 0) {
-        //     self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
-        // }
-        // //Instanciando para gravar no banco de dados
-        // $diligence = new EntityDiligence;
-        // $diligence->registration    = $regs['reg'];
-        // $diligence->openAgent       = $openAgent;
-        // $diligence->agent           = $agent;
-        // $diligence->createTimestamp =  new DateTime();
-        // $diligence->description     = $this->data['description'];
-        // $diligence->status          = $this->data['status'];  
+        
+        //Se tiver registro de diligência
+        $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
+        if(count($diligenceRepository) > 0) {
+            self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
+        }
+        //Instanciando para gravar no banco de dados
+        $diligence = new EntityDiligence;
+        $diligence->registration    = $regs['reg'];
+        $diligence->openAgent       = $openAgent;
+        $diligence->agent           = $agent;
+        $diligence->createTimestamp =  new DateTime();
+        $diligence->description     = $this->data['description'];
+        $diligence->status          = $this->data['status'];  
        
-        // $app->em->persist($diligence);
-        // $app->em->flush();
-        // $app->disableAccessControl();
-        // $save = $diligence->save(true);
-        // $app->enableAccessControl();
-        // self::returnJson($save);  
+        $app->em->persist($diligence);
+        $app->em->flush();
+        $app->disableAccessControl();
+        $save = $diligence->save(true);
+        $app->enableAccessControl();
+        self::returnJson($save);
     }
 
      /**
@@ -95,22 +88,27 @@ class Controller extends \MapasCulturais\Controller{
         $app = App::i();
         $save = null;
        
-        // foreach ($diligences as $diligence) {
-        //     $diligence->description      = $description;
-        //     $diligence->registration    = $registration;
-        //     $diligence->createTimestamp =  new DateTime();
-        //     $diligence->description     = $this->data['description'];
-        //     $diligence->status          = $status;
-        //     $app->em->persist($diligence);
-        //     $app->em->flush();
-        //     $app->disableAccessControl();
-        //     $save = $diligence->save();
-        //     $app->enableAccessControl();
-        // }        
+        foreach ($diligences as $diligence) {
+            $diligence->description     = $description;
+            $diligence->registration    = $registration;
+            $diligence->createTimestamp =  new DateTime();
+            $diligence->description     = $this->data['description'];
+            $diligence->status          = $status;
+            //Se for para enviar a diligência, então salva o momento do envio
+            if($status == 3){
+                $diligence->sendDiligence =  new DateTime();
+            }
+            $app->em->persist($diligence);
+            $app->em->flush();
+            $app->disableAccessControl();
+            $save = $diligence->save();
+            $app->enableAccessControl();
+        }
+        //Se for para envio de diligência
         if($status == 3){
             self::sendNotification();
         }
-        // self::returnJson($save);
+        self::returnJson($save);
     }
 
     public function returnJson($instance)
@@ -127,19 +125,29 @@ class Controller extends \MapasCulturais\Controller{
     {
         $app = App::i();
         $url = $app->createUrl('inscricao', $this->data['registration']);
+        //Mensagem para notificação na plataforma
         $numberRegis = '<a href="'.$url.'">'.$this->data['registration'].'</a>';
         $message = 'Um parecerista abriu uma diligência para você responder na inscrição de número: '.$numberRegis;
-       
+       //Buscando dados
         $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
             $this->data['registration'],
             $this->data['openAgent'],
             $this->data['agent']
         );
+        //Notificação no Mapa Cultural
         $notification = new Notification;
         $notification->message = $message;
         $notification->user = $regs['agent']->user;
         $app->disableAccessControl();
         $notification->save(true);
         $app->enableAccessControl();
+        //Enviando para fila RabbitMQ
+        $userDestination = [
+            'name' => $regs['agent']->name,
+            'email' => $regs['agent']->user->email, 
+            'number' => $regs['reg']->id,
+            'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
+        ];
+        EntityDiligence::sendQueue($userDestination);
     }
 }

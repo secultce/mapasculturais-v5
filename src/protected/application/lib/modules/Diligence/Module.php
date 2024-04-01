@@ -38,4 +38,16 @@ class Module extends \MapasCulturais\Module {
             ]
         ]);
     }
+
+    /**
+     * Publica todos os assets (css/js)
+     *
+     */
+    protected function _publishAssets()
+    {
+        $app = App::i();
+
+        $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
+        $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
+    }
 }
