@@ -7,7 +7,7 @@ use \MapasCulturais\i;
 use DateTime;
 use MapasCulturais\Entity;
 //Para uso do RabbitMQ
-require_once dirname(__DIR__).'/vendor/autoload.php';
+
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
@@ -118,6 +118,7 @@ class Diligence extends \MapasCulturais\Entity
         $queue = 'msgs';
     
         $connection = new AMQPStreamConnection('rabbitmq', '5672', 'mqadmin', 'Admin123XX_', '/');
+       
         $channel = $connection->channel();
         $channel->queue_declare($queue, false, true, false, false);
     
@@ -136,8 +137,7 @@ class Diligence extends \MapasCulturais\Entity
 
     static public function verifyTerm($date, $entity): array
     {
-
-        if(isset($date) && count($date) > 0){
+        if(isset($date) && count($date) > 0 && isset($date[0]->sendDiligence)){
             $days = $entity->opportunity->getMetadata('diligence_days');
             $daysAdd = '+'.$days.' day';
             $term = $date[0]->sendDiligence->modify($daysAdd);
