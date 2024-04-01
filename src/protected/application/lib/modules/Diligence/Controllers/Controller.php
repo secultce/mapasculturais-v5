@@ -1,9 +1,6 @@
 <?php
 namespace Diligence\Controllers;
 
-require dirname(__DIR__).'/Entities/Diligence.php';
-require dirname(__DIR__).'/Repositories/Diligence.php';
-
 use DateTime;
 use \MapasCulturais\App;
 use MapasCulturais\Entities\Notification;

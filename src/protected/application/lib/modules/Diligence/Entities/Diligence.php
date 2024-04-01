@@ -3,6 +3,7 @@ namespace Diligence\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 use \MapasCulturais\App;
+use \MapasCulturais\i;
 use DateTime;
 use MapasCulturais\Entity;
 //Para uso do RabbitMQ
@@ -104,6 +105,12 @@ class Diligence extends \MapasCulturais\Entity
      */
     protected $sendDiligence;
 
+    /**
+     * Envia para a fila do RabbitMQ
+     *
+     * @param [array] $userDestination
+     * @return void
+     */
     static public function sendQueue($userDestination)
     {
 
@@ -125,6 +132,71 @@ class Diligence extends \MapasCulturais\Entity
         $channel->close();
         $connection->close();
 
+    }
+
+    static public function verifyTerm($date, $entity): array
+    {
+
+        if(isset($date) && count($date) > 0){
+            $days = $entity->opportunity->getMetadata('diligence_days');
+            $daysAdd = '+'.$days.' day';
+            $term = $date[0]->sendDiligence->modify($daysAdd);
+            //Verificando se a data e hora atual é menor que o prazo
+            if(new DateTime() <= $term )
+            {
+                return [
+                    'term' => $term,
+                    'verify' => true
+                ];
+            }
+        }
+        
+        return [
+            'term' => null,
+            'verify' => false
+        ];
+    }
+
+    /**
+     * Verifica se quem está logado é o mesmo agente que foi aberto a diligência
+     *
+     * @param [object] $entity
+     * @param [int] $diligenceAgentId
+     * @param [date] $term
+     * @return void
+     */
+    static public function infoTerm($entity, $diligenceAgentId, $term ): void
+    {
+        $app = App::i();
+        if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
+            if($app->user->profile->id == $diligenceAgentId[0]->agent->id){
+                i::_e('Vocẽ tem até ' .
+                $term['term']->format('d/m/Y H:i') .
+                ' para responder a diligência.');
+            }else{
+                i::_e('O Proponente tem apenas ' .
+                $entity->opportunity->getMetadata('diligence_days') .
+                ' dias para responder essa diligência.');
+            }
+        }
+       
+    }
+
+    /**
+     * Verifica se o agente logado é o que deve responder a diligência
+     *
+     * @param [array] $diligenceAgentId
+     * @return boolean
+     */
+    static public function isProponent($diligenceAgentId) : bool
+    {
+        $app = App::i();
+        if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
+            if($app->user->profile->id == $diligenceAgentId[0]->agent->id){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

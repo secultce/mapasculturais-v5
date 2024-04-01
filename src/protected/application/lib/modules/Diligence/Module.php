@@ -8,15 +8,32 @@ use MapasCulturais\App,
     MapasCulturais\Definitions,
     MapasCulturais\Exceptions;
 
+require __DIR__.'/Repositories/Diligence.php';
+require __DIR__.'/Entities/Diligence.php';
+use Diligence\Repositories\Diligence as DiligenceRepo;
+use Diligence\Entities\Diligence as EntityDiligence;
+
 class Module extends \MapasCulturais\Module {
 
     function _init () {
         $app = App::i();
        
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
-          $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
-          $entity = $this->controller->requestedEntity;
-         $this->part('diligence/tabs-parent',['entity' => $entity]);
+            $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
+            $entity = $this->controller->requestedEntity;
+            $diligenceRepository = DiligenceRepo::findBy($entity->id);
+            // dump($diligenceRepository);
+            // die;
+            $term = EntityDiligence::verifyTerm($diligenceRepository, $entity);
+            $placeHolder = '';
+            EntityDiligence::isProponent($diligenceRepository) ? $placeHolder = 'Escreva a sua resposta' : 
+            $placeHolder = 'Escreva sua diligência';
+            $this->part('diligence/tabs-parent',[
+                'entity' => $entity,
+                'diligenceRepository' => $diligenceRepository,
+                'term' => $term,
+                'placeHolder' => $placeHolder
+            ]);
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {

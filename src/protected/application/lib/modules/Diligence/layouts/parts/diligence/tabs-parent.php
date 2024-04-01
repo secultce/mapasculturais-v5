@@ -1,6 +1,10 @@
-<?php use MapasCulturais\i; ?>
+<?php 
+use MapasCulturais\i; 
+use Diligence\Entities\Diligence as EntityDiligence;
+?>
 <script>
      $(document).ready(function () {
+       
         $("#btn-save-diligence").hide();
         $("#label-save-content-diligence").hide();
         $("#div-info-send").hide();
@@ -39,7 +43,9 @@
     <div id="diligence-diligence">
         <label>
             <strong>
-                <?php i::_e('Diligência ao proponente') ?>
+                <?php 
+                    i::_e('Diligência ao proponente') 
+                ?>
             </strong>
         </label>
         <div class="div-diligence" id="div-diligence">
@@ -53,9 +59,9 @@
                 <div class="item-col"></div>
                     <div class="item-col" style="padding: 8px;">
                         <p>
-                         <?php i::_e('O Proponente tem apenas ' .
-                         $entity->opportunity->getMetadata('diligence_days') .
-                         ' dias para responder essa diligência.'); ?>
+                         <?php
+                         EntityDiligence::infoTerm($entity, $diligenceRepository, $term );
+                         ?>
                         </p>
                     </div>
                 <div class="item-col"></div>
@@ -68,7 +74,7 @@
         </div>
         <div>
             <textarea name="description" id="descriptionDiligence" cols="30" rows="10"
-                placeholder="Escreva aqui a sua diligência"
+                placeholder="<?= $placeHolder; ?>"
                 class="diligence-context-open"
             ></textarea>
         </div>
@@ -157,6 +163,7 @@
             }
             function getContentDiligence()
             {
+                console.log('getcontent');
                 $.ajax({
                     type: "GET",
                     url: MapasCulturais.createUrl('diligence', 'getcontent/'+MapasCulturais.entity.id),
@@ -173,9 +180,19 @@
                             $("#paragraph_createTimestamp").html(moment(res.data.createTimestamp.date).format("LLL"));
                             $("#div-diligence").hide();
                             $("#descriptionDiligence").hide();
+                            $("#div-info-send").show();
+                            console.log('openAgent : ',res.data.openAgent.id)
+                            console.log('userProfile : ',MapasCulturais.userProfile.id)
+                            if(res.data.agent.id == MapasCulturais.userProfile.id){
+                                $("#descriptionDiligence").show();
+                                $("#div-info-send").hide();
+                                $("#descriptionDiligence").val('')
+
+                            }
+                            
                             $("#btn-save-diligence").hide();
                             $("#btn-send-diligence").hide();
-                            $("#div-info-send").show();
+                            
                             $("#div-content-all-diligence-send").show();
                         }
                     }
