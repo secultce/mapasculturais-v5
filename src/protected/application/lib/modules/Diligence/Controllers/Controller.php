@@ -65,7 +65,12 @@ class Controller extends \MapasCulturais\Controller{
         if(isset($this->data['id'])){
             //Repositorio da Diligencia
             $diligence = DiligenceRepo::findBy($this->data['id']);
-            $this->json(['data' =>$diligence[0], 'status' => 200], 200);
+          
+            if(count($diligence) > 0) {
+                $this->json(['data' =>$diligence[0], 'status' => 200], 200);
+            }
+            $this->json(['data' => null, 'status' => 200], 200);
+            
         }
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);

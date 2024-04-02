@@ -168,8 +168,11 @@ class Diligence extends \MapasCulturais\Entity
     static public function infoTerm($entity, $diligenceAgentId, $term ): void
     {
         $app = App::i();
+       
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
-            if($app->user->profile->id == $diligenceAgentId[0]->agent->id){
+            if(
+                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && !is_null($term['term'])
+            ){
                 i::_e('Vocẽ tem até ' .
                 $term['term']->format('d/m/Y H:i') .
                 ' para responder a diligência.');
