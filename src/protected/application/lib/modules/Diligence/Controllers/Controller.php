@@ -15,6 +15,10 @@ use Diligence\Entities\AnswerDiligence;
 
 class Controller extends \MapasCulturais\Controller{
 
+    const NOT_DILIGENCE = 'sem_diligencia';
+    const ONLY_DILIGENCE = 'diligencia_aberta';
+    const WITH_ANSWER = 'com_resposta_rascunho';
+    const ANSWER_SEND = 'resposta_enviada';
     public function GET_index() {
         $app = App::i();
         $diligence = new EntityDiligence();
@@ -34,7 +38,7 @@ class Controller extends \MapasCulturais\Controller{
         $agent = $regs['agent'];
         
         //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registratrion' => $this->data['registration']]);
+        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $this->data['registration']]);
         if(count($diligenceRepository) > 0) {
             self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
         }
@@ -68,12 +72,44 @@ class Controller extends \MapasCulturais\Controller{
             // $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $this->data['id']]);
             $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
             dump($diligence);
-            die;
-            if(count($diligence) > 0) {
-                $this->json(['data' =>$diligence[0], 'status' => 200], 200);
+            $content = 0;
+            foreach ($diligence as $key => $value) {
+                dump($value);
+                //Verificando se existe diligencia
+                if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
+                {
+                    $content = 1;
+                }
+                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
+                {
+                    $content = 2;
+                }
+                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
+                {
+                    $content = 3;
+                }
+                
             }
-            $this->json(['data' => null, 'status' => 200], 200);
-            
+            // die;
+            switch ($content) {
+                case 0:
+                    $this->json(['message' => self::NOT_DILIGENCE, 'data' =>$diligence, 'status' => 200], 200);
+                    break;
+                case 1:
+                    $this->json(['message' => self::ONLY_DILIGENCE, 'data' =>$diligence, 'status' => 200], 200);
+                    break; 
+                case 2:
+                    $this->json(['message' => self::WITH_ANSWER, 'data' =>$diligence, 'status' => 200], 200);
+                    break; 
+                case 3:
+                    $this->json(['message' => self::ANSWER_SEND, 'data' =>$diligence, 'status' => 200], 200);
+                    break; 
+                                  
+                default:
+                    # code...
+                    break;
+            }
+           
         }
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);

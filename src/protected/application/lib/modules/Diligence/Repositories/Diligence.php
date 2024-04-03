@@ -43,15 +43,15 @@ class Diligence{
 
         $dql = "SELECT d, ad
                 FROM Diligence\Entities\Diligence d
-                JOIN Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d.id
+                LEFT JOIN Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d.id
                 WHERE d.registration = :reg";
         $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration]);
 
         $registrations = $query->getResult();
 
-        $opportunities = array_map(function($d){
-            return $d->diligence;
-        }, $registrations);
+        // $opportunities = array_map(function($d){
+        //     return $d->diligence;
+        // }, $registrations);
 
         return $registrations;
 

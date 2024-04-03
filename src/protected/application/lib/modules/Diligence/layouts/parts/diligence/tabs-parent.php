@@ -3,13 +3,15 @@
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 
-$this->jsObject['userEvaluate'] = $entity->canUser('evaluate', $app->user);
+$this->jsObject['userEvaluate'] = EntityDiligence::isEvaluate($entity, $app->user);
+
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceRepository);
 ?>
 <script>
     $(document).ready(function() {
 
         $("#btn-save-diligence").hide();
+        $("#btn-save-diligence-proponente").hide()
         $("#label-save-content-diligence").hide();
         $("#div-info-send").hide();
         $("#div-content-all-diligence-send").hide();
@@ -22,9 +24,18 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
         $("#descriptionDiligence").on("keyup", function() {
             var texto = $(this).val(); // Obtém o valor do textarea
             if (texto.slice(-1) == '') {
-                $("#btn-save-diligence").hide()
+                
+                if(MapasCulturais.isProponent ){
+                    $("#btn-save-diligence-proponente").hide()
+                }else{
+                    $("#btn-save-diligence").hide()
+                }
             } else {
-                $("#btn-save-diligence").show()
+                if(MapasCulturais.isProponent ){
+                    $("#btn-save-diligence-proponente").show()
+                }else{
+                    $("#btn-save-diligence").show()
+                }
             }
         });
     });
@@ -59,7 +70,8 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
             <label class="label-diligence-send">Diligência:</label>
             <p id="paragraph_content_send_diligence"></p>
             <p id="paragraph_createTimestamp" class="paragraph-createTimestamp"></p>
-            <div style="width: 100%; display: flex;justify-content: space-between;flex-wrap: wrap; ">
+            
+            <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
                 <div class="item-col"></div>
                 <div class="item-col" style="padding: 8px;">
                     <p>
@@ -69,6 +81,10 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                     </p>
                 </div>
                 <div class="item-col"></div>
+            </div>
+            <div style="width: 100%;justify-content: space-between;flex-wrap: wrap; margin-top: 10px; background:#F3F3F3">
+                <label for="">Resposta do Proponente:</label>
+                <p id="paragraph_content_send_answer"></p>
             </div>
             <div id="div-info-send" class="div-info-send">
                 <p>
@@ -151,15 +167,24 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                 });
             }
 
+            function sendAjax(route, statusSend)
+            {
+                
+            }
+
             function saveAnswerProponente(status)
             {
                 $.ajax({
                     type: "POST",
                     url: MapasCulturais.createUrl('diligence', 'answer'),
-                    data: "data",
-                    dataType: "dataType",
+                    data: {
+                        diligence: 4,
+                        answer:  $("#descriptionDiligence").val(),
+                        status: status
+                    },
+                    dataType: "json",
                     success: function (response) {
-                        
+                        console.log({response})
                     }
                 });
             }
@@ -170,49 +195,66 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                     url: MapasCulturais.createUrl('diligence', 'getcontent/' + MapasCulturais.entity.id),
                     dataType: "json",
                     success: function(res) {
+                        console.log({res})
 
-                        if (res.data == null && MapasCulturais.userEvaluate) {
-                            $("#btn-actions-proponent").hide();
+                        //Sem diligência e para o proponente
+
+                        if(
+                            (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta')
+                            && MapasCulturais.userEvaluate == false){
+                            $("#li-tab-diligence-diligence > a").remove();
+                            $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
+                            $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
                         }
-
-                        if ( (res.data.status == 0 || res.data == null)
-                             && MapasCulturais.userEvaluate) {
+                        if(
+                            (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') && 
+                            MapasCulturais.userEvaluate == true){
+                                console.log(MapasCulturais.userEvaluate)
                             $("#btn-actions-proponent").hide();
-                            $("#descriptionDiligence").val(res.data.description);
+                            $("#descriptionDiligence").val(res.data[0].description);
                             $("#btn-save-diligence").show();
                             $("#paragraph_info_status_diligence").html('A sua Diligência ainda não foi enviada');
                         }
-                        if(res.data.status == 0 && res.data.sendDiligence == null){
-                            if(MapasCulturais.userEvaluate == false) {
-                                $("#li-tab-diligence-diligence > a").remove();
-                                $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
-                                $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
-                            }
-                        }
-
-                        if (res.data !== null && res.data.status == 3 && 
-                                (res.data.sendDiligence == !null || res.data.sendDiligence.date !== "")
+                        console.log(res.data.status == 3)
+                       
+                        console.log(MapasCulturais.userEvaluate == true);
+                        //Formatando página para o parecerista
+                        if(
+                            res.message == 'diligencia_aberta' &&  
+                            MapasCulturais.userEvaluate == true &&
+                            res.data[0].status == 3
                             ){
-                            console.log({res})
-                            $("#paragraph_info_status_diligence").html('Sua diligência já foi enviada');
-                            $("#paragraph_info_status_diligence").hide();
-                            $("#paragraph_content_send_diligence").html(res.data.description);
-                            $("#paragraph_createTimestamp").html(moment(res.data.createTimestamp.date).format("LLL"));
-                            $("#div-diligence").hide();
                             $("#descriptionDiligence").hide();
+                            $("#paragraph_info_status_diligence").hide();
+                            $("#paragraph_content_send_diligence").html(res.data[0].description);
+                            $("#div-content-all-diligence-send").show();
+                            $("#paragraph_createTimestamp").html(moment(res.data[0].sendDiligence.date).format("LLL"));
                             $("#div-info-send").show();
-                            if (res.data.agent.id == MapasCulturais.userProfile.id) {
-                                $("#descriptionDiligence").show();
-                                $("#div-info-send").hide();
-                                $("#descriptionDiligence").val('')
-                            }
-                            if(!MapasCulturais.isProponent) {                                
-                                $("#btn-actions-proponent").hide();
-                            }
                             $("#btn-save-diligence").hide();
                             $("#btn-send-diligence").hide();
+                        }else{
+                            const anchor = '<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()"' +
+                            'id="tab-main-content-diligence-diligence">Diligência</a>';
+                            $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                            $("#li-tab-diligence-diligence > label").remove();
+                            // $("#li-tab-diligence-diligence").append(anchor);
+                            $("#btn-save-diligence").hide();
+                            $("#btn-send-diligence").hide();
+                            $("#paragraph_content_send_diligence").html(res.data[0].description);
                             $("#div-content-all-diligence-send").show();
                         }
+                        //Para proponente
+                        if(
+                            res.message == 'resposta_enviada' &&
+                            res.data[1].status == 3  && res.data[0].status == 3 
+                            ){
+                                $("#li-tab-diligence-diligence").append('');
+                                console.log(res.data[1].answer);
+                                $("#descriptionDiligence").hide();
+                                $("#btn-send-diligence-proponente").hide();
+                                $("#paragraph_content_send_answer").html(res.data[1].answer);
+                            }
+                      
                     }
                 });
             }

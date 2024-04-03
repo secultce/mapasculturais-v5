@@ -202,4 +202,15 @@ class Diligence extends \MapasCulturais\Entity
         return false;
     }
 
+    static public function isEvaluate($entity, $user)
+    {
+        $evaluation = $entity->getUserEvaluation($user);
+      
+        if(!is_null($evaluation) && $evaluation->user->id == $user->id)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }
