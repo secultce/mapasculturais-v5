@@ -10,6 +10,8 @@ use MapasCulturais\App,
 
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
+require __DIR__.'/Entities/AnswerDiligence.php';
+
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 
@@ -21,7 +23,7 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $entity = $this->controller->requestedEntity;
-            $diligenceRepository = DiligenceRepo::findBy($entity->id);
+            $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             // dump($diligenceRepository);
             // die;
             $term = EntityDiligence::verifyTerm($diligenceRepository, $entity);

@@ -1939,7 +1939,14 @@ $$
 
     'create table answer_diligence' => function() {
         __exec("CREATE SEQUENCE answer_diligence_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
-        __exec("CREATE TABLE answer_diligence (id INT NOT NULL, diligence_id INT NOT NULL, answer TEXT NOT NULL, create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, status INT NOT NULL, PRIMARY KEY(id))");
+        __exec("CREATE TABLE answer_diligence (
+            id INT NOT NULL, 
+            diligence_id INT NOT NULL, 
+            answer TEXT NOT NULL, 
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            status INT NOT NULL, 
+            PRIMARY KEY(id))"
+            );
         __exec("CREATE INDEX IDX_609B3FB63A3758E0 ON answer_diligence (diligence_id)");
         __exec("ALTER TABLE answer_diligence ADD CONSTRAINT FK_609B3FB63A3758E0 FOREIGN KEY (diligence_id) REFERENCES diligence (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
     }

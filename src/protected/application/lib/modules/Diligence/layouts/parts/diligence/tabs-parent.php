@@ -151,14 +151,32 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                 });
             }
 
+            function saveAnswerProponente(status)
+            {
+                $.ajax({
+                    type: "POST",
+                    url: MapasCulturais.createUrl('diligence', 'answer'),
+                    data: "data",
+                    dataType: "dataType",
+                    success: function (response) {
+                        
+                    }
+                });
+            }
+
             function getContentDiligence() {
-                console.log('getcontent');
                 $.ajax({
                     type: "GET",
                     url: MapasCulturais.createUrl('diligence', 'getcontent/' + MapasCulturais.entity.id),
                     dataType: "json",
                     success: function(res) {
-                        if (res.data.status == 0 && MapasCulturais.userEvaluate) {
+
+                        if (res.data == null && MapasCulturais.userEvaluate) {
+                            $("#btn-actions-proponent").hide();
+                        }
+
+                        if ( (res.data.status == 0 || res.data == null)
+                             && MapasCulturais.userEvaluate) {
                             $("#btn-actions-proponent").hide();
                             $("#descriptionDiligence").val(res.data.description);
                             $("#btn-save-diligence").show();
@@ -171,13 +189,10 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                                 $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
                             }
                         }
-                        console.log({res})
-                        console.log(res.data !== null)
-                        console.log(res.data.status == 3)
-                        console.log(res.data.sendDiligence == !null)
-                        if (res.data !== null && res.data.status == 3 && (
-                            res.data.sendDiligence == !null || res.data.sendDiligence.date !== "")
-                            ) {
+
+                        if (res.data !== null && res.data.status == 3 && 
+                                (res.data.sendDiligence == !null || res.data.sendDiligence.date !== "")
+                            ){
                             console.log({res})
                             $("#paragraph_info_status_diligence").html('Sua diligência já foi enviada');
                             $("#paragraph_info_status_diligence").hide();
@@ -186,8 +201,6 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                             $("#div-diligence").hide();
                             $("#descriptionDiligence").hide();
                             $("#div-info-send").show();
-                            console.log('openAgent : ', res.data.openAgent.id)
-                            console.log('userProfile : ', MapasCulturais.userProfile.id)
                             if (res.data.agent.id == MapasCulturais.userProfile.id) {
                                 $("#descriptionDiligence").show();
                                 $("#div-info-send").hide();
@@ -196,10 +209,8 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
                             if(!MapasCulturais.isProponent) {                                
                                 $("#btn-actions-proponent").hide();
                             }
-
                             $("#btn-save-diligence").hide();
                             $("#btn-send-diligence").hide();
-
                             $("#div-content-all-diligence-send").show();
                         }
                     }

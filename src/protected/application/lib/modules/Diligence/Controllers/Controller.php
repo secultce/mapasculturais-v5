@@ -6,6 +6,7 @@ use \MapasCulturais\App;
 use MapasCulturais\Entities\Notification;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\AnswerDiligence;
 // use MapasCulturais\Entities\EntityRevision as Revision;
 // use \MapasCulturais\Entities\EntityRevisionData;
 // use MapasCulturais\Traits;
@@ -33,7 +34,7 @@ class Controller extends \MapasCulturais\Controller{
         $agent = $regs['agent'];
         
         //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy($this->data['registration']);
+        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registratrion' => $this->data['registration']]);
         if(count($diligenceRepository) > 0) {
             self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
         }
@@ -64,8 +65,10 @@ class Controller extends \MapasCulturais\Controller{
         //ID é o número da inscrição
         if(isset($this->data['id'])){
             //Repositorio da Diligencia
-            $diligence = DiligenceRepo::findBy($this->data['id']);
-          
+            // $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $this->data['id']]);
+            $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
+            dump($diligence);
+            die;
             if(count($diligence) > 0) {
                 $this->json(['data' =>$diligence[0], 'status' => 200], 200);
             }
@@ -113,7 +116,7 @@ class Controller extends \MapasCulturais\Controller{
         self::returnJson($save);
     }
 
-    public function returnJson($instance)
+    protected function returnJson($instance)
     {
         if(is_null($instance)){
             // EntityDiligence::sendQueue($userDestination);
@@ -123,7 +126,7 @@ class Controller extends \MapasCulturais\Controller{
         }    
     }
 
-    public function sendNotification()
+    protected function sendNotification()
     {
         $app = App::i();
         $url = $app->createUrl('inscricao', $this->data['registration']);
@@ -151,5 +154,50 @@ class Controller extends \MapasCulturais\Controller{
             'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
         ];
         EntityDiligence::sendQueue($userDestination);
+    }
+
+    /**
+     * Rsposta do proponente
+     *
+     * @return void
+     */
+    public function POST_answer() : void
+    {
+        $save = null;
+        $repo       = new DiligenceRepo();
+        $diligence  = $repo->findId($this->data['diligence']);
+        $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
+        $answer     = new AnswerDiligence();
+        if(count($answerDiligences) > 0){
+            foreach ($answerDiligences as $key => $answerDiligence) {
+                $answerDiligence->diligence = $diligence;
+                $answerDiligence->answer = $this->data['answer'];
+                $answerDiligence->createTimestamp = new DateTime();
+                $answerDiligence->status = $this->data['status'];
+            }
+            $save = self::saveEntity($answerDiligence);
+            if($this->data['status'] == 3){
+                self::sendNotification();
+            }
+        }else{
+            $answer->diligence = $diligence;
+            $answer->answer = $this->data['answer'];
+            $answer->createTimestamp = new DateTime();
+            $answer->status = $this->data['status'];
+            $save = self::saveEntity($answer);
+        }
+        self::returnJson($save);
+    }
+
+
+    protected function saveEntity($entity)
+    {
+        $app        = App::i();
+        $app->em->persist($entity);
+        $app->em->flush();
+        $app->disableAccessControl();
+        $save = $entity->save();
+        $app->enableAccessControl();
+        return $save;
     }
 }

@@ -8,15 +8,15 @@ use Diligence\Entities\Diligence as DiligenceEntity;
 
 class Diligence{
 
-    static public function findBy($id): array
+    static public function findBy($className = 'Diligence\Entities\Diligence', $array): array
     {
         $app = App::i();  
-        $diligence = $app->em->getRepository('Diligence\Entities\Diligence')->findBy(['registration' => $id]);
+        $entity = $app->em->getRepository($className)->findBy($array);
        
-        if($diligence > 0){
-            return $diligence;
+        if(count($entity) > 0){
+            return $entity;
         }
-        return $diligence;
+        return $entity;
     }
     
     static public function getRegistrationAgentOpenAndAgent($number, $agentOpen, $agent): array
@@ -27,6 +27,34 @@ class Diligence{
         $agent = $app->repo('Agent')->find($agent);
 
         return ['reg' => $reg, 'openAgent' => $openAgent, 'agent' => $agent];
+    }
+
+    public function findId($diligence)
+    {
+        $app = App::i();  
+        return $app->em->getRepository('Diligence\Entities\Diligence')->find($diligence);
+       
+    }
+
+    static public function getDiligenceAnswer($registration)
+    {
+        // $this->requireAuthentication();
+        $app = App::i();
+
+        $dql = "SELECT d, ad
+                FROM Diligence\Entities\Diligence d
+                JOIN Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d.id
+                WHERE d.registration = :reg";
+        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration]);
+
+        $registrations = $query->getResult();
+
+        $opportunities = array_map(function($d){
+            return $d->diligence;
+        }, $registrations);
+
+        return $registrations;
+
     }
 
 }

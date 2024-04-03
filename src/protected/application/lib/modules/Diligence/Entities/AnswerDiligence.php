@@ -44,7 +44,7 @@ class AnswerDiligence extends \MapasCulturais\Entity {
      *   @ORM\JoinColumn(name="diligence_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    protected $registration;
+    protected $diligence;
 
      /**
      * @var string
