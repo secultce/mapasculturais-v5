@@ -4,7 +4,8 @@ namespace Diligence\Repositories;
 use MapasCulturais\App;
 use DateTime;
 use Diligence\Entities\Diligence as DiligenceEntity;
-
+use Doctrine\ORM\EntityRepository;
+use MapasCulturais\Entity;
 
 class Diligence{
 
@@ -29,32 +30,51 @@ class Diligence{
         return ['reg' => $reg, 'openAgent' => $openAgent, 'agent' => $agent];
     }
 
-    public function findId($diligence)
+    public function findId($diligence): object
     {
         $app = App::i();  
         return $app->em->getRepository('Diligence\Entities\Diligence')->find($diligence);
        
     }
 
+    /**
+     * Retorna resposta e diligencia
+     *
+     * @param [int] $registration
+     */
     static public function getDiligenceAnswer($registration)
     {
         // $this->requireAuthentication();
         $app = App::i();
-
-        $dql = "SELECT d, ad
-                FROM Diligence\Entities\Diligence d
-                LEFT JOIN Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d.id
-                WHERE d.registration = :reg";
+        //Verificando se tem resposta para se relacionar a diligencia
+        $dql = "SELECT ad, d
+        FROM  Diligence\Entities\AnswerDiligence ad 
+        LEFT JOIN  ad.diligence d 
+        WHERE d.registration = :reg";
+        $registrations = self::queryDiligente($app, $dql, $registration);
+       
+        //Se não tiver resposta de alguma diligencia então envia somente a diligencia
+        if(!empty($registrations)){
+            return $registrations;
+        }else{
+            $dql = "SELECT d
+            FROM  Diligence\Entities\Diligence d
+            WHERE d.registration = :reg";
+            return self::queryDiligente($app, $dql, $registration);            
+        }        
+    }
+    /**
+     * Função que gera a execulta o resultado Doctrine DQL
+     *
+     * @param [object] $app
+     * @param [string] $dql
+     * @param [int] $registration
+     */
+    protected static function queryDiligente($app, $dql, $registration)
+    {
         $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration]);
 
-        $registrations = $query->getResult();
-
-        // $opportunities = array_map(function($d){
-        //     return $d->diligence;
-        // }, $registrations);
-
-        return $registrations;
-
+        return $query->getResult();
     }
 
 }

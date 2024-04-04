@@ -17,7 +17,7 @@ class Controller extends \MapasCulturais\Controller{
 
     const NOT_DILIGENCE = 'sem_diligencia';
     const ONLY_DILIGENCE = 'diligencia_aberta';
-    const WITH_ANSWER = 'com_resposta_rascunho';
+    const WITH_ANSWER = 'resposta_rascunho';
     const ANSWER_SEND = 'resposta_enviada';
     public function GET_index() {
         $app = App::i();
@@ -71,10 +71,10 @@ class Controller extends \MapasCulturais\Controller{
             //Repositorio da Diligencia
             // $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $this->data['id']]);
             $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
-            dump($diligence);
+            // dump($diligence);
             $content = 0;
             foreach ($diligence as $key => $value) {
-                dump($value);
+            
                 //Verificando se existe diligencia
                 if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
                 {
@@ -90,7 +90,7 @@ class Controller extends \MapasCulturais\Controller{
                 }
                 
             }
-            // die;
+        
             switch ($content) {
                 case 0:
                     $this->json(['message' => self::NOT_DILIGENCE, 'data' =>$diligence, 'status' => 200], 200);
