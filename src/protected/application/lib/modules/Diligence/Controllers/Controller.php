@@ -236,4 +236,20 @@ class Controller extends \MapasCulturais\Controller{
         $app->enableAccessControl();
         return $save;
     }
+
+    public function PUT_cancelsend()
+    {
+        $app =  App::i();
+        $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $this->data['registration']]);
+        $save = null;
+        foreach ($dili as $diligence) {
+            $diligence->status  = 0;
+            self::saveEntity($diligence);     
+        }
+      
+        if($save == null){
+            return $this->json(['message' => 'success', 'status' => 200], 200);
+        }
+        return $this->json(['message' => 'error', 'status' => 400], 400);
+    }
 }

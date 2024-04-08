@@ -55,7 +55,7 @@ var EntityDiligence = (function(){
             $("#diligence-diligence").hide();
 
         }
-
+        $("#descriptionDiligence").hide()
         $("#btn-actions-proponent").hide();
         $("#btn-save-diligence").hide();
         $("#btn-save-diligence-proponente").hide()

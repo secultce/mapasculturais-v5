@@ -6,7 +6,6 @@ $(document).ready(function () {
     entityDiligence
     .then((res) => {
         console.log({res})
-
         if (
             (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
             MapasCulturais.userEvaluate == true) 
@@ -50,16 +49,78 @@ function showRegistration()
 function showSaveContent(status)
 {
     console.log({status})
-    $("#label-save-content-diligence").show()
+   
+    $("#label-save-content-diligence").show();
+
     setTimeout(() => {
         $("#label-save-content-diligence").hide()
-        
     }, 2000);
-    if(status == 3){
-        window.location.href=MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id);
-    }
+    // $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
+    // $("#div-content-all-diligence-send").show();
+    // $("#div-diligence").hide();
+    // $("#btn-actions-diligence").hide();
+    Swal.fire({
+        title: "<strong>Sucesso!</strong>",
+        html: `
+          A sua diligência foi enviada!
+        `,
+        focusConfirm: false,
+        confirmButtonText: `
+          <i class="fa fa-thumbs-up"></i> OK!
+        `,
+        timer: 10000,
+        timerProgressBar: true,
+        didOpen: () => {
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        },
+        confirmButtonAriaLabel: "Thumbs up, great!",
+        allowOutsideClick: false,
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonText: "OK",
+        cancelButtonText: 'Desfazer envio',
+      }).then((result) => {
+        console.log({result})
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            const urlSuccess = MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id);
+            console.log({urlSuccess})          
+            document.location=urlSuccess
+        } else if(result.isDismissed) {
+            cancelSend();
+        }else{
+            // console.log('Vai alterar o status');
+            let urlSuccess = MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id);
+            
+            
+            setTimeout(() => {
+                window.location.href=urlSuccess;
+            }, 500);
+        }
+      });  
 }
-
+function cancelSend() {
+    
+    const urlSend = MapasCulturais.createUrl('diligence','cancelsend');
+    $.ajax({
+        type: "PUT",
+        url: urlSend,
+        data: {registration: MapasCulturais.entity.id},
+        dataType: "json",
+        success: function (res) {
+            console.log({res})
+            
+            if(res.status == 400){
+                Swal.fire("Ops! Ocorreu um erro.");
+            }            
+        }
+    });
+}
 function saveDiligence(status) {
     console.log({status})
     if (status == 3) {

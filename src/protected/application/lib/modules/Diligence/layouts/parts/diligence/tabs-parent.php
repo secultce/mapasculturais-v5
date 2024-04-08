@@ -69,6 +69,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
         <div>
             <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
         </div>
+
         <div class="div-btn-send-diligence flex-container">
             <div class="flex-items" id="btn-actions-diligence">
                 <?php $this->part('diligence/btn-actions-diligence'); ?>
@@ -79,6 +80,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             </div>
             <!-- FIM PROPONENTE -->
         </div>
+       
         <script>
 
           
