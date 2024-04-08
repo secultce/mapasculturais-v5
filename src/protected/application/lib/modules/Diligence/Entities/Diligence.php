@@ -135,6 +135,14 @@ class Diligence extends \MapasCulturais\Entity
 
     }
 
+    /**
+     * Metodo que retorna o total de dias para resposta do proponente para o parecerista e a data limite de resposta
+     * para o proponente
+     *
+     * @param [datetime] $date
+     * @param [object] $entity
+     * @return array
+     */
     static public function verifyTerm($date, $entity): array
     {
         if(isset($date) && count($date) > 0 && isset($date[0]->sendDiligence)){
@@ -191,9 +199,17 @@ class Diligence extends \MapasCulturais\Entity
      * @param [array] $diligenceAgentId
      * @return boolean
      */
-    static public function isProponent($diligenceAgentId) : bool
+    static public function isProponent($diligenceAgentId, $entity) : bool
     {
         $app = App::i();
+        //Em caso de não ter diligencia aberta, então verifica o dono da inscrição com o usuario logado
+        if(empty($diligenceAgentId)){
+            if($entity->getOwnerUser() == $app->user)
+            {
+                return true;
+            }
+        }
+
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
             if($app->user->profile->id == $diligenceAgentId[0]->agent->id){
                 return true;

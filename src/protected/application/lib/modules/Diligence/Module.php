@@ -22,20 +22,30 @@ class Module extends \MapasCulturais\Module {
        
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
+            
             $entity = $this->controller->requestedEntity;
+            $entityDiligence = new EntityDiligence();
+            //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
-            // dump($diligenceRepository);
-            // die;
-            $term = EntityDiligence::verifyTerm($diligenceRepository, $entity);
+            //Mostra o prazo de forma diferente a depender do usuario logado
+            $term = $entityDiligence->verifyTerm($diligenceRepository, $entity);
+            $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
-            EntityDiligence::isProponent($diligenceRepository) ? $placeHolder = 'Escreva a sua resposta' : 
-            $placeHolder = 'Escreva sua diligência';
-            $this->part('diligence/tabs-parent',[
+            $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
+            $context = [
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
                 'term' => $term,
                 'placeHolder' => $placeHolder
-            ]);
+            ];
+            //Verificando se é um avaliador
+            $this->jsObject['userEvaluate'] = EntityDiligence::isEvaluate($entity, $app->user);
+            if($isProponent){              
+                return $this->part('diligence/proponent',$context);               
+            }
+            
+           
+            $this->part('diligence/tabs-parent',$context);
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
