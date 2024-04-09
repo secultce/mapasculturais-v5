@@ -19,12 +19,25 @@
     border: none;
     font-weight: 600;
     cursor: pointer;
+    background: #085E55;
+    color: #fff;
+    padding: 0 16px 0 16px;
 }
 .btn-send-diligence:hover {
-    border:1px solid #085E55;
+    border:1px solid #10776d;
+    background: #10776d;
     /* color: white; */
-    border-radius: 8px;
+    /* border-radius: 8px; */
   }
+
+  .btn-save-diligence {
+    font-size: medium;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0 16px 0 16px;
+}
+
 .mr-10 {
     margin-right: 10px;
 }
