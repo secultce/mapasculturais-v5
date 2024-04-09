@@ -145,10 +145,6 @@ class Controller extends \MapasCulturais\Controller{
             $save = $diligence->save();
             $app->enableAccessControl();
         }
-        //Se for para envio de diligência
-        if($status == 3){
-            self::sendNotification();
-        }
         self::returnJson($save);
     }
 
@@ -192,6 +188,10 @@ class Controller extends \MapasCulturais\Controller{
         EntityDiligence::sendQueue($userDestination);
     }
 
+    public function POST_sendNotification()
+    {
+        self::sendNotification();
+    }
     /**
      * Rsposta do proponente
      *

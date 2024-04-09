@@ -39,7 +39,8 @@ class Module extends \MapasCulturais\Module {
                 'placeHolder' => $placeHolder
             ];
             //Verificando se é um avaliador
-            $this->jsObject['userEvaluate'] = EntityDiligence::isEvaluate($entity, $app->user);
+            $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
+            
             if($isProponent){              
                 return $this->part('diligence/proponent',$context);               
             }
