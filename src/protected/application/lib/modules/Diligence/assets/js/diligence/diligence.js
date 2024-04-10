@@ -9,8 +9,14 @@ $(document).ready(function () {
             if (
                 (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
                 MapasCulturais.userEvaluate == true) {
+                    console.log(res.data.length)
                 if (res.data.length > 0 && res.data[0].status == 0) {
                     $("#descriptionDiligence").val(res.data[0].description);
+                    $("#btn-save-diligence").show();
+                }
+                //Se não tem diligencia
+                if(res.data.length == 0){
+                    $("#descriptionDiligence").show();
                     $("#btn-save-diligence").show();
                 }
                 res.data.forEach((element, index) => {

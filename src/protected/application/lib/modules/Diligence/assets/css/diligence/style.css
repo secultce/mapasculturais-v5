@@ -114,26 +114,7 @@
     border-bottom: 1px solid #fff !important;
     font-weight: bold;
   }
-.desfazer_envio {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: normal;
-    align-items: center;
-    align-content: center;
 
-   
-}
-.desfazer_envio > p {
-padding: 25px;
-    color: #fff;
-    background-color: #085E55;
-    border-radius: 8px;
-}
-.desfazer_envio > p > a{
-    color: #FFCD29;
-   
-}
 .swal2-actions {
     border-radius: .25rem;
     width: 100%;

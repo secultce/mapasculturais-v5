@@ -56,9 +56,8 @@ var EntityDiligence = (function(){
 
         }
         $("#descriptionDiligence").hide()
-        $("#btn-actions-proponent").hide();
+        
         $("#btn-save-diligence").hide();
-        $("#btn-save-diligence-proponente").hide()
         $("#label-save-content-diligence").hide();
         $("#div-info-send").hide();
         $("#div-content-all-diligence-send").hide();
@@ -87,7 +86,10 @@ var EntityDiligence = (function(){
         // }
         
     }
-
+    /**
+     * Formata a página para o parecerista apos envio de diligencia so proponente
+     * @param {diligence} res 
+     */
     function formatDiligenceSendProponent(res)
     {
         $("#descriptionDiligence").hide();

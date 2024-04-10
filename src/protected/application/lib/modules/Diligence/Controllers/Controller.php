@@ -26,7 +26,7 @@ class Controller extends \MapasCulturais\Controller{
     }
     public function POST_save() : void
     {      
-        
+       
         // $this->requireAuthentication();
         $app = App::i();  
         $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
@@ -50,7 +50,9 @@ class Controller extends \MapasCulturais\Controller{
         $diligence->createTimestamp =  new DateTime();
         $diligence->description     = $this->data['description'];
         $diligence->status          = $this->data['status'];  
-       
+        if($this->data['status'] == "3"){
+            $diligence->sendDiligence =  new DateTime();
+        }
         $app->em->persist($diligence);
         $app->em->flush();
         $app->disableAccessControl();
