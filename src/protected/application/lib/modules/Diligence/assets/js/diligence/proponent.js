@@ -82,15 +82,11 @@ function saveAnswerProponente(status) {
             confirmButtonText: "Enviar agora",
             reverseButtons: true
         }).then((result) => {
-            saveRequestAnswer(status)
-            $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
-            $("#div-btn-actions-proponent").hide();
-            $("#descriptionDiligence").hide();
-            $("#div-content-all-diligence-send").show();
-            $("#answer_diligence").show();
+            //Formatando a view
+            hideViewActions()
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                // saveRequestAnswer(status)
+                saveRequestAnswer(status)
                 Swal.fire({
                     title: "<strong>Sucesso!</strong>",
                     html: `
@@ -102,43 +98,45 @@ function saveAnswerProponente(status) {
                     `,
                     timer: 10000,
                     timerProgressBar: true,
-                    didOpen: () => {
-                        const timer = Swal.getPopup().querySelector("b");
-                        timerInterval = setInterval(() => {
-                        }, 100);
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval);
-                    },
-                    didClose: () => {
-                        console.log('O timerProgressBar terminou e a janela foi fechada.');
-                    // Coloque qualquer ação que você deseja executar aqui
-                    // console.log('didClose tudo')
-                    // cancelAnswer(MapasCulturais.idDiligence)
-                    },
                     allowOutsideClick: false,
                     showCancelButton: true,
                     reverseButtons: true,
                     confirmButtonText: "OK",
                     cancelButtonText: 'Desfazer envio',
                 }).then((result) => {
-                    console.log({ result })
+                    console.log('dialog progress', result);
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
                         console.log('Notificar')
-                       
-                    }
-                    if (result.isDismissed) {
-                        console.log('click no desistir')
-                        $("#div-btn-actions-proponent").show();
-                        $("#descriptionDiligence").show();
-                        $("#div-content-all-diligence-send").show();
-                        $("#answer_diligence").show();
-                        $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
                         
                     }
+                    console.log('isDismissed',result.isDismissed)
+                    if (result.isDismissed && result.dismiss === 'cancel') {
+                        console.log('Cliquei em DESFAZER')
+                        showViewActions();                       
+                    }
+                    console.log('DismissReason', Swal.DismissReason.timer)
+                    console.log('dismiss', result.dismiss)
+                    if (
+                        result.dismiss === Swal.DismissReason.timer
+                      ) {
+                        console.log('O tempo acabou!');
+                        hideViewActions();
+                        // Aqui você pode adicionar a ação que deseja executar quando o tempo terminar
+                      } 
                 });
             }
+
+            if (result.isDenied) {
+                console.log('click no desistir')
+                $("#div-btn-actions-proponent").show();
+                $("#descriptionDiligence").show();
+                $("#div-content-all-diligence-send").show();
+                $("#answer_diligence").hide();
+                // $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
+                
+            }
+
         });
     } else {
         saveRequestAnswer(status)
@@ -149,7 +147,21 @@ function saveAnswerProponente(status) {
 
 function cancelAnswer(diligence)
 {
-    console.log({diligence})
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('diligence', 'cancelsendAnswer'),
+        data: {
+            registration: MapasCulturais.entity.id
+        },
+        dataType: "json",
+        success: function(response) {
+            // showSaveContent(status);
+            console.log('resposta do cancelamento' , response)
+           if(response.status == 200){
+            // EntityDiligence.hideShowSuccessAction();
+           }
+        }
+    });
 }
 
 function saveRequestAnswer(status)
@@ -174,5 +186,25 @@ function saveRequestAnswer(status)
         }
     });
 }
+
+function hideViewActions()
+{
+    $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
+    $("#div-btn-actions-proponent").hide();
+    $("#descriptionDiligence").hide();
+    $("#div-content-all-diligence-send").show();
+    $("#answer_diligence").show();
+}
+
+function showViewActions()
+{
+    $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
+    $("#div-btn-actions-proponent").show();
+    $("#descriptionDiligence").show();
+    $("#div-content-all-diligence-send").hide();
+    $("#answer_diligence").hide();
+    $("#div-content-all-diligence-send").show();
+}
+
 
 
