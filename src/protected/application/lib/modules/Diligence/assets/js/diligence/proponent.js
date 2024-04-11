@@ -36,13 +36,14 @@ $(document).ready(function () {
         if (res.message == 'resposta_rascunho' &&  MapasCulturais.userEvaluate == false) 
         {
             res.data.forEach((answer, index) => {
-                MapasCulturais.idDiligence = answer.diligence.id;
-               
+                MapasCulturais.idDiligence = answer.diligence.id;               
                 EntityDiligence.showAnswerDraft(answer);
+                $("#descriptionDiligence").show();
+                $("#div-btn-actions-proponent").show();
             });   
         }
 
-        if(res.message = "resposta_enviada"){
+        if(res.message == "resposta_enviada" &&  MapasCulturais.userEvaluate == false){
             res.data.forEach((answer, index) => {
                 MapasCulturais.idDiligence = answer.diligence.id;
                 EntityDiligence.showAnswerDraft(answer);
@@ -82,6 +83,11 @@ function saveAnswerProponente(status) {
             reverseButtons: true
         }).then((result) => {
             saveRequestAnswer(status)
+            $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
+            $("#div-btn-actions-proponent").hide();
+            $("#descriptionDiligence").hide();
+            $("#div-content-all-diligence-send").show();
+            $("#answer_diligence").show();
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 // saveRequestAnswer(status)
@@ -107,8 +113,8 @@ function saveAnswerProponente(status) {
                     didClose: () => {
                         console.log('O timerProgressBar terminou e a janela foi fechada.');
                     // Coloque qualquer ação que você deseja executar aqui
-                    console.log('didClose tudo')
-                    cancelAnswer(MapasCulturais.idDiligence)
+                    // console.log('didClose tudo')
+                    // cancelAnswer(MapasCulturais.idDiligence)
                     },
                     allowOutsideClick: false,
                     showCancelButton: true,
@@ -119,6 +125,16 @@ function saveAnswerProponente(status) {
                     console.log({ result })
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
+                        console.log('Notificar')
+                       
+                    }
+                    if (result.isDismissed) {
+                        console.log('click no desistir')
+                        $("#div-btn-actions-proponent").show();
+                        $("#descriptionDiligence").show();
+                        $("#div-content-all-diligence-send").show();
+                        $("#answer_diligence").show();
+                        $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
                         
                     }
                 });
