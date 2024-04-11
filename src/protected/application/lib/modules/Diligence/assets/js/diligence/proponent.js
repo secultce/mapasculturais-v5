@@ -113,7 +113,8 @@ function saveAnswerProponente(status) {
                     console.log('isDismissed',result.isDismissed)
                     if (result.isDismissed && result.dismiss === 'cancel') {
                         console.log('Cliquei em DESFAZER')
-                        showViewActions();                       
+                        showViewActions();
+                        cancelAnswer();                  
                     }
                     console.log('DismissReason', Swal.DismissReason.timer)
                     console.log('dismiss', result.dismiss)
@@ -145,13 +146,14 @@ function saveAnswerProponente(status) {
    
 }
 
-function cancelAnswer(diligence)
+function cancelAnswer()
 {
+    console.log('diligence,', MapasCulturais.idDiligence)
     $.ajax({
-        type: "POST",
+        type: "PUT",
         url: MapasCulturais.createUrl('diligence', 'cancelsendAnswer'),
         data: {
-            registration: MapasCulturais.entity.id
+            diligence: MapasCulturais.idDiligence,
         },
         dataType: "json",
         success: function(response) {
