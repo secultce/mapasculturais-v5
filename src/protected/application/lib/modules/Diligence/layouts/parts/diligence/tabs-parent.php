@@ -51,25 +51,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
         </div>
        
         <script>
-            function saveAnswerProponente(status) {
-                $.ajax({
-                    type: "POST",
-                    url: MapasCulturais.createUrl('diligence', 'answer'),
-                    data: {
-                        diligence: idDiligence,
-                        answer: $("#descriptionDiligence").val(),
-                        status: status
-                    },
-                    dataType: "json",
-                    success: function(response) {
-                        showSaveContent(status);
-                        console.log({
-                            response
-                        })
-                    }
-                });
-            }
-
+          
             function sendFileDiligence() {
                 console.log('sendFileDiligence')
             }

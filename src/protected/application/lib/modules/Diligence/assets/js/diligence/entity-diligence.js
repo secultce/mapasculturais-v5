@@ -1,5 +1,5 @@
 var EntityDiligence = (function(){
-
+    
     function resolveAfter2Seconds() {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -55,7 +55,10 @@ var EntityDiligence = (function(){
             $("#diligence-diligence").hide();
 
         }
+        $("#img-loading-content").attr('src', MapasCulturais.spinnerUrl)
         $("#descriptionDiligence").hide()
+        $("#btn-save-diligence-proponent").hide()
+        $("#btn-send-diligence-proponente").hide()
         
         $("#btn-save-diligence").hide();
         $("#label-save-content-diligence").hide();
@@ -63,19 +66,21 @@ var EntityDiligence = (function(){
         $("#div-content-all-diligence-send").hide();
         $("#descriptionDiligence").show();
         $("#answer_diligence").hide();
-
+        console.log(MapasCulturais.isProponent)
         $("#descriptionDiligence").on("keyup", function() {
             var texto = $(this).val(); // Obtém o valor do textarea
             if (texto.slice(-1) == '') {
-    
+               
                 if (MapasCulturais.isProponent) {
-                    $("#btn-save-diligence-proponente").hide()
+                    $("#btn-save-diligence-proponent").hide()
+                    $("#btn-send-diligence-proponente").hide()
                 } else {
                     $("#btn-save-diligence").hide()
                 }
             } else {
                 if (MapasCulturais.isProponent) {
-                    $("#btn-save-diligence-proponente").show()
+                    $("#btn-save-diligence-proponent").show()
+                    $("#btn-send-diligence-proponente").show()
                 } else {
                     $("#btn-save-diligence").show()
                 }
@@ -102,11 +107,34 @@ var EntityDiligence = (function(){
         $("#btn-send-diligence").hide();
     }
 
+    function hideShowSuccessAction()
+    {
+        $("#label-save-content-diligence").show();
+
+        setTimeout(() => {
+            $("#label-save-content-diligence").hide()
+        }, 2000);
+    }
+
+    function showAnswerDraft(answer)
+    {
+        $("#paragraph_content_send_diligence").html(answer.diligence.description);
+        $("#div-content-all-diligence-send").show();
+        $("#descriptionDiligence").val(answer.answer);
+        $("#div-btn-actions-proponent").show();
+        $("#btn-save-diligence-proponent").show();
+        $("#btn-send-diligence-proponente").show();
+        $("#paragraph_loading_content").hide();
+
+    }
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
         hideRegistration: hideRegistration,
         showRegistration: showRegistration,
-        formatDiligenceSendProponent: formatDiligenceSendProponent
+        formatDiligenceSendProponent: formatDiligenceSendProponent,
+        hideShowSuccessAction: hideShowSuccessAction,
+        showAnswerDraft: showAnswerDraft
       }
 }());

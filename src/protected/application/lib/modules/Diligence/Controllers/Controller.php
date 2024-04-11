@@ -187,7 +187,7 @@ class Controller extends \MapasCulturais\Controller{
             'number' => $regs['reg']->id,
             'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
         ];
-        EntityDiligence::sendQueue($userDestination);
+        EntityDiligence::sendQueue($userDestination, 'proponente');
     }
 
     public function POST_sendNotification()
@@ -206,6 +206,7 @@ class Controller extends \MapasCulturais\Controller{
         $diligence  = $repo->findId($this->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
+      
         if(count($answerDiligences) > 0){
             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;
@@ -214,9 +215,9 @@ class Controller extends \MapasCulturais\Controller{
                 $answerDiligence->status = $this->data['status'];
             }
             $save = self::saveEntity($answerDiligence);
-            if($this->data['status'] == 3){
-                self::sendNotification();
-            }
+            // if($this->data['status'] == 3){
+            //     self::sendNotification();
+            // }
         }else{
             $answer->diligence = $diligence;
             $answer->answer = $this->data['answer'];
@@ -234,7 +235,7 @@ class Controller extends \MapasCulturais\Controller{
         $app->em->persist($entity);
         $app->em->flush();
         $app->disableAccessControl();
-        $save = $entity->save();
+        $save       = $entity->save();
         $app->enableAccessControl();
         return $save;
     }
@@ -254,4 +255,40 @@ class Controller extends \MapasCulturais\Controller{
         }
         return $this->json(['message' => 'error', 'status' => 400], 400);
     }
+
+    public function POST_notifiAnswer()
+    {
+        $userDestination = [
+            'registration' => $this->data['registration'],
+            'commission' => $this->data['registration'],
+            'owner' => $this->data['owner']
+        ];
+        EntityDiligence::sendQueue($userDestination, 'resposta');
+    }
+
+    /**
+     * Altera o status da resposta, retornando para rascunho
+     *
+     * @return void
+     */
+    public function PUT_cancelsendAnswer()
+    {
+        $app =  App::i();
+        //Buscando diligencia
+        $repo       = new DiligenceRepo();
+        $diligence  = $repo->findId($this->data['diligence']);
+        //Buscando a resposta da diligencia
+        $answer = $app->repo('\Diligence\Entities\AnswerDiligence')->findBy( ['diligence' => $diligence]);
+        $save = null;
+        //Alterando o valor do status
+        foreach ($answer as $ans) {
+            $ans->status  = 0;
+            self::saveEntity($ans);     
+        }
+        if($save == null){
+            return $this->json(['message' => 'success', 'status' => 200], 200);
+        }
+        return $this->json(['message' => 'error', 'status' => 400], 400);
+    }
+
 }

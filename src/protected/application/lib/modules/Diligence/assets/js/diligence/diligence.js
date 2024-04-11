@@ -30,6 +30,17 @@ $(document).ready(function () {
                 $("#answer_diligence").hide();
                 $("#paragraph_info_status_diligence").html('A sua Diligência ainda não foi enviada');
             }
+
+            if (res.message == "resposta_rascunho" && MapasCulturais.userEvaluate == true) {
+                res.data.forEach((answer, index) => {
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#descriptionDiligence").hide();
+                    $("#btn-save-diligence").hide();
+                    $("#btn-send-diligence").hide();
+                    $("#paragraph_loading_content").hide();
+                });   
+            }
+           
         })
         .catch((error) => {
             console.log(error)

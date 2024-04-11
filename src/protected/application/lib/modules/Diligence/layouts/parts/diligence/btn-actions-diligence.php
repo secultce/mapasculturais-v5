@@ -1,7 +1,4 @@
-<label class="diligence-label-save" id="label-save-content-diligence">
-    <i class="fas fa-check-circle mr-10"></i>
-    Suas alterações foram salvas
-</label>
+
 <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" 
     id="btn-save-diligence" 
     onclick="saveDiligence(0)"

@@ -1,7 +1,16 @@
-<?php 
+<?php
+
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 ?>
+<p id="paragraph_loading_content">
+<label for="">
+    Carregando ... <img id="img-loading-content" />
+</label>
+<br />
+
+<br />
+</p>
 <label>
     <strong>
         <?php
@@ -33,7 +42,12 @@ use Diligence\Entities\Diligence as EntityDiligence;
         </label>
         <p id="paragraph_content_send_answer" style="color: #3E3E3E;  font-weight: 400;  font-size: 14px;  line-height: 19.07px; margin-top:10px"></p>
     </div>
-    <div>
-        <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
-    </div>
+
 </div>
+<div>
+    <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
+</div>
+<label class="diligence-label-save" id="label-save-content-diligence">
+    <i class="fas fa-check-circle mr-10"></i>
+    Suas alterações foram salvas
+</label>

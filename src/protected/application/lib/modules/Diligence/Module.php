@@ -22,7 +22,7 @@ class Module extends \MapasCulturais\Module {
        
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
-            
+            $this->jsObject['idDiligence'] = 0;
             $entity = $this->controller->requestedEntity;
             $entityDiligence = new EntityDiligence();
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
@@ -38,10 +38,12 @@ class Module extends \MapasCulturais\Module {
                 'term' => $term,
                 'placeHolder' => $placeHolder
             ];
-            //Verificando se é um avaliador
+            //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
-            
+            //Glabalizando se é um proponente
+            $this->jsObject['isProponent']  = $isProponent;
             if($isProponent){              
+               
                 return $this->part('diligence/proponent',$context);               
             }
             

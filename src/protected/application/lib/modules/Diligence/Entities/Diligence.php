@@ -111,12 +111,11 @@ class Diligence extends \MapasCulturais\Entity
      * @param [array] $userDestination
      * @return void
      */
-    static public function sendQueue($userDestination)
+    static public function sendQueue($userDestination, $routeKey)
     {
 
         $exchange = 'router';
         $queue = 'msgs';
-    
         $connection = new AMQPStreamConnection('rabbitmq', '5672', 'mqadmin', 'Admin123XX_', '/');
        
         $channel = $connection->channel();
@@ -128,7 +127,7 @@ class Diligence extends \MapasCulturais\Entity
        
         $messageBody = json_encode($userDestination);
         $message = new AMQPMessage($messageBody, array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
-        $channel->basic_publish($message, $exchange, 'proponente');
+        $channel->basic_publish($message, $exchange, "resposta");
 
         $channel->close();
         $connection->close();

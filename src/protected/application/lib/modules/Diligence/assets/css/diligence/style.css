@@ -30,12 +30,16 @@
     /* border-radius: 8px; */
   }
 
-  .btn-save-diligence {
+.btn-save-diligence {
     font-size: medium;
     border: none;
     font-weight: 600;
     cursor: pointer;
     padding: 0 16px 0 16px;
+    margin-top: 5px;
+}
+.btn-save-diligence:hover {
+    background: #F3F3F3;
 }
 
 .mr-10 {
