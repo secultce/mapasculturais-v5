@@ -258,11 +258,15 @@ class Controller extends \MapasCulturais\Controller{
 
     public function POST_notifiAnswer()
     {
-        $userDestination = [
+        $app = App::i();
+        $dili = $app->repo('\Diligence\Entities\Diligence')->findBy(['registration' => $this->data['registration']]);
+        foreach ($dili as $diligence) {
+          $userDestination = [
             'registration' => $this->data['registration'],
-            'commission' => $this->data['registration'],
-            'owner' => $this->data['owner']
+            'commission' => $diligence->openAgent->user->email,
+            'owner' => $diligence->registration->opportunity->owner->user->email
         ];
+        }       
         EntityDiligence::sendQueue($userDestination, 'resposta');
     }
 

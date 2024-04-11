@@ -128,6 +128,29 @@ var EntityDiligence = (function(){
 
     }
 
+    function getLimitDateAnswer(sendDiligence)
+    {
+        // Convertendo a string de data em um objeto Date
+        const originalDate = new Date(sendDiligence);
+
+        // Adicionando três dias à data
+        originalDate.setDate(originalDate.getDate() + 3);
+
+        // Formatando a nova data de acordo com suas necessidades
+        const newDate = originalDate.toISOString().split('T')[0];
+
+        var dateTimeDiligence = new Date(newDate);
+
+        // Obtendo a data e hora atual
+        var dtNow = new Date();
+
+        // Verificando se novaData é posterior à data atual
+        if (dateTimeDiligence < dtNow) {
+            return "encerrou";
+        }
+        return "no_periodo";
+    }
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -135,6 +158,7 @@ var EntityDiligence = (function(){
         showRegistration: showRegistration,
         formatDiligenceSendProponent: formatDiligenceSendProponent,
         hideShowSuccessAction: hideShowSuccessAction,
-        showAnswerDraft: showAnswerDraft
+        showAnswerDraft: showAnswerDraft,
+        getLimitDateAnswer: getLimitDateAnswer
       }
 }());

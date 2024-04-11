@@ -168,8 +168,8 @@ class Diligence extends \MapasCulturais\Entity
      * Verifica se quem está logado é o mesmo agente que foi aberto a diligência
      *
      * @param [object] $entity
-     * @param [int] $diligenceAgentId
-     * @param [date] $term
+     * @param [object] $diligenceAgentId
+     * @param [array] $term
      * @return void
      */
     static public function infoTerm($entity, $diligenceAgentId, $term ): void
@@ -179,14 +179,19 @@ class Diligence extends \MapasCulturais\Entity
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
             if(
                 ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && !is_null($term['term'])
-            ){
+            ){               
                 i::_e('Vocẽ tem até ' .
                 $term['term']->format('d/m/Y H:i') .
                 ' para responder a diligência.');
             }else{
-                i::_e('O Proponente tem apenas ' .
-                $entity->opportunity->getMetadata('diligence_days') .
-                ' dias para responder essa diligência.');
+                
+                if($diligenceAgentId[0]->sendDiligence <= new DateTime()){
+                    i::_e('Desculpe, mas o prazo para responder está encerrado.');
+                }else{
+                    i::_e('O Proponente tem apenas ' .
+                    $entity->opportunity->getMetadata('diligence_days') .
+                    ' dias para responder essa diligência.');
+                }
             }
         }
        

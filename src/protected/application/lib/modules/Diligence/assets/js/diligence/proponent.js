@@ -36,10 +36,21 @@ $(document).ready(function () {
         if (res.message == 'resposta_rascunho' &&  MapasCulturais.userEvaluate == false) 
         {
             res.data.forEach((answer, index) => {
-                MapasCulturais.idDiligence = answer.diligence.id;               
-                EntityDiligence.showAnswerDraft(answer);
-                $("#descriptionDiligence").show();
-                $("#div-btn-actions-proponent").show();
+                console.log(answer.diligence.sendDiligence)
+                const limitDate = EntityDiligence.getLimitDateAnswer(answer.diligence.sendDiligence.date);
+
+               if(limitDate === 'encerrou'){
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#descriptionDiligence").hide();
+                    $("#div-btn-actions-proponent").hide() 
+               }else{
+                    MapasCulturais.idDiligence = answer.diligence.id;               
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#descriptionDiligence").show();
+                    $("#div-btn-actions-proponent").show();
+               }
+
+               
             });   
         }
 
@@ -108,7 +119,7 @@ function saveAnswerProponente(status) {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
                         console.log('Notificar')
-                        
+                        sendNofificationAnswer();
                     }
                     console.log('isDismissed',result.isDismissed)
                     if (result.isDismissed && result.dismiss === 'cancel') {
@@ -116,13 +127,14 @@ function saveAnswerProponente(status) {
                         showViewActions();
                         cancelAnswer();                  
                     }
-                    console.log('DismissReason', Swal.DismissReason.timer)
-                    console.log('dismiss', result.dismiss)
+                  
                     if (
                         result.dismiss === Swal.DismissReason.timer
                       ) {
                         console.log('O tempo acabou!');
+                        sendNofificationAnswer();
                         hideViewActions();
+                        
                         // Aqui você pode adicionar a ação que deseja executar quando o tempo terminar
                       } 
                 });
@@ -185,6 +197,21 @@ function saveRequestAnswer(status)
            if(response.status == 200){
             EntityDiligence.hideShowSuccessAction();
            }
+        }
+    });
+}
+
+function sendNofificationAnswer()
+{
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('diligence', 'notifiAnswer'),
+        data: {
+            registration: MapasCulturais.entity.id
+        },
+        dataType: "json",
+        success: function(response) {
+           return true;
         }
     });
 }
