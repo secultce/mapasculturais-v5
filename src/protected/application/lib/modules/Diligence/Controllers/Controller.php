@@ -18,50 +18,24 @@ use Diligence\Service\NotificationInterface;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
-    const NOT_DILIGENCE = 'sem_diligencia';
-    const ONLY_DILIGENCE = 'diligencia_aberta';
-    const WITH_ANSWER = 'resposta_rascunho';
-    const ANSWER_SEND = 'resposta_enviada';
-    public function GET_index() {
-        $app = App::i();
-        $diligence = new EntityDiligence();
-        dump($diligence);
-    }
+    use \Diligence\Traits\DiligenceSingle;
+
+    const NOT_DILIGENCE     = 'sem_diligencia';
+    const ONLY_DILIGENCE    = 'diligencia_aberta';
+    const WITH_ANSWER       = 'resposta_rascunho';
+    const ANSWER_SEND       = 'resposta_enviada';
+
+    /**
+     * Salva uma diligencia
+     *
+     * @return void
+     */
     public function POST_save() : void
     {      
-       
         // $this->requireAuthentication();
-        $app = App::i();  
-        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
-            $this->data['registration'],
-            $this->data['openAgent'],
-            $this->data['agent']
-        );
-        $openAgent = $regs['openAgent'];
-        $agent = $regs['agent'];
-        
-        //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $this->data['registration']]);
-        if(count($diligenceRepository) > 0) {
-            self::updateContent($diligenceRepository, $this->data['description'], $regs['reg'], $this->data['status']);
-        }
-        //Instanciando para gravar no banco de dados
-        $diligence = new EntityDiligence;
-        $diligence->registration    = $regs['reg'];
-        $diligence->openAgent       = $openAgent;
-        $diligence->agent           = $agent;
-        $diligence->createTimestamp =  new DateTime();
-        $diligence->description     = $this->data['description'];
-        $diligence->status          = $this->data['status'];  
-        if($this->data['status'] == "3"){
-            $diligence->sendDiligence =  new DateTime();
-        }
-        $app->em->persist($diligence);
-        $app->em->flush();
-        $app->disableAccessControl();
-        $save = $diligence->save(true);
-        $app->enableAccessControl();
-        self::returnJson($save);
+        $answer = new EntityDiligence();
+        $entity = $answer->create($this);
+        self::returnJson($entity, $this);
     }
 
      /**
@@ -119,49 +93,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
     }
-    /**
-     * Metodo para alterar o valor do conteudo da mensagem da Diligencia
-     *
-     * @param [object] $diligences
-     * @param [string] $description
-     * @param [object] $registration
-     * @param [int] $status
-     * @return void
-     */
-    public function updateContent($diligences, $description, $registration, $status = 0) : void
-    {
-        // $this->requireAuthentication();
-        $app = App::i();
-        $save = null;
-       
-        foreach ($diligences as $diligence) {
-            $diligence->description     = $description;
-            $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
-            $diligence->description     = $this->data['description'];
-            $diligence->status          = $status;
-            //Se for para enviar a diligência, então salva o momento do envio
-            if($status == 3){
-                $diligence->sendDiligence =  new DateTime();
-            }
-            $app->em->persist($diligence);
-            $app->em->flush();
-            $app->disableAccessControl();
-            $save = $diligence->save();
-            $app->enableAccessControl();
-        }
-        self::returnJson($save);
-    }
+    
 
-    protected function returnJson($instance)
-    {
-        if(is_null($instance)){
-            // EntityDiligence::sendQueue($userDestination);
-            $this->json(['message' => 'success', 'status' => 200], 200);
-        }else{
-            $this->json(['message' => 'Error: ', 'status' => 400], 400);
-        }    
-    }
+
 
     /**
      * Metodo da interface para notificação
@@ -190,59 +124,20 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_answer() : void
     {
-        $save = null;
-        $repo       = new DiligenceRepo();
-        $diligence  = $repo->findId($this->data['diligence']);
-        $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
-        $answer     = new AnswerDiligence();
-      
-        if(count($answerDiligences) > 0){
-            foreach ($answerDiligences as $key => $answerDiligence) {
-                $answerDiligence->diligence = $diligence;
-                $answerDiligence->answer = $this->data['answer'];
-                $answerDiligence->createTimestamp = new DateTime();
-                $answerDiligence->status = $this->data['status'];
-            }
-            $save = self::saveEntity($answerDiligence);
-            // if($this->data['status'] == 3){
-            //     self::sendNotification();
-            // }
-        }else{
-            $answer->diligence = $diligence;
-            $answer->answer = $this->data['answer'];
-            $answer->createTimestamp = new DateTime();
-            $answer->status = $this->data['status'];
-            $save = self::saveEntity($answer);
-        }
-        self::returnJson($save);
+        $answer = new AnswerDiligence();
+        $entity = $answer->create($this);
+        self::returnJson($entity, $this);
     }
-
-
-    protected function saveEntity($entity)
+    
+    /**
+     * Altera o status da diligencia, retornando para rascunho
+     *
+     * @return void
+     */
+    public function PUT_cancelsend() : void
     {
-        $app        = App::i();
-        $app->em->persist($entity);
-        $app->em->flush();
-        $app->disableAccessControl();
-        $save       = $entity->save();
-        $app->enableAccessControl();
-        return $save;
-    }
-
-    public function PUT_cancelsend()
-    {
-        $app =  App::i();
-        $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $this->data['registration']]);
-        $save = null;
-        foreach ($dili as $diligence) {
-            $diligence->status  = 0;
-            self::saveEntity($diligence);     
-        }
-      
-        if($save == null){
-            return $this->json(['message' => 'success', 'status' => 200], 200);
-        }
-        return $this->json(['message' => 'error', 'status' => 400], 400);
+        $cancel = new EntityDiligence();
+        $cancel->cancel($this);        
     }
 
     public function POST_notifiAnswer()
@@ -267,22 +162,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function PUT_cancelsendAnswer()
     {
-        $app =  App::i();
-        //Buscando diligencia
-        $repo       = new DiligenceRepo();
-        $diligence  = $repo->findId($this->data['diligence']);
-        //Buscando a resposta da diligencia
-        $answer = $app->repo('\Diligence\Entities\AnswerDiligence')->findBy( ['diligence' => $diligence]);
-        $save = null;
-        //Alterando o valor do status
-        foreach ($answer as $ans) {
-            $ans->status  = 0;
-            self::saveEntity($ans);     
-        }
-        if($save == null){
-            return $this->json(['message' => 'success', 'status' => 200], 200);
-        }
-        return $this->json(['message' => 'error', 'status' => 400], 400);
+       $cancel = new AnswerDiligence();
+       $cancel->cancel($this);
     }
 
 }

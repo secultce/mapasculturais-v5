@@ -7,7 +7,9 @@ use MapasCulturais\App,
     MapasCulturais\Entities,
     MapasCulturais\Definitions,
     MapasCulturais\Exceptions;
-
+    
+require __DIR__.'/Traits/DiligenceSingle.php';
+require __DIR__.'/Service/DiligenceInterface.php';
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
 require __DIR__.'/Entities/AnswerDiligence.php';

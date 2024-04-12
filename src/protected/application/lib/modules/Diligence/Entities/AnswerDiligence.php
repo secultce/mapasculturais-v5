@@ -1,17 +1,14 @@
 <?php
 namespace Diligence\Entities;
 
-use Doctrine\ORM\Mapping as ORM;
-use \MapasCulturais\App;
-use \MapasCulturais\i;
 use DateTime;
+use \MapasCulturais\App;
 use MapasCulturais\Entity;
-//Para uso do RabbitMQ
-
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Exchange\AMQPExchangeType;
-
+use Doctrine\ORM\Mapping as ORM;
+use Respect\Validation\Rules\Json;
+use Diligence\Controllers\Controller;
+use Diligence\Service\DiligenceInterface;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 /**
  * AnswerDiligence 
  * 
@@ -20,7 +17,9 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
 
-class AnswerDiligence extends \MapasCulturais\Entity {
+class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
+
+    use \Diligence\Traits\DiligenceSingle;
 
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
     const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
@@ -66,5 +65,58 @@ class AnswerDiligence extends \MapasCulturais\Entity {
      * @ORM\Column(name="status", type="integer", nullable=false)
      */
     protected $status = Entity::STATUS_DRAFT;
+
+
+    /**
+     * Salva a resposta do proponente
+     *
+     * @param [object] $class
+     * @return void
+     */
+    public function create($class)
+    {
+        $repo       = new DiligenceRepo();
+        $diligence  = $repo->findId($class->data['diligence']);
+        $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
+        $answer     = new AnswerDiligence();
+      
+        if(count($answerDiligences) > 0){
+            foreach ($answerDiligences as $key => $answerDiligence) {
+                $answerDiligence->diligence = $diligence;
+                $answerDiligence->answer = $class->data['answer'];
+                $answerDiligence->createTimestamp = new DateTime();
+                $answerDiligence->status = $class->data['status'];
+            }
+            $save = self::saveEntity($answerDiligence);
+        }else{
+            $answer->diligence = $diligence;
+            $answer->answer = $class->data['answer'];
+            $answer->createTimestamp = new DateTime();
+            $answer->status = $class->data['status'];
+            $save = self::saveEntity($answer);
+        }
+
+        return $save;
+    }
+
+    public function cancel(Controller $class) : Json
+    {
+        $app =  App::i();
+        //Buscando diligencia
+        $repo       = new DiligenceRepo();
+        $diligence  = $repo->findId($this->data['diligence']);
+        //Buscando a resposta da diligencia
+        $answer = $app->repo('\Diligence\Entities\AnswerDiligence')->findBy( ['diligence' => $diligence]);
+        $save = null;
+        //Alterando o valor do status
+        foreach ($answer as $ans) {
+            $ans->status  = 0;
+            self::saveEntity($ans);     
+        }
+        if($save == null){
+            return $this->json(['message' => 'success', 'status' => 200], 200);
+        }
+        return $this->json(['message' => 'error', 'status' => 400], 400);
+    }
 
 }

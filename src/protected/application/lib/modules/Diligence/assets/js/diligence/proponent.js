@@ -36,7 +36,7 @@ $(document).ready(function () {
                     $("#div-btn-actions-proponent").show() 
                     $("#btn-save-diligence-proponent").show();
                     $("#btn-send-diligence-proponente").show();
-                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
+                    $("#paragraph_createTimestamp").html(moment(element.sendDiligence.date).format('lll'));
                 }
                 console.log(element.status)
                 // if(element.status == 0 ){

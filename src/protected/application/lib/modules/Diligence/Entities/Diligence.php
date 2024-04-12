@@ -5,12 +5,18 @@ use Doctrine\ORM\Mapping as ORM;
 use \MapasCulturais\App;
 use \MapasCulturais\i;
 use DateTime;
+use Diligence\Controllers\Controller;
 use MapasCulturais\Entity;
 //Para uso do RabbitMQ
-
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
+
+use Diligence\Repositories\Diligence as DiligenceRepo;
+use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Service\DiligenceInterface;
+use MapasCulturais\ApiOutputs\Json;
+
 
 /**
  * Diligence 
@@ -20,8 +26,10 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
 
-class Diligence extends \MapasCulturais\Entity 
+class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 {
+    use \Diligence\Traits\DiligenceSingle;
+
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
     const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
@@ -232,5 +240,80 @@ class Diligence extends \MapasCulturais\Entity
         }
         return false;
     }
+
+    public function create($class)
+    {
+        //Buscando informações do agente e da inscrição
+        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
+            $class->data['registration'],
+            $class->data['openAgent'],
+            $class->data['agent']
+        );
+        
+        //Se tiver registro de diligência
+        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
+      
+        if(count($diligenceRepository) > 0) {
+            return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
+        }
+        //Instanciando para gravar no banco de dados
+        $diligence = new EntityDiligence;
+        $diligence->registration    = $regs['reg'];
+        $diligence->openAgent       = $regs['openAgent'];
+        $diligence->agent           = $regs['agent'];
+        $diligence->createTimestamp =  new DateTime();
+        $diligence->description     = $class->data['description'];
+        $diligence->status          = $class->data['status'];
+        //Considerando que será um envio
+        if($class->data['status'] == "3"){
+            $diligence->sendDiligence =  new DateTime();
+        }
+        
+        return self::saveEntity($diligence);
+        
+    }
+
+    /**
+     * Metodo para alterar o valor do conteudo da mensagem da Diligencia
+     *
+     * @param [object] $diligences
+     * @param [string] $description
+     * @param [object] $registration
+     * @param [int] $status
+     * @return void
+     */
+    protected function updateContent($diligences, $description, $registration, $status = 0)
+    {
+        $save = null;
+        foreach ($diligences as $diligence) {
+            $diligence->description     = $description;
+            $diligence->registration    = $registration;
+            $diligence->createTimestamp =  new DateTime();
+            $diligence->status          = $status;
+            //Se for para enviar a diligência, então salva o momento do envio
+            if($status == 3){
+                $diligence->sendDiligence =  new DateTime();
+            }
+
+            $save = self::saveEntity($diligence);
+        }
+       return $save;
+    }
+
+   public function cancel(Controller $class) : Json
+   {
+        $app =  App::i();
+        $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $class->data['registration']]);
+        $save = null;
+        foreach ($dili as $diligence) {
+            $diligence->status  = 0;
+            self::saveEntity($diligence);     
+        }
+      
+        if($save == null){
+            return $class->json(['message' => 'success', 'status' => 200], 200);
+        }
+        return $class->json(['message' => 'error', 'status' => 400], 400);
+   }
 
 }
