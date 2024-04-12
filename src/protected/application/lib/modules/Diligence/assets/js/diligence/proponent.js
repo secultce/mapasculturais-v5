@@ -5,17 +5,26 @@ $(document).ready(function () {
     entityDiligence
     .then((res) => {
         console.log({res})
+        //Bloqueando aba para proponente
+        $("#li-tab-diligence-diligence > a").remove();
+        $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
+        $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
+        
         if (
             (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
             MapasCulturais.userEvaluate == false) 
         {
-            // if(res.data.length > 0){
-            //     $("#descriptionDiligence").val(res.data[0].description);
-            //     $("#btn-save-diligence").show();
-            // }
+            //Se tiver diligencia
+            if (res.data.length > 0) {
+                const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+                console.log('Se tiver diligencia')
+                $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                $("#li-tab-diligence-diligence > label").remove();
+                $("#li-tab-diligence-diligence").append(ahref);
+            }
+
             res.data.forEach((element, index) => {
                 console.log({ element })
-                console.log({ index })
                 //Recebendo o id da diligencia
                 MapasCulturais.idDiligence = element.id;
                 if (element.status == 3) {
@@ -24,17 +33,27 @@ $(document).ready(function () {
                     $("#div-content-all-diligence-send").show();
                     $("#div-btn-actions-proponent").show();
                     $("#paragraph_loading_content").hide();
-               
-                }else{
-                    // $("#li-tab-diligence-diligence > a").remove();
-                    // $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
-                    // $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
+                    $("#div-btn-actions-proponent").show() 
+                    $("#btn-save-diligence-proponent").show();
+                    $("#btn-send-diligence-proponente").show();
+                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
                 }
+                console.log(element.status)
+                // if(element.status == 0 ){
+                //     const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+                //     $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                //     $("#li-tab-diligence-diligence > label").remove();
+                //     $("#li-tab-diligence-diligence").append(ahref);
+                // }
             });         
         }
 
         if (res.message == 'resposta_rascunho' &&  MapasCulturais.userEvaluate == false) 
         {
+            const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+                $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                $("#li-tab-diligence-diligence > label").remove();
+                $("#li-tab-diligence-diligence").append(ahref);
             res.data.forEach((answer, index) => {
                 console.log(answer.diligence.sendDiligence)
                 const limitDate = EntityDiligence.getLimitDateAnswer(answer.diligence.sendDiligence.date);
@@ -62,6 +81,12 @@ $(document).ready(function () {
                 $("#answer_diligence").show();
                 $("#descriptionDiligence").hide();
                 $("#div-btn-actions-proponent").hide();
+                $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
+                $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
+                const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+                $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                $("#li-tab-diligence-diligence > label").remove();
+                $("#li-tab-diligence-diligence").append(ahref);
             });   
         }
     })

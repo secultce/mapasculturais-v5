@@ -15,15 +15,20 @@ $(document).ready(function () {
                     $("#btn-save-diligence").show();
                 }
                 //Se não tem diligencia
-                if(res.data.length == 0){
+                if(res.data.length === 0){
                     $("#descriptionDiligence").show();
-                    $("#btn-save-diligence").show();
+                    $("#paragraph_loading_content").hide();
+                    $("#btn-save-diligence").hide();
+                    $("#btn-send-diligence").hide();
                 }
                 res.data.forEach((element, index) => {
                     console.log({ element })
                     console.log({ index })
                     if (element.status == 3) {
                         EntityDiligence.formatDiligenceSendProponent(element);
+                        $("#paragraph_loading_content").hide();
+                    }else{
+                        $("#paragraph_loading_content").hide();
                     }
                 });
 
@@ -40,11 +45,27 @@ $(document).ready(function () {
                     $("#paragraph_loading_content").hide();
                 });   
             }
+
+            if(res.message == "resposta_enviada" &&  MapasCulturais.userEvaluate == true)
+            {
+                res.data.forEach((answer, index) => {
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#paragraph_content_send_answer").html(answer.answer);
+                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
+                    $("#answer_diligence").show();
+                    $("#descriptionDiligence").hide();
+                    $("#btn-actions-diligence").hide();
+                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
+                });   
+            }
            
         })
         .catch((error) => {
             console.log(error)
         })
+
+        $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
+        $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
 
 });
 
@@ -100,20 +121,22 @@ function showSaveContent(status) {
             cancelButtonText: 'Desfazer envio',
         }).then((result) => {
             console.log({ result })
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                // const urlSuccess = MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id);
-                // console.log({ urlSuccess })
-                // document.location = urlSuccess
                 sendNotification();
                 $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
                 $("#div-content-all-diligence-send").show();
                 $("#div-diligence").hide();
                 $("#btn-actions-diligence").hide();
                 $("#descriptionDiligence").hide();
-            } else if (result.isDismissed) {
-                cancelSend();
-            } else {
+            }
+            
+            if (result.isDismissed && result.dismiss === 'cancel') {
+                cancelSend();              
+            }
+
+            if (
+                result.dismiss === Swal.DismissReason.timer
+              ) {
                 sendNotification();
 
                 setTimeout(() => {
@@ -123,7 +146,7 @@ function showSaveContent(status) {
                     $("#btn-actions-diligence").hide();
                     $("#descriptionDiligence").hide();
                 }, 500);
-            }
+              } 
         });
     }
 

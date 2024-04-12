@@ -2,18 +2,21 @@
 namespace Diligence\Controllers;
 
 use DateTime;
+use Slim\Http\Request;
 use \MapasCulturais\App;
 use MapasCulturais\Entities\Notification;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
+use Diligence\Entities\NotificationDiligence;
+use Diligence\Service\NotificationInterface;
 // use MapasCulturais\Entities\EntityRevision as Revision;
 // use \MapasCulturais\Entities\EntityRevisionData;
 // use MapasCulturais\Traits;
 // use Recourse\Entities\Recourse as EntityRecourse;
 
 
-class Controller extends \MapasCulturais\Controller{
+class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
     const NOT_DILIGENCE = 'sem_diligencia';
     const ONLY_DILIGENCE = 'diligencia_aberta';
@@ -160,39 +163,25 @@ class Controller extends \MapasCulturais\Controller{
         }    
     }
 
-    protected function sendNotification()
+    /**
+     * Metodo da interface para notificação
+     *
+     * @return void
+     */
+    public function notification()
     {
-        $app = App::i();
-        $url = $app->createUrl('inscricao', $this->data['registration']);
-        //Mensagem para notificação na plataforma
-        $numberRegis = '<a href="'.$url.'">'.$this->data['registration'].'</a>';
-        $message = 'Um parecerista abriu uma diligência para você responder na inscrição de número: '.$numberRegis;
-       //Buscando dados
-        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
-            $this->data['registration'],
-            $this->data['openAgent'],
-            $this->data['agent']
-        );
         //Notificação no Mapa Cultural
-        $notification = new Notification;
-        $notification->message = $message;
-        $notification->user = $regs['agent']->user;
-        $app->disableAccessControl();
-        $notification->save(true);
-        $app->enableAccessControl();
+        $notification = new NotificationDiligence();
+        $notification->create($this);        
+
+        $userDestination = $notification->userDestination($this);
         //Enviando para fila RabbitMQ
-        $userDestination = [
-            'name' => $regs['agent']->name,
-            'email' => $regs['agent']->user->email, 
-            'number' => $regs['reg']->id,
-            'days' => $regs['reg']->opportunity->getMetadata('diligence_days')
-        ];
         EntityDiligence::sendQueue($userDestination, 'proponente');
     }
 
     public function POST_sendNotification()
     {
-        self::sendNotification();
+        self::notification();
     }
     /**
      * Rsposta do proponente
@@ -260,10 +249,11 @@ class Controller extends \MapasCulturais\Controller{
     {
         $app = App::i();
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy(['registration' => $this->data['registration']]);
+        $userDestination = [];
         foreach ($dili as $diligence) {
           $userDestination = [
             'registration' => $this->data['registration'],
-            'commission' => $diligence->openAgent->user->email,
+            'comission' => $diligence->openAgent->user->email,
             'owner' => $diligence->registration->opportunity->owner->user->email
         ];
         }       

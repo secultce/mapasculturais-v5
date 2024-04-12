@@ -11,6 +11,8 @@ use MapasCulturais\App,
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
 require __DIR__.'/Entities/AnswerDiligence.php';
+require __DIR__.'/Entities/NotificationDiligence.php';
+require __DIR__.'/Service/NotificationInterface.php';
 
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;

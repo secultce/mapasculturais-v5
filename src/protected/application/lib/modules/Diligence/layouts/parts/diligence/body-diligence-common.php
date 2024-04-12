@@ -36,11 +36,12 @@ use Diligence\Entities\Diligence as EntityDiligence;
         </div>
         <div class="item-col"></div>
     </div>
-    <div id="answer_diligence" style="padding: 20px;justify-content: space-between;flex-wrap: wrap; margin-top: 10px; background:#F3F3F3">
+    <div id="answer_diligence" class="answer_diligence">
         <label for="" style="font-size: 14px; font-weight: 700;  font-family: inherit;  line-height: 19.07px;">
             Resposta do Proponente:
         </label>
-        <p id="paragraph_content_send_answer" style="color: #3E3E3E;  font-weight: 400;  font-size: 14px;  line-height: 19.07px; margin-top:10px"></p>
+        <p id="paragraph_content_send_answer" class="paragraph_content_send_answer"></p>
+        <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp"></p>
     </div>
 
 </div>

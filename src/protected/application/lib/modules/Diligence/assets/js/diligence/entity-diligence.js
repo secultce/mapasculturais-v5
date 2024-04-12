@@ -66,7 +66,6 @@ var EntityDiligence = (function(){
         $("#div-content-all-diligence-send").hide();
         $("#descriptionDiligence").show();
         $("#answer_diligence").hide();
-        console.log(MapasCulturais.isProponent)
         $("#descriptionDiligence").on("keyup", function() {
             var texto = $(this).val(); // Obtém o valor do textarea
             if (texto.slice(-1) == '') {
@@ -81,8 +80,10 @@ var EntityDiligence = (function(){
                 if (MapasCulturais.isProponent) {
                     $("#btn-save-diligence-proponent").show()
                     $("#btn-send-diligence-proponente").show()
+                    
                 } else {
-                    $("#btn-save-diligence").show()
+                    $("#btn-save-diligence").show();
+                    $("#btn-send-diligence").show();
                 }
             }
         });

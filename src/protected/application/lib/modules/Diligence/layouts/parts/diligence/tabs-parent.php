@@ -9,13 +9,6 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($diligenceReposito
 
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
 ?>
-<script>
-    $(document).ready(function() {
-               
-    });
-
-</script>
-
 <?php 
 
 
@@ -49,13 +42,6 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             </div>
            
         </div>
-       
-        <script>
-          
-            function sendFileDiligence() {
-                console.log('sendFileDiligence')
-            }
-        </script>
     </div>
 </div>
 <?php $this->applyTemplateHook('tabs', 'after'); ?>

@@ -132,3 +132,14 @@
 .swal2-timer-progress-bar {
     background-color: #085E55 !important;
 }
+
+.paragraph_content_send_answer{
+    color: #3E3E3E;  font-weight: 400;  font-size: 14px;  line-height: 19.07px; margin-top:10px
+}
+.answer_diligence {
+    padding: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 10px; 
+    background:#F3F3F3
+}

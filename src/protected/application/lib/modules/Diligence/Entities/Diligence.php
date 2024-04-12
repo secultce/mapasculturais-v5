@@ -127,7 +127,7 @@ class Diligence extends \MapasCulturais\Entity
        
         $messageBody = json_encode($userDestination);
         $message = new AMQPMessage($messageBody, array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
-        $channel->basic_publish($message, $exchange, "resposta");
+        $channel->basic_publish($message, $exchange, $routeKey);
 
         $channel->close();
         $connection->close();
@@ -185,7 +185,7 @@ class Diligence extends \MapasCulturais\Entity
                 ' para responder a diligência.');
             }else{
                 
-                if($diligenceAgentId[0]->sendDiligence <= new DateTime()){
+                if($diligenceAgentId[0]->sendDiligence <= new DateTime() && !$entity->canUser('evaluate')){
                     i::_e('Desculpe, mas o prazo para responder está encerrado.');
                 }else{
                     i::_e('O Proponente tem apenas ' .
