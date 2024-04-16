@@ -10,6 +10,7 @@ var objSendDiligence = {
 }
 
 $(document).ready(function () {
+    $("#paragraph_value_project").hide();
     //Buscado diligencia se houver
     getContentDiligence()
 
@@ -85,7 +86,33 @@ $(document).ready(function () {
             console.log(error)
         })
 
+    $( "#select-value-project-diligence" ).on( "change", function (e) {
+        e.preventDefault();
+        console.log(e.target.value)
+        console.log('change')
+        if(e.target.value == 'Sim') {
+            $("#paragraph_value_project").show();
+        }
+    } );
 
+    $( "#input-value-project-diligence" ).on( "blur", function (e) {
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('diligence', 'valueProject'),
+            data: {value: e.target.value, entity : MapasCulturais.entity.id},
+            dataType: "json",
+            success: function (res) {
+                if(res.status == 200) {
+                    MapasCulturais.Messages.success('Valor destinado registrado');
+                }
+            },
+            error: function (err) {
+                console.log({err})
+                MapasCulturais.Messages.error(err.responseJSON.data);
+            }
+        });
+    } );
+        
 });
 
 function getContentDiligence() {
@@ -332,5 +359,4 @@ function hideAfterSend()
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
 }
-
 

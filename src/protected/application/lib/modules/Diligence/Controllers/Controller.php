@@ -2,11 +2,12 @@
 namespace Diligence\Controllers;
 
 use \MapasCulturais\App;
-use Diligence\Repositories\Diligence as DiligenceRepo;
-use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
-use Diligence\Entities\NotificationDiligence;
 use Diligence\Service\NotificationInterface;
+use Diligence\Entities\NotificationDiligence;
+use MapasCulturais\Entities\RegistrationMeta;
+use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
@@ -159,5 +160,34 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->requireAuthentication();
         $cancel = new AnswerDiligence();
         $cancel->cancel($this);
+    }
+
+    public function POST_valueProject()
+    {   
+        $this->requireAuthentication();
+        $app = App::i();
+        $regMeta = $app->repo('RegistrationMeta')->findOneBy([
+            'key' => 'value_project_diligence', 'owner' => $this->data['entity']
+        ]);
+        $reg = App::i()->repo('Registration')->find($this->data['entity']);
+        if(!$reg->canUser("evaluate")){
+            $this->errorJson('Somente avaliador poderá registrar o valor', 403);
+        }
+
+        if(empty($regMeta))
+        {
+            
+            $regMeta = new RegistrationMeta();
+            $regMeta->key = 'value_project_diligence';
+            $regMeta->value = $this->data['value'];
+            $regMeta->owner = $reg;
+        }else{            
+            $regMeta->key = 'value_project_diligence';
+            $regMeta->value = $this->data['value'];          
+        }
+       
+        $entity = self::saveEntity($regMeta);
+        self::returnJson($entity, $this);
+
     }
 }
