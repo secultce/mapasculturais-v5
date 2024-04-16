@@ -12,6 +12,7 @@ var objSendDiligence = {
 $(document).ready(function () {
     //Buscado diligencia se houver
     getContentDiligence()
+
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
     //Formatando o layout
@@ -27,9 +28,10 @@ $(document).ready(function () {
                     console.log(res.data.length)
                     console.log(res.data.status == undefined)
                     $("#descriptionDiligence").hide();
-                    $("#btn-save-diligence").hide();
-                    $("#btn-send-diligence").hide();
-                    $("#paragraph_loading_content").hide();
+                    $("#paragraph_loading_content").hide();                   
+                    hideBtnActionsDiligence();
+                    showBtnSubmitEvaluation();
+                    showBtnOpenDiligence();
                 }
 
                 res.data.forEach((element, index) => {
@@ -41,8 +43,8 @@ $(document).ready(function () {
                     $("#paragraph_loading_content").hide();
                     if (element.status == 3) {
                         EntityDiligence.formatDiligenceSendProponent(element);
-                        $("#btn-save-diligence").hide();
-                        $("#btn-send-diligence").hide();
+                        showBtnSubmitEvaluation();
+                        hideBtnActionsDiligence();
                     } else {
                         $("#descriptionDiligence").html(element.description)
                         $("#descriptionDiligence").show();
@@ -57,9 +59,8 @@ $(document).ready(function () {
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
                     EntityDiligence.verifySituation(answer.diligence);
+                    hideBtnActionsDiligence()
                     $("#descriptionDiligence").hide();
-                    $("#btn-save-diligence").hide();
-                    $("#btn-send-diligence").hide();
                     $("#paragraph_loading_content").hide();
                     $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
 
@@ -136,10 +137,10 @@ function showSaveContent(status) {
         }).then((result) => {
             console.log({ result })
             if (result.isConfirmed) {
-                // sendNotification();
+                sendNotification();
                 hideAfterSend();
-                showBtnOpenDiligence();
-                hideBtnOpenDiligence()
+                showBtnSubmitEvaluation();
+                hideBtnOpenDiligence();
             }
 
             if (result.isDismissed && result.dismiss === 'cancel') {
@@ -149,9 +150,10 @@ function showSaveContent(status) {
             if (
                 result.dismiss === Swal.DismissReason.timer
             ) {
-                // sendNotification();
-                hideAfterSend();
-                showBtnOpenDiligence();
+                sendNotification();
+                hideAfterSend();                
+                showBtnSubmitEvaluation();
+                hideBtnOpenDiligence();
                 setTimeout(() => {
                     hideAfterSend();
                 }, 500);
@@ -197,6 +199,15 @@ function cancelSend() {
 }
 function saveDiligence(status) {
     console.log('saveDiligence', status)
+    if($("#descriptionDiligence").val() == ''){
+        Swal.fire({
+            title: "Ops! A descrição precisa ser preenchida",
+            timer: 2000,
+            showConfirmButton: true,
+            reverseButtons: false,
+        });
+        return false;
+    }
     if (status == 3) {
         Swal.fire({
             title: "Confirmar o envio da diligência?",
@@ -231,9 +242,7 @@ function sendAjaxDiligence(status) {
         data: objSendDiligence,
         dataType: "json",
         success: function (res) {
-            console.log('sendAjax', res)
             if (res.status == 200) {
-                console.log('status do envio', status)
                 showSaveContent(status)
             }
         },
@@ -247,32 +256,72 @@ function sendAjaxDiligence(status) {
 
 function openDiligence(status) {
     objSendDiligence['description'] = '';
+    objSendDiligence['status'] = status
+    const imgLoad = MapasCulturais.spinnerUrl;
+    Swal.fire({
+        title: "Abrindo a sua diligência",
+        html: '<img src="'+imgLoad+'" style="height: 24px" />',
+        showConfirmButton: false,
+    });
+
     $.ajax({
         type: "POST",
         url: urlSaveDiligence,
         data: objSendDiligence,
         dataType: "json",
         success: function (res) {
-            console.log(res)
+            if(res.status == 200)    {
+               setTimeout(() => {
+                Swal.close();
+               }, 1000);
+            }
         }
     });
     $("#descriptionDiligence").show();
-    $("#btn-save-diligence").show();
-    $("#btn-send-diligence").show();
-    $("#btn-submit-evaluation").attr('disabled', true);
-    $("#btn-open-diligence").attr('disabled', true);
-    $("#btn-submit-evaluation").addClass('btn-diligence-open-desactive');
-    $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
-    console.log('btn-submit-evaluation');
-    // $("#btn-submit-evaluation").hide();
-
-
+    $("li-tab-diligence-diligence").addClass('active');
+    $("tab-diligence-principal").removeClass('active');
+    showBtnActionsDiligence();
+    hideBtnOpenDiligence();
+    hideBtnSubmitEvaluation();
 }
 
+//Oculta botão de abrir diligencia
+function hideBtnOpenDiligence()
+{
+    $("#btn-open-diligence").attr('disabled', true);
+    $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+}
+//Mostra o botão de abrir diligencia
 function showBtnOpenDiligence()
+{
+    $("#btn-open-diligence").removeAttr('disabled');
+    $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
+}
+
+//Oculta o botão de Finalizar avaliação
+function showBtnSubmitEvaluation()
 {
     $("#btn-submit-evaluation").removeAttr('disabled');
     $("#btn-submit-evaluation").removeClass('btn-diligence-open-desactive');
+}
+//Mostra o botão de avaliação
+function hideBtnSubmitEvaluation()
+{
+    $("#btn-submit-evaluation").attr('disabled', true);
+    $("#btn-submit-evaluation").addClass('btn-diligence-open-desactive');
+}
+
+//Oculta os botões de ação da diligência
+function hideBtnActionsDiligence()
+{
+    $("#btn-save-diligence").hide();
+    $("#btn-send-diligence").hide();
+}
+//Mostrar os botões de ação da diligência
+function showBtnActionsDiligence()
+{
+    $("#btn-save-diligence").show();
+    $("#btn-send-diligence").show();
 }
 
 function hideAfterSend()

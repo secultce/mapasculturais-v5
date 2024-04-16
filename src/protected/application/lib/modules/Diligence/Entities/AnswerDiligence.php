@@ -75,6 +75,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      */
     public function create($class)
     {
+        App::i()->applyHook('entity(diligence).createAnswer:before');
         $repo       = new DiligenceRepo();
         $diligence  = $repo->findId($class->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
@@ -95,7 +96,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
             $answer->status = $class->data['status'];
             $save = self::saveEntity($answer);
         }
-
+        App::i()->applyHook('entity(diligence).createAnswer', [&$answer]);
         return $save;
     }
 

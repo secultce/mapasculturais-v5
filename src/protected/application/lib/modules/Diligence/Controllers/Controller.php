@@ -40,9 +40,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         //ID é o número da inscrição
         if(isset($this->data['id'])){
             //Repositorio da Diligencia
-            // $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $this->data['id']]);
             $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
-            // dump($diligence);
             $content = 0;
             foreach ($diligence as $key => $value) {
             
@@ -82,6 +80,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             }
            
         }
+        //Passando para o hook o conteúdo da instancia diligencia
+        App::i()->applyHook('controller(diligence).getContent', [&$diligence]);
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
     }
@@ -94,11 +94,13 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     public function notification()
     {
         $this->requireAuthentication();
+        App::i()->applyHook('controller(diligence).notification:before');
         //Notificação no Mapa Cultural
         $notification = new NotificationDiligence();
         $notification->create($this);        
 
         $userDestination = $notification->userDestination($this);
+        App::i()->applyHook('controller(diligence).notification:after');
         //Enviando para fila RabbitMQ
         EntityDiligence::sendQueue($userDestination, 'proponente');
     }

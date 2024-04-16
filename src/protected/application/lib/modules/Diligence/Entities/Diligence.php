@@ -243,6 +243,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 
     public function create($class)
     {
+        App::i()->applyHook('entity(diligence).createDiligence:before');
         //Buscando informações do agente e da inscrição
         $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
             $class->data['registration'],
@@ -268,7 +269,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         if($class->data['status'] == "3"){
             $diligence->sendDiligence = new DateTime();
         }
-        
+        App::i()->applyHook('entity(diligence).createDiligence:after', [&$diligence]);
         return self::saveEntity($diligence);
         
     }
