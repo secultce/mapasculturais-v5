@@ -1,7 +1,20 @@
 
+//URL global para salvar a diligencia
+var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
+//Objecto com itens primário para salavar a diligência
+var objSendDiligence = {
+    registration: MapasCulturais.entity.id,
+    openAgent: MapasCulturais.userProfile.id,
+    agent: MapasCulturais.entity.ownerId,
+    createTimestamp: moment().format("YYYY-MM-DD")
+}
+
 $(document).ready(function () {
+    //Buscado diligencia se houver
     getContentDiligence()
+    //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
+    //Formatando o layout
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
         .then((res) => {
@@ -9,26 +22,30 @@ $(document).ready(function () {
             if (
                 (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
                 MapasCulturais.userEvaluate == true) {
-                    console.log(res.data.length)
-                if (res.data.length > 0 && res.data[0].status == 0) {
-                    $("#descriptionDiligence").val(res.data[0].description);
-                    $("#btn-save-diligence").show();
-                }
                 //Se não tem diligencia
-                if(res.data.length === 0){
-                    $("#descriptionDiligence").show();
-                    $("#paragraph_loading_content").hide();
+                if (res.data.length == 0 && res.data.status == undefined) {
+                    console.log(res.data.length)
+                    console.log(res.data.status == undefined)
+                    $("#descriptionDiligence").hide();
                     $("#btn-save-diligence").hide();
                     $("#btn-send-diligence").hide();
+                    $("#paragraph_loading_content").hide();
                 }
+
                 res.data.forEach((element, index) => {
                     console.log({ element })
                     console.log({ index })
+                    //Verifica a situação da diligencia
+                    EntityDiligence.verifySituation(element);
+                    $("#btn-save-diligence").show();
+                    $("#paragraph_loading_content").hide();
                     if (element.status == 3) {
                         EntityDiligence.formatDiligenceSendProponent(element);
-                        $("#paragraph_loading_content").hide();
-                    }else{
-                        $("#paragraph_loading_content").hide();
+                        $("#btn-save-diligence").hide();
+                        $("#btn-send-diligence").hide();
+                    } else {
+                        $("#descriptionDiligence").html(element.description)
+                        $("#descriptionDiligence").show();
                     }
                 });
 
@@ -39,33 +56,34 @@ $(document).ready(function () {
             if (res.message == "resposta_rascunho" && MapasCulturais.userEvaluate == true) {
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
+                    EntityDiligence.verifySituation(answer.diligence);
                     $("#descriptionDiligence").hide();
                     $("#btn-save-diligence").hide();
                     $("#btn-send-diligence").hide();
                     $("#paragraph_loading_content").hide();
-                });   
+                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
+
+                });
             }
 
-            if(res.message == "resposta_enviada" &&  MapasCulturais.userEvaluate == true)
-            {
+            if (res.message == "resposta_enviada" && MapasCulturais.userEvaluate == true) {
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
+                    EntityDiligence.verifySituation(answer.diligence);
                     $("#paragraph_content_send_answer").html(answer.answer);
                     $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
                     $("#answer_diligence").show();
                     $("#descriptionDiligence").hide();
                     $("#btn-actions-diligence").hide();
                     $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
-                });   
+                });
             }
-           
+
         })
         .catch((error) => {
             console.log(error)
         })
 
-        $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
-        $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
 
 });
 
@@ -89,10 +107,6 @@ function showSaveContent(status) {
     setTimeout(() => {
         $("#label-save-content-diligence").hide()
     }, 2000);
-    // $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
-    // $("#div-content-all-diligence-send").show();
-    // $("#div-diligence").hide();
-    // $("#btn-actions-diligence").hide();
     if (status == 3) {
         Swal.fire({
             title: "<strong>Sucesso!</strong>",
@@ -117,36 +131,31 @@ function showSaveContent(status) {
             allowOutsideClick: false,
             showCancelButton: true,
             reverseButtons: true,
-            confirmButtonText: "OK",
             cancelButtonText: 'Desfazer envio',
+            confirmButtonText: "OK",
         }).then((result) => {
             console.log({ result })
             if (result.isConfirmed) {
-                sendNotification();
-                $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
-                $("#div-content-all-diligence-send").show();
-                $("#div-diligence").hide();
-                $("#btn-actions-diligence").hide();
-                $("#descriptionDiligence").hide();
+                // sendNotification();
+                hideAfterSend();
+                showBtnOpenDiligence();
+                hideBtnOpenDiligence()
             }
-            
+
             if (result.isDismissed && result.dismiss === 'cancel') {
-                cancelSend();              
+                cancelSend();
             }
 
             if (
                 result.dismiss === Swal.DismissReason.timer
-              ) {
-                sendNotification();
-
+            ) {
+                // sendNotification();
+                hideAfterSend();
+                showBtnOpenDiligence();
                 setTimeout(() => {
-                    $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
-                    $("#div-content-all-diligence-send").show();
-                    $("#div-diligence").hide();
-                    $("#btn-actions-diligence").hide();
-                    $("#descriptionDiligence").hide();
+                    hideAfterSend();
                 }, 500);
-              } 
+            }
         });
     }
 
@@ -192,10 +201,16 @@ function saveDiligence(status) {
         Swal.fire({
             title: "Confirmar o envio da diligência?",
             text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
-            showDenyButton: true,
-            showCancelButton: false,
-            denyButtonText: `Não, enviar depois`,
+            showConfirmButton: true,
+            showCloseButton: false,
+            showCancelButton: true,
+            reverseButtons: true,
+            cancelButtonText: `Não, enviar depois`,
             confirmButtonText: "Enviar agora",
+            customClass: {
+                confirmButton: "btn-success-rec",
+                cancelButton: "btn-warning-rec"
+            },
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
@@ -208,17 +223,12 @@ function saveDiligence(status) {
 
 }
 function sendAjaxDiligence(status) {
+    objSendDiligence['description'] = $("#descriptionDiligence").val();
+    objSendDiligence['status'] = status
     $.ajax({
         type: "POST",
-        url: MapasCulturais.createUrl('diligence', 'save'),
-        data: {
-            registration: MapasCulturais.entity.id,
-            openAgent: MapasCulturais.userProfile.id,
-            agent: MapasCulturais.entity.ownerId,
-            createTimestamp: moment().format("YYYY-MM-DD"),
-            description: $("#descriptionDiligence").val(),
-            status: status,
-        },
+        url: urlSaveDiligence,
+        data: objSendDiligence,
         dataType: "json",
         success: function (res) {
             console.log('sendAjax', res)
@@ -233,6 +243,45 @@ function sendAjaxDiligence(status) {
             })
         }
     });
+}
+
+function openDiligence(status) {
+    objSendDiligence['description'] = '';
+    $.ajax({
+        type: "POST",
+        url: urlSaveDiligence,
+        data: objSendDiligence,
+        dataType: "json",
+        success: function (res) {
+            console.log(res)
+        }
+    });
+    $("#descriptionDiligence").show();
+    $("#btn-save-diligence").show();
+    $("#btn-send-diligence").show();
+    $("#btn-submit-evaluation").attr('disabled', true);
+    $("#btn-open-diligence").attr('disabled', true);
+    $("#btn-submit-evaluation").addClass('btn-diligence-open-desactive');
+    $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+    console.log('btn-submit-evaluation');
+    // $("#btn-submit-evaluation").hide();
+
+
+}
+
+function showBtnOpenDiligence()
+{
+    $("#btn-submit-evaluation").removeAttr('disabled');
+    $("#btn-submit-evaluation").removeClass('btn-diligence-open-desactive');
+}
+
+function hideAfterSend()
+{
+    $("#paragraph_content_send_diligence").html($("#descriptionDiligence").val());
+    $("#div-content-all-diligence-send").show();
+    $("#div-diligence").hide();
+    $("#btn-actions-diligence").hide();
+    $("#descriptionDiligence").hide();
 }
 
 

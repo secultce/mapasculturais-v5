@@ -56,7 +56,12 @@ foreach ($opportunity->getEvaluationCommittee() as $evaluation_user) {
                 <?php $this->part($evaluation_form_part_name, $params); ?>
                 <hr>
                 <div style="text-align: right;">
-                    <button class="btn btn-primary js-evaluation-submit js-next"><?php i::_e('Finalizar Avaliação e Avançar'); ?> &gt;&gt;</button>
+                    <button 
+                        class="btn btn-primary js-evaluation-submit js-next"
+                        id="btn-submit-evaluation"
+                    >
+                        <?php i::_e('Finalizar Avaliação e Avançar'); ?> &gt;&gt;
+                    </button>
                 </div>
             </form>
             <?php elseif($entity->canUser('viewUserEvaluation')): ?>

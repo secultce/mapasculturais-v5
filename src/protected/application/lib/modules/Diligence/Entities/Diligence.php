@@ -31,7 +31,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     use \Diligence\Traits\DiligenceSingle;
 
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
+    const STATUS_CLOSE = 3; // Para diligência que foi enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
     /**
      * @var integer
@@ -249,7 +249,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             $class->data['openAgent'],
             $class->data['agent']
         );
-        
+       
         //Se tiver registro de diligência
         $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
       
@@ -262,11 +262,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $diligence->openAgent       = $regs['openAgent'];
         $diligence->agent           = $regs['agent'];
         $diligence->createTimestamp =  new DateTime();
-        $diligence->description     = $class->data['description'];
+        $diligence->description     = $class->data['description'];   
         $diligence->status          = $class->data['status'];
         //Considerando que será um envio
         if($class->data['status'] == "3"){
-            $diligence->sendDiligence =  new DateTime();
+            $diligence->sendDiligence = new DateTime();
         }
         
         return self::saveEntity($diligence);

@@ -40,18 +40,15 @@ var EntityDiligence = (function(){
 
     function hideCommon()
     {
-        console.log('hideCommon')
-        var urlAtual = window.location.href;
         // Declaração da variável fora de qualquer função para torná-la global
+        var urlAtual = window.location.href;
       
-        // Sentença de string que você deseja verificar na URL
+        // Sentença de string para ser verificada na URL
         var sentencaDesejada = "#/tab=diligence-diligence";
 
         if (urlAtual.includes(sentencaDesejada)) {
-            console.log("A URL contém a sentença desejada.");
             $("#registration-content-all").hide();
         } else {
-            console.log("A URL não contém a sentença desejada.");
             $("#diligence-diligence").hide();
 
         }
@@ -68,28 +65,25 @@ var EntityDiligence = (function(){
         $("#answer_diligence").hide();
         $("#descriptionDiligence").on("keyup", function() {
             var texto = $(this).val(); // Obtém o valor do textarea
-            if (texto.slice(-1) == '') {
+            // if (texto.slice(-1) == '') {
                
-                if (MapasCulturais.isProponent) {
-                    $("#btn-save-diligence-proponent").hide()
-                    $("#btn-send-diligence-proponente").hide()
-                } else {
-                    $("#btn-save-diligence").hide()
-                }
-            } else {
-                if (MapasCulturais.isProponent) {
-                    $("#btn-save-diligence-proponent").show()
-                    $("#btn-send-diligence-proponente").show()
+            //     if (MapasCulturais.isProponent) {
+            //         $("#btn-save-diligence-proponent").hide()
+            //         $("#btn-send-diligence-proponente").hide()
+            //     } else {
+            //         $("#btn-save-diligence").hide()
+            //     }
+            // } else {
+            //     if (MapasCulturais.isProponent) {
+            //         $("#btn-save-diligence-proponent").show()
+            //         $("#btn-send-diligence-proponente").show()
                     
-                } else {
-                    $("#btn-save-diligence").show();
-                    $("#btn-send-diligence").show();
-                }
-            }
+            //     } else {
+            //         $("#btn-save-diligence").show();
+            //         $("#btn-send-diligence").show();
+            //     }
+            // }
         });
-        // if ($(this).val() > 0) {
-        //     $("#btn-save-diligence").show();
-        // }
         
     }
     /**
@@ -104,8 +98,6 @@ var EntityDiligence = (function(){
         $("#div-content-all-diligence-send").show();
         $("#paragraph_createTimestamp").html(moment(res.sendDiligence.date).format("LLL"));
         $("#div-info-send").show();
-        $("#btn-save-diligence").hide();
-        $("#btn-send-diligence").hide();
     }
 
     function hideShowSuccessAction()
@@ -152,6 +144,30 @@ var EntityDiligence = (function(){
         return "no_periodo";
     }
 
+    function verifySituation(data)
+    {
+          //Sempre verifica a situação para habilitar o botão de Fializar avaliação e avançar
+        if (data.id > 0) {
+           
+           switch (data.situation) {
+            case 2:
+                $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+                $("#btn-open-diligence").attr('disabled', true);
+                $("#btn-submit-evaluation").addClass('btn-diligence-open-desactive');
+                $("#btn-submit-evaluation").attr('disabled', true);
+                break;
+            case 3:
+                $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
+                $("#btn-open-diligence").attr('disabled',false);
+                $("#btn-submit-evaluation").removeClass('btn-diligence-open-desactive');
+                $("#btn-submit-evaluation").attr('disabled', false);
+                break;            
+            default:
+                break;
+           }
+        }
+    }
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -160,6 +176,7 @@ var EntityDiligence = (function(){
         formatDiligenceSendProponent: formatDiligenceSendProponent,
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
-        getLimitDateAnswer: getLimitDateAnswer
+        getLimitDateAnswer: getLimitDateAnswer,
+        verifySituation: verifySituation
       }
 }());

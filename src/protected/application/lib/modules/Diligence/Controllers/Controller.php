@@ -1,20 +1,12 @@
 <?php
 namespace Diligence\Controllers;
 
-use DateTime;
-use Slim\Http\Request;
 use \MapasCulturais\App;
-use MapasCulturais\Entities\Notification;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Diligence\Entities\NotificationDiligence;
 use Diligence\Service\NotificationInterface;
-// use MapasCulturais\Entities\EntityRevision as Revision;
-// use \MapasCulturais\Entities\EntityRevisionData;
-// use MapasCulturais\Traits;
-// use Recourse\Entities\Recourse as EntityRecourse;
-
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
@@ -94,9 +86,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
     }
     
-
-
-
     /**
      * Metodo da interface para notificação
      *
@@ -104,6 +93,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function notification()
     {
+        $this->requireAuthentication();
         //Notificação no Mapa Cultural
         $notification = new NotificationDiligence();
         $notification->create($this);        
@@ -124,6 +114,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_answer() : void
     {
+        $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);
         self::returnJson($entity, $this);
@@ -136,6 +127,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function PUT_cancelsend() : void
     {
+        $this->requireAuthentication();
         $cancel = new EntityDiligence();
         $cancel->cancel($this);        
     }
@@ -162,8 +154,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function PUT_cancelsendAnswer()
     {
-       $cancel = new AnswerDiligence();
-       $cancel->cancel($this);
+        $this->requireAuthentication();
+        $cancel = new AnswerDiligence();
+        $cancel->cancel($this);
     }
-
 }
