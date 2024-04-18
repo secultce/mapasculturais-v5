@@ -59,6 +59,11 @@ class Module extends \MapasCulturais\Module {
             $entity = $this->controller->requestedEntity;
             $this->part('diligence/days', ['entity' => $entity]);
         });
+
+        $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
+            $entity = $this->controller->requestedEntity;
+            $this->part('registration-diligence/value-project', ['entity' => $entity]);
+        });
     }
     
     function register () {
@@ -68,11 +73,22 @@ class Module extends \MapasCulturais\Module {
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
             'type' => 'string',
-            'default' => 3,
+            'default' => 3,           
             'validations' => [
                 'v::intVal()->positive()->between(1, 365)' => 'O valor deve ser um número inteiro positivo'
             ]
         ]);
+
+        $this->registerRegistrationMetadata('value_project_diligence', [
+            'label' =>  i::__('Valor estimado do projeto'),
+            'type' => 'string',
+            'options' => ['Sim', 'Não'],
+            'default' => 'Não',
+            'validations' => [
+                "v::positive()" => "a meta de itens deve ser um número positivo"
+            ]
+        ]);
+
     }
 
     /**
@@ -85,5 +101,6 @@ class Module extends \MapasCulturais\Module {
 
         $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
         $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
+
     }
 }
