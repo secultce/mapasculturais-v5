@@ -12,6 +12,7 @@ src/protected/application/conf/config.php
 src/protected/application/conf/conf-test-local.php
 src/protected/DoctrineProxies/*
 src/protected/application/themes/mapasculturais-*
+src/protected/application/lib/modules/Diligence
 src/protected/vendor
 src/pub
 src/assets
