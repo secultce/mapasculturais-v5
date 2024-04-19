@@ -164,30 +164,70 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     public function POST_valueProject()
     {   
-        $this->requireAuthentication();
+        // $this->requireAuthentication();
         $app = App::i();
-        $regMeta = $app->repo('RegistrationMeta')->findOneBy([
-            'key' => 'value_project_diligence', 'owner' => $this->data['entity']
-        ]);
-        $reg = App::i()->repo('Registration')->find($this->data['entity']);
-        if(!$reg->canUser("evaluate")){
-            $this->errorJson('Somente avaliador poderá registrar o valor', 403);
-        }
 
-        if(empty($regMeta))
-        {
-            
-            $regMeta = new RegistrationMeta();
-            $regMeta->key = 'value_project_diligence';
-            $regMeta->value = $this->data['value'];
-            $regMeta->owner = $reg;
-        }else{            
-            $regMeta->key = 'value_project_diligence';
-            $regMeta->value = $this->data['value'];          
+        $request = array_keys($this->postData);
+        $regMeta =[];
+        $idEntity = $this->postData['entity'];
+        $reg = App::i()->repo('Registration')->find($idEntity);
+        $createMetadata = null;
+        $regMeta = $app->repo('RegistrationMeta')->findBy([
+            'owner' => $idEntity
+        ]);
+        foreach ($this->postData as $keyRequest => $meta) {
+           
+            // dump($keyRequest, $meta,$this->postData['entity']);
+            // dump($this->data[$meta]);
+           
+            //'key' => $key, 'value'=>  $meta, 
+            // dump($regMeta);
+            if(empty($regMeta)){
+                $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
+                $entity = self::saveEntity($createMeta);
+            }
+
+            foreach ($regMeta as $key => $value) {
+             
+                //option_authorized
+                //Se já existe dados cadastrados, então substitui por um valor novo
+                if($value->key == $keyRequest)
+                {
+                    dump($keyRequest, $value->key, $meta);
+                    $value->value = $meta;
+                    $entity = self::saveEntity($value);
+                }
+               
+                // $entity = self::saveEntity($value);
+                // if($value->key == 'value_project_diligence') {
+                //     $value->value = $meta;
+                    
+                // }
+                // $entity = self::saveEntity($value);
+                // self::returnJson($entity, $this);
+            }
+           
+          
+            $createMetadata = $app->repo('RegistrationMeta')->findBy([
+               'key' => $keyRequest, 'owner' => $idEntity
+            ]);
+            dump($createMetadata);
+            if(empty($createMetadata)) {
+                $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
+                $entity = self::saveEntity($createMeta);
+            }
         }
-       
-        $entity = self::saveEntity($regMeta);
+     
         self::returnJson($entity, $this);
 
+    }
+
+    protected function authorizedProject($entity, $key, $value): object
+    {
+        $metaData = new RegistrationMeta();
+        $metaData->key = $key;
+        $metaData->value = $value;
+        $metaData->owner = $entity;
+        return $metaData;
     }
 }

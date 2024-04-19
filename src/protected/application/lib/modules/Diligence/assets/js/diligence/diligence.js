@@ -89,31 +89,41 @@ $(document).ready(function () {
     $( "#select-value-project-diligence" ).on( "change", function (e) {
         e.preventDefault();
         console.log(e.target.value)
-        console.log('change')
+        console.log('change');
+        saveAuthorizedProject('option_authorized', e.target.value)
         if(e.target.value == 'Sim') {
             $("#paragraph_value_project").show();
         }
     } );
 
     $( "#input-value-project-diligence" ).on( "blur", function (e) {
-        $.ajax({
-            type: "POST",
-            url: MapasCulturais.createUrl('diligence', 'valueProject'),
-            data: {value: e.target.value, entity : MapasCulturais.entity.id},
-            dataType: "json",
-            success: function (res) {
-                if(res.status == 200) {
-                    MapasCulturais.Messages.success('Valor destinado registrado');
-                }
-            },
-            error: function (err) {
-                console.log({err})
-                MapasCulturais.Messages.error(err.responseJSON.data);
-            }
-        });
+        saveAuthorizedProject('value_project_diligence',e.target.value)
     } );
         
 });
+
+function saveAuthorizedProject(keyAuth, valueAuth)
+{
+    const dataAuthorized = {
+        entity : MapasCulturais.entity.id
+    }
+    dataAuthorized[keyAuth] = valueAuth
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('diligence', 'valueProject'),
+        data: dataAuthorized,
+        dataType: "json",
+        success: function (res) {
+            if(res.status == 200) {
+                MapasCulturais.Messages.success('Valor destinado registrado');
+            }
+        },
+        error: function (err) {
+            console.log({err})
+            MapasCulturais.Messages.error(err.responseJSON.data);
+        }
+    });
+}
 
 function getContentDiligence() {
     console.log('getContentDiligence')
