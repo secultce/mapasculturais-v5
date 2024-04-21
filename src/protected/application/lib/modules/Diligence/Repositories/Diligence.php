@@ -77,4 +77,16 @@ class Diligence{
         return $query->getResult();
     }
 
+    static function getAuthorizedProject($registration): array
+    {
+        $app = App::i();  
+        $reg = $app->repo('Registration')->find($registration);
+        $optionAuthorized = $reg->getMetadata('option_authorized');
+        $valueAuthorized = $reg->getMetadata('value_project_diligence');
+        return [
+            'optionAuthorized' => $optionAuthorized,
+            'valueAuthorized' =>  $valueAuthorized
+        ];
+    }
+
 }

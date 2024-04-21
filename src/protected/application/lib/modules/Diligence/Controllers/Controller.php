@@ -230,4 +230,13 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $metaData->owner = $entity;
         return $metaData;
     }
+
+    public function GET_getAuthorizedProject()
+    {
+        $authorized = DiligenceRepo::getAuthorizedProject($this->data['id']);
+        $this->json([
+            'optionAuthorized' => $authorized['optionAuthorized'] , 
+            'valueAuthorized' => $authorized['valueAuthorized']
+        ]);
+    }
 }

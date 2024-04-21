@@ -12,8 +12,23 @@ var objSendDiligence = {
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
     //Buscado diligencia se houver
-    getContentDiligence()
 
+    //Retornar valor se foi autorizado
+    let authorized = EntityDiligence.returnGetAuthorized();
+    authorized.then( (res) => {
+      console.log({res})
+        if(res.optionAuthorized == 'Sim') {
+            //Alterando a opção do select
+            $("#select-value-project-diligence").val(res.optionAuthorized).change();
+        }
+        if(res.valueAuthorized !== null) {
+            //Alterando o valor do projeto
+            $("#input-value-project-diligence").val(res.valueAuthorized);
+        }
+        
+    }).catch( (err) => {
+        console.log({err})
+    })
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
     //Formatando o layout
@@ -125,9 +140,6 @@ function saveAuthorizedProject(keyAuth, valueAuth)
     });
 }
 
-function getContentDiligence() {
-    console.log('getContentDiligence')
-}
 
 //Sempre implementar esses metodos
 function hideRegistration() {

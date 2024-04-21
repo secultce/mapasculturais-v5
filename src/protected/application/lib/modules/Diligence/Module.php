@@ -82,11 +82,16 @@ class Module extends \MapasCulturais\Module {
         $this->registerRegistrationMetadata('value_project_diligence', [
             'label' =>  i::__('Valor estimado do projeto'),
             'type' => 'string',
-            'options' => ['Sim', 'Não'],
-            'default' => 'Não',
             'validations' => [
                 "v::positive()" => "a meta de itens deve ser um número positivo"
             ]
+        ]);
+        
+        $this->registerRegistrationMetadata('option_authorized', [
+            'label' =>  i::__('Projeto Autorizado?'),
+            'type' => 'string',
+            'options' => ['Sim', 'Não'],
+            'default' => 'Não'
         ]);
 
     }

@@ -1,6 +1,7 @@
 var EntityDiligence = (function(){
     
-    function resolveAfter2Seconds() {
+    //Conteúdo da diligencia
+    function contentDiligence() {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 $.ajax({
@@ -9,8 +10,7 @@ var EntityDiligence = (function(){
                     dataType: "json",
                     success: function(res) {
                       
-                        resolve(res)                
-                        // return res
+                        resolve(res)
                     },
                     error: function(err) {
                         return err
@@ -22,12 +22,31 @@ var EntityDiligence = (function(){
 
     async function showContentDiligence()
     {
-        let object = {}
-       
-        const result = await resolveAfter2Seconds();
+        const result = await contentDiligence();
         return result;
-       
-       
+    }
+    //Promise para buscar e devolver informação da 
+    function getAuthorized()
+    {
+        const regis = MapasCulturais.entity.id;
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                $.ajax({
+                    type: "GET",
+                    url: MapasCulturais.createUrl('diligence', 'getAuthorizedProject/'+regis),
+                    dataType: "json",
+                    success: function (response) {
+                        resolve(response)
+                    }
+                });
+            }, 2000);
+        });
+    }
+
+    async function returnGetAuthorized()
+    {
+        const result = await getAuthorized();
+        return result;        
     }
 
     function hideRegistration() {
@@ -40,6 +59,7 @@ var EntityDiligence = (function(){
 
     function hideCommon()
     {
+       
         // Declaração da variável fora de qualquer função para torná-la global
         var urlAtual = window.location.href;
       
@@ -63,27 +83,6 @@ var EntityDiligence = (function(){
         $("#div-content-all-diligence-send").hide();
         $("#descriptionDiligence").show();
         $("#answer_diligence").hide();
-        $("#descriptionDiligence").on("keyup", function() {
-            var texto = $(this).val(); // Obtém o valor do textarea
-            // if (texto.slice(-1) == '') {
-               
-            //     if (MapasCulturais.isProponent) {
-            //         $("#btn-save-diligence-proponent").hide()
-            //         $("#btn-send-diligence-proponente").hide()
-            //     } else {
-            //         $("#btn-save-diligence").hide()
-            //     }
-            // } else {
-            //     if (MapasCulturais.isProponent) {
-            //         $("#btn-save-diligence-proponent").show()
-            //         $("#btn-send-diligence-proponente").show()
-                    
-            //     } else {
-            //         $("#btn-save-diligence").show();
-            //         $("#btn-send-diligence").show();
-            //     }
-            // }
-        });
         
     }
     /**
@@ -177,6 +176,7 @@ var EntityDiligence = (function(){
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
         getLimitDateAnswer: getLimitDateAnswer,
-        verifySituation: verifySituation
+        verifySituation: verifySituation,
+        returnGetAuthorized: returnGetAuthorized
       }
 }());
