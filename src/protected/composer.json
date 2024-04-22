@@ -32,7 +32,8 @@
         "phpoffice/phpspreadsheet": "^1.19",
         "league/csv": "9.6.0",
         "shuchkin/simplexls": "^0.10.3",
-        "shuchkin/simplexlsx": "^1.0"
+        "shuchkin/simplexlsx": "^1.0",
+        "php-amqplib/php-amqplib": "^3.2"
     },
     "require-dev": {
     },
