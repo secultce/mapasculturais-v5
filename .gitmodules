@@ -23,3 +23,7 @@
 	url = https://github.com/secultce/plugin-LocationStateCity.git
 	branch = main
 #add submodulos
+[submodule "src/protected/application/plugins/EditOpportunityType"]
+	path = src/protected/application/plugins/EditOpportunityType
+	url = https://github.com/secultce/plugin-EditOpportunityType.git
+	branch = main
