@@ -4,7 +4,7 @@ $placeHolder = "Digite aqui a sua resposta";
 
 
 $this->applyTemplateHook('tabs', 'before');
-$this->part('diligence/ul-buttons');
+$this->part('diligence/ul-buttons', ['entity' => $entity]);
 ?>
 
 <?php $this->applyTemplateHook('tabs', 'after'); ?>

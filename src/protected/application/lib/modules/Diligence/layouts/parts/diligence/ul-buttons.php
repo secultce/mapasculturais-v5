@@ -6,6 +6,7 @@
         <a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>
     </li>
     <li class="" style="float: right;">
+    <?php if($entity->canUser('evaluate')): ?>
        <button 
             type="button"
             class="btn btn-primary btn-diligence-open-active"
@@ -15,5 +16,6 @@
         >
             Abrir Diligência
         </button>
+    <?php endif; ?>
     </li>
 </ul>
