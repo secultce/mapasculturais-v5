@@ -1,8 +1,9 @@
 <?php //dump($entity); ?>
+
+<p id="paragraf_label_project">
 <label style="font-weight: bold; font-size: smaller;">
    <?php \MapasCulturais\i::_e(" O projeto está autorizado ou não autorizado?");?>  
 </label>
-<p>
    <select id="select-value-project-diligence" placeholder="Selecione" style="width: 100%;">
       <option value="">Selecione um status</option>
       <option value="Não">Não autorizado</option>

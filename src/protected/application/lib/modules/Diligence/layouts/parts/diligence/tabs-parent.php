@@ -13,7 +13,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
 
 
     $this->applyTemplateHook('tabs', 'before');
-    $this->part('diligence/ul-buttons');
+    $this->part('diligence/ul-buttons', ['entity' => $entity]);
 ?>
 
 <div class="tabs-content">
