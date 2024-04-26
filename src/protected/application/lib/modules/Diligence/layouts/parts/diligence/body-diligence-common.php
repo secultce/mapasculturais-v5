@@ -3,9 +3,7 @@
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 
-dump($sendEvaluation);
-dump($entity->opportunity->publishedRegistrations);
-if(!$sendEvaluation || !$entity->opportunity->publishedRegistrations):
+if(!$sendEvaluation):
 ?>
 <p id="paragraph_loading_content">
 <label for="">
