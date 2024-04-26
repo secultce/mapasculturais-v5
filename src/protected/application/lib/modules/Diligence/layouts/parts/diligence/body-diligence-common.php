@@ -2,6 +2,10 @@
 
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
+
+dump($sendEvaluation);
+dump($entity->opportunity->publishedRegistrations);
+if(!$sendEvaluation || !$entity->opportunity->publishedRegistrations):
 ?>
 <p id="paragraph_loading_content">
 <label for="">
@@ -51,4 +55,10 @@ use Diligence\Entities\Diligence as EntityDiligence;
 <label class="diligence-label-save" id="label-save-content-diligence">
     <i class="fas fa-check-circle mr-10"></i>
     Suas alterações foram salvas
+<<<<<<< HEAD
 </label>
+=======
+</label>
+
+<?php endif; ?>
+>>>>>>> feature/moduloDiligence

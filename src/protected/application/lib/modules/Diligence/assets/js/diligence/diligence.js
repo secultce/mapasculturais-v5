@@ -11,6 +11,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
+    $("#paragraf_label_project").hide();
     //Buscado diligencia se houver
 
     //Retornar valor se foi autorizado
@@ -61,6 +62,7 @@ $(document).ready(function () {
                         EntityDiligence.formatDiligenceSendProponent(element);
                         showBtnSubmitEvaluation();
                         hideBtnActionsDiligence();
+                        
                     } else {
                         $("#descriptionDiligence").html(element.description)
                         $("#descriptionDiligence").show();
@@ -84,6 +86,7 @@ $(document).ready(function () {
             }
 
             if (res.message == "resposta_enviada" && MapasCulturais.userEvaluate == true) {
+                $("#paragraf_label_project").show();
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
                     EntityDiligence.verifySituation(answer.diligence);
@@ -327,11 +330,11 @@ function openDiligence(status) {
         }
     });
     $("#descriptionDiligence").show();
-    $("li-tab-diligence-diligence").addClass('active');
     $("tab-diligence-principal").removeClass('active');
+    $("li-tab-diligence-diligence").addClass('active');
     showBtnActionsDiligence();
     hideBtnOpenDiligence();
-    hideBtnSubmitEvaluation();
+    // hideBtnSubmitEvaluation();
 }
 
 //Oculta botão de abrir diligencia

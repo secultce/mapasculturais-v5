@@ -317,4 +317,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         return $class->json(['message' => 'error', 'status' => 400], 400);
    }
 
+    static public function evaluationSend($entity)
+    {
+        if($entity->opportunity->isUserEvaluationsSent())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 }

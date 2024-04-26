@@ -152,14 +152,10 @@ var EntityDiligence = (function(){
             case 2:
                 $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
                 $("#btn-open-diligence").attr('disabled', true);
-                $("#btn-submit-evaluation").addClass('btn-diligence-open-desactive');
-                $("#btn-submit-evaluation").attr('disabled', true);
                 break;
             case 3:
                 $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
                 $("#btn-open-diligence").attr('disabled',false);
-                $("#btn-submit-evaluation").removeClass('btn-diligence-open-desactive');
-                $("#btn-submit-evaluation").attr('disabled', false);
                 break;            
             default:
                 break;

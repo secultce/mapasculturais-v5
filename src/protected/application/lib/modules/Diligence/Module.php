@@ -20,15 +20,18 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 
 class Module extends \MapasCulturais\Module {
-
+ use \Diligence\Traits\DiligenceSingle;
     function _init () {
+        
         $app = App::i();
        
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = $this->controller->requestedEntity;
+            $entity = self::getrequestedEntity($this);
             $entityDiligence = new EntityDiligence();
+            //Verifica se já ouve o envio da avaliação
+            $sendEvaluation = EntityDiligence::evaluationSend($entity);
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Mostra o prazo de forma diferente a depender do usuario logado
@@ -51,18 +54,27 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',$context);               
             }
             
-           
-            $this->part('diligence/tabs-parent',$context);
+            $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
-            $entity = $this->controller->requestedEntity;
+            $entity = self::getrequestedEntity($this);
             $this->part('diligence/days', ['entity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = $this->controller->requestedEntity;
+            $entity = self::getrequestedEntity($this);
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
+        });
+
+        //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
+        $app->hook('template(registration.view.form):end', function() use ($app) {
+            $entity = self::getrequestedEntity($this);           
+            $authorired = $entity->getMetadata('option_authorized');
+            $valueProject = $entity->getMetadata('value_project_diligence');
+            if($authorired == 'Sim') {
+                $this->part('registration-diligence/info-value-project', ['authorired' => $authorired, 'valueProject' => $valueProject]);
+            }
         });
     }
     
