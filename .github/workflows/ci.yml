@@ -33,8 +33,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            secultceara/mapasculturais:5.8.15
-            secultceara/mapasculturais:latest
+            secultceara/mapasculturais:homolog
 
   DEPLOY:
     needs: BUILD
