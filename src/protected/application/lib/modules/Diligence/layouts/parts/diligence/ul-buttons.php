@@ -1,6 +1,3 @@
-<?php
-
-?>
 <ul class="abas clearfix">
     <li class="active">
         <a href="#diligence-principal" rel="noopener noreferrer" onclick="showRegistration()" id="tab-main-content-diligence-principal">Ficha</a>

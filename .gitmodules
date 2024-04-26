@@ -22,7 +22,8 @@
 	path = src/protected/application/plugins/LocationStateCity
 	url = https://github.com/secultce/plugin-LocationStateCity.git
 	branch = main
-[submodule "src/protected/application/plugins/Diligence"]
-	path = src/protected/application/plugins/Diligence
-	url = https://github.com/secultce/plugin-Diligence
+#add submodulos
+[submodule "src/protected/application/plugins/EditOpportunityType"]
+	path = src/protected/application/plugins/EditOpportunityType
+	url = https://github.com/secultce/plugin-EditOpportunityType.git
 	branch = main

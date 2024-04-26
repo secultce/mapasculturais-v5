@@ -50,8 +50,8 @@ class Module extends \MapasCulturais\Module {
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
             if($isProponent){              
-               
-                return $this->part('diligence/proponent',$context);               
+              
+                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
             }
             
             $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
