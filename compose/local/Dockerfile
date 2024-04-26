@@ -21,7 +21,7 @@ RUN npm install -g \
 RUN gem install sass -v 3.4.22
 
 # Install extensions
-RUN docker-php-ext-install opcache pdo_pgsql zip xml curl json
+RUN docker-php-ext-install opcache pdo_pgsql zip xml curl json sockets
 
 # Install GD
 RUN docker-php-ext-install -j$(nproc) iconv \

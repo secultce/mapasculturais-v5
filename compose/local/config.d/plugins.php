@@ -8,5 +8,6 @@ return [
         'EvaluationMethodQualification' => ['namespace' => 'EvaluationMethodQualification'],
         'ValuersManagement' => [ 'namespace' => 'ValuersManagement' ],
         'OpinionManagement' => [ 'namespace' => 'OpinionManagement' ],
+        'Recourse' => [ 'namespace' => 'Recourse' ]
     ]
 ];

@@ -4,7 +4,9 @@
 
     <h3><?php \MapasCulturais\i::_e("Avaliações");?></h3>
 </header>
-<?php if($entity->isUserEvaluationsSent()): ?>
+<?php
+
+if($entity->isUserEvaluationsSent()): ?>
     <div id='status-info' class="alert success">
         <span><?php \MapasCulturais\i::_e("Suas avaliações já foram enviadas:");?></span>
 
