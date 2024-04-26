@@ -73,9 +73,10 @@ trait ControllerUploads{
 
         $result = [];
         $files = [];
-
+      
         // the group of the files is the key in $_FILES array
         foreach(array_keys($_FILES) as $group_name){
+          
             $ext = pathinfo($_FILES[$group_name]['name'], PATHINFO_EXTENSION);
             $name = pathinfo($_FILES[$group_name]['name'], PATHINFO_FILENAME);
             $_FILES[$group_name]['name'] = $app->slugify($name).".".$ext;
@@ -83,9 +84,19 @@ trait ControllerUploads{
 //            $this->errorJson('asd '.$this->id.' '.$group_name.' '.$app->getRegisteredFileGroup($this->id, $group_name));
             $upload_group = $app->getRegisteredFileGroup($this->id, $group_name);
             // if the group exists
-            if($upload_group = $app->getRegisteredFileGroup($this->id, $group_name)){
+            dump($app->getRegisteredFileGroup($this->id, $group_name));
+            dump($upload_group);
+            dump($group_name);
+            dump($this->id);
+            dump('acessou try?');
+            // die;
+            if(true){
+               
                 try {
+                  
                     $file = $app->handleUpload($group_name, $file_class_name);
+                    dump($file);
+      
                     // if multiple files was uploaded and this group is unique, don't save this group of files.
                     if(is_array($file) && $upload_group->unique){
                         continue;
@@ -122,6 +133,7 @@ trait ControllerUploads{
                     }
 
                 }catch(\MapasCulturais\Exceptions\FileUploadError $e){
+                    
                     $files[] = [
                         'error' => $e->message, 
                         'group' => $upload_group

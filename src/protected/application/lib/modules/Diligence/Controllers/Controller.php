@@ -12,6 +12,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
     use \Diligence\Traits\DiligenceSingle;
+    use \MapasCulturais\Traits\ControllerUploads;
 
     const NOT_DILIGENCE     = 'sem_diligencia';
     const ONLY_DILIGENCE    = 'diligencia_aberta';
