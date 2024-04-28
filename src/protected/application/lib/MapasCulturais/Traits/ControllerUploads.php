@@ -64,7 +64,8 @@ trait ControllerUploads{
         $file_class_name = $owner->getFileClassName();
         
         $app = App::i();
-
+        //Se o dono existir, pode ter controle sobre a entidade
+        $app->disableAccessControl();
         // if no files uploaded or no id in request data, return an error
         if(empty($_FILES) || !$this->data['id']){
             $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado'));
@@ -84,18 +85,11 @@ trait ControllerUploads{
 //            $this->errorJson('asd '.$this->id.' '.$group_name.' '.$app->getRegisteredFileGroup($this->id, $group_name));
             $upload_group = $app->getRegisteredFileGroup($this->id, $group_name);
             // if the group exists
-            dump($app->getRegisteredFileGroup($this->id, $group_name));
-            dump($upload_group);
-            dump($group_name);
-            dump($this->id);
-            dump('acessou try?');
-            // die;
-            if(true){
+            if($upload_group = $app->getRegisteredFileGroup($this->id, $group_name)){
                
-                try {
-                  
+                try {                  
                     $file = $app->handleUpload($group_name, $file_class_name);
-                    dump($file);
+                    // dump($file);
       
                     // if multiple files was uploaded and this group is unique, don't save this group of files.
                     if(is_array($file) && $upload_group->unique){
@@ -141,7 +135,7 @@ trait ControllerUploads{
                 }
             }
         }
-
+       
         // if no files was added to $files array, return an error
         if(empty($files)){
             $this->errorJson(\MapasCulturais\i::__('nenhum arquivo válido enviado'));
