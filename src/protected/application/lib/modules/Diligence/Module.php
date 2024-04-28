@@ -49,13 +49,7 @@ class Module extends \MapasCulturais\Module {
             $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-            $app->view->jsObject['angularAppDependencies'][] = 'DiligenceAngular';
-            $app->view->enqueueScript(
-                'app', // grupo de scripts
-                'diligence-angular',  // nome do script
-                'js/diligence/ng.diligence-angular.js', // arquivo do script
-                [] // dependências do script
-            );
+           
             if($isProponent){              
               
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
@@ -83,6 +77,11 @@ class Module extends \MapasCulturais\Module {
                 $this->part('registration-diligence/info-value-project', ['authorired' => $authorired, 'valueProject' => $valueProject]);
             }
         });
+        
+        $app->hook('POST(registration.upload):before', function() use ($app) {
+            dump('__html');
+        });
+        
     }
     
     function register () {
@@ -115,7 +114,7 @@ class Module extends \MapasCulturais\Module {
 
         
         $app->registerFileGroup(
-            'diligence',
+            'registration',
             new Definitions\FileGroup(
                 'file-diligence',
                 ['application/pdf','image/(gif|jpeg|pjpeg|png)'],
