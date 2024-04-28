@@ -240,4 +240,18 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             'valueAuthorized' => $authorized['valueAuthorized']
         ]);
     }
+
+    public function GET_fileDiligence()
+    {
+        $app = App::i();
+        
+        $reg = $app->repo('Registration')->find($this->data['id']);
+        
+        $files = $app->repo('RegistrationFile')->findOneBy([
+            'group' => 'file-diligence',
+            'owner' => $reg,
+            'file' => 'MapasCulturais\Entities\Registration'
+        ]);
+        dump($files);
+    }
 }

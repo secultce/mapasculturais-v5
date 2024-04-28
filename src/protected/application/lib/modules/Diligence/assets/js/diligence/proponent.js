@@ -260,5 +260,14 @@ function showViewActions()
     $("#div-content-all-diligence-send").show();
 }
 
+        
+function deleteFileDiligence(id)
+{
+    console.log('Excluir ', id)
+}
+
+function getFileDiligence(registration) {
+    
+}
 
 

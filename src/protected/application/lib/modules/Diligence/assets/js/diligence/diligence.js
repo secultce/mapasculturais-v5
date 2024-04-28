@@ -114,7 +114,7 @@ $(document).ready(function () {
     $( "#input-value-project-diligence" ).on( "blur", function (e) {
         saveAuthorizedProject('value_project_diligence',e.target.value)
     } );
-        
+
 });
 
 function saveAuthorizedProject(keyAuth, valueAuth)
@@ -381,4 +381,5 @@ function hideAfterSend()
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
 }
+
 
