@@ -1,11 +1,8 @@
 <?php
+use Diligence\Repositories\Diligence as DiligenceRepo;
+//Buscando os arquivos dessa diligencia
+$files = DiligenceRepo::getFilesDiligence($entity->id);
 
-use MapasCulturais\i;
-use \MapasCulturais\App;
-
-$entityDiligence = App::i()->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $entity]);
-$url = $app->createUrl('eventimporter','processFile');
-$files = $entity->getFiles('file-diligence');
 $template = '
 <div  ng-if="id > 0">
 <article id="file-diligence-{{id}}" class="objeto">
@@ -36,7 +33,17 @@ $template = '
 </div>
 <div class="import-diligence" style="width: 100%">
     <?php echo $template; 
-    dump($files );
-    
-    ?>
+   
+   
+    foreach($files as $file){
+       echo  '<article id="file-diligence-'.$file["id"].'" class="objeto">
+        <h1><a href="/arquivos/privateFile/'.$file["id"].'" 
+        class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer" 
+        >'.$file["name"].'</a></h1> 
+        <div class="botoes">
+            <a href="#" onclick="deleteFileDiligence('.$file["id"].')" 
+            class="btn btn-small btn-danger" >Excluir</a>
+        </div>
+    </article>';
+    } ?>
 </div>

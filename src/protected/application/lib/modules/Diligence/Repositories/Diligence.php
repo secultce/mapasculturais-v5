@@ -89,4 +89,19 @@ class Diligence{
         ];
     }
 
+    static public function getFilesDiligence($registration) : array
+    {
+        $app = App::i();  
+        $params = [
+            "object_type" => "MapasCulturais\Entities\Registration",
+            "object_id" => $registration,
+            "grp" => "file-diligence"
+        ];
+        
+        $query = "SELECT * FROM file WHERE object_type = :object_type and object_id = :object_id and grp = :grp";
+        $conn = $app->em->getConnection();
+        $result = $conn->fetchAllAssociative($query, $params);
+        return $result;
+    }
+
 }
