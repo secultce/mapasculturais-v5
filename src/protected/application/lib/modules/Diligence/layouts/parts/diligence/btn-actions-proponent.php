@@ -8,8 +8,9 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 //Buscando os arquivos dessa diligencia
 $files = DiligenceRepo::getFilesDiligence($entity->id);
 $countFile = count($files);
+
 $file = $entity->getFiles('file-diligence');
-$this->jsObject['countFileUpload'] = 0;
+$countFile > 0 ? $this->jsObject['countFileUpload'] = $countFile : $this->jsObject['countFileUpload'] = 0;
 //Template para geração apos o envio do arquivo.
 $template = '
 <div  ng-if="id > 0">
@@ -31,7 +32,7 @@ $template = '
 
          <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
         
-        <?php if($countFile <= 2): ?>
+        <?php if($countFile < 2): ?>
         <div id="div-upload-file-count">
             <a class="js-open-editbox hltip" data-target="#file-diligence" href="#"> Anexar arquivo 01</a>
             <div id="file-diligence" class="js-editbox mc-left" 
