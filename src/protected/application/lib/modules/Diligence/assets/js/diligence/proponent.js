@@ -277,7 +277,10 @@ function showViewActions()
     $("#div-content-all-diligence-send").show();
 }
 
-        
+/**
+ * Envia requisição com id do arquivo para exclusão
+ * @param {string} id 
+ */
 function deleteFileDiligence(id)
 {
     $.ajax({
@@ -287,19 +290,7 @@ function deleteFileDiligence(id)
             file: id,
             registration:  MapasCulturais.entity.id
         },
-        dataType: "json",
-        success: function (response) {
-            console.log('success');
-            console.log(response.status);
-        },
-        error: function (err) {
-            console.log({err})
-        }
+        dataType: "json"
     });
 }
-
-function getFileDiligence(registration) {
-    
-}
-
 

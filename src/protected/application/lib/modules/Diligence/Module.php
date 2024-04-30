@@ -78,8 +78,20 @@ class Module extends \MapasCulturais\Module {
             }
         });
         
+        //Hook para antes de upload para um logica para diligência
         $app->hook('POST(registration.upload):before', function() use ($app) {
-            dump('__html');
+            $registration = $this->requestedEntity;
+            //Se Files é diferente de null
+            //Se Files tem o indice com o grupo da diligencia
+            //Se da inscrição é o mesmo quem está logado enviando a requisição.
+            if(
+                isset($_FILES) && 
+                array_key_exists('file-diligence', $_FILES) && 
+                $registration->getOwnerUser() == $app->getUser()
+            ) {
+                $app->disableAccessControl();
+            }
+          
         });
         
     }

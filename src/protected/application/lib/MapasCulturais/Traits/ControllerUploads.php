@@ -64,8 +64,7 @@ trait ControllerUploads{
         $file_class_name = $owner->getFileClassName();
         
         $app = App::i();
-        //Se o dono existir, pode ter controle sobre a entidade
-        $app->disableAccessControl();
+       
         // if no files uploaded or no id in request data, return an error
         if(empty($_FILES) || !$this->data['id']){
             $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado'));
