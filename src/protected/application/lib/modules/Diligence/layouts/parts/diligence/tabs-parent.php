@@ -40,7 +40,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
         <div class="div-btn-send-diligence flex-container">
             <div class="flex-items" id="btn-actions-diligence">
                 <?php 
-                if(!$sendEvaluation || !$context['entity']->opportunity->publishedRegistrations):
+                if(!$sendEvaluation):
                     $this->part('diligence/btn-actions-diligence'); 
                 endif;
                 ?>

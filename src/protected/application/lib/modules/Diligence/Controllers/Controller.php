@@ -12,6 +12,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
     use \Diligence\Traits\DiligenceSingle;
+    use \MapasCulturais\Traits\ControllerUploads;
 
     const NOT_DILIGENCE     = 'sem_diligencia';
     const ONLY_DILIGENCE    = 'diligencia_aberta';
@@ -193,7 +194,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 //Se já existe dados cadastrados, então substitui por um valor novo
                 if($value->key == $keyRequest)
                 {
-                    dump($keyRequest, $value->key, $meta);
                     $value->value = $meta;
                     $entity = self::saveEntity($value);
                 }
@@ -238,5 +238,32 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             'optionAuthorized' => $authorized['optionAuthorized'] , 
             'valueAuthorized' => $authorized['valueAuthorized']
         ]);
+    }
+
+    /**
+     * Excluir arquivos da diligência
+     *
+     * @return boolean
+     */
+    public function GET_deleteFile() : bool
+    {
+        $app = App::i();
+        $conn = $app->em->getConnection();
+        //Verificando se existe na rota esse indice
+        if(isset($this->data[1]))
+        {
+            $entity = $app->repo('Registration')->find($this->data[1]);
+            //Verificando se o dono da inscrição é o mesmo usuario logado
+            if($entity->getOwnerUser() == $app->getUser())
+            {
+                $query = $conn->executeQuery('DELETE FROM file WHERE id = '.$this->data['id']);
+                $result = $query->execute();
+                if($result)
+                {
+                    self::returnJson(null, $this);
+                }
+            }           
+        }        
+        $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
 }

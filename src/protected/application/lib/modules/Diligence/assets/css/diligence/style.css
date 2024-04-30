@@ -92,6 +92,7 @@
     flex-basis: auto;
     align-self: end;
     order: 0;
+    width: 100%;
   }
   
   .flex-items:nth-child(2) {
@@ -174,3 +175,10 @@
     color: #fff;
     background-color: #d1a347;
     border: 1px solid #a37a29; }
+
+.title-send-file {
+    color: #767676;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16.34px;
+}

@@ -49,6 +49,7 @@ class Module extends \MapasCulturais\Module {
             $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
+           
             if($isProponent){              
               
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
@@ -76,6 +77,23 @@ class Module extends \MapasCulturais\Module {
                 $this->part('registration-diligence/info-value-project', ['authorired' => $authorired, 'valueProject' => $valueProject]);
             }
         });
+        
+        //Hook para antes de upload para um logica para diligência
+        $app->hook('POST(registration.upload):before', function() use ($app) {
+            $registration = $this->requestedEntity;
+            //Se Files é diferente de null
+            //Se Files tem o indice com o grupo da diligencia
+            //Se da inscrição é o mesmo quem está logado enviando a requisição.
+            if(
+                isset($_FILES) && 
+                array_key_exists('file-diligence', $_FILES) && 
+                $registration->getOwnerUser() == $app->getUser()
+            ) {
+                $app->disableAccessControl();
+            }
+          
+        });
+        
     }
     
     function register () {
@@ -105,6 +123,16 @@ class Module extends \MapasCulturais\Module {
             'options' => ['Sim', 'Não'],
             'default' => 'Não'
         ]);
+
+        
+        $app->registerFileGroup(
+            'registration',
+            new Definitions\FileGroup(
+                'file-diligence',
+                ['application/pdf','image/(gif|jpeg|pjpeg|png)'],
+                'O arquivo não e valido'
+            )
+        );
 
     }
 
