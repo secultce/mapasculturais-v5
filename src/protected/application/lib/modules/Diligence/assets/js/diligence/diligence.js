@@ -17,11 +17,8 @@ $(document).ready(function () {
     //Retornar valor se foi autorizado
     let authorized = EntityDiligence.returnGetAuthorized();
     authorized.then( (res) => {
-      console.log({res})
-        if(res.optionAuthorized == 'Sim') {
-            //Alterando a opção do select
-            $("#select-value-project-diligence").val(res.optionAuthorized).change();
-        }
+        //Alterando a opção do select
+        $("#select-value-project-diligence").val(res.optionAuthorized).change();
         if(res.valueAuthorized !== null) {
             //Alterando o valor do projeto
             $("#input-value-project-diligence").val(res.valueAuthorized);
@@ -117,7 +114,7 @@ $(document).ready(function () {
     $( "#input-value-project-diligence" ).on( "blur", function (e) {
         saveAuthorizedProject('value_project_diligence',e.target.value)
     } );
-        
+
 });
 
 function saveAuthorizedProject(keyAuth, valueAuth)
@@ -384,4 +381,5 @@ function hideAfterSend()
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
 }
+
 

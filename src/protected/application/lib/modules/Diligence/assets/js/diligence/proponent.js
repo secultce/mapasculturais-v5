@@ -89,6 +89,23 @@ $(document).ready(function () {
                 $("#li-tab-diligence-diligence").append(ahref);
             });   
         }
+
+  
+        $("#upload-file-diligence").submit(function(e) {
+            console.log({e})
+            MapasCulturais.countFileUpload = (MapasCulturais.countFileUpload + 1);
+            console.log(MapasCulturais.countFileUpload);
+            const baseUrl = MapasCulturais.baseURL+'inscricao/'+MapasCulturais.entity.id
+            if(MapasCulturais.countFileUpload >= 2)
+            {
+                $("#div-upload-file-count").hide();
+                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <a href="'+baseUrl+'" alt="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </a>');
+            }
+        });
+
+
+
+
     })
     .catch((error) => {
         console.log(error)
@@ -260,5 +277,20 @@ function showViewActions()
     $("#div-content-all-diligence-send").show();
 }
 
-
+/**
+ * Envia requisição com id do arquivo para exclusão
+ * @param {string} id 
+ */
+function deleteFileDiligence(id)
+{
+    $.ajax({
+        type: "GET",
+        url: MapasCulturais.createUrl('diligence','deleteFile'),
+        data: {
+            file: id,
+            registration:  MapasCulturais.entity.id
+        },
+        dataType: "json"
+    });
+}
 
