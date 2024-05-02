@@ -1,3 +1,8 @@
+<?php 
+
+
+if(!$sendEvaluation):
+?>
 
 <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" 
     id="btn-save-diligence" 
@@ -13,3 +18,4 @@
     Enviar Diligência
     <i class="fas fa-paper-plane"></i>
 </button>
+<?php   endif; ?>

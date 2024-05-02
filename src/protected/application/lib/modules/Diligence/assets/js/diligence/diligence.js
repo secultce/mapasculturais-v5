@@ -92,7 +92,8 @@ $(document).ready(function () {
                     $("#answer_diligence").show();
                     $("#descriptionDiligence").hide();
                     $("#btn-actions-diligence").hide();
-                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
+                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'));
+                    $(".footer-btn-delete-file-diligence").hide();
                 });
             }
 
@@ -330,7 +331,6 @@ function openDiligence(status) {
     $("li-tab-diligence-diligence").addClass('active');
     showBtnActionsDiligence();
     hideBtnOpenDiligence();
-    // hideBtnSubmitEvaluation();
 }
 
 //Oculta botão de abrir diligencia
