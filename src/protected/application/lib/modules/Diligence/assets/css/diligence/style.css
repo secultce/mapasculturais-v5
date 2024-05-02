@@ -182,3 +182,7 @@
     font-size: 12px;
     line-height: 16.34px;
 }
+.btn-reload-diligence {
+    border: none;
+    cursor: pointer;
+}

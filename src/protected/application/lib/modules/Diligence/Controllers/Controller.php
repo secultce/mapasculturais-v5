@@ -118,6 +118,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_answer() : void
     {
+        if($this->data['answer'] == ''){
+            $this->errorJson(['message' => 'O Campo de resposta deve está preenchido'], 400);
+        }
         $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);

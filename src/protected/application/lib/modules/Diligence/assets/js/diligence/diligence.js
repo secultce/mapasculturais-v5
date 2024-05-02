@@ -184,7 +184,6 @@ function showSaveContent(status) {
             cancelButtonText: 'Desfazer envio',
             confirmButtonText: "OK",
         }).then((result) => {
-            console.log({ result })
             if (result.isConfirmed) {
                 sendNotification();
                 hideAfterSend();

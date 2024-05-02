@@ -16,11 +16,11 @@ $template = '
 <div  ng-if="id > 0">
 <article id="file-diligence-{{id}}" class="objeto">
     <h1><a href="{{url}}" rel="noopener noreferrer">{{description}}</a></h1> 
-    <div class="botoes">
+    <div class="botoes footer-btn-delete-file-diligence">
         <a data-href="/diligence/deleteFile/{{id}}/registration/'.$entity->id.'"
             data-target="#file-diligence-{{id}}"
             data-configm-message="Remover este arquivo?"
-            class="btn btn-small btn-danger delete hltip js-remove-item" >Excluir</a>    
+            class="btn btn-small btn-danger delete hltip js-remove-item" onclick="decre()">Excluir</a>    
     </div>
 </article></div>';
 //    <a href="#" onclick="deleteFileDiligence({{id}})" class="btn btn-small btn-danger delete" >Excluir</a>
@@ -43,7 +43,7 @@ $template = '
             </div>
         </div>
         <?php else:
-            echo '<span>Atingido o limite de arquivos</span>';
+            echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
         endif; ?>
         <span id="info-title-limit-file-diligence">
            
@@ -62,15 +62,16 @@ $template = '
     <?php echo $template; 
     foreach($files as $file){
         $id = $file["id"];
-       echo  '<article id="file-diligence-'.$id.'" class="objeto">
+       echo  '<article id="file-diligence-up-'.$id.'" class="objeto" style="margin-top: 20px;">
+        <span>Arquivo</span>
         <h1><a href="/arquivos/privateFile/'.$id.'" 
         class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer" 
         >'.$file["name"].'</a></h1> 
-        <div class="botoes">
+        <div class="botoes footer-btn-delete-file-diligence">
             <a data-href="/diligence/deleteFile/'.$id.'/registration/'.$entity->id.'"
-            data-target="#file-diligence-'.$id.'"
+            data-target="#file-diligence-up-'.$id.'"
             data-configm-message="Remover este arquivo?"
-            class="btn btn-small btn-danger delete hltip js-remove-item" >Excluir</a>
+            class="btn btn-small btn-danger delete hltip js-remove-item">Excluir</a>
         </div>
     </article>';
     } ?>

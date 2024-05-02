@@ -38,13 +38,7 @@ $(document).ready(function () {
                     $("#btn-send-diligence-proponente").show();
                     $("#paragraph_createTimestamp").html(moment(element.sendDiligence.date).format('lll'));
                 }
-                console.log(element.status)
-                // if(element.status == 0 ){
-                //     const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-                //     $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
-                //     $("#li-tab-diligence-diligence > label").remove();
-                //     $("#li-tab-diligence-diligence").append(ahref);
-                // }
+               
             });         
         }
 
@@ -58,16 +52,16 @@ $(document).ready(function () {
                 console.log(answer.diligence.sendDiligence)
                 const limitDate = EntityDiligence.getLimitDateAnswer(answer.diligence.sendDiligence.date);
 
-               if(limitDate === 'encerrou'){
+                if(limitDate === 'encerrou'){
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").hide();
                     $("#div-btn-actions-proponent").hide() 
-               }else{
+                }else{
                     MapasCulturais.idDiligence = answer.diligence.id;               
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").show();
                     $("#div-btn-actions-proponent").show();
-               }
+                }
 
                
             });   
@@ -87,6 +81,7 @@ $(document).ready(function () {
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
+                $(".footer-btn-delete-file-diligence").hide();
             });   
         }
 
@@ -99,7 +94,7 @@ $(document).ready(function () {
             if(MapasCulturais.countFileUpload >= 2)
             {
                 $("#div-upload-file-count").hide();
-                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <a href="'+baseUrl+'" alt="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </a>');
+                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
             }
         });
 
@@ -124,7 +119,14 @@ function showRegistration()
 }
 //Enviar resposta do proponente
 function saveAnswerProponente(status) {
-    
+    if($("#descriptionDiligence").val() == '') {
+        Swal.fire({
+            title: "Ops!",
+            html: `<i class="fa fa-times-circle"></i> Para enviar a resposta, você deve preencher o formulário, tente novamente.`,
+            color: "#dc3545",
+        })
+        return false;
+    }
     if (status == 3) {
         Swal.fire({
             title: "Confirmar o envio da sua resposta?",
@@ -135,6 +137,7 @@ function saveAnswerProponente(status) {
             confirmButtonText: "Enviar agora",
             reverseButtons: true
         }).then((result) => {
+            console.log({result})
             //Formatando a view
             hideViewActions()
             /* Read more about isConfirmed, isDenied below */
@@ -160,12 +163,10 @@ function saveAnswerProponente(status) {
                     console.log('dialog progress', result);
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        console.log('Notificar')
                         sendNofificationAnswer();
                     }
-                    console.log('isDismissed',result.isDismissed)
+                    
                     if (result.isDismissed && result.dismiss === 'cancel') {
-                        console.log('Cliquei em DESFAZER')
                         showViewActions();
                         cancelAnswer();                  
                     }
@@ -173,25 +174,28 @@ function saveAnswerProponente(status) {
                     if (
                         result.dismiss === Swal.DismissReason.timer
                       ) {
-                        console.log('O tempo acabou!');
                         sendNofificationAnswer();
                         hideViewActions();
                         
                         // Aqui você pode adicionar a ação que deseja executar quando o tempo terminar
                       } 
+                }).catch( (err) => {
+                    Swal.close();
+                    console.log({err})
                 });
             }
 
             if (result.isDenied) {
-                console.log('click no desistir')
                 $("#div-btn-actions-proponent").show();
                 $("#descriptionDiligence").show();
                 $("#div-content-all-diligence-send").show();
                 $("#answer_diligence").hide();
-                // $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
                 
             }
 
+        }).catch((err) => {
+            Swal.close();
+            console.log({err})
         });
     } else {
         saveRequestAnswer(status)
@@ -211,10 +215,8 @@ function cancelAnswer()
         },
         dataType: "json",
         success: function(response) {
-            // showSaveContent(status);
-            console.log('resposta do cancelamento' , response)
            if(response.status == 200){
-            // EntityDiligence.hideShowSuccessAction();
+            EntityDiligence.hideShowSuccessAction();
            }
         }
     });
@@ -232,13 +234,20 @@ function saveRequestAnswer(status)
         },
         dataType: "json",
         success: function(response) {
-            // showSaveContent(status);
-            console.log({
-                response
+            if(response.status == 200){
+                EntityDiligence.hideShowSuccessAction();
+            }
+        },
+        error: function(err) {
+            Swal.close();
+            showViewActions();
+            cancelAnswer();
+            Swal.fire({
+                title: err.responseJSON.data.message,
+                reverseButtons: true,
+                timer: 2500
             })
-           if(response.status == 200){
-            EntityDiligence.hideShowSuccessAction();
-           }
+            return false;
         }
     });
 }
@@ -265,6 +274,7 @@ function hideViewActions()
     $("#descriptionDiligence").hide();
     $("#div-content-all-diligence-send").show();
     $("#answer_diligence").show();
+    $(".footer-btn-delete-file-diligence").hide();
 }
 
 function showViewActions()
@@ -275,6 +285,7 @@ function showViewActions()
     $("#div-content-all-diligence-send").hide();
     $("#answer_diligence").hide();
     $("#div-content-all-diligence-send").show();
+    $(".footer-btn-delete-file-diligence").show();
 }
 
 /**
