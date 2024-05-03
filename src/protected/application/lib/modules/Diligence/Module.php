@@ -18,6 +18,7 @@ require __DIR__.'/Service/NotificationInterface.php';
 
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
  use \Diligence\Traits\DiligenceSingle;
@@ -49,7 +50,13 @@ class Module extends \MapasCulturais\Module {
             $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
+            //Prazo registrado de dias uteis para responder a diligencia
+            $this->jsObject['diligence_days'] = $entity->opportunity->getMetadata('diligence_days');
            
+            $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+            dump($diligenceRepository[0]->sendDiligence);
+            dump($diligence_days);
+            die();
             if($isProponent){              
               
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               

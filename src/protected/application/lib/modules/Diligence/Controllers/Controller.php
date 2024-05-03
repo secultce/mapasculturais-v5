@@ -8,6 +8,7 @@ use Diligence\Entities\NotificationDiligence;
 use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use Carbon\Carbon;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
@@ -268,5 +269,31 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             }           
         }        
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
+    }
+
+    public function GET_carbon()
+    {
+        dump("Now: %s", Carbon::now());
+        $novaData = $this->adicionarDiasUteis('2024-12-31 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
+        echo $novaData->format('Y-m-d');
+    }
+
+    function adicionarDiasUteis($date, $dias) {
+        $dataAtual = Carbon::parse($date); // Obtém a data e hora atual
+        dump($dataAtual);
+        $diasAdicionados = 0;
+    
+        // Loop até que todos os dias úteis sejam adicionados
+        while ($diasAdicionados < $dias) {
+            // Adiciona 1 dia à data atual
+            $dataAtual->addDay();
+    
+            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
+            if ($dataAtual->isWeekday()) {
+                $diasAdicionados++;
+            }
+        }
+    
+        return $dataAtual;
     }
 }

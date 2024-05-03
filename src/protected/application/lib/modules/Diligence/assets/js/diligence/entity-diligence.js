@@ -120,27 +120,53 @@ var EntityDiligence = (function(){
 
     }
 
-    function getLimitDateAnswer(sendDiligence)
+    function getLimitDateAnswer(sendDiligence, days)
     {
-        // Convertendo a string de data em um objeto Date
-        const originalDate = new Date(sendDiligence);
+        // // Convertendo a string de data em um objeto Date
+        // const originalDate = new Date(sendDiligence);
 
-        // Adicionando três dias à data
-        originalDate.setDate(originalDate.getDate() + 3);
+        // // Adicionando três dias à data
+        // originalDate.setDate(originalDate.getDate() + 3);
 
-        // Formatando a nova data de acordo com suas necessidades
-        const newDate = originalDate.toISOString().split('T')[0];
+        // // Formatando a nova data de acordo com suas necessidades
+        // const newDate = originalDate.toISOString().split('T')[0];
 
-        var dateTimeDiligence = new Date(newDate);
+        // var dateTimeDiligence = new Date(newDate);
 
-        // Obtendo a data e hora atual
-        var dtNow = new Date();
+        // // Obtendo a data e hora atual
+        // var dtNow = new Date();
 
-        // Verificando se novaData é posterior à data atual
-        if (dateTimeDiligence < dtNow) {
-            return "encerrou";
+        // // Verificando se novaData é posterior à data atual
+        // if (dateTimeDiligence < dtNow) {
+        //     return "encerrou";
+        // }
+        // return "no_periodo";
+
+        // var dataAtual = new Date(sendDiligence); // Obtém a data atual
+        var dataAtual = moment(sendDiligence);
+        console.log({dataAtual})
+        console.log({sendDiligence})
+        var diasAdicionados = 0;
+    
+        // Loop até que todos os dias úteis sejam adicionados
+        while (diasAdicionados < days) {
+            // Adiciona 1 dia à data atual
+            // dataAtual.setDate(dataAtual.getDate() + days);
+            dataAtual.add(1, 'days');
+    
+            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
+            // if (dataAtual.getDay() !== 0 && dataAtual.getDay() !== 6) {
+            //     diasAdicionados++;
+            // }
+            if (dataAtual.day() !== 0 && dataAtual.day() !== 6) {
+                diasAdicionados++;
+            }
         }
-        return "no_periodo";
+        // console.log(dataAtual.toISOString().slice(0, 10));
+     
+        return dataAtual;
+
+
     }
 
     function verifySituation(data)

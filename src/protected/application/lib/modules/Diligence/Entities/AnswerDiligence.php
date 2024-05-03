@@ -9,6 +9,7 @@ use Respect\Validation\Rules\Json;
 use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use Carbon\Carbon;
 /**
  * AnswerDiligence 
  * 
@@ -118,6 +119,25 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
             return $this->json(['message' => 'success', 'status' => 200], 200);
         }
         return $this->json(['message' => 'error', 'status' => 400], 400);
+    }
+
+    static public function vertifyWorkingDays($date, $dias) {
+        $dataAtual = Carbon::parse($date); // Obtém a data e hora atual
+        $diasAdicionados = 0;
+    
+        // Loop até que todos os dias úteis sejam adicionados
+        while ($diasAdicionados < ($dias - 1)) {
+            // Adiciona 1 dia à data atual
+          
+            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
+            if ($dataAtual->isWeekday()) {
+                $dt = $dataAtual->addDay();
+                dump($dt);
+                $diasAdicionados++;
+            }
+        }
+    
+        return $dataAtual;
     }
 
 }
