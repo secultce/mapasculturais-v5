@@ -140,6 +140,19 @@ var EntityDiligence = (function(){
         }
     }
 
+    function validateLimiteDate(diligence_days)
+    {
+        //data atual
+        const dateNow = new Date();
+        //Data limitada para resposta
+        const dateLimitDate = new Date(diligence_days);
+
+        if (dateNow >= dateLimitDate ) {
+            return true
+        }
+        return false
+    }
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -148,7 +161,7 @@ var EntityDiligence = (function(){
         formatDiligenceSendProponent: formatDiligenceSendProponent,
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
-        getLimitDateAnswer: getLimitDateAnswer,
+        validateLimiteDate: validateLimiteDate,
         verifySituation: verifySituation,
         returnGetAuthorized: returnGetAuthorized
       }

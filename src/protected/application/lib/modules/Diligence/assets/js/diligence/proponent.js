@@ -25,11 +25,10 @@ $(document).ready(function () {
 
             res.data.forEach((element, index) => {
                 console.log({ element })
-                //data atual
-                const dateNow = new Date();
-                //Data limitada para resposta
-                const dateLimitDate = new Date(MapasCulturais.diligence_days);
-                if (dateNow >= dateLimitDate ) {
+                
+                const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days)
+
+                if (dateLimitDate) {
                     $("#descriptionDiligence").hide();
                     $("#div-btn-actions-proponent").hide() 
                 }else{

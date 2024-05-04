@@ -27,7 +27,7 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             $this->part('diligence/body-diligence-common', [
                     'entity' => $context['entity'],
                     'diligenceRepository' => $context['diligenceRepository'], 
-                    'term' => $context['term'],
+                    'diligenceDays' => $context['diligenceDays'],
                     'placeHolder' => $context['placeHolder'],
                     'sendEvaluation' => $sendEvaluation
                 ]); 

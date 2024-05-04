@@ -153,10 +153,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     static public function infoTerm($entity, $diligenceAgentId, $diligenceDays ): void
     {
         $app = App::i();
-       
+
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
             if(
-                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && !is_null($diligenceDays)
+                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
+                new DateTime() <= $diligenceDays
             ){               
                 i::_e('Vocẽ tem até ' .
                 $diligenceDays->format('d/m/Y H:i') .
@@ -168,7 +169,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 }else{
                     i::_e('O Proponente tem apenas ' .
                     $entity->opportunity->getMetadata('diligence_days') .
-                    ' dias para responder essa diligência.');
+                    ' dias úteis para responder essa diligência.');
                 }
             }
         }

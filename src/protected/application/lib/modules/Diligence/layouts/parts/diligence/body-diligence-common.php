@@ -29,7 +29,7 @@ if(!$sendEvaluation):
     <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
         <div class="item-col"></div>
         <div class="item-col" style="padding: 8px;">
-            <p>
+            <p style="font-size: smaller;">
                 <?php
                 EntityDiligence::infoTerm($entity, $diligenceRepository, $diligenceDays);
                 ?>
