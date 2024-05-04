@@ -122,22 +122,29 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
     }
 
     static public function vertifyWorkingDays($date, $dias) {
-        $dataAtual = Carbon::parse($date); // Obtém a data e hora atual
-        $diasAdicionados = 0;
-    
+        $currentDate = Carbon::parse($date);
+        $daysAdds = 0;
+        //Consultando no banco os feriados nacionais cadastrados
+        $app = App::i();
+        $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
+        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+
         // Loop até que todos os dias úteis sejam adicionados
-        while ($diasAdicionados < ($dias - 1)) {
+        while ($daysAdds < $dias) {
             // Adiciona 1 dia à data atual
-          
+            $currentDate->addDay();
+    
             // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
-            if ($dataAtual->isWeekday()) {
-                $dt = $dataAtual->addDay();
-                dump($dt);
-                $diasAdicionados++;
+            if ($currentDate->isWeekday()) {
+                //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
+                $holiday = $currentDate->format('m-d');
+                if (!in_array($holiday, $holidays)) {
+                    $daysAdds++;
+                }
             }
         }
     
-        return $dataAtual;
+        return $currentDate;
     }
 
 }

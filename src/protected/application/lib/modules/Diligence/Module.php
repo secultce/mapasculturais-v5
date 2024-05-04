@@ -33,30 +33,28 @@ class Module extends \MapasCulturais\Module {
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
+           
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
-            //Mostra o prazo de forma diferente a depender do usuario logado
-            $term = $entityDiligence->verifyTerm($diligenceRepository, $entity);
+            //Verifica a data limite para resposta contando com dias úteis
+            $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+            //Prazo registrado de dias uteis para responder a diligencia
+            $this->jsObject['diligence_days'] = $diligence_days;
+            
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
             $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
             $context = [
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
-                'term' => $term,
+                'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder
             ];
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-            //Prazo registrado de dias uteis para responder a diligencia
-            $this->jsObject['diligence_days'] = $entity->opportunity->getMetadata('diligence_days');
-           
-            $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
-            dump($diligenceRepository[0]->sendDiligence);
-            dump($diligence_days);
-            die();
+            
             if($isProponent){              
               
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               

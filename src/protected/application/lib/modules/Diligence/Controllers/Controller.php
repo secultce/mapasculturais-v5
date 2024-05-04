@@ -274,26 +274,34 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     public function GET_carbon()
     {
         dump("Now: %s", Carbon::now());
-        $novaData = $this->adicionarDiasUteis('2024-12-31 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
+        $novaData = $this->addingBusinessDays('2024-12-24 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
         echo $novaData->format('Y-m-d');
     }
 
-    function adicionarDiasUteis($date, $dias) {
-        $dataAtual = Carbon::parse($date); // Obtém a data e hora atual
-        dump($dataAtual);
-        $diasAdicionados = 0;
-    
+    function addingBusinessDays($date, $dias) {
+        // Obtém a data e hora atual em objeto tyipo date
+        $currentDate = Carbon::parse($date);
+        $daysAdds = 0;
+        //Consultando no banco os feriados nacionais cadastrados
+        $app = App::i();
+        $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
+        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+
         // Loop até que todos os dias úteis sejam adicionados
-        while ($diasAdicionados < $dias) {
+        while ($daysAdds < $dias) {
             // Adiciona 1 dia à data atual
-            $dataAtual->addDay();
+            $currentDate->addDay();
     
             // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
-            if ($dataAtual->isWeekday()) {
-                $diasAdicionados++;
+            if ($currentDate->isWeekday()) {
+                //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
+                $holiday = $currentDate->format('m-d');
+                if (!in_array($holiday, $holidays)) {
+                    $daysAdds++;
+                }
             }
         }
-    
-        return $dataAtual;
+        
+        return $currentDate;
     }
 }

@@ -25,31 +25,27 @@ $(document).ready(function () {
 
             res.data.forEach((element, index) => {
                 console.log({ element })
-                console.log('days', MapasCulturais.diligence_days);
-                const limitDate = EntityDiligence.getLimitDateAnswer(element.sendDiligence.date, MapasCulturais.diligence_days);
-                // console.log(limitDate);
-                console.log(limitDate.format('YYYY-MM-DD'));
-                //Verificando se encerrou o prazo com a diligenceia em aberto
-                // if(limitDate === 'encerrou'){                  
-                //     $("#descriptionDiligence").hide();
-                //     $("#div-btn-actions-proponent").hide() 
-                // }else{
-                //     $("#div-btn-actions-proponent").show();                    
-                // }
-                // MapasCulturais.idDiligence = element.id;
-                // if (element.status == 3) {
-                //     console.log(element.description)
-                //     $("#paragraph_content_send_diligence").html(element.description);
-                //     $("#div-content-all-diligence-send").show();
-                //     $("#paragraph_loading_content").hide();
-                    
-                //     $("#btn-save-diligence-proponent").show();
-                //     $("#btn-send-diligence-proponente").show();
-                //     $("#paragraph_createTimestamp").html(moment(element.sendDiligence.date).format('lll'));
-                // }
-                //Recebendo o id da diligencia
-               
-               
+                //data atual
+                const dateNow = new Date();
+                //Data limitada para resposta
+                const dateLimitDate = new Date(MapasCulturais.diligence_days);
+                if (dateNow >= dateLimitDate ) {
+                    $("#descriptionDiligence").hide();
+                    $("#div-btn-actions-proponent").hide() 
+                }else{
+                    $("#div-btn-actions-proponent").show();                    
+                }
+                //Id da diligencia
+                MapasCulturais.idDiligence = element.id;
+                if (element.status == 3) {
+                    console.log(element.description)
+                    $("#paragraph_content_send_diligence").html(element.description);
+                    $("#div-content-all-diligence-send").show();
+                    $("#paragraph_loading_content").hide();                    
+                    $("#btn-save-diligence-proponent").show();
+                    $("#btn-send-diligence-proponente").show();
+                    $("#paragraph_createTimestamp").html(moment(element.sendDiligence.date).format('lll'));
+                }
             });         
         }
 
