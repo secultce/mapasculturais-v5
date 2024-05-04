@@ -11,7 +11,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
-    $("#paragraf_label_project").hide();
+
     //Buscado diligencia se houver
 
     //Retornar valor se foi autorizado
@@ -83,7 +83,6 @@ $(document).ready(function () {
             }
 
             if (res.message == "resposta_enviada" && MapasCulturais.userEvaluate == true) {
-                $("#paragraf_label_project").show();
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
                     EntityDiligence.verifySituation(answer.diligence);
@@ -109,6 +108,8 @@ $(document).ready(function () {
         saveAuthorizedProject('option_authorized', e.target.value)
         if(e.target.value == 'Sim') {
             $("#paragraph_value_project").show();
+        }else{
+            $("#paragraph_value_project").hide();
         }
     } );
 
