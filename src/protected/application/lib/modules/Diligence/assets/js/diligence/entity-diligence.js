@@ -51,6 +51,7 @@ var EntityDiligence = (function(){
 
     function hideRegistration() {
         $("#registration-content-all").hide();
+        $("#registration-valuers--admin").hide();        
     }
     
     function showRegistration() {
@@ -68,6 +69,7 @@ var EntityDiligence = (function(){
 
         if (urlAtual.includes(sentencaDesejada)) {
             $("#registration-content-all").hide();
+            $("#registration-valuers--admin").hide();
         } else {
             $("#diligence-diligence").hide();
 
@@ -122,7 +124,7 @@ var EntityDiligence = (function(){
 
     function verifySituation(data)
     {
-          //Sempre verifica a situação para habilitar o botão de Fializar avaliação e avançar
+          //Sempre verifica a situação para habilitar o botão de Finalizar avaliação e avançar
         if (data.id > 0) {
            
            switch (data.situation) {
@@ -153,6 +155,28 @@ var EntityDiligence = (function(){
         return false
     }
 
+    //Oculta botão de abrir diligencia
+    function hideBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").attr('disabled', true);
+        $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+    }
+    //Remove o botão de abrir diligencia
+    function removeBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").remove();
+        $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+    }
+
+    //Mostra o botão de abrir diligencia
+    function showBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").removeAttr('disabled');
+        $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
+    }
+
+
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -163,6 +187,9 @@ var EntityDiligence = (function(){
         showAnswerDraft: showAnswerDraft,
         validateLimiteDate: validateLimiteDate,
         verifySituation: verifySituation,
-        returnGetAuthorized: returnGetAuthorized
+        returnGetAuthorized: returnGetAuthorized,
+        hideBtnOpenDiligence: hideBtnOpenDiligence,
+        showBtnOpenDiligence: showBtnOpenDiligence,
+        removeBtnOpenDiligence: removeBtnOpenDiligence
       }
 }());

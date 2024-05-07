@@ -1,10 +1,11 @@
 $(document).ready(function () {
-    
+    //Remove o botão de abrir diligencias
+    EntityDiligence.removeBtnOpenDiligence();
+    //Ocuta os arquivo comuns
     EntityDiligence.hideCommon();
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
     .then((res) => {
-        console.log({res})
         //Bloqueando aba para proponente
         $("#li-tab-diligence-diligence > a").remove();
         $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
@@ -17,15 +18,12 @@ $(document).ready(function () {
             //Se tiver diligencia
             if (res.data.length > 0) {
                 const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-                console.log('Se tiver diligencia')
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
             }
 
             res.data.forEach((element, index) => {
-                console.log({ element })
-                
                 const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days)
 
                 if (dateLimitDate) {
@@ -37,7 +35,6 @@ $(document).ready(function () {
                 //Id da diligencia
                 MapasCulturais.idDiligence = element.id;
                 if (element.status == 3) {
-                    console.log(element.description)
                     $("#paragraph_content_send_diligence").html(element.description);
                     $("#div-content-all-diligence-send").show();
                     $("#paragraph_loading_content").hide();                    
@@ -55,7 +52,6 @@ $(document).ready(function () {
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
             res.data.forEach((answer, index) => {
-                console.log(answer.diligence.sendDiligence)
                 const limitDate = EntityDiligence.getLimitDateAnswer(answer.diligence.sendDiligence.date);
 
                 if(limitDate === 'encerrou'){
@@ -93,9 +89,7 @@ $(document).ready(function () {
 
   
         $("#upload-file-diligence").submit(function(e) {
-            console.log({e})
             MapasCulturais.countFileUpload = (MapasCulturais.countFileUpload + 1);
-            console.log(MapasCulturais.countFileUpload);
             const baseUrl = MapasCulturais.baseURL+'inscricao/'+MapasCulturais.entity.id
             if(MapasCulturais.countFileUpload >= 2)
             {
@@ -109,7 +103,7 @@ $(document).ready(function () {
 
     })
     .catch((error) => {
-        console.log(error)
+        MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
    
 });
@@ -143,7 +137,6 @@ function saveAnswerProponente(status) {
             confirmButtonText: "Enviar agora",
             reverseButtons: true
         }).then((result) => {
-            console.log({result})
             //Formatando a view
             hideViewActions()
             /* Read more about isConfirmed, isDenied below */
@@ -166,7 +159,6 @@ function saveAnswerProponente(status) {
                     confirmButtonText: "OK",
                     cancelButtonText: 'Desfazer envio',
                 }).then((result) => {
-                    console.log('dialog progress', result);
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
                         sendNofificationAnswer();
@@ -187,7 +179,7 @@ function saveAnswerProponente(status) {
                       } 
                 }).catch( (err) => {
                     Swal.close();
-                    console.log({err})
+                    MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
                 });
             }
 
@@ -201,7 +193,7 @@ function saveAnswerProponente(status) {
 
         }).catch((err) => {
             Swal.close();
-            console.log({err})
+            MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
         });
     } else {
         saveRequestAnswer(status)
@@ -212,7 +204,6 @@ function saveAnswerProponente(status) {
 
 function cancelAnswer()
 {
-    console.log('diligence,', MapasCulturais.idDiligence)
     $.ajax({
         type: "PUT",
         url: MapasCulturais.createUrl('diligence', 'cancelsendAnswer'),

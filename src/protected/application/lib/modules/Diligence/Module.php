@@ -37,7 +37,12 @@ class Module extends \MapasCulturais\Module {
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
-            $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+           if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
+           {
+                $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+           }else{
+                $diligence_days = null;
+           }
             //Prazo registrado de dias uteis para responder a diligencia
             $this->jsObject['diligence_days'] = $diligence_days;
             
@@ -51,7 +56,11 @@ class Module extends \MapasCulturais\Module {
                 'placeHolder' => $placeHolder
             ];
             //Verificando e globalizando se é um avaliador
-            $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
+            $this->jsObject['userEvaluate'] = false;
+            if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
+            {
+                $this->jsObject['userEvaluate'] = true;
+            }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
             

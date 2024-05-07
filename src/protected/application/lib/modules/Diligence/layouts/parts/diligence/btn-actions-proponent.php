@@ -1,8 +1,10 @@
 <?php
+
 use \MapasCulturais\App;
+
 $app = App::i();
 
-$reload = $app->config['base.url'].'inscricao/'.$entity->id;
+$reload = $app->config['base.url'] . 'inscricao/' . $entity->id;
 
 use Diligence\Repositories\Diligence as DiligenceRepo;
 //Buscando os arquivos dessa diligencia
@@ -17,7 +19,7 @@ $template = '
 <article id="file-diligence-{{id}}" class="objeto">
     <h1><a href="{{url}}" rel="noopener noreferrer">{{description}}</a></h1> 
     <div class="botoes footer-btn-delete-file-diligence">
-        <a data-href="/diligence/deleteFile/{{id}}/registration/'.$entity->id.'"
+        <a data-href="/diligence/deleteFile/{{id}}/registration/' . $entity->id . '"
             data-target="#file-diligence-{{id}}"
             data-configm-message="Remover este arquivo?"
             class="btn btn-small btn-danger delete hltip js-remove-item" onclick="decre()">Excluir</a>    
@@ -27,49 +29,56 @@ $template = '
 ?>
 
 <div class="widget flex-items" id="div-btn-actions-proponent">
-   
+
     <div style="width: 50%">
 
-         <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
-        
-        <?php if($countFile < 2): ?>
-        <div id="div-upload-file-count">
-            <a class="js-open-editbox hltip" data-target="#file-diligence" href="#"> Anexar arquivo 01</a>
-            <div id="file-diligence" class="js-editbox mc-left" 
-                title="Anexar arquivo 01" data-submit-label="Enviar"
-                    
-            >
-                <?php $this->ajaxUploader($entity, 'file-diligence', 'append', '.import-diligence', $template , '', false, false, true) ?>
+        <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
+
+        <?php if ($countFile < 2) : ?>
+            <div id="div-upload-file-count">
+                <a class="js-open-editbox hltip" data-target="#file-diligence" href="#" title="Click para anexar arquivo"> Anexar arquivo</a>
+                <div id="file-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
+                    <?php $this->ajaxUploader($entity, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true) ?>
+                </div>
             </div>
-        </div>
-        <?php else:
+        <?php else :
             echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
         endif; ?>
         <span id="info-title-limit-file-diligence">
-           
+
         </span>
     </div>
-    <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" id="btn-save-diligence-proponent" onclick="saveAnswerProponente(0)">
-        Salvar
-        <i class="fas fa-save"></i>
-    </button>
-    <button id="btn-send-diligence-proponente" class="btn-save-diligence" title="Salva e envia a sua resposta para a comissão avaliadora." onclick="saveAnswerProponente(3)">
-        Enviar resposta
-        <i class="fas fa-paper-plane"></i>
-    </button>
+    <div class="div-actions-proponent">
+        <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" id="btn-save-diligence-proponent" onclick="saveAnswerProponente(0)">
+            Salvar
+            <i class="fas fa-save"></i>
+        </button>
+        <button id="btn-send-diligence-proponente" class="btn-save-diligence" title="Salva e envia a sua resposta para a comissão avaliadora." onclick="saveAnswerProponente(3)">
+            Enviar resposta
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+<div style="width: 100%">
+    <span>Informações:</span>
+    <ul style="color: #505050;">
+        <li>Poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong>.</li>
+        <li>Tamanho de arquivo suportado: <strong><?php echo $this->jsObject['maxUploadSizeFormatted']; ?></strong></li>
+        <li>Tipos de arquivos suportados: <strong>.pdf; .gif|jpeg|pjpeg|png;</strong></li>
+    </ul>
 </div>
 <div class="import-diligence" style="width: 100%">
-    <?php echo $template; 
-    foreach($files as $file){
+    <?php echo $template;
+    foreach ($files as $file) {
         $id = $file["id"];
-       echo  '<article id="file-diligence-up-'.$id.'" class="objeto" style="margin-top: 20px;">
+        echo  '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
         <span>Arquivo</span>
-        <h1><a href="/arquivos/privateFile/'.$id.'" 
+        <h1><a href="/arquivos/privateFile/' . $id . '" 
         class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer" 
-        >'.$file["name"].'</a></h1> 
+        >' . $file["name"] . '</a></h1> 
         <div class="botoes footer-btn-delete-file-diligence">
-            <a data-href="/diligence/deleteFile/'.$id.'/registration/'.$entity->id.'"
-            data-target="#file-diligence-up-'.$id.'"
+            <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $entity->id . '"
+            data-target="#file-diligence-up-' . $id . '"
             data-configm-message="Remover este arquivo?"
             class="btn btn-small btn-danger delete hltip js-remove-item">Excluir</a>
         </div>

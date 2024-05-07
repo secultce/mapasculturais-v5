@@ -90,7 +90,7 @@
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
-    align-self: end;
+    justify-content: end;
     order: 0;
     width: 100%;
   }
@@ -185,4 +185,11 @@
 .btn-reload-diligence {
     border: none;
     cursor: pointer;
+}
+.div-actions-proponent {
+    width: 50%;
+    float: right;
+    justify-content: end;
+    display: flex;
+    justify-content: end;
 }
