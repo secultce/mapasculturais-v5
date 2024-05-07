@@ -143,53 +143,24 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     }
 
     /**
-     * Metodo que retorna o total de dias para resposta do proponente para o parecerista e a data limite de resposta
-     * para o proponente
-     *
-     * @param [datetime] $date
-     * @param [object] $entity
-     * @return array
-     */
-    static public function verifyTerm($date, $entity): array
-    {
-        if(isset($date) && count($date) > 0 && isset($date[0]->sendDiligence)){
-            $days = $entity->opportunity->getMetadata('diligence_days');
-            $daysAdd = '+'.$days.' day';
-            $term = $date[0]->sendDiligence->modify($daysAdd);
-            //Verificando se a data e hora atual é menor que o prazo
-            if(new DateTime() <= $term )
-            {
-                return [
-                    'term' => $term,
-                    'verify' => true
-                ];
-            }
-        }
-        
-        return [
-            'term' => null,
-            'verify' => false
-        ];
-    }
-
-    /**
      * Verifica se quem está logado é o mesmo agente que foi aberto a diligência
      *
-     * @param [object] $entity
-     * @param [object] $diligenceAgentId
-     * @param [array] $term
+     * @param [object]  $entity
+     * @param [object]  $diligenceAgentId
+     * @param [date]    $diligenceDays
      * @return void
      */
-    static public function infoTerm($entity, $diligenceAgentId, $term ): void
+    static public function infoTerm($entity, $diligenceAgentId, $diligenceDays ): void
     {
         $app = App::i();
-       
+
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
             if(
-                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && !is_null($term['term'])
+                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
+                new DateTime() <= $diligenceDays
             ){               
                 i::_e('Vocẽ tem até ' .
-                $term['term']->format('d/m/Y H:i') .
+                $diligenceDays->format('d/m/Y H:i') .
                 ' para responder a diligência.');
             }else{
                 
@@ -198,7 +169,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 }else{
                     i::_e('O Proponente tem apenas ' .
                     $entity->opportunity->getMetadata('diligence_days') .
-                    ' dias para responder essa diligência.');
+                    ' dias úteis para responder essa diligência.');
                 }
             }
         }

@@ -1949,5 +1949,19 @@ $$
             );
         __exec("CREATE INDEX IDX_609B3FB63A3758E0 ON answer_diligence (diligence_id)");
         __exec("ALTER TABLE answer_diligence ADD CONSTRAINT FK_609B3FB63A3758E0 FOREIGN KEY (diligence_id) REFERENCES diligence (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    },
+
+    'insert day of' => function() {
+        //Datas de feriados nacionais
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','01-01','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','02-13','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','03-29','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','04-21','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','05-01','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','09-07','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','10-12','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-02','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
     }
 ] + $updates ;

@@ -1,4 +1,9 @@
-<?php //dump($entity); ?>
+<?php 
+
+/**
+ * Fazer uma validação futuramente para uma configuração de oportunidade com diligência
+ */
+?>
 
 <p id="paragraf_label_project">
 <label style="font-weight: bold; font-size: smaller;">
