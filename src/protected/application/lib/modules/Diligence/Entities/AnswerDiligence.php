@@ -46,6 +46,16 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      */
     protected $diligence;
 
+    /**
+     * @var \MapasCulturais\Entities\Registration
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Registration")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="registration_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    protected $registration;
+
      /**
      * @var string
      *
