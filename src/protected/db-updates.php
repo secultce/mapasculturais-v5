@@ -1963,5 +1963,14 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-02','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
+    },
+
+    'add a column to table answer_diligence' => function() {
+        __exec("ALTER TABLE answer_diligence ADD registration_id  INT");
+
+        __exec("ALTER TABLE answer_diligence ADD
+        CONSTRAINT answer_diligence_registration_fk
+        FOREIGN KEY (registration_id) REFERENCES registration (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
     }
 ] + $updates ;
