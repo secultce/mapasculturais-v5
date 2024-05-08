@@ -8,7 +8,6 @@ $files = DiligenceRepo::getFilesDiligence($context['entity']->id);
 
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
 
-$app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
 //Verificação se as avaliações já foram enviadas pelo avaliador logado
 // 
 

@@ -69,6 +69,7 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
             }
             
+            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
         });
 
