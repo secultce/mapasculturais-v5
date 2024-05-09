@@ -80,6 +80,15 @@ $(document).ready(function () {
 
 });
 
+function editDescriptionDiligence(description, id)
+{
+    $("#descriptionDiligence").html(description)
+    $("#id-input-diligence").val(id)
+    $("#draft-description-diligence").remove();
+    console.log({description})
+    console.log({id})
+}
+
 function saveAuthorizedProject(keyAuth, valueAuth)
 {
     const dataAuthorized = {
