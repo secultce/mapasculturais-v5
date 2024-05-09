@@ -17,7 +17,7 @@ $(document).ready(function () {
         collapsible: true,
         heightStyle: "content"
     });
-    $("#div-accordion-diligence > span").remove();
+    $(".div-accordion-diligence > span").remove();
     //id da diligencia
     let idDiligence = 0;
     $("#id-input-diligence").val(idDiligence);
@@ -43,20 +43,26 @@ $(document).ready(function () {
     entityDiligence
         .then((res) => {
             console.log({res})
-            res.data.forEach((element, index) => {
-               //Verifica a situação da diligencia
-               
+            if(res.message == 'sem_diligencia') {
                 $("#btn-save-diligence").show();
                 $("#paragraph_loading_content").hide();
+                $("#descriptionDiligence").show();
+                $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
+            }
+            // res.data.forEach((element, index) => {
+            //    //Verifica a situação da diligencia
                
-                // if (element.status == 3) {
-                //     // EntityDiligence.formatDiligenceSendProponent(element);
-                //     showBtnSubmitEvaluation();
-                //     // hideBtnActionsDiligence();                    
-                // }
-                // $("#descriptionDiligence").html(element.description)
-                    $("#descriptionDiligence").show();
-            });
+            //     $("#btn-save-diligence").show();
+            //     $("#paragraph_loading_content").hide();
+               
+            //     // if (element.status == 3) {
+            //     //     // EntityDiligence.formatDiligenceSendProponent(element);
+            //     //     showBtnSubmitEvaluation();
+            //     //     // hideBtnActionsDiligence();                    
+            //     // }
+            //     // $("#descriptionDiligence").html(element.description)
+            //         $("#descriptionDiligence").show();
+            // });
 
         })
         .catch((error) => {
@@ -191,7 +197,11 @@ function sendNotification() {
         },
         dataType: "json",
         success: function (res) {
+            console.log({res})
             MapasCulturais.Messages.success('Notificação enviada');
+            if(res.status == 200){
+                window.location.href=MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id)
+            }
         }
     });
 }
