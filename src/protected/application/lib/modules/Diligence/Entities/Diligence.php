@@ -222,10 +222,17 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             $class->data['agent']
         );
        
+        $isNewDiligence = false;
+        if($class->data['idDiligence'] > 0){
+            $isNewDiligence = true;
+        }
+        // unset($class->data);
+        // die;
         //Se tiver registro de diligência
         $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
       
-        if(count($diligenceRepository) > 0) {
+        if(count($diligenceRepository) > 0 && $isNewDiligence ) {
+            
             return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
         }
         //Instanciando para gravar no banco de dados

@@ -50,9 +50,8 @@ class Diligence{
         //Verificando se tem resposta para se relacionar a diligencia
         $dql = "SELECT ad, d
         FROM  Diligence\Entities\Diligence d 
-        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d
-        WHERE d.registration = :reg 
-        and ad.registration = :regAnswer" ;
+        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d AND ad.registration = :regAnswer
+        WHERE d.registration = :reg ORDER BY d.sendDiligence DESC , ad.createTimestamp DESC" ;
 
     //    $strNativeQuery = "select d.id as idDiligence,
     //     d.open_agent_id, d.agent_id, d.description, ad.answer from 
@@ -80,7 +79,7 @@ class Diligence{
      */
     protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
     {
-        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' => $registrationAnswer]);
+        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
 
         return $query->getResult();
 

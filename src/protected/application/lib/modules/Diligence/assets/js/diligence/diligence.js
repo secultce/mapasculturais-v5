@@ -12,14 +12,15 @@ var objSendDiligence = {
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
 
-      $( "#accordion" ).accordion({
+    $( "#accordion" ).accordion({
         active: false,
-        collapsible: true
-      });
-      $("#div-accordion-diligence > span").remove();
-     
-      
-
+        collapsible: true,
+        heightStyle: "content"
+    });
+    $("#div-accordion-diligence > span").remove();
+    //id da diligencia
+    let idDiligence = 0;
+    $("#id-input-diligence").val(idDiligence);
     //Buscado diligencia se houver
 
     //Retornar valor se foi autorizado
@@ -43,26 +44,23 @@ $(document).ready(function () {
         .then((res) => {
             console.log({res})
             res.data.forEach((element, index) => {
-               $(".accordion").append('<div class="head"><label>Esconder <i class="fas fa-angle-down arrow"></i></label></div>');
-
-                
-                //Verifica a situação da diligencia
+               //Verifica a situação da diligencia
                 EntityDiligence.verifySituation(element);
                 $("#btn-save-diligence").show();
                 $("#paragraph_loading_content").hide();
+                console.log(element.status)
                 if (element.status == 3) {
-                    EntityDiligence.formatDiligenceSendProponent(element);
+                    // EntityDiligence.formatDiligenceSendProponent(element);
                     showBtnSubmitEvaluation();
-                    hideBtnActionsDiligence();
-                    
-                } else {
-                    $("#descriptionDiligence").html(element.description)
-                    $("#descriptionDiligence").show();
+                    // hideBtnActionsDiligence();                    
                 }
+                // $("#descriptionDiligence").html(element.description)
+                    $("#descriptionDiligence").show();
             });
 
         })
         .catch((error) => {
+            console.log({error})
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
         })
 
@@ -204,7 +202,10 @@ function cancelSend() {
         }
     });
 }
-function saveDiligence(status) {
+function saveDiligence(status, st, idDiligence) {
+    console.log({status})
+    console.log({st})
+    console.log({idDiligence})
     if($("#descriptionDiligence").val() == ''){
         Swal.fire({
             title: "Ops! A descrição precisa ser preenchida",
@@ -231,17 +232,18 @@ function saveDiligence(status) {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                sendAjaxDiligence(status)
+                sendAjaxDiligence(status, idDiligence)
             }
         });
     } else {
-        sendAjaxDiligence(status)
+        sendAjaxDiligence(status, idDiligence)
     }
 
 }
-function sendAjaxDiligence(status) {
+function sendAjaxDiligence(status, idDiligence) {
     objSendDiligence['description'] = $("#descriptionDiligence").val();
-    objSendDiligence['status'] = status
+    objSendDiligence['status'] = status;
+    objSendDiligence['idDiligence'] = idDiligence;
     $.ajax({
         type: "POST",
         url: urlSaveDiligence,
@@ -250,7 +252,9 @@ function sendAjaxDiligence(status) {
         success: function (res) {
             if (res.status == 200) {
                 showSaveContent(status)
+                $("#id-input-diligence").val(222);
             }
+
         },
         error: function (err) {
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');

@@ -3,18 +3,13 @@
 use MapasCulturais\i;
 use MapasCulturais\App;
 use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Repositories\Diligence as RepoDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
-$app = App::i();
-        //Verificando se tem resposta para se relacionar a diligencia
-        $dql = "SELECT ad, d
-        FROM  Diligence\Entities\Diligence d 
-        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d
-        WHERE d.registration = :reg 
-        and ad.registration = :regAnswer" ;
-         $query = $app->em->createQuery($dql)->setParameters(['reg' => $entity->id, 'regAnswer' => $entity->id]);
 
-$result = $query->getResult();
+
+$diligenceAndAnswers = RepoDiligence::getDiligenceAnswer($entity->id);
+
 if(!$sendEvaluation):
 ?>
 <p id="paragraph_loading_content">
@@ -28,8 +23,8 @@ if(!$sendEvaluation):
 <label>
     <strong>
         <?php
-        i::_e('Diligência ao proponente');
-        dump($result);
+        i::_e('Diligencia Enviadas:');
+        dump($diligenceAndAnswers);
         ?>
     </strong>
 </label>
@@ -37,7 +32,7 @@ if(!$sendEvaluation):
     <p id="paragraph_info_status_diligence"></p>
 </div>
 <div style="margin-top: 30px; width: 100%;" id="div-content-all-diligence-send">
-    <label class="label-diligence-send">Diligência:</label>
+    <!-- <label class="label-diligence-send">Diligência:</label> -->
     <!-- <p id="paragraph_content_send_diligence"></p>
     <p id="paragraph_createTimestamp" class="paragraph-createTimestamp"></p> -->
     <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
@@ -62,10 +57,25 @@ if(!$sendEvaluation):
 </div>
 <div id="accordion" class="head">
     <?php 
-   
-    foreach($result as $key => $results):
+    
+    foreach($diligenceAndAnswers as $key => $results):
         Carbon::setLocale('pt_BR');
-        $dt = Carbon::parse($results->sendDiligence);
+        $dt = null;
+        $dtSend = "";
+        // dump($results->sendDiligence == null);
+        if($results !== null)
+        {
+            $dt = Carbon::parse($results->sendDiligence);
+            $dtSend = $dt->isoFormat('LLL');
+            $dtAndwer = Carbon::parse($results->sendDiligence);
+            $dtSendAnswer = $dtAndwer->isoFormat('LLL');
+        }
+        if(is_null($results)) {
+         echo ' <div style="display: flex; justify-content: space-between;" id="div-accordion-diligence" class="div-accordion-diligence">
+                <label style="font-size: 14px">Aguardando Resposta</label>
+                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+            </div><div class="content"><p>Aguardando resposta</p></div>';
+        }
         if($results instanceof EntityDiligence)
         {
     ?>
@@ -81,11 +91,13 @@ if(!$sendEvaluation):
             ?>
       </p>
       <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp">
-        <?php echo $dt->isoFormat('LLL');   ?>
+        <?php echo $dtSend;   ?>
       </p>
     </div>
     <?php 
         }
+
+     
 
         if($results instanceof AnswerDiligence)
         {
@@ -104,7 +116,7 @@ if(!$sendEvaluation):
             ?>
       </p>
       <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp">
-        <?php echo $dt->isoFormat('LLL');   ?>
+        <?php echo $dtSendAnswer;   ?>
       </p>
     </div>
     <?php 
@@ -139,6 +151,7 @@ endforeach; ?>
 
 <div>
     <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
+    <input type="text" id="id-input-diligence">
 </div>
 <label class="diligence-label-save" id="label-save-content-diligence">
     <i class="fas fa-check-circle mr-10"></i>
