@@ -28,7 +28,8 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenc
                     'diligenceRepository' => $context['diligenceRepository'], 
                     'diligenceDays' => $context['diligenceDays'],
                     'placeHolder' => $context['placeHolder'],
-                    'sendEvaluation' => $sendEvaluation
+                    'sendEvaluation' => $sendEvaluation,
+                    'isProponent' => $context['isProponent']
                 ]); 
         ?>
         <div id="div-info-send" class="div-info-send">

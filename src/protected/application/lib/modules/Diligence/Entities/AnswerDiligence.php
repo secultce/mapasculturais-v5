@@ -91,14 +91,16 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
 
         $repo       = new DiligenceRepo();
         $diligence  = $repo->findId($class->data['diligence']);
-        $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
+        // $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
       
-        if(count($answerDiligences) > 0){
-            // dump($reg);
-            // die;
-            foreach ($answerDiligences as $key => $answerDiligence) {
+        if($class->data['idDiligence'] > 0){
+            $isNewDiligence = true;
+             //Se tiver registro de diligência
+             $answerDiligences = App::i()->repo('Diligence\Entities\AnswerDiligence')->find($class->data['idDiligence']);
+
+             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;
                 $answerDiligence->answer = $class->data['answer'];
                 $answerDiligence->createTimestamp = new DateTime();
@@ -106,14 +108,18 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
                 $answerDiligence->status = $class->data['status'];
             }
             $save = self::saveEntity($answerDiligence);
-        }else{
-            $answer->diligence = $diligence;
-            $answer->answer = $class->data['answer'];
-            $answer->createTimestamp = new DateTime();
-            $answer->status = $class->data['status'];
-            $answer->registration = $reg;
-            $save = self::saveEntity($answer);
+
+            //  return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
         }
+
+
+        $answer->diligence = $diligence;
+        $answer->answer = $class->data['answer'];
+        $answer->createTimestamp = new DateTime();
+        $answer->status = $class->data['status'];
+        $answer->registration = $reg;
+        $save = self::saveEntity($answer);
+
         App::i()->applyHook('entity(diligence).createAnswer', [&$answer]);
         return $save;
     }

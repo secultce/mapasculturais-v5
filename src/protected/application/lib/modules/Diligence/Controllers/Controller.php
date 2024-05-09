@@ -46,23 +46,26 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             //Repositorio da Diligencia
             $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
             $content = 0;
-            foreach ($diligence as $key => $value) {
+            if(!is_null($diligence))
+            {
+                foreach ($diligence as $key => $value) {
             
-                //Verificando se existe diligencia
-                if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
-                {
-                    $content = 1;
+                    //Verificando se existe diligencia
+                    if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
+                    {
+                        $content = 1;
+                    }
+                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
+                    {
+                        $content = 2;
+                    }
+                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
+                    {
+                        $content = 3;
+                    }   
                 }
-                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
-                {
-                    $content = 2;
-                }
-                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
-                {
-                    $content = 3;
-                }
-                
             }
+            
         
             switch ($content) {
                 case 0:
@@ -107,6 +110,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         App::i()->applyHook('controller(diligence).notification:after');
         //Enviando para fila RabbitMQ
         EntityDiligence::sendQueue($userDestination, 'proponente');
+        self::returnJson(null, $this);
     }
 
     public function POST_sendNotification()
@@ -126,7 +130,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);
-        self::returnJson($entity, $this);
+        $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
     }
     
     /**

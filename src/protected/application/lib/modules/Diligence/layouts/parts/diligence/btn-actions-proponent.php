@@ -44,12 +44,13 @@ $template = '
         <?php else :
             echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
         endif; ?>
-        <span id="info-title-limit-file-diligence">
-
-        </span>
+        <span id="info-title-limit-file-diligence"></span>
     </div>
     <div class="div-actions-proponent">
-        <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" id="btn-save-diligence-proponent" onclick="saveAnswerProponente(0)">
+        <button class="btn-save-diligence mr-10" 
+            title="Salva o conteúdo mas não envia sua resposta" 
+            id="btn-save-diligence-proponent"
+            onclick="saveAnswerProponente(0, $('#id-input-diligence').val())">
             Salvar
             <i class="fas fa-save"></i>
         </button>

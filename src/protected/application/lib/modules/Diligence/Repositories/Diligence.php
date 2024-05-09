@@ -79,9 +79,16 @@ class Diligence{
      */
     protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
     {
-        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
-
-        return $query->getResult();
+        
+        // dump($query);
+        // die;
+        
+        try {
+            $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
+            return $query->getResult();
+        } catch (\Throwable $th) {
+           return null;
+        }
 
         // $strNativeQuery = "SELECT * FROM recurring_event_occurrence_for('$date1', '$date2', 'Etc/UTC', NULL)";
 

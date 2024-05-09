@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 
 $diligenceAndAnswers = RepoDiligence::getDiligenceAnswer($entity->id);
-
+$descriptionDraft = true;
 if (!$sendEvaluation) :
 ?>
     <p id="paragraph_loading_content">
@@ -17,13 +17,12 @@ if (!$sendEvaluation) :
             Carregando ... <img id="img-loading-content" />
         </label>
         <br />
-
         <br />
     </p>
     <label>
         <strong>
             <?php
-            i::_e('Diligencia Enviadas:');
+            i::_e('Diligências enviadas:');
             dump($diligenceAndAnswers);
             ?>
         </strong>
@@ -55,51 +54,43 @@ if (!$sendEvaluation) :
         </div>
 
     </div>
-    <div id="accordion" class="head">
+    <?php if(!is_null($diligenceAndAnswers)) : ?>
+        <div id="accordion" class="head">
         <?php
-
-        foreach ($diligenceAndAnswers as $key => $results) :
+     
+        foreach ($diligenceAndAnswers as $key => $resultsDiligence) :
             Carbon::setLocale('pt_BR');
             $dt = null;
             $dtSend = "";
+
             // dump($results->sendDiligence == null);
-            if ($results !== null) {
-                $dt = Carbon::parse($results->sendDiligence);
+            if ($resultsDiligence !== null) {
+                $dt = Carbon::parse($resultsDiligence->sendDiligence);
                 $dtSend = $dt->isoFormat('LLL');
-                $dtAndwer = Carbon::parse($results->sendDiligence);
+                $dtAndwer = Carbon::parse($resultsDiligence->sendDiligence);
                 $dtSendAnswer = $dtAndwer->isoFormat('LLL');
             }
-            // if (is_null($results)) {
-            //     echo ' <div style="display: flex; justify-content: space-between;" id="div-accordion-diligence" class="div-accordion-diligence">
-            //     <label style="font-size: 14px">Aguardando Resposta</label>
-            //     <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-            // </div><div class="content"><p>Aguardando resposta</p></div>';
-            // }
-            if ($results instanceof EntityDiligence && !is_null($results) && $results->status == 3) {
-        ?>
-                <div style="display: flex; justify-content: space-between;" id="div-accordion-diligence" class="div-accordion-diligence">
+            
+            if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
+                <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                     <label style="font-size: 14px">Diligência </label>
                     <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
                 </div>
                 <div class="content">
                     <p>
                         <?php
-                        echo $results->description;
-
+                        echo $resultsDiligence->description;
                         ?>
                     </p>
-                    <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp">
-                        <?php echo $dtSend;   ?>
+                    <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
+                        <?php echo $dtSend; ?>
                     </p>
                 </div>
             <?php
             }
-
-
-
-            if ($results instanceof AnswerDiligence && !is_null($results) && $results->status == 3) {
+            if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
             ?>
-                <div style="display: flex; justify-content: space-between;" id="div-accordion-diligence" class="div-accordion-diligence">
+                <div style="display: flex; justify-content: space-between;"    class="div-accordion-diligence">
                     <label style="font-size: 14px">
                         <strong>Resposta Recebida</strong>
                     </label>
@@ -108,46 +99,61 @@ if (!$sendEvaluation) :
                 <div class="content" style="background-color: #F3F3F3;">
                     <p>
                         <?php
-                        echo $results->answer;
+                        echo $resultsDiligence->answer;
 
                         ?>
                     </p>
-                    <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp">
+                    <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
                         <?php echo $dtSendAnswer;   ?>
                     </p>
                 </div>
-        <?php
+            <?php
             }
-
-
+            if (is_null($resultsDiligence)) {
+            
+                    $descriptionDraft = false;
+                    echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                    <label style="font-size: 14px">Aguardando Resposta.</label>
+                    <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                </div><div class="content"><p>Aguardando resposta</p></div>';
+                
+            }
         endforeach; ?>
-    </div>
-    <?php foreach ($diligenceAndAnswers as $key => $results) {
+        </div>
+   
+    <?php 
+    endif;//endif id=accordion
+    if(!is_null($diligenceAndAnswers))
+    {
+        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
 
-        if ($results instanceof EntityDiligence && !is_null($results) && $results->status == 0) :
-            $dateDraft = Carbon::parse($results->createTimestamp)->diffForHumans();
-
-    ?>
-
-            <div id="draft-description-diligence" class="div-draft-description-diligence">
-                <span style="font-size: small; color: #085E55">Diligência em rascunho. <br /></span>
-                <p style="padding: 5px;"><?= $results->description; ?> </p>
-                <p style="font-size: x-small;"><?= ucfirst($dateDraft); ?> </p>
-                <p>
-                    <a class="edit-draft-descrption0-diligence" 
-                        onclick='editDescriptionDiligence(<?php echo json_encode($results->description); ?>,<?= $results->id; ?>)'
-                    >
-                        Editar
-                    </a>
-                </p>
-            </div>
-    <?php
-        endif;
-    };
+            if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
+                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
+                $descriptionDraft = true;
+        ?>
+    
+                <div id="draft-description-diligence" class="div-draft-description-diligence">
+                    <span style="font-size: small; color: #085E55">Diligência em rascunho. <br /></span>
+                    <p style="padding: 5px;"><?= $resultsDraft->description; ?> </p>
+                    <p style="font-size: x-small;"><?= ucfirst($dateDraft); ?> </p>
+                    <p>
+                        <a class="edit-draft-descrption0-diligence" onclick='editDescriptionDiligence(<?php echo json_encode($resultsDraft->description); ?>,<?= $resultsDraft->id; ?>)'>
+                            Editar
+                        </a>
+                    </p>
+                </div>
+        <?php
+            endif;
+        };
+    }
     ?>
 
     <div>
-        <?php if (!is_null($results)) : ?>
+        <?php
+        //So habilita o textarea qndo tem resposta ou qndo em rascunho
+        dump($descriptionDraft);
+        dump($isProponent);
+        if ($descriptionDraft || $isProponent) : ?>
             <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
             <input type="text" id="id-input-diligence">
         <?php endif; ?>

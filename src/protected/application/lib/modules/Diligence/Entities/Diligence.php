@@ -228,9 +228,6 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
              //Se tiver registro de diligência
              $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
              return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
-        }else{
-             //Se tiver registro de diligência
-             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
         }
 
         // unset($class->data);

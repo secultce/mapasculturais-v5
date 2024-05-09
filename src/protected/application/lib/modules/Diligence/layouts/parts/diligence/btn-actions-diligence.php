@@ -11,7 +11,7 @@ if (!$sendEvaluation) :
     <button id="btn-send-diligence" 
         class="btn-send-diligence" 
         title="Salva e envia a sua resposta para a comissão avaliadora." 
-        onclick="saveDiligence(3, 3)">
+        onclick="saveDiligence(3, 3, $('#id-input-diligence').val())">
         Enviar Diligência
         <i class="fas fa-paper-plane"></i>
     </button>

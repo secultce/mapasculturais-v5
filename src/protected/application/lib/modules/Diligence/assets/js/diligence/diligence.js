@@ -11,13 +11,10 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
-
-    $( "#accordion" ).accordion({
-        active: false,
-        collapsible: true,
-        heightStyle: "content"
-    });
-    $(".div-accordion-diligence > span").remove();
+    hideBtnActionsDiligence();
+    //Inciando o acoordioin Jquery
+    EntityDiligence.showAccordion('#accordion');
+    
     //id da diligencia
     let idDiligence = 0;
     $("#id-input-diligence").val(idDiligence);
@@ -43,18 +40,43 @@ $(document).ready(function () {
     entityDiligence
         .then((res) => {
             console.log({res})
+            let actions = true;
             if(res.message == 'sem_diligencia') {
-                $("#btn-save-diligence").show();
+                
                 $("#paragraph_loading_content").hide();
                 $("#descriptionDiligence").show();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
             }
+            if(res.message == 'diligencia_aberta') {
+                
+                res.data.forEach((element, index) => {
+                    console.log({element})
+                    if(element.status == 0) {
+                        $("#descriptionDiligence").hide();
+                    }
+                })
+                $("#paragraph_loading_content").hide();
+            }
+            if(res.message !== 'sem_diligencia') {
+                res.data.forEach((element, index) => {
+                    console.log({element})
+                    if(element == null)
+                    {
+                        actions = false;
+                    }
+                })
+                console.log({actions})
+                if(actions){
+                    showBtnActionsDiligence();
+                }
+               
+            }
             // res.data.forEach((element, index) => {
             //    //Verifica a situação da diligencia
-               
-            //     $("#btn-save-diligence").show();
+            //    console.log({element})
+
             //     $("#paragraph_loading_content").hide();
-               
+                
             //     // if (element.status == 3) {
             //     //     // EntityDiligence.formatDiligenceSendProponent(element);
             //     //     showBtnSubmitEvaluation();
@@ -88,9 +110,11 @@ $(document).ready(function () {
 
 function editDescriptionDiligence(description, id)
 {
+    $("#descriptionDiligence").show();
     $("#descriptionDiligence").html(description)
     $("#id-input-diligence").val(id)
     $("#draft-description-diligence").remove();
+    showBtnActionsDiligence();
     console.log({description})
     console.log({id})
 }

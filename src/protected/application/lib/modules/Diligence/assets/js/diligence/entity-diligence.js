@@ -112,9 +112,9 @@ var EntityDiligence = (function(){
 
     function showAnswerDraft(answer)
     {
-        $("#paragraph_content_send_diligence").html(answer.diligence.description);
-        $("#div-content-all-diligence-send").show();
-        $("#descriptionDiligence").val(answer.answer);
+        // $("#paragraph_content_send_diligence").html(answer.diligence.description);
+        // $("#div-content-all-diligence-send").show();
+        // $("#descriptionDiligence").val(answer.answer);
         $("#div-btn-actions-proponent").show();
         $("#btn-save-diligence-proponent").show();
         $("#btn-send-diligence-proponente").show();
@@ -176,6 +176,16 @@ var EntityDiligence = (function(){
         $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
     }
 
+    function showAccordion(idRef)
+    {
+        $( idRef ).accordion({
+            active: false,
+            collapsible: true,
+            heightStyle: "content"
+        });
+        $(".div-accordion-diligence > span").remove();
+    }
+
 
 
     return {
@@ -191,6 +201,7 @@ var EntityDiligence = (function(){
         returnGetAuthorized: returnGetAuthorized,
         hideBtnOpenDiligence: hideBtnOpenDiligence,
         showBtnOpenDiligence: showBtnOpenDiligence,
-        removeBtnOpenDiligence: removeBtnOpenDiligence
+        removeBtnOpenDiligence: removeBtnOpenDiligence,
+        showAccordion: showAccordion
       }
 }());

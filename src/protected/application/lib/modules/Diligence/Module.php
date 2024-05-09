@@ -54,7 +54,8 @@ class Module extends \MapasCulturais\Module {
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
                 'diligenceDays' => $diligence_days ,
-                'placeHolder' => $placeHolder
+                'placeHolder' => $placeHolder,
+                'isProponent' => $isProponent
             ];
             
             //Verificando e globalizando se é um avaliador
@@ -67,6 +68,8 @@ class Module extends \MapasCulturais\Module {
             $this->jsObject['isProponent']  = $isProponent;
             
             if($isProponent){
+                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
+                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
             }
             
