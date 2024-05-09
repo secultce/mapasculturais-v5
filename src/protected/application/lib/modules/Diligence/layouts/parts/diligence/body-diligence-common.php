@@ -118,37 +118,34 @@ if (!$sendEvaluation) :
                 </div>
         <?php
             }
-           
-          
+
+
         endforeach; ?>
     </div>
-    <?php foreach ($diligenceAndAnswers as $key => $results)
-    {
+    <?php foreach ($diligenceAndAnswers as $key => $results) {
 
-    if($results instanceof EntityDiligence && !is_null($results) && $results->status == 0): 
-    $dateDraft = Carbon::parse($results->createTimestamp)->diffForHumans();
-    
+        if ($results instanceof EntityDiligence && !is_null($results) && $results->status == 0) :
+            $dateDraft = Carbon::parse($results->createTimestamp)->diffForHumans();
+
     ?>
-       
-        <div id="draft-description-diligence" style="padding: 10px; margin-top: 15px;background: #eeeeee;
-         border-radius: 5px; border: 1px solid #085E55;">
-        <span style="font-size: small; color: #085E55">Diligência em rascunho. <br/></span>
-        <p style="padding: 5px;"><?= $results->description; ?> </p>
-        <p style="font-size: x-small;"><?= ucfirst($dateDraft); ?> </p>
-        <p>
-        <a style="
-        border: 1px solid #c5c5c5;
-        padding: 3px;
-        font-size: x-small;
-        border-radius: 5px;
-        background: #fff;
-    " onclick="editDescriptionDiligence('<?= $results->description; ?>','<?= $results->id; ?>')" >
-        Editar</a></p></div>
+
+            <div id="draft-description-diligence" class="div-draft-description-diligence">
+                <span style="font-size: small; color: #085E55">Diligência em rascunho. <br /></span>
+                <p style="padding: 5px;"><?= $results->description; ?> </p>
+                <p style="font-size: x-small;"><?= ucfirst($dateDraft); ?> </p>
+                <p>
+                    <a class="edit-draft-descrption0-diligence" 
+                        onclick='editDescriptionDiligence(<?php echo json_encode($results->description); ?>,<?= $results->id; ?>)'
+                    >
+                        Editar
+                    </a>
+                </p>
+            </div>
     <?php
-    endif;
-};
-        ?>
-   
+        endif;
+    };
+    ?>
+
     <div>
         <?php if (!is_null($results)) : ?>
             <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>

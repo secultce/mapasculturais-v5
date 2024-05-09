@@ -45,15 +45,15 @@ $(document).ready(function () {
             console.log({res})
             res.data.forEach((element, index) => {
                //Verifica a situação da diligencia
-                EntityDiligence.verifySituation(element);
+               
                 $("#btn-save-diligence").show();
                 $("#paragraph_loading_content").hide();
-                console.log(element.status)
-                if (element.status == 3) {
-                    // EntityDiligence.formatDiligenceSendProponent(element);
-                    showBtnSubmitEvaluation();
-                    // hideBtnActionsDiligence();                    
-                }
+               
+                // if (element.status == 3) {
+                //     // EntityDiligence.formatDiligenceSendProponent(element);
+                //     showBtnSubmitEvaluation();
+                //     // hideBtnActionsDiligence();                    
+                // }
                 // $("#descriptionDiligence").html(element.description)
                     $("#descriptionDiligence").show();
             });

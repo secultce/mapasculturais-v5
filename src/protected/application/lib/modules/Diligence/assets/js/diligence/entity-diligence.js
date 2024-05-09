@@ -122,6 +122,7 @@ var EntityDiligence = (function(){
 
     }
 
+    //Remover a funcao
     function verifySituation(data)
     {
           //Sempre verifica a situação para habilitar o botão de Finalizar avaliação e avançar
