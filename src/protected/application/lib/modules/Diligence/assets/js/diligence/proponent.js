@@ -1,4 +1,5 @@
 $(document).ready(function () {
+
     //Remove o botão de abrir diligencias
     EntityDiligence.removeBtnOpenDiligence();
     //Ocuta os arquivo comuns
@@ -47,14 +48,15 @@ $(document).ready(function () {
 
         if (res.message == 'resposta_rascunho' &&  MapasCulturais.userEvaluate == false) 
         {
+            console.log({res})
             const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
             res.data.forEach((answer, index) => {
-                const limitDate = EntityDiligence.getLimitDateAnswer(answer.diligence.sendDiligence.date);
+                const limitDate = EntityDiligence.validateLimiteDate(answer.diligence.sendDiligence.date);
 
-                if(limitDate === 'encerrou'){
+                if(limitDate){
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").hide();
                     $("#div-btn-actions-proponent").hide() 
@@ -103,7 +105,8 @@ $(document).ready(function () {
 
     })
     .catch((error) => {
-        MapasCulturais.Messages.error('Erro ao carregar diligência');
+        console.log({error})
+        // MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
    
 });
@@ -227,7 +230,8 @@ function saveRequestAnswer(status)
         data: {
             diligence: MapasCulturais.idDiligence,
             answer: $("#descriptionDiligence").val(),
-            status: status
+            status: status,
+            registration: MapasCulturais.entity.id 
         },
         dataType: "json",
         success: function(response) {

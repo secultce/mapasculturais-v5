@@ -1966,11 +1966,14 @@ $$
     },
 
     'add a column to table answer_diligence' => function() {
-        __exec("ALTER TABLE answer_diligence ADD registration_id  INT");
+        // __exec("ALTER TABLE answer_diligence DROP CONSTRAINT answer_diligence_registration_fk");
+        // __exec("ALTER TABLE answer_diligence DROP registration_id");
 
-        __exec("ALTER TABLE answer_diligence ADD
-        CONSTRAINT answer_diligence_registration_fk
-        FOREIGN KEY (registration_id) REFERENCES registration (id)
-        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+        __exec("ALTER TABLE answer_diligence ADD registration_id INT");
+
+        // __exec("ALTER TABLE answer_diligence ADD
+        // CONSTRAINT answer_diligence_registration_fk
+        // FOREIGN KEY (registration_id) REFERENCES registration (id)
+        // ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
     }
 ] + $updates ;

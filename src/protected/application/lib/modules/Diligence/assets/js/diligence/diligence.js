@@ -12,6 +12,14 @@ var objSendDiligence = {
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
 
+      $( "#accordion" ).accordion({
+        active: false,
+        collapsible: true
+      });
+      $("#div-accordion-diligence > span").remove();
+     
+      
+
     //Buscado diligencia se houver
 
     //Retornar valor se foi autorizado
@@ -33,63 +41,25 @@ $(document).ready(function () {
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
         .then((res) => {
-            if (
-                (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
-                MapasCulturais.userEvaluate == true) {
-                //Se não tem diligencia
-                if (res.data.length == 0 && res.data.status == undefined) {
-                    
-                    $("#descriptionDiligence").hide();
-                    $("#paragraph_loading_content").hide();                   
-                    hideBtnActionsDiligence();
+            console.log({res})
+            res.data.forEach((element, index) => {
+               $(".accordion").append('<div class="head"><label>Esconder <i class="fas fa-angle-down arrow"></i></label></div>');
+
+                
+                //Verifica a situação da diligencia
+                EntityDiligence.verifySituation(element);
+                $("#btn-save-diligence").show();
+                $("#paragraph_loading_content").hide();
+                if (element.status == 3) {
+                    EntityDiligence.formatDiligenceSendProponent(element);
                     showBtnSubmitEvaluation();
-                    EntityDiligence.showBtnOpenDiligence();
+                    hideBtnActionsDiligence();
+                    
+                } else {
+                    $("#descriptionDiligence").html(element.description)
+                    $("#descriptionDiligence").show();
                 }
-
-                res.data.forEach((element, index) => {
-                    //Verifica a situação da diligencia
-                    EntityDiligence.verifySituation(element);
-                    $("#btn-save-diligence").show();
-                    $("#paragraph_loading_content").hide();
-                    if (element.status == 3) {
-                        EntityDiligence.formatDiligenceSendProponent(element);
-                        showBtnSubmitEvaluation();
-                        hideBtnActionsDiligence();
-                        
-                    } else {
-                        $("#descriptionDiligence").html(element.description)
-                        $("#descriptionDiligence").show();
-                    }
-                });
-                $("#answer_diligence").hide();
-                $("#paragraph_info_status_diligence").html('A sua Diligência ainda não foi enviada');
-            }
-
-            if (res.message == "resposta_rascunho" && MapasCulturais.userEvaluate == true) {
-                res.data.forEach((answer, index) => {
-                    EntityDiligence.showAnswerDraft(answer);
-                    EntityDiligence.verifySituation(answer.diligence);
-                    hideBtnActionsDiligence()
-                    $("#descriptionDiligence").hide();
-                    $("#paragraph_loading_content").hide();
-                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
-
-                });
-            }
-
-            if (res.message == "resposta_enviada" && MapasCulturais.userEvaluate == true) {
-                res.data.forEach((answer, index) => {
-                    EntityDiligence.showAnswerDraft(answer);
-                    EntityDiligence.verifySituation(answer.diligence);
-                    $("#paragraph_content_send_answer").html(answer.answer);
-                    $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
-                    $("#answer_diligence").show();
-                    $("#descriptionDiligence").hide();
-                    $("#btn-actions-diligence").hide();
-                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'));
-                    $(".footer-btn-delete-file-diligence").hide();
-                });
-            }
+            });
 
         })
         .catch((error) => {

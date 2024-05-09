@@ -44,15 +44,23 @@ class Diligence{
      */
     static public function getDiligenceAnswer($registration)
     {
+        $registrationAnswer = $registration;
         // $this->requireAuthentication();
         $app = App::i();
         //Verificando se tem resposta para se relacionar a diligencia
         $dql = "SELECT ad, d
-        FROM  Diligence\Entities\AnswerDiligence ad 
-        LEFT JOIN  ad.diligence d 
-        WHERE d.registration = :reg";
-        $registrations = self::queryDiligente($app, $dql, $registration);
-       
+        FROM  Diligence\Entities\Diligence d 
+        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d
+        WHERE d.registration = :reg 
+        and ad.registration = :regAnswer" ;
+
+    //    $strNativeQuery = "select d.id as idDiligence,
+    //     d.open_agent_id, d.agent_id, d.description, ad.answer from 
+    //     Diligence\Entities\Diligence d inner join  Diligence\Entities\AnswerDiligence ad 
+    //     LEFT JOIN ad.diligence_id = d.id 
+    //    where d.registration_id = :reg  and ad.registration_id = :regAnswer";
+        $registrations = self::queryDiligente($app, $dql, $registration, $registrationAnswer);
+
         //Se não tiver resposta de alguma diligencia então envia somente a diligencia
         if(!empty($registrations)){
             return $registrations;
@@ -60,8 +68,8 @@ class Diligence{
             $dql = "SELECT d
             FROM  Diligence\Entities\Diligence d
             WHERE d.registration = :reg";
-            return self::queryDiligente($app, $dql, $registration);            
-        }        
+            return self::queryDiligente($app, $dql, $registration, $registrationAnswer);            
+        }
     }
     /**
      * Função que gera a execulta o resultado Doctrine DQL
@@ -70,11 +78,15 @@ class Diligence{
      * @param [string] $dql
      * @param [int] $registration
      */
-    protected static function queryDiligente($app, $dql, $registration)
+    protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
     {
-        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration]);
+        $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' => $registrationAnswer]);
 
         return $query->getResult();
+
+        // $strNativeQuery = "SELECT * FROM recurring_event_occurrence_for('$date1', '$date2', 'Etc/UTC', NULL)";
+
+        // return $this->app->em->createNativeQuery($strNativeQuery, $rsm);
     }
 
     static function getAuthorizedProject($registration): array

@@ -86,17 +86,23 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      */
     public function create($class)
     {
+        $app = App::i();
         App::i()->applyHook('entity(diligence).createAnswer:before');
+
         $repo       = new DiligenceRepo();
         $diligence  = $repo->findId($class->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
+        $reg        = $app->repo('Registration')->find($class->data['registration']);
       
         if(count($answerDiligences) > 0){
+            // dump($reg);
+            // die;
             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;
                 $answerDiligence->answer = $class->data['answer'];
                 $answerDiligence->createTimestamp = new DateTime();
+                $answerDiligence->registration = $reg;
                 $answerDiligence->status = $class->data['status'];
             }
             $save = self::saveEntity($answerDiligence);
@@ -105,6 +111,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
             $answer->answer = $class->data['answer'];
             $answer->createTimestamp = new DateTime();
             $answer->status = $class->data['status'];
+            $answer->registration = $reg;
             $save = self::saveEntity($answer);
         }
         App::i()->applyHook('entity(diligence).createAnswer', [&$answer]);

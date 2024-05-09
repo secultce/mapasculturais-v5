@@ -30,6 +30,7 @@ class Module extends \MapasCulturais\Module {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
             $entity = self::getrequestedEntity($this);
+            
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
@@ -55,6 +56,7 @@ class Module extends \MapasCulturais\Module {
                 'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder
             ];
+            
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = false;
             if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
@@ -64,13 +66,23 @@ class Module extends \MapasCulturais\Module {
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
             
-            if($isProponent){              
-              
-                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
+            if($isProponent){
+               return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
             }
             
-            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
-            $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
+            if($entity->opportunity->getMetadata('multiDiligence'))
+            {
+                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+                $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
+                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
+
+                $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
+            }else{
+                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+            }
+
+            
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
@@ -122,6 +134,12 @@ class Module extends \MapasCulturais\Module {
             'validations' => [
                 'v::intVal()->positive()->between(1, 365)' => 'O valor deve ser um número inteiro positivo'
             ]
+        ]);
+        $this->registerOpportunityMetadata('multiDiligence', [
+            'label' => i::__('Oportunidade de Prestação de contas?'),
+            'options' => ['Sim', 'Não'],
+            'default' => 'Não',         
+            'required' => true,
         ]);
 
         $this->registerRegistrationMetadata('value_project_diligence', [

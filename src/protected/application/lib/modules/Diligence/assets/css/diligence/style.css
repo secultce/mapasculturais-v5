@@ -193,3 +193,13 @@
     display: flex;
     justify-content: end;
 }
+
+.ui-state-active {
+    color: #085E55 !important;
+    background: #ffffff !important;
+    border: 1px solid #085E55 !important;
+}
+.title-accordion-h3 {
+    display: flex !important;
+    justify-content: flex-end !important;
+}
