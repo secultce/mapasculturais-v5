@@ -20,7 +20,7 @@ trait DiligenceSingle{
         $app->disableAccessControl();
         $save       = $entity->save();
         $app->enableAccessControl();
-        return $save;
+        return ['save' => $save , 'entityId' => $entity->id];
     }
 
     static protected function returnJson($instance, $class)

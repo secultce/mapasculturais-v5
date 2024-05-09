@@ -24,7 +24,6 @@ if(!$sendEvaluation):
     <strong>
         <?php
         i::_e('Diligencia Enviadas:');
-        dump($diligenceAndAnswers);
         ?>
     </strong>
 </label>

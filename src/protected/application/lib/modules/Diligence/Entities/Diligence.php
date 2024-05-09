@@ -225,16 +225,22 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $isNewDiligence = false;
         if($class->data['idDiligence'] > 0){
             $isNewDiligence = true;
+             //Se tiver registro de diligência
+             $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
+             return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
+        }else{
+             //Se tiver registro de diligência
+             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
         }
+
         // unset($class->data);
         // die;
-        //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
+       
       
-        if(count($diligenceRepository) > 0 && $isNewDiligence ) {
+        // if(count($diligenceRepository) > 0 && $isNewDiligence ) {
             
-            return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
-        }
+            
+        // }
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
         $diligence->registration    = $regs['reg'];
@@ -264,18 +270,16 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected function updateContent($diligences, $description, $registration, $status = 0)
     {
         $save = null;
-        foreach ($diligences as $diligence) {
-            $diligence->description     = $description;
-            $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
-            $diligence->status          = $status;
-            //Se for para enviar a diligência, então salva o momento do envio
-            if($status == 3){
-                $diligence->sendDiligence =  new DateTime();
-            }
+       $diligences->description     = $description;
+       $diligences->registration    = $registration;
+       $diligences->createTimestamp =  new DateTime();
+       $diligences->status          = $status;
+       //Se for para enviar a diligência, então salva o momento do envio
+       if($status == 3){
+           $diligences->sendDiligence =  new DateTime();
+       }
 
-            $save = self::saveEntity($diligence);
-        }
+       $save = self::saveEntity($diligences);
        return $save;
     }
 

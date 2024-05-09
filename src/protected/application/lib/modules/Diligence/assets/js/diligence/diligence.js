@@ -250,9 +250,10 @@ function sendAjaxDiligence(status, idDiligence) {
         data: objSendDiligence,
         dataType: "json",
         success: function (res) {
+            console.log({res})
             if (res.status == 200) {
                 showSaveContent(status)
-                $("#id-input-diligence").val(222);
+                $("#id-input-diligence").val(res.entityId);
             }
 
         },

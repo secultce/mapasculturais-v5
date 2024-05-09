@@ -30,7 +30,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         // $this->requireAuthentication();
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
-        self::returnJson($entity, $this);
+        $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
+        // self::returnJson($entity, $this);
     }
 
      /**
