@@ -34,7 +34,7 @@ class Module extends \MapasCulturais\Module {
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
-           
+            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($entity->id);
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
@@ -70,7 +70,7 @@ class Module extends \MapasCulturais\Module {
             if($isProponent){
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
-               return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
+               return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);               
             }
             
             if($entity->opportunity->getMetadata('multiDiligence'))

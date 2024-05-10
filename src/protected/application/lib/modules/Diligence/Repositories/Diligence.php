@@ -4,6 +4,7 @@ namespace Diligence\Repositories;
 use MapasCulturais\App;
 use DateTime;
 use Diligence\Entities\Diligence as DiligenceEntity;
+use MapasCulturais\Entities\Registration;
 use Doctrine\ORM\EntityRepository;
 use MapasCulturais\Entity;
 
@@ -120,6 +121,19 @@ class Diligence{
         $conn = $app->em->getConnection();
         $result = $conn->fetchAllAssociative($query, $params);
         return $result;
+    }
+
+    /**
+     * Buscando a ultima diligência relacionado a inscrição Desejada
+     *
+     * @param [int|string] $registration
+     * @return DiligenceEntity
+     */
+    public function getIdLastDiligence($registration) : DiligenceEntity
+    {
+        $app = App::i();
+        $lastDiligence = $app->repo(DiligenceEntity::class)->findOneBy(['registration' => $registration], ['id' => 'desc']);
+        return $lastDiligence;
     }
 
 }

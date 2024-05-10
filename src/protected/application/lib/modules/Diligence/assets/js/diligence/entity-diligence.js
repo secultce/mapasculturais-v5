@@ -186,6 +186,26 @@ var EntityDiligence = (function(){
         $(".div-accordion-diligence > span").remove();
     }
 
+    //Mostrar os botões de ação da diligência
+    function showBtnActionsDiligence()
+    {
+        $("#btn-save-diligence").show();
+        $("#btn-send-diligence").show();
+    }
+
+    function editDescription(description, id, type)
+    {
+        $("#descriptionDiligence").show();
+        $("#descriptionDiligence").html(description)
+        $("#id-input-diligence").val(id)
+        $("#draft-description-diligence").remove();
+        if(type == 'diligence'){
+            showBtnActionsDiligence();
+        }else{
+            showAnswerDraft(null);
+        }
+    }
+
 
 
     return {
@@ -202,6 +222,8 @@ var EntityDiligence = (function(){
         hideBtnOpenDiligence: hideBtnOpenDiligence,
         showBtnOpenDiligence: showBtnOpenDiligence,
         removeBtnOpenDiligence: removeBtnOpenDiligence,
-        showAccordion: showAccordion
+        showAccordion: showAccordion,
+        showBtnActionsDiligence: showBtnActionsDiligence,
+        editDescription: editDescription
       }
 }());

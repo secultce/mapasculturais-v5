@@ -67,7 +67,7 @@ $(document).ready(function () {
                 })
                 console.log({actions})
                 if(actions){
-                    showBtnActionsDiligence();
+                    EntityDiligence.showBtnActionsDiligence();
                 }
                
             }
@@ -108,13 +108,11 @@ $(document).ready(function () {
 
 });
 
-function editDescriptionDiligence(description, id)
+function editDescription(description, id)
 {
-    $("#descriptionDiligence").show();
-    $("#descriptionDiligence").html(description)
-    $("#id-input-diligence").val(id)
-    $("#draft-description-diligence").remove();
-    showBtnActionsDiligence();
+    
+        
+    
     console.log({description})
     console.log({id})
 }
@@ -332,7 +330,7 @@ function openDiligence(status) {
     $("#descriptionDiligence").show();
     $("tab-diligence-principal").removeClass('active');
     $("li-tab-diligence-diligence").addClass('active');
-    showBtnActionsDiligence();
+    EntityDiligence.showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
 }
 
@@ -356,12 +354,7 @@ function hideBtnActionsDiligence()
     $("#btn-save-diligence").hide();
     $("#btn-send-diligence").hide();
 }
-//Mostrar os botões de ação da diligência
-function showBtnActionsDiligence()
-{
-    $("#btn-save-diligence").show();
-    $("#btn-send-diligence").show();
-}
+
 
 function hideAfterSend()
 {

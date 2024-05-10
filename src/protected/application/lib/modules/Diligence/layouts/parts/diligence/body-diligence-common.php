@@ -7,8 +7,6 @@ use Diligence\Repositories\Diligence as RepoDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 
-
-$diligenceAndAnswers = RepoDiligence::getDiligenceAnswer($entity->id);
 $descriptionDraft = true;
 if (!$sendEvaluation) :
 ?>
@@ -118,6 +116,15 @@ if (!$sendEvaluation) :
                 </div><div class="content"><p>Aguardando resposta</p></div>';
                 
             }
+            if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 0) {
+            
+                $descriptionDraft = false;
+                echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                <label style="font-size: 14px">Aguardando Resposta.</label>
+                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+            </div><div class="content"><p>Aguardando resposta</p></div>';
+            
+        }
         endforeach; ?>
         </div>
    
@@ -126,7 +133,7 @@ if (!$sendEvaluation) :
     if(!is_null($diligenceAndAnswers))
     {
         foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-
+            dump($isProponent);
             if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
                 $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
                 $descriptionDraft = true;
@@ -152,11 +159,9 @@ if (!$sendEvaluation) :
         <?php
         //So habilita o textarea qndo tem resposta ou qndo em rascunho
         dump($descriptionDraft);
-        dump($isProponent);
-        if ($descriptionDraft || $isProponent) : ?>
-            <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
-            <input type="text" id="id-input-diligence">
-        <?php endif; ?>
+      
+       
+        ?>
     </div>
     <label class="diligence-label-save" id="label-save-content-diligence">
         <i class="fas fa-check-circle mr-10"></i>

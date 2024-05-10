@@ -6,7 +6,7 @@ $(document).ready(function () {
     //id da diligencia
     let idDiligence = 0;
     $("#id-input-diligence").val(idDiligence);
-    let actions = true;
+    
     //Ocuta os arquivo comuns
     EntityDiligence.hideCommon();
     let entityDiligence = EntityDiligence.showContentDiligence();
@@ -31,7 +31,7 @@ $(document).ready(function () {
 
                 res.data.forEach((element, index) => {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days)
-    
+                    
                     if (dateLimitDate) {
                         $("#descriptionDiligence").hide();
                         $("#div-btn-actions-proponent").hide() 
@@ -64,20 +64,28 @@ $(document).ready(function () {
 
             
         }
-        
+
+       
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
+           
+            let actions = false;
+            console.log({actions})
+            idsDiligences = [];
             res.data.forEach((answer, index) => {
+                // console.log({answer})
+                // console.log('id ', answer.id.length)
                 console.log({answer})
-               
-                if(answer == null)
+                if(answer?.id === undefined)
                 {
-                    actions = true;
+                    EntityDiligence.showAnswerDraft(null);
+                }else{
+                    idsDiligences.push(answer?.id);
                 }
             })
-            console.log({actions})
-            if(actions){
-                EntityDiligence.showAnswerDraft(null);
-            }
+    
+            console.log(idsDiligences);
+            MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
+            
         }
             
 
@@ -145,6 +153,11 @@ $(document).ready(function () {
     })
    
 });
+
+//Joga o conteudo do rascunho para text area
+function editDescription(description, id, type){
+    EntityDiligence.editDescription(description, id, type);
+}
 
 //Sempre implementar esses metodos
 function hideRegistration()
@@ -257,40 +270,40 @@ function cancelAnswer()
     });
 }
 
-function saveRequestAnswer(status, idDiligence)
+function saveRequestAnswer(status)
 {
     console.log({status})
-    console.log({idDiligence})
     console.log('id ', $('#id-input-diligence').val())
-    // $.ajax({
-    //     type: "POST",
-    //     url: MapasCulturais.createUrl('diligence', 'answer'),
-    //     data: {
-    //         diligence: MapasCulturais.idDiligence,
-    //         answer: $("#descriptionDiligence").val(),
-    //         status: status,
-    //         registration: MapasCulturais.entity.id,
-    //         idDiligence : idDiligence
-    //     },
-    //     dataType: "json",
-    //     success: function(response) {
-    //         if(response.status == 200){
-    //             EntityDiligence.hideShowSuccessAction();
-    //             $("#id-input-diligence").val(response.entityId);
-    //         }
-    //     },
-    //     error: function(err) {
-    //         Swal.close();
-    //         showViewActions();
-    //         cancelAnswer();
-    //         Swal.fire({
-    //             title: err.responseJSON.data.message,
-    //             reverseButtons: true,
-    //             timer: 2500
-    //         })
-    //         return false;
-    //     }
-    // });
+    idAnswer = $('#id-input-diligence').val()
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('diligence', 'answer'),
+        data: {
+            diligence: MapasCulturais.idDiligence,
+            answer: $("#descriptionDiligence").val(),
+            status: status,
+            registration: MapasCulturais.entity.id,
+            idAnswer : idAnswer
+        },
+        dataType: "json",
+        success: function(response) {
+            if(response.status == 200){
+                EntityDiligence.hideShowSuccessAction();
+                $("#id-input-diligence").val(response.entityId);
+            }
+        },
+        error: function(err) {
+            Swal.close();
+            showViewActions();
+            cancelAnswer();
+            Swal.fire({
+                title: err.responseJSON.data.message,
+                reverseButtons: true,
+                timer: 2500
+            })
+            return false;
+        }
+    });
 }
 
 function sendNofificationAnswer()

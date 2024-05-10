@@ -50,7 +50,7 @@ $template = '
         <button class="btn-save-diligence mr-10" 
             title="Salva o conteúdo mas não envia sua resposta" 
             id="btn-save-diligence-proponent"
-            onclick="saveAnswerProponente(0, $('#id-input-diligence').val())">
+            onclick="saveAnswerProponente(0)">
             Salvar
             <i class="fas fa-save"></i>
         </button>

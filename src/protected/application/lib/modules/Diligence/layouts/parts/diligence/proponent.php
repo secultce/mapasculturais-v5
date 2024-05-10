@@ -1,4 +1,7 @@
 <?php
+use Diligence\Entities\AnswerDiligence;
+use Carbon\Carbon;
+
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
 
@@ -20,12 +23,45 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             'diligenceDays' => $context['diligenceDays'],
             'placeHolder' => $context['placeHolder'],
             'sendEvaluation' => $sendEvaluation,
-            'isProponent' => $context['isProponent']
+            'isProponent' => $context['isProponent'],
+            'diligenceAndAnswers' => $diligenceAndAnswers
         ]);
         ?>
+<?php 
 
+    if(!is_null($diligenceAndAnswers))
+    {
+        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
+
+            if ($resultsDraft instanceof AnswerDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
+                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
+                $descriptionDraft = true;
+        ?>
+    
+                <div id="draft-description-diligence" class="div-draft-description-diligence">
+                    <div style="display: flex;  justify-content: space-between;">
+                    <span style="font-size: medium; color: #000">Resposta em rascunho. <br /></span>
+                    <a class="btn btn-primary" onclick='editDescription(<?= json_encode($resultsDraft->answer); ?>,<?= $resultsDraft->id; ?>, "proponent")'>
+                            Editar Resposta
+                        </a>
+                    </div>
+                    <p style="color: #3E3E3E;font-size: 10x; margin-top: 14px;"><?= $resultsDraft->answer; ?> </p>
+                    <p style="font-size: x-small; font-size: 12px; font-weight: 700; margin-top: 8px"><?= ucfirst($dateDraft); ?> </p>
+                    <p>
+                      
+                    </p>
+                </div>
+        <?php
+            endif;
+        };
+    }
+    ?>
         <div class="flex-container" id="btn-actions-proponent">
-            <?php $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity']]); ?>
+            
+            <?php 
+                $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity']]); 
+            ?>
         </div>
         <!-- FIM PROPONENTE -->
     </div>
