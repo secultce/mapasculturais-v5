@@ -130,29 +130,7 @@ if (!$sendEvaluation) :
    
     <?php 
     endif;//endif id=accordion
-    if(!is_null($diligenceAndAnswers))
-    {
-        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-
-            if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
-                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
-                $descriptionDraft = true;
-        ?>
-    
-                <div id="draft-description-diligence" class="div-draft-description-diligence">
-                    <span style="font-size: small; color: #085E55">Diligência em rascunho. <br /></span>
-                    <p style="padding: 5px;"><?= $resultsDraft->description; ?> </p>
-                    <p style="font-size: x-small;"><?= ucfirst($dateDraft); ?> </p>
-                    <p>
-                        <a class="edit-draft-descrption0-diligence" onclick='editDescriptionDiligence(<?php echo json_encode($resultsDraft->description); ?>,<?= $resultsDraft->id; ?>)'>
-                            Editar
-                        </a>
-                    </p>
-                </div>
-        <?php
-            endif;
-        };
-    }
+   
     ?>
 
     <div>

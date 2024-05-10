@@ -1,16 +1,15 @@
 <?php
 
+use Carbon\Carbon;
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
-
 use Diligence\Repositories\Diligence as DiligenceRepo;
+
 $files = DiligenceRepo::getFilesDiligence($context['entity']->id);
 
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
-
-//Verificação se as avaliações já foram enviadas pelo avaliador logado
-// 
-
+$showText = true;
+$placeHolder = "Digite aqui a sua diligência";
 ?>
 <?php 
     $this->applyTemplateHook('tabs', 'before');
@@ -30,19 +29,42 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenc
                     'placeHolder' => $context['placeHolder'],
                     'diligenceAndAnswers' => $diligenceAndAnswers,
                     'sendEvaluation' => $sendEvaluation,
-                    'isProponent' => $context['isProponent']
+                    'isProponent' => $context['isProponent'],
+                    'diligenceAndAnswers' => $diligenceAndAnswers
                 ]); 
         ?>
+        <?php 
+    if(!is_null($diligenceAndAnswers))
+    {
+        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
+            if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
+                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
+                $descriptionDraft = true;
+                DiligenceRepo::getDraft($resultsDraft->description, $resultsDraft->id, 'diligence', ucfirst($dateDraft));
+            endif;
+        };
+    }
+    ?>
         <div id="div-info-send" class="div-info-send">
             <p>
                 <?php i::_e('Sua diligência já foi enviada') ?>
             </p>
         </div>
+<?php
+// dump($showText);
+foreach ($diligenceAndAnswers as $key => $resultsAnswer) {
+    if(is_null($resultsAnswer))
+    {
+        $showText = true;
+    }
+}
 
+?>
         <div class="div-btn-send-diligence flex-container">
-            <div class="flex-items" id="btn-actions-diligence">
+            <div class="" id="btn-actions-diligence">
                 <?php 
-               
+                // dump($showText);
+                    $showText ? $this->part('diligence/description', ['placeHolder' => $placeHolder]) : null;
                     $this->part('diligence/btn-actions-diligence', [
                         'entity' => $context['entity'],
                         'sendEvaluation' => $sendEvaluation

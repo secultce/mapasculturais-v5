@@ -36,4 +36,6 @@ trait DiligenceSingle{
     static protected function getrequestedEntity($class){
         return $class->controller->requestedEntity;
     }
+
+
 }

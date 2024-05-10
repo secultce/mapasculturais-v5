@@ -34,7 +34,8 @@ $template = '
 
         <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
 
-    <?php 
+    <?php
+    dump($showText);
         if ($countFile < 2 && $showText){ ?>
             <div id="div-upload-file-count">
                 <a class="js-open-editbox hltip" data-target="#file-diligence" href="#" title="Click para anexar arquivo"> Anexar arquivo</a>
@@ -42,40 +43,17 @@ $template = '
                     <?php
                     //$this->ajaxUploader($diligence, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true);
                     // dump($diligence);
-                    $file_owner = $diligence->id;
-                    $file_group = 'file-diligence';
-                    $response_action = 'append';
-                    $response_target = '.import-diligence';
-                    $response_template = $template;
-                    $response_transform = '';
-                    $add_description = false;
-                    $file_types = false;
-                    $human_crop = false;
+                    // $file_owner = $diligence->id;
+                    // $file_group = 'file-diligence';
+                    // $response_action = 'append';
+                    // $response_target = '.import-diligence';
+                    // $response_template = $template;
+                    // $response_transform = '';
+                    // $add_description = false;
+                    // $file_types = false;
+                    // $human_crop = false;
                     ?>
-                    <form class="js-ajax-upload" id="upload-<?php echo $file_group ?>" 
-      data-action="<?php echo $response_action ?>"
-      data-target="<?php echo $response_target ?>"
-      data-group="<?php echo $file_group ?>"
-    
-     
-      method="post"
-      action="<?php echo $app->createUrl('diligence', 'arquivo', [$file_owner]); ?>"
-      enctype="multipart/form-data">
-    <div class="alert danger hidden"></div>
-    <?php if($response_template): ?><script type="js-template"><?php echo $response_template; ?></script><?php endif; ?>
-  
-    <?php if($file_types): ?><p class="form-help"><?php \MapasCulturais\i::_e("Tipos de arquivos suportados: ");?><?php echo $file_types; ?></p><?php endif; ?>
-    <p class="form-help"><?php \MapasCulturais\i::_e("Tamanho máximo do arquivo: ");?><?php echo $app->maxUploadSize; ?></p>
-    <input type="file" name="<?php echo $file_group ?>" <?php if(false !== $human_crop) echo " class=\"human_crop\" " ?>  />
-
-</form>
-
-<div class="js-ajax-upload-progress">
-    <div class="progress inactive">
-        <div class="bar"></div >
-        <div class="percent">0%</div >
-    </div>
-</div>
+                   
                 </div>
             </div>
     <?php 
@@ -88,6 +66,7 @@ $template = '
     ?>
         <span id="info-title-limit-file-diligence"></span>
     </div>
+
     <div class="div-actions-proponent">
         <button class="btn-save-diligence mr-10" 
             title="Salva o conteúdo mas não envia sua resposta" 
@@ -101,6 +80,7 @@ $template = '
             <i class="fas fa-paper-plane"></i>
         </button>
     </div>
+
 </div>
 <div style="width: 100%">
     <span>Informações sobre o anexo:</span>

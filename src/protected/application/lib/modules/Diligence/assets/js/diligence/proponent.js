@@ -69,7 +69,7 @@ $(document).ready(function () {
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
            
             let actions = false;
-            console.log({actions})
+            // console.log({actions})
             idsDiligences = [];
             res.data.forEach((answer, index) => {
                 // console.log({answer})
@@ -79,6 +79,10 @@ $(document).ready(function () {
                 {
                     EntityDiligence.showAnswerDraft(null);
                 }else{
+                    //Está em rescunho
+                    // if(answer.status == 0){
+                    //     $("#descriptionDiligence").hide();
+                    // }
                     idsDiligences.push(answer?.id);
                 }
             })
@@ -159,6 +163,7 @@ $(document).ready(function () {
 
 //Joga o conteudo do rascunho para text area
 function editDescription(description, id, type){
+    $("#descriptionDiligence").show();
     EntityDiligence.editDescription(description, id, type);
 }
 

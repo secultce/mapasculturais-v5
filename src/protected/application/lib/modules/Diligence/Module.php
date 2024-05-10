@@ -80,12 +80,7 @@ class Module extends \MapasCulturais\Module {
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
 
-
-                $this->part('diligence/tabs-parent', [
-                    'context' => $context,
-                    'sendEvaluation' => $sendEvaluation,
-                    'diligenceAndAnswers' => $diligenceAndAnswers,
-                ]);
+                $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }else{
                 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             }

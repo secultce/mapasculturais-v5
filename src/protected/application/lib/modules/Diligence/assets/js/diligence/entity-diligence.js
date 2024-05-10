@@ -195,6 +195,7 @@ var EntityDiligence = (function(){
 
     function editDescription(description, id, type)
     {
+        console.log({type})
         $("#descriptionDiligence").show();
         $("#descriptionDiligence").html(description)
         $("#id-input-diligence").val(id)

@@ -108,13 +108,10 @@ $(document).ready(function () {
 
 });
 
-function editDescription(description, id)
+function editDescription(description, id, type)
 {
-    
-        
-    
-    console.log({description})
-    console.log({id})
+    EntityDiligence.editDescription(description, id, type);
+
 }
 
 function saveAuthorizedProject(keyAuth, valueAuth)

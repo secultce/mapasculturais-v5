@@ -1,7 +1,9 @@
 <?php
-use Diligence\Entities\AnswerDiligence;
+
 use Carbon\Carbon;
 use MapasCulturais\App;
+use Diligence\Entities\AnswerDiligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $diligence = App::i()->repo('Diligence\Entities\AnswerDiligence')->find(27);
 
@@ -32,14 +34,17 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         ?>
 <?php 
     $showText = false;
+    dump($diligenceAndAnswers);
     if(!is_null($diligenceAndAnswers))
     {
         foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-
+           
             if ($resultsDraft instanceof AnswerDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
                 $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
                 $descriptionDraft = true;
                 $showText = true;
+                $type = "";
+                // DiligenceRepo::getDraft($resultsDraft->answer, $resultsDraft->id, 'proponente', ucfirst($dateDraft));
         ?>
     
                 <div id="draft-description-diligence" class="div-draft-description-diligence">
@@ -58,11 +63,19 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         <?php
             endif;
         };
+        foreach ($diligenceAndAnswers as $key => $resultsAnswer) {
+            if(is_null($resultsAnswer))
+            {
+                $showText = true;
+            }
+        }
     }
+   
     ?>
         <div class="flex-container" id="btn-actions-proponent">
             
             <?php 
+            dump($showText);
                 $showText ? $this->part('diligence/description', ['placeHolder' => $placeHolder]) : null;
                 $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText, 'diligence' => $diligence]); 
             ?>
