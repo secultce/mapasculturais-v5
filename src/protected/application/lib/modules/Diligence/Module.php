@@ -66,7 +66,7 @@ class Module extends \MapasCulturais\Module {
             }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-            
+          
             if($isProponent){
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
@@ -100,6 +100,8 @@ class Module extends \MapasCulturais\Module {
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
+            dump($app);
+            // die;
             $entity = self::getrequestedEntity($this);           
             $authorired = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
@@ -114,10 +116,11 @@ class Module extends \MapasCulturais\Module {
             //Se Files é diferente de null
             //Se Files tem o indice com o grupo da diligencia
             //Se da inscrição é o mesmo quem está logado enviando a requisição.
+            //$registration->getOwnerUser() == $app->getUser()
             if(
                 isset($_FILES) && 
-                array_key_exists('file-diligence', $_FILES) && 
-                $registration->getOwnerUser() == $app->getUser()
+                array_key_exists('file-diligence', $_FILES)
+                
             ) {
                 $app->disableAccessControl();
             }
@@ -162,7 +165,7 @@ class Module extends \MapasCulturais\Module {
 
         
         $app->registerFileGroup(
-            'registration',
+            'diligence',
             new Definitions\FileGroup(
                 'file-diligence',
                 ['application/pdf','image/(gif|jpeg|pjpeg|png)'],

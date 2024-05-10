@@ -21,7 +21,7 @@ if (!$sendEvaluation) :
         <strong>
             <?php
             i::_e('Diligências enviadas:');
-            dump($diligenceAndAnswers);
+            // dump($diligenceAndAnswers);
             ?>
         </strong>
     </label>
@@ -133,7 +133,7 @@ if (!$sendEvaluation) :
     if(!is_null($diligenceAndAnswers))
     {
         foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-            dump($isProponent);
+
             if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
                 $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
                 $descriptionDraft = true;
@@ -158,7 +158,7 @@ if (!$sendEvaluation) :
     <div>
         <?php
         //So habilita o textarea qndo tem resposta ou qndo em rascunho
-        dump($descriptionDraft);
+      
       
        
         ?>

@@ -1,7 +1,9 @@
 <?php if($this->controller->action === 'create'): ?>
     <span class='js-dialog-disabled' data-message="<?php \MapasCulturais\i::esc_attr_e('Para subir arquivos você primeiro deve salvar.'); ?>" ></span>
 <?php else: ?>
-
+<?php dump($this->controller);
+dump($file_owner->id);
+?>
 <form class="js-ajax-upload" id="upload-<?php echo $file_group ?>" 
       data-action="<?php echo $response_action ?>"
       data-target="<?php echo $response_target ?>"

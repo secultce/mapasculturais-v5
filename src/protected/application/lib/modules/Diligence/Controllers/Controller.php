@@ -310,4 +310,13 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         
         return $currentDate;
     }
+
+    function POST_arquivo()
+    {
+        dump($this);
+        $app = App::i();
+
+        $file = $app->repo('\Diligence\Entities\AnswerDiligenceFile')->find($this->data['id']);
+        dump($file);
+    }
 }

@@ -1,6 +1,9 @@
 <?php
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
+use MapasCulturais\App;
+
+$diligence = App::i()->repo('Diligence\Entities\AnswerDiligence')->find(27);
 
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
@@ -28,7 +31,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         ]);
         ?>
 <?php 
-
+    $showText = false;
     if(!is_null($diligenceAndAnswers))
     {
         foreach ($diligenceAndAnswers as $key => $resultsDraft) {
@@ -36,6 +39,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             if ($resultsDraft instanceof AnswerDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
                 $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
                 $descriptionDraft = true;
+                $showText = true;
         ?>
     
                 <div id="draft-description-diligence" class="div-draft-description-diligence">
@@ -59,8 +63,8 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         <div class="flex-container" id="btn-actions-proponent">
             
             <?php 
-                $this->part('diligence/description', ['placeHolder' => $placeHolder]);
-                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity']]); 
+                $showText ? $this->part('diligence/description', ['placeHolder' => $placeHolder]) : null;
+                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText, 'diligence' => $diligence]); 
             ?>
         </div>
         <!-- FIM PROPONENTE -->
