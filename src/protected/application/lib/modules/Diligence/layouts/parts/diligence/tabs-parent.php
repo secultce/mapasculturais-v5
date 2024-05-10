@@ -28,6 +28,7 @@ $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenc
                     'diligenceRepository' => $context['diligenceRepository'], 
                     'diligenceDays' => $context['diligenceDays'],
                     'placeHolder' => $context['placeHolder'],
+                    'diligenceAndAnswers' => $diligenceAndAnswers,
                     'sendEvaluation' => $sendEvaluation,
                     'isProponent' => $context['isProponent']
                 ]); 

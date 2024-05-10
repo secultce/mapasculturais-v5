@@ -10,6 +10,7 @@ use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
+
 /**
  * AnswerDiligence 
  * 
@@ -17,7 +18,6 @@ use Carbon\Carbon;
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
-
 class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
 
     use \Diligence\Traits\DiligenceSingle;

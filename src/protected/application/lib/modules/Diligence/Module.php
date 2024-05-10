@@ -80,7 +80,12 @@ class Module extends \MapasCulturais\Module {
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
 
-                $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
+
+                $this->part('diligence/tabs-parent', [
+                    'context' => $context,
+                    'sendEvaluation' => $sendEvaluation,
+                    'diligenceAndAnswers' => $diligenceAndAnswers,
+                ]);
             }else{
                 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             }
@@ -100,7 +105,7 @@ class Module extends \MapasCulturais\Module {
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            dump($app);
+            // dump($app);
             // die;
             $entity = self::getrequestedEntity($this);           
             $authorired = $entity->getMetadata('option_authorized');
