@@ -44,21 +44,24 @@ $(document).ready(function () {
             if(res.message == 'sem_diligencia') {
                 
                 $("#paragraph_loading_content").hide();
-                $("#descriptionDiligence").show();
+              
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
-                $("#descriptionDiligence").hide();
+
             }
             if(res.message == 'diligencia_aberta') {
-                
+                EntityDiligence.hideBtnOpenDiligence();
                 res.data.forEach((element, index) => {
                     console.log({element})
-                    if(element.status == 0) {
+                    if(element?.status == 0) {
                         $("#descriptionDiligence").hide();
+                        $("#paragraph_loading_content").hide();
                     }
                 })
                 $("#paragraph_loading_content").hide();
+               
             }
             if(res.message !== 'sem_diligencia') {
+                EntityDiligence.hideBtnOpenDiligence();
                 res.data.forEach((element, index) => {
                     console.log({element})
                     if(element == null)
@@ -72,6 +75,7 @@ $(document).ready(function () {
                 }
                
             }
+           
             // res.data.forEach((element, index) => {
             //    //Verifica a situação da diligencia
             //    console.log({element})
@@ -109,6 +113,7 @@ $(document).ready(function () {
 
 });
 
+
 function openDiligence(status) {
     objSendDiligence['description'] = '';
     objSendDiligence['status'] = status
@@ -138,7 +143,7 @@ function openDiligence(status) {
     $("#descriptionDiligence").show();
     $("tab-diligence-principal").removeClass('active');
     $("li-tab-diligence-diligence").addClass('active');
-    EntityDiligence.showBtnActionsDiligence();
+    showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
 }
 

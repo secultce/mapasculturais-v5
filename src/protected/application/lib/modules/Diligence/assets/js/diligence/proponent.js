@@ -19,15 +19,12 @@ $(document).ready(function () {
         $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
         
         if (
-            (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
+            (res.message == 'sem_diligencia') &&
             MapasCulturais.userEvaluate == false) 
         {
             //Se tiver diligencia
             if (res.data.length > 0) {
-                const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-                $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
-                $("#li-tab-diligence-diligence > label").remove();
-                $("#li-tab-diligence-diligence").append(ahref);
+               
 
                 res.data.forEach((element, index) => {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days)
@@ -40,25 +37,9 @@ $(document).ready(function () {
                     }
                     //Id da diligencia
                     MapasCulturais.idDiligence = element.id;
-                    console.log('id = ', MapasCulturais.idDiligence = element.id);
-                    if (element.status == 3) {
-                        showViewActions();
-                        // $("#paragraph_content_send_answer").html($("#descriptionDiligence").val());
-                        // $("#div-btn-actions-proponent").show();
-                        // $("#descriptionDiligence").show();
-                        // $("#div-content-all-diligence-send").hide();
-                        // $("#answer_diligence").hide();
-                        // $("#div-content-all-diligence-send").show();
-                        // $(".footer-btn-delete-file-diligence").show();
-
-
-                        $("#paragraph_content_send_diligence").html(element.description);
-                        $("#div-content-all-diligence-send").show();
-                        $("#paragraph_loading_content").hide();                    
-                        $("#btn-save-diligence-proponent").show();
-                        $("#btn-send-diligence-proponente").show();
-                        $("#paragraph_createTimestamp").html(moment(element.sendDiligence.date).format('lll'));
-                    }
+                    
+                   
+                    $("#paragraph_loading_content").hide();
                 });         
             }
 
@@ -68,6 +49,7 @@ $(document).ready(function () {
        
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
            
+            hideAnswerDraft();
             let actions = false;
             // console.log({actions})
             idsDiligences = [];
@@ -77,13 +59,18 @@ $(document).ready(function () {
                 console.log({answer})
                 if(answer?.id === undefined)
                 {
+                    console.log('sem_diligencia')
                     EntityDiligence.showAnswerDraft(null);
+                    $("#descriptionDiligence").show();
                 }else{
                     //Está em rescunho
                     // if(answer.status == 0){
                     //     $("#descriptionDiligence").hide();
                     // }
                     idsDiligences.push(answer?.id);
+                }
+                if(answer?.status == 0) {
+                    $("#descriptionDiligence").hide();
                 }
             })
     
@@ -161,9 +148,18 @@ $(document).ready(function () {
    
 });
 
+function hideAnswerDraft()
+{
+    $("#div-btn-actions-proponent").hide();
+    $("#btn-save-diligence-proponent").hide();
+    $("#btn-send-diligence-proponente").hide();
+    $("#paragraph_loading_content").hide();
+}
+
 //Joga o conteudo do rascunho para text area
 function editDescription(description, id, type){
     $("#descriptionDiligence").show();
+    EntityDiligence.showAnswerDraft(null);
     EntityDiligence.editDescription(description, id, type);
 }
 

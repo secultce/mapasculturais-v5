@@ -43,13 +43,7 @@ $placeHolder = "Digite aqui a sua diligência";
             if($key < 2) {
                 array_push($diligenceAndAnswerLast,$resultsDraft );
             }
-            if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
-               
-                $descriptionDraft = true;
-                
-             
-               
-            endif;
+          
         };
 
         
@@ -64,6 +58,7 @@ $placeHolder = "Digite aqui a sua diligência";
                 'type' => "proponent",
                 'dateDraft' => ucfirst($dateDraft)
             ]);
+            $showText = true;
         }
 
         if(!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 3)
@@ -88,8 +83,11 @@ $placeHolder = "Digite aqui a sua diligência";
         <div class="div-btn-send-diligence flex-container">
             <div class="" id="btn-actions-diligence">
                 <?php 
-                // dump($showText);
-                    $showText ? $this->part('diligence/description', ['placeHolder' => $placeHolder]) : null;
+                dump($showText);
+                    if($showText || is_null($diligenceAndAnswers))
+                    {
+                        $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                    }
                     $this->part('diligence/btn-actions-diligence', [
                         'entity' => $context['entity'],
                         'sendEvaluation' => $sendEvaluation

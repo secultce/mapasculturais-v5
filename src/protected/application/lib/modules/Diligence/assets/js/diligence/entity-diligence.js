@@ -119,29 +119,9 @@ var EntityDiligence = (function(){
         $("#btn-save-diligence-proponent").show();
         $("#btn-send-diligence-proponente").show();
         $("#paragraph_loading_content").hide();
-
     }
 
-    //Remover a funcao
-    function verifySituation(data)
-    {
-          //Sempre verifica a situação para habilitar o botão de Finalizar avaliação e avançar
-        if (data.id > 0) {
-           
-           switch (data.situation) {
-            case 2:
-                $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
-                $("#btn-open-diligence").attr('disabled', true);
-                break;
-            case 3:
-                $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
-                $("#btn-open-diligence").attr('disabled',false);
-                break;            
-            default:
-                break;
-           }
-        }
-    }
+
 
     function validateLimiteDate(diligence_days)
     {
@@ -187,9 +167,9 @@ var EntityDiligence = (function(){
     }
 
 
-    function editDescription(description, id, type)
+    function editDescription(description, id)
     {
-        console.log({type})
+    
         $("#descriptionDiligence").show();
         $("#descriptionDiligence").html(description)
         $("#id-input-diligence").val(id)
@@ -208,7 +188,6 @@ var EntityDiligence = (function(){
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
         validateLimiteDate: validateLimiteDate,
-        verifySituation: verifySituation,
         returnGetAuthorized: returnGetAuthorized,
         hideBtnOpenDiligence: hideBtnOpenDiligence,
         showBtnOpenDiligence: showBtnOpenDiligence,

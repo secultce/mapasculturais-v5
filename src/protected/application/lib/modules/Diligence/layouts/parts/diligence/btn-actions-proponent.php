@@ -59,7 +59,7 @@ $template = '
     <?php 
         }elseif(!$showText)
         {
-            echo "<span>Diligência respondida.</span>";
+            echo "<span></span>";
         }else{
             echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
         }

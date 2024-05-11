@@ -34,40 +34,46 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         ?>
 <?php 
     $showText = false;
-    dump($diligenceAndAnswers);
+        dump($diligenceAndAnswers);
     if(!is_null($diligenceAndAnswers))
     {
-        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-           
-            if ($resultsDraft instanceof AnswerDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
-                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
-                $descriptionDraft = true;
-                $showText = true;
-                $type = "";
-                // DiligenceRepo::getDraft($resultsDraft->answer, $resultsDraft->id, 'proponente', ucfirst($dateDraft));
-        ?>
-    
-                <div id="draft-description-diligence" class="div-draft-description-diligence">
-                    <div style="display: flex;  justify-content: space-between;">
-                    <span style="font-size: medium; color: #000">Resposta em rascunho. <br /></span>
-                    <a class="btn btn-primary" onclick='editDescription(<?= json_encode($resultsDraft->answer); ?>,<?= $resultsDraft->id; ?>, "proponent")'>
-                            Editar Resposta
-                        </a>
-                    </div>
-                    <p style="color: #3E3E3E;font-size: 10x; margin-top: 14px;"><?= $resultsDraft->answer; ?> </p>
-                    <p style="font-size: x-small; font-size: 12px; font-weight: 700; margin-top: 8px"><?= ucfirst($dateDraft); ?> </p>
-                    <p>
-                      
-                    </p>
-                </div>
-        <?php
-            endif;
-        };
-        foreach ($diligenceAndAnswers as $key => $resultsAnswer) {
-            if(is_null($resultsAnswer))
-            {
-                $showText = true;
+        $diligenceAndAnswerLast = [];
+        foreach ($diligenceAndAnswers as $key => $resultsDraft) {           
+            if($key < 2) {
+                array_push($diligenceAndAnswerLast,$resultsDraft);
             }
+
+           
+        };
+        if($diligenceAndAnswerLast[0]->status == 3)
+        {
+            $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
+            // $this->part('diligence/edit-description',[
+            //     'titleDraft' => 'Diligência em rascunho.',
+            //     'titleButton' => 'Editar Diligência',
+            //     'resultsDraft' => $diligenceAndAnswerLast[0]->description,
+            //     'id' => $diligenceAndAnswerLast[0]->id,
+            //     'type' => "proponent",
+            //     'dateDraft' => ucfirst($dateDraft)
+            // ]);
+            // $showText = true;
+        }
+
+        if(!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 0)
+        {
+              $this->part('diligence/edit-description',[
+                'titleDraft' => 'Resposta em rascunho.',
+                'titleButton' => 'Editar Resposta',
+                'resultsDraft' => $diligenceAndAnswerLast[1]->answer,
+                'id' => $diligenceAndAnswerLast[1]->id,
+                'type' => "proponent",
+                'dateDraft' => ucfirst($dateDraft)
+            ]);
+            $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+        }
+        if(is_null($diligenceAndAnswerLast[1]))
+        {
+            $showText = true;
         }
     }
    
@@ -75,9 +81,15 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         <div class="flex-container" id="btn-actions-proponent">
             
             <?php 
-            dump($showText);
-                $showText ? $this->part('diligence/description', ['placeHolder' => $placeHolder]) : null;
-                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText, 'diligence' => $diligence]); 
+            // dump($showText);
+                if($showText || is_null($diligenceAndAnswers))
+                {
+                    $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                }
+
+
+                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText, 'diligence' => $diligence]);
+                $this->part('diligence/message-success-draft');
             ?>
         </div>
         <!-- FIM PROPONENTE -->
