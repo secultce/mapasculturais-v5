@@ -46,6 +46,7 @@ $(document).ready(function () {
                 $("#paragraph_loading_content").hide();
                 $("#descriptionDiligence").show();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
+                $("#descriptionDiligence").hide();
             }
             if(res.message == 'diligencia_aberta') {
                 
@@ -108,11 +109,57 @@ $(document).ready(function () {
 
 });
 
-function editDescription(description, id, type)
+function openDiligence(status) {
+    objSendDiligence['description'] = '';
+    objSendDiligence['status'] = status
+    const imgLoad = MapasCulturais.spinnerUrl;
+    Swal.fire({
+        title: "Abrindo a sua diligência",
+        html: '<img src="'+imgLoad+'" style="height: 24px" />',
+        showConfirmButton: false,
+    });
+
+    // $.ajax({
+    //     type: "POST",
+    //     url: urlSaveDiligence,
+    //     data: objSendDiligence,
+    //     dataType: "json",
+    //     success: function (res) {
+    //         if(res.status == 200)    {
+    //            setTimeout(() => {
+    //             Swal.close();
+    //            }, 1000);
+    //         }
+    //     }
+    // });
+    setTimeout(() => {
+     Swal.close();
+    }, 1000);
+    $("#descriptionDiligence").show();
+    $("tab-diligence-principal").removeClass('active');
+    $("li-tab-diligence-diligence").addClass('active');
+    EntityDiligence.showBtnActionsDiligence();
+    EntityDiligence.hideBtnOpenDiligence();
+}
+
+function editDescription(description, id)
 {
-    EntityDiligence.editDescription(description, id, type);
+    EntityDiligence.editDescription(description, id);
+    showBtnActionsDiligence();
+    // if(type == 'diligence'){
+        
+    // }else{
+    //     showAnswerDraft(null);
+    // }
 
 }
+//Mostrar os botões de ação da diligência
+function showBtnActionsDiligence()
+{
+    $("#btn-save-diligence").show();
+    $("#btn-send-diligence").show();
+}
+
 
 function saveAuthorizedProject(keyAuth, valueAuth)
 {
@@ -301,35 +348,7 @@ function sendAjaxDiligence(status, idDiligence) {
     });
 }
 
-function openDiligence(status) {
-    objSendDiligence['description'] = '';
-    objSendDiligence['status'] = status
-    const imgLoad = MapasCulturais.spinnerUrl;
-    Swal.fire({
-        title: "Abrindo a sua diligência",
-        html: '<img src="'+imgLoad+'" style="height: 24px" />',
-        showConfirmButton: false,
-    });
 
-    $.ajax({
-        type: "POST",
-        url: urlSaveDiligence,
-        data: objSendDiligence,
-        dataType: "json",
-        success: function (res) {
-            if(res.status == 200)    {
-               setTimeout(() => {
-                Swal.close();
-               }, 1000);
-            }
-        }
-    });
-    $("#descriptionDiligence").show();
-    $("tab-diligence-principal").removeClass('active');
-    $("li-tab-diligence-diligence").addClass('active');
-    EntityDiligence.showBtnActionsDiligence();
-    EntityDiligence.hideBtnOpenDiligence();
-}
 
 
 //Oculta o botão de Finalizar avaliação

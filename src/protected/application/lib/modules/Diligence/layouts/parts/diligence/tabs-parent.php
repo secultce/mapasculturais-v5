@@ -8,7 +8,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 $files = DiligenceRepo::getFilesDiligence($context['entity']->id);
 
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
-$showText = true;
+$showText = false;
 $placeHolder = "Digite aqui a sua diligência";
 ?>
 <?php 
@@ -34,15 +34,44 @@ $placeHolder = "Digite aqui a sua diligência";
                 ]); 
         ?>
         <?php 
+        dump($diligenceAndAnswers);
     if(!is_null($diligenceAndAnswers))
     {
+        $diligenceAndAnswerLast = [];
         foreach ($diligenceAndAnswers as $key => $resultsDraft) {
+            //Array somente com os dois ultimos registros
+            if($key < 2) {
+                array_push($diligenceAndAnswerLast,$resultsDraft );
+            }
             if ($resultsDraft instanceof EntityDiligence && !is_null($resultsDraft) && $resultsDraft->status == 0) :
-                $dateDraft = Carbon::parse($resultsDraft->createTimestamp)->diffForHumans();
+               
                 $descriptionDraft = true;
-                DiligenceRepo::getDraft($resultsDraft->description, $resultsDraft->id, 'diligence', ucfirst($dateDraft));
+                
+             
+               
             endif;
         };
+
+        
+        if($diligenceAndAnswerLast[0]->status == 0)
+        {
+            $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
+            $this->part('diligence/edit-description',[
+                'titleDraft' => 'Diligência em rascunho.',
+                'titleButton' => 'Editar Diligência',
+                'resultsDraft' => $diligenceAndAnswerLast[0]->description,
+                'id' => $diligenceAndAnswerLast[0]->id,
+                'type' => "proponent",
+                'dateDraft' => ucfirst($dateDraft)
+            ]);
+        }
+
+        if(!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 3)
+        {
+            $showText = true;
+        }
+       
+        // dump($diligenceAndAnswerLast);
     }
     ?>
         <div id="div-info-send" class="div-info-send">
@@ -52,12 +81,8 @@ $placeHolder = "Digite aqui a sua diligência";
         </div>
 <?php
 // dump($showText);
-foreach ($diligenceAndAnswers as $key => $resultsAnswer) {
-    if(is_null($resultsAnswer))
-    {
-        $showText = true;
-    }
-}
+
+
 
 ?>
         <div class="div-btn-send-diligence flex-container">
@@ -68,7 +93,8 @@ foreach ($diligenceAndAnswers as $key => $resultsAnswer) {
                     $this->part('diligence/btn-actions-diligence', [
                         'entity' => $context['entity'],
                         'sendEvaluation' => $sendEvaluation
-                    ]); 
+                    ]);
+                    $this->part('diligence/message-success-draft');
               
                 ?>
                

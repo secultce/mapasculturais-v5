@@ -136,22 +136,5 @@ class Diligence{
         return $lastDiligence;
     }
 
-    static public function getDraft($description, $id, $type, $dateDraft)
-    {
-        dump($type);
-        echo "<div id='draft-description-diligence' class='div-draft-description-diligence'>
-            <div style='display: flex; justify-content: space-between;'>
-                <span style='font-size: medium; color: #000'>Resposta em rascunho. <br /></span>
-                <a class='btn btn-primary' onclick='editDescription(".json_encode($description).",".$id.",".$type.")'>
-                    Editar Resposta
-                </a>
-            </div>
-            <p style='color: #3E3E3E; font-size: 10x; margin-top: 14px;'>".$description."</p>
-            <p style='font-size: x-small; font-size: 12px; font-weight: 700; margin-top: 8px'>".ucfirst($dateDraft)."</p>
-            <p>
-                
-            </p>
-        </div>";
-    }
 
 }
