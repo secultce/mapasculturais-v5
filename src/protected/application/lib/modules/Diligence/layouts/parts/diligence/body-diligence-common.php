@@ -1,9 +1,7 @@
 <?php
 
 use MapasCulturais\i;
-use MapasCulturais\App;
 use Diligence\Entities\Diligence as EntityDiligence;
-use Diligence\Repositories\Diligence as RepoDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 
@@ -21,7 +19,6 @@ if (!$sendEvaluation) :
         <strong>
             <?php
             i::_e('Diligências enviadas:');
-            // dump($diligenceAndAnswers);
             ?>
         </strong>
     </label>
@@ -29,9 +26,6 @@ if (!$sendEvaluation) :
         <p id="paragraph_info_status_diligence"></p>
     </div>
     <div style="margin-top: 30px; width: 100%;" id="div-content-all-diligence-send">
-        <!-- <label class="label-diligence-send">Diligência:</label> -->
-        <!-- <p id="paragraph_content_send_diligence"></p>
-    <p id="paragraph_createTimestamp" class="paragraph-createTimestamp"></p> -->
         <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
             <div class="item-col"></div>
             <div class="item-col" style="padding: 8px;">
@@ -48,25 +42,21 @@ if (!$sendEvaluation) :
                 Resposta do Proponente:
             </label>
             <p id="paragraph_content_send_answer" class="paragraph_content_send_answer"></p>
-
         </div>
-
     </div>
     <?php if(!is_null($diligenceAndAnswers)) : ?>
         <div id="accordion" class="head">
-        <?php
-     
+        <?php     
         foreach ($diligenceAndAnswers as $key => $resultsDiligence) :
             Carbon::setLocale('pt_BR');
             $dt = null;
             $dtSend = "";
 
-            // dump($results->sendDiligence == null);
             if ($resultsDiligence !== null) {
-                $dt = Carbon::parse($resultsDiligence->sendDiligence);
-                $dtSend = $dt->isoFormat('LLL');
-                $dtAndwer = Carbon::parse($resultsDiligence->sendDiligence);
-                $dtSendAnswer = $dtAndwer->isoFormat('LLL');
+                $dt             = Carbon::parse($resultsDiligence->sendDiligence);
+                $dtSend         = $dt->isoFormat('LLL');
+                $dtAndwer       = Carbon::parse($resultsDiligence->sendDiligence);
+                $dtSendAnswer   = $dtAndwer->isoFormat('LLL');
             }
             
             if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
@@ -88,7 +78,7 @@ if (!$sendEvaluation) :
             }
             if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
             ?>
-                <div style="display: flex; justify-content: space-between;"    class="div-accordion-diligence">
+                <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                     <label style="font-size: 14px">
                         <strong>Resposta Recebida</strong>
                     </label>
@@ -98,7 +88,6 @@ if (!$sendEvaluation) :
                     <p>
                         <?php
                         echo $resultsDiligence->answer;
-
                         ?>
                     </p>
                     <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
@@ -107,40 +96,28 @@ if (!$sendEvaluation) :
                 </div>
             <?php
             }
-            if (is_null($resultsDiligence)) {
-            
-                    $descriptionDraft = false;
-                    echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+            if (is_null($resultsDiligence))
+            {
+                $descriptionDraft = false;
+                echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                     <label style="font-size: 14px">Aguardando Resposta.</label>
                     <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
                 </div><div class="content"><p>Aguardando resposta</p></div>';
                 
             }
-            if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 0) {
-            
+            if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 0)
+            {
                 $descriptionDraft = false;
                 echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                 <label style="font-size: 14px">Aguardando Resposta.</label>
                 <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-            </div><div class="content"><p>Aguardando resposta</p></div>';
-            
+            </div><div class="content"><p>Aguardando resposta</p></div>';            
         }
         endforeach; ?>
         </div>
    
     <?php 
     endif;//endif id=accordion
-   
     ?>
-
-    <div>
-        <?php
-        //So habilita o textarea qndo tem resposta ou qndo em rascunho
-      
-      
-       
-        ?>
-    </div>
-   
-
+    
 <?php endif; ?>

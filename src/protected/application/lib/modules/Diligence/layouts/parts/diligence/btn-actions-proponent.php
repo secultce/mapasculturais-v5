@@ -25,18 +25,13 @@ $template = '
             class="btn btn-small btn-danger delete hltip js-remove-item" onclick="decre()">Excluir</a>    
     </div>
 </article></div>';
-//    <a href="#" onclick="deleteFileDiligence({{id}})" class="btn btn-small btn-danger delete" >Excluir</a>
 ?>
 
 <div class="widget flex-items" id="div-btn-actions-proponent">
-
     <div style="width: 50%">
-
         <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
-
-    <?php
-    dump($showText);
-        if ($countFile < 2 && $showText){ ?>
+        <?php
+        if ($countFile < 2 && $showText) { ?>
             <div id="div-upload-file-count">
                 <a class="js-open-editbox hltip" data-target="#file-diligence" href="#" title="Click para anexar arquivo"> Anexar arquivo</a>
                 <div id="file-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
@@ -53,25 +48,21 @@ $template = '
                     // $file_types = false;
                     // $human_crop = false;
                     ?>
-                   
+
                 </div>
             </div>
-    <?php 
-        }elseif(!$showText)
-        {
+        <?php
+        } elseif (!$showText) {
             echo "<span></span>";
-        }else{
+        } else {
             echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
         }
-    ?>
+        ?>
         <span id="info-title-limit-file-diligence"></span>
     </div>
 
     <div class="div-actions-proponent">
-        <button class="btn-save-diligence mr-10" 
-            title="Salva o conteúdo mas não envia sua resposta" 
-            id="btn-save-diligence-proponent"
-            onclick="saveAnswerProponente(0)">
+        <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" id="btn-save-diligence-proponent" onclick="saveAnswerProponente(0)">
             Salvar
             <i class="fas fa-save"></i>
         </button>

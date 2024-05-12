@@ -16,7 +16,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Service\DiligenceInterface;
 use MapasCulturais\ApiOutputs\Json;
-
+use PhpParser\Node\Expr\Cast\Bool_;
 
 /**
  * Diligence 
@@ -220,26 +220,18 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             $class->data['registration'],
             $class->data['openAgent'],
             $class->data['agent']
-        );
-       
+        );       
        
         if(isset($class->data['idDiligence']) && $class->data['idDiligence'] > 0){
              //Se tiver registro de diligência
-           
-             $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
-            
-             return self::updateContent($diligenceRepository, $class->data['description'], 
-             $regs['reg'], $class->data['status']);
+            $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
+            return self::updateContent(
+                $diligenceRepository,
+                $class->data['description'], 
+                $regs['reg'],
+                $class->data['status']
+            );
         }
-       
-        // unset($class->data);
-        // die;
-       
-      
-        // if(count($diligenceRepository) > 0 && $isNewDiligence ) {
-            
-            
-        // }
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
         $diligence->registration    = $regs['reg'];
@@ -254,7 +246,6 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
         App::i()->applyHook('entity(diligence).createDiligence:after', [&$diligence]);
         return self::saveEntity($diligence);
-        
     }
 
     /**
@@ -269,21 +260,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected function updateContent($diligences, $description, $registration, $status = 0)
     {
         $save = null;
-       $diligences->description     = $description;
-       $diligences->registration    = $registration;
-       $diligences->createTimestamp =  new DateTime();
-       $diligences->status          = $status;
-       //Se for para enviar a diligência, então salva o momento do envio
-       if($status == 3){
+        $diligences->description     = $description;
+        $diligences->registration    = $registration;
+        $diligences->createTimestamp =  new DateTime();
+        $diligences->status          = $status;
+        //Se for para enviar a diligência, então salva o momento do envio
+        if($status == 3){
            $diligences->sendDiligence =  new DateTime();
-       }
+        }
 
-       $save = self::saveEntity($diligences);
-       return $save;
+        $save = self::saveEntity($diligences);
+        return $save;
     }
 
-   public function cancel(Controller $class) : Json
-   {
+    public function cancel(Controller $class) : Json
+    {
         $app =  App::i();
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $class->data['registration']]);
         $save = null;
@@ -296,15 +287,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return $class->json(['message' => 'success', 'status' => 200], 200);
         }
         return $class->json(['message' => 'error', 'status' => 400], 400);
-   }
+    }
 
-    static public function evaluationSend($entity)
+    static public function evaluationSend($entity) : bool
     {
         if($entity->opportunity->isUserEvaluationsSent())
         {
             return true;
         }
-
         return false;
     }
 

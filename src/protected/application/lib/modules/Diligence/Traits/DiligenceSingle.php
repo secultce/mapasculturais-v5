@@ -26,7 +26,6 @@ trait DiligenceSingle{
     static protected function returnJson($instance, $class)
     {
         if(is_null($instance)){
-            // EntityDiligence::sendQueue($userDestination);
             $class->json(['message' => 'success', 'status' => 200], 200);
         }else{
             $class->json(['message' => 'Error: ', 'status' => 400], 400);

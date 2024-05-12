@@ -2,19 +2,14 @@
 namespace Diligence\Repositories;
 
 use MapasCulturais\App;
-use DateTime;
 use Diligence\Entities\Diligence as DiligenceEntity;
-use MapasCulturais\Entities\Registration;
-use Doctrine\ORM\EntityRepository;
-use MapasCulturais\Entity;
 
 class Diligence{
 
     static public function findBy($className = 'Diligence\Entities\Diligence', $array): array
     {
         $app = App::i();  
-        $entity = $app->em->getRepository($className)->findBy($array);
-       
+        $entity = $app->em->getRepository($className)->findBy($array);       
         if(count($entity) > 0){
             return $entity;
         }
@@ -27,15 +22,13 @@ class Diligence{
         $reg = $app->repo('Registration')->find($number);
         $openAgent = $app->repo('Agent')->find($agentOpen);
         $agent = $app->repo('Agent')->find($agent);
-
         return ['reg' => $reg, 'openAgent' => $openAgent, 'agent' => $agent];
     }
 
     public function findId($diligence): object
     {
         $app = App::i();  
-        return $app->em->getRepository('Diligence\Entities\Diligence')->find($diligence);
-       
+        return $app->em->getRepository('Diligence\Entities\Diligence')->find($diligence);       
     }
 
     /**
@@ -46,7 +39,6 @@ class Diligence{
     static public function getDiligenceAnswer($registration)
     {
         $registrationAnswer = $registration;
-        // $this->requireAuthentication();
         $app = App::i();
         //Verificando se tem resposta para se relacionar a diligencia
         $dql = "SELECT ad, d
@@ -54,13 +46,7 @@ class Diligence{
         LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d AND ad.registration = :regAnswer
         WHERE d.registration = :reg ORDER BY d.sendDiligence DESC , ad.createTimestamp DESC" ;
 
-    //    $strNativeQuery = "select d.id as idDiligence,
-    //     d.open_agent_id, d.agent_id, d.description, ad.answer from 
-    //     Diligence\Entities\Diligence d inner join  Diligence\Entities\AnswerDiligence ad 
-    //     LEFT JOIN ad.diligence_id = d.id 
-    //    where d.registration_id = :reg  and ad.registration_id = :regAnswer";
         $registrations = self::queryDiligente($app, $dql, $registration, $registrationAnswer);
-
         //Se não tiver resposta de alguma diligencia então envia somente a diligencia
         if(!empty($registrations)){
             return $registrations;
@@ -80,20 +66,12 @@ class Diligence{
      */
     protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
     {
-        
-        // dump($query);
-        // die;
-        
         try {
             $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
             return $query->getResult();
         } catch (\Throwable $th) {
            return null;
         }
-
-        // $strNativeQuery = "SELECT * FROM recurring_event_occurrence_for('$date1', '$date2', 'Etc/UTC', NULL)";
-
-        // return $this->app->em->createNativeQuery($strNativeQuery, $rsm);
     }
 
     static function getAuthorizedProject($registration): array

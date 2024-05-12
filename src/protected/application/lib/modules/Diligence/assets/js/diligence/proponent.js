@@ -24,11 +24,8 @@ $(document).ready(function () {
         {
             //Se tiver diligencia
             if (res.data.length > 0) {
-               
-
                 res.data.forEach((element, index) => {
-                    const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days)
-                    
+                    const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
                     if (dateLimitDate) {
                         $("#descriptionDiligence").hide();
                         $("#div-btn-actions-proponent").hide() 
@@ -37,36 +34,20 @@ $(document).ready(function () {
                     }
                     //Id da diligencia
                     MapasCulturais.idDiligence = element.id;
-                    
-                   
                     $("#paragraph_loading_content").hide();
                 });         
             }
-
-            
         }
-
        
-        if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
-           
+        if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {           
             hideAnswerDraft();
-            let actions = false;
-            // console.log({actions})
             idsDiligences = [];
             res.data.forEach((answer, index) => {
-                // console.log({answer})
-                // console.log('id ', answer.id.length)
-                console.log({answer})
                 if(answer?.id === undefined)
                 {
-                    console.log('sem_diligencia')
                     EntityDiligence.showAnswerDraft(null);
                     $("#descriptionDiligence").show();
                 }else{
-                    //Está em rescunho
-                    // if(answer.status == 0){
-                    //     $("#descriptionDiligence").hide();
-                    // }
                     idsDiligences.push(answer?.id);
                 }
                 if(answer?.status == 0) {
@@ -74,76 +55,26 @@ $(document).ready(function () {
                 }
             })
     
-            console.log(idsDiligences);
             MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
             const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
         }
-            
 
-        // if (res.message == 'resposta_rascunho' &&  MapasCulturais.userEvaluate == false) 
-        // {
-        //     console.log({res})
-        //     const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-        //         $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
-        //         $("#li-tab-diligence-diligence > label").remove();
-        //         $("#li-tab-diligence-diligence").append(ahref);
-        //     res.data.forEach((answer, index) => {
-        //         const limitDate = EntityDiligence.validateLimiteDate(answer.diligence.sendDiligence.date);
-
-        //         if(limitDate){
-        //             EntityDiligence.showAnswerDraft(answer);
-        //             $("#descriptionDiligence").hide();
-        //             $("#div-btn-actions-proponent").hide() 
-        //         }else{
-        //             MapasCulturais.idDiligence = answer.diligence.id;               
-        //             EntityDiligence.showAnswerDraft(answer);
-        //             $("#descriptionDiligence").show();
-        //             $("#div-btn-actions-proponent").show();
-        //         }
-
-               
-        //     });   
-        // }
-
-        // if(res.message == "resposta_enviada" &&  MapasCulturais.userEvaluate == false){
-        //     res.data.forEach((answer, index) => {
-        //         MapasCulturais.idDiligence = answer.diligence.id;
-        //         EntityDiligence.showAnswerDraft(answer);
-        //         $("#paragraph_content_send_answer").html(answer.answer);
-        //         $("#answer_diligence").show();
-        //         $("#descriptionDiligence").hide();
-        //         $("#div-btn-actions-proponent").hide();
-        //         $("#paragraph_createTimestamp").html(moment(answer.diligence.sendDiligence.date).format('lll'));
-        //         $(".paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
-        //         const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-        //         $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
-        //         $("#li-tab-diligence-diligence > label").remove();
-        //         $("#li-tab-diligence-diligence").append(ahref);
-        //         $(".footer-btn-delete-file-diligence").hide();
-        //     });   
-        // }
-
-  
         $("#upload-file-diligence").submit(function(e) {
             MapasCulturais.countFileUpload = (MapasCulturais.countFileUpload + 1);
             const baseUrl = MapasCulturais.baseURL+'inscricao/'+MapasCulturais.entity.id
             if(MapasCulturais.countFileUpload >= 2)
             {
                 $("#div-upload-file-count").hide();
-                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
+                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
+                +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
             }
         });
-
-
-
-
     })
     .catch((error) => {
-        // console.log({error})
-        // MapasCulturais.Messages.error('Erro ao carregar diligência');
+        MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
    
 });
@@ -242,8 +173,7 @@ function saveAnswerProponente(status) {
                 $("#div-btn-actions-proponent").show();
                 $("#descriptionDiligence").show();
                 $("#div-content-all-diligence-send").show();
-                $("#answer_diligence").hide();
-                
+                $("#answer_diligence").hide();                
             }
 
         }).catch((err) => {
@@ -253,8 +183,6 @@ function saveAnswerProponente(status) {
     } else {
         saveRequestAnswer(status)
     }
-
-   
 }
 
 function cancelAnswer()
@@ -276,8 +204,6 @@ function cancelAnswer()
 
 function saveRequestAnswer(status)
 {
-    console.log({status})
-    console.log('id ', $('#id-input-diligence').val())
     idAnswer = $('#id-input-diligence').val()
     $.ajax({
         type: "POST",
@@ -294,6 +220,9 @@ function saveRequestAnswer(status)
             if(response.status == 200){
                 EntityDiligence.hideShowSuccessAction();
                 $("#id-input-diligence").val(response.entityId);
+            }
+            if(status == 3 && response.status == 200) {
+
             }
         },
         error: function(err) {
@@ -319,8 +248,10 @@ function sendNofificationAnswer()
             registration: MapasCulturais.entity.id
         },
         dataType: "json",
-        success: function(response) {
-           return true;
+        success: function(res) {
+           if(res.status == 200){
+                window.location.href=MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id)
+            }
         }
     });
 }

@@ -33,8 +33,6 @@
 .btn-send-diligence:hover {
     border: 1px solid #10776d;
     background: #10776d;
-    /* color: white; */
-    /* border-radius: 8px; */
 }
 
 .btn-save-diligence {
@@ -43,7 +41,6 @@
     font-weight: 600;
     cursor: pointer;
     padding: 0 16px 0 16px;
-    margin-top: 5px;
 }
 
 .btn-save-diligence:hover {
@@ -144,7 +141,6 @@
 
 .swal2-styled.swal2-cancel {
     color: #35383b !important;
-
 }
 
 .swal2-timer-progress-bar {
@@ -182,11 +178,8 @@
 
 .btn-success-rec {
     color: #fff !important;
-    ;
     background-color: #085E55 !important;
-    ;
     border: 1px solid #042f2b !important;
-    ;
 }
 
 .btn-success-rec:hover {
@@ -250,4 +243,9 @@
     font-size: x-small;
     border-radius: 5px;
     background: #fff
+}
+.align-btn-actions-diligence {
+    display: flex;
+    justify-content: end;
+    width: 100%;
 }

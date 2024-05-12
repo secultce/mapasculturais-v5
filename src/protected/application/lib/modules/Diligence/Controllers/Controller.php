@@ -27,11 +27,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_save() : void
     {      
-        // $this->requireAuthentication();
+        $this->requireAuthentication();
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
         $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
-        // self::returnJson($entity, $this);
     }
 
      /**
@@ -48,8 +47,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $content = 0;
             if(!is_null($diligence))
             {
-                foreach ($diligence as $key => $value) {
-            
+                foreach ($diligence as $key => $value)
+                {
                     //Verificando se existe diligencia
                     if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
                     {
@@ -98,7 +97,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return void
      */
-    public function notification()
+    public function notification() : void
     {
         $this->requireAuthentication();
         App::i()->applyHook('controller(diligence).notification:before');
@@ -159,6 +158,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         ];
         }       
         EntityDiligence::sendQueue($userDestination, 'resposta');
+        $this->json(['message' => 'success','status' => 200]);
     }
 
     /**
@@ -173,62 +173,44 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $cancel->cancel($this);
     }
 
-    public function POST_valueProject()
+    public function POST_valueProject() : void
     {   
-        // $this->requireAuthentication();
+        $this->requireAuthentication();
         $app = App::i();
 
-        $request = array_keys($this->postData);
         $regMeta =[];
         $idEntity = $this->postData['entity'];
-        $reg = App::i()->repo('Registration')->find($idEntity);
+        $reg = $app->repo('Registration')->find($idEntity);
         $createMetadata = null;
         $regMeta = $app->repo('RegistrationMeta')->findBy([
             'owner' => $idEntity
         ]);
         foreach ($this->postData as $keyRequest => $meta) {
-           
-            // dump($keyRequest, $meta,$this->postData['entity']);
-            // dump($this->data[$meta]);
-           
-            //'key' => $key, 'value'=>  $meta, 
-            // dump($regMeta);
+
             if(empty($regMeta)){
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
-                $entity = self::saveEntity($createMeta);
+                self::saveEntity($createMeta);
             }
 
             foreach ($regMeta as $key => $value) {
-             
-                //option_authorized
                 //Se já existe dados cadastrados, então substitui por um valor novo
                 if($value->key == $keyRequest)
                 {
                     $value->value = $meta;
-                    $entity = self::saveEntity($value);
+                    self::saveEntity($value);
                 }
-               
-                // $entity = self::saveEntity($value);
-                // if($value->key == 'value_project_diligence') {
-                //     $value->value = $meta;
-                    
-                // }
-                // $entity = self::saveEntity($value);
-                // self::returnJson($entity, $this);
             }
            
-          
             $createMetadata = $app->repo('RegistrationMeta')->findBy([
                'key' => $keyRequest, 'owner' => $idEntity
             ]);
-            dump($createMetadata);
+           
             if(empty($createMetadata)) {
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
-                $entity = self::saveEntity($createMeta);
+                self::saveEntity($createMeta);
             }
         }
-     
-        self::returnJson($entity, $this);
+        self::returnJson(null, $this);
 
     }
 

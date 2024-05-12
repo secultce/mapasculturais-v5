@@ -1,7 +1,8 @@
 <?php
 if (!$sendEvaluation) :
 ?>
-    <button class="btn-save-diligence mr-10" 
+<div class="flex-items align-btn-actions-diligence ">
+<button class="btn-save-diligence mr-10" 
         title="Salva o conteúdo mas não envia sua resposta"
         id="btn-save-diligence"
         onclick="saveDiligence(0, 0, $('#id-input-diligence').val())">
@@ -15,4 +16,5 @@ if (!$sendEvaluation) :
         Enviar Diligência
         <i class="fas fa-paper-plane"></i>
     </button>
+</div>
 <?php endif; ?>
