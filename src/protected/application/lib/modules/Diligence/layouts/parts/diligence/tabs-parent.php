@@ -86,10 +86,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                     class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer" 
                     >' . $file["name"] . '</a></h1> 
                     <div class="botoes footer-btn-delete-file-diligence">
-                        <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $context['entity']->id . '"
-                        data-target="#file-diligence-up-' . $id . '"
-                        data-configm-message="Remover este arquivo?"
-                        class="btn btn-small btn-danger delete hltip js-remove-item">Excluir</a>
+                       
                     </div>
                 </article>';
                 } ?>

@@ -55,8 +55,7 @@ if (!$sendEvaluation) :
             if ($resultsDiligence !== null) {
                 $dt             = Carbon::parse($resultsDiligence->sendDiligence);
                 $dtSend         = $dt->isoFormat('LLL');
-                $dtAndwer       = Carbon::parse($resultsDiligence->sendDiligence);
-                $dtSendAnswer   = $dtAndwer->isoFormat('LLL');
+                
             }
             
             if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
@@ -77,6 +76,8 @@ if (!$sendEvaluation) :
             <?php
             }
             if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
+                $dtAnswer       = Carbon::parse($resultsDiligence->createTimestamp);
+                $dtSendAnswer   = $dtAnswer->isoFormat('LLL');
             ?>
                 <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                     <label style="font-size: 14px">

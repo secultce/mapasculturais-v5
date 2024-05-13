@@ -43,6 +43,7 @@ $(document).ready(function () {
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
+                
             }
             if (res.message == 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();

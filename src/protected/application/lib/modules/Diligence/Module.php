@@ -165,7 +165,7 @@ class Module extends \MapasCulturais\Module {
 
         
         $app->registerFileGroup(
-            'diligence',
+            'registration',
             new Definitions\FileGroup(
                 'file-diligence',
                 ['application/pdf','image/(gif|jpeg|pjpeg|png)'],

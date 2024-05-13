@@ -151,12 +151,14 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy(['registration' => $this->data['registration']]);
         $userDestination = [];
         foreach ($dili as $diligence) {
-          $userDestination = [
-            'registration' => $this->data['registration'],
-            'comission' => $diligence->openAgent->user->email,
-            'owner' => $diligence->registration->opportunity->owner->user->email
-        ];
-        }       
+            $userDestination = [
+                'registration' => $this->data['registration'],
+                'comission' => $diligence->openAgent->user->email,
+                'owner' => $diligence->registration->opportunity->owner->user->email
+            ];
+        };
+        // dump($userDestination);
+        // die;
         EntityDiligence::sendQueue($userDestination, 'resposta');
         $this->json(['message' => 'success','status' => 200]);
     }
@@ -257,13 +259,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             }           
         }        
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
-    }
-
-    public function GET_carbon()
-    {
-        dump("Now: %s", Carbon::now());
-        $novaData = $this->addingBusinessDays('2024-12-24 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
-        echo $novaData->format('Y-m-d');
     }
 
     function addingBusinessDays($date, $dias) {

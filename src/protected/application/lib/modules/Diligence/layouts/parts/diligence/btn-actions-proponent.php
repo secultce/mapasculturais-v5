@@ -31,12 +31,12 @@ $template = '
     <div style="width: 50%">
         <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
         <?php
-        if ($countFile < 2 && $showText) { ?>
+        if ($showText) { ?>
             <div id="div-upload-file-count">
                 <a class="js-open-editbox hltip" data-target="#file-diligence" href="#" title="Click para anexar arquivo"> Anexar arquivo</a>
                 <div id="file-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
                     <?php
-                    //$this->ajaxUploader($diligence, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true);
+                    $this->ajaxUploader($entity, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true);
                     // dump($diligence);
                     // $file_owner = $diligence->id;
                     // $file_group = 'file-diligence';

@@ -65,12 +65,15 @@ $(document).ready(function () {
         $("#upload-file-diligence").submit(function(e) {
             MapasCulturais.countFileUpload = (MapasCulturais.countFileUpload + 1);
             const baseUrl = MapasCulturais.baseURL+'inscricao/'+MapasCulturais.entity.id
-            if(MapasCulturais.countFileUpload >= 2)
-            {
-                $("#div-upload-file-count").hide();
-                $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
-                +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
-            }
+            $("#div-upload-file-count").hide();
+            $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
+            +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
+            // if(MapasCulturais.countFileUpload >= 2)
+            // {
+            //     $("#div-upload-file-count").hide();
+            //     $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
+            //     +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
+            // }
         });
     })
     .catch((error) => {
