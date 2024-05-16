@@ -14,6 +14,7 @@ $(document).ready(function () {
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
     EntityDiligence.showAccordion('#accordion');
+    EntityDiligence.showAccordion('#accordion-2');
 
     //id da diligencia
     let idDiligence = 0;

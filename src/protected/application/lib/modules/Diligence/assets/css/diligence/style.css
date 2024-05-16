@@ -249,3 +249,10 @@
     justify-content: end;
     width: 100%;
 }
+
+.diligence-active {
+    border: 1px solid #c5c5c5;
+    background: #ffffff !important;
+    font-weight: normal;
+    color: #454545;
+}
