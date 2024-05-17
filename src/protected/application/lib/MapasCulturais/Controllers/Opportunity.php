@@ -144,7 +144,7 @@ class Opportunity extends EntityController {
         $filename = sprintf(\MapasCulturais\i::__("oportunidade-%s--rascunhos--%s"), $entity->id, $date);
 
         $this->reportOutput('report-drafts-csv', ['entity' => $entity, 'registrationsDraftList' => $registrationsDraftList], $filename );
-     }
+    }
 
     function GET_reportEvaluations(){
         $this->requireAuthentication();
@@ -266,8 +266,8 @@ class Opportunity extends EntityController {
     }
 
     /**
-    * @return \MapasCulturais\Entities\Opportunity
-    */
+     * @return \MapasCulturais\Entities\Opportunity
+     */
     protected function _getOpportunity($opportunity_id = null) {
         $app = App::i();
         if (!is_null($opportunity_id) && is_int($opportunity_id)) {
@@ -653,7 +653,7 @@ class Opportunity extends EntityController {
         $length = $conn->fetchAll($resultLength, [
             'user_id' => $app->user->id,
             'opportunity_id' => $opportunity->id,
-            ]);
+        ]);
 
         if(isset($this->data['@pending'])){
             $sql = "
@@ -722,7 +722,7 @@ class Opportunity extends EntityController {
             ";
         }
 
-        
+
 
         $limit = isset($data['@limit']) ? $data['@limit'] : 50;
         $page = isset($data['@page'] ) ? $data['@page'] : 1;
@@ -733,7 +733,7 @@ class Opportunity extends EntityController {
             'opportunity_id' => $opportunity->id,
             'limit' => $limit,
             'offset' => $offset
-            ]);
+        ]);
 
         $registrationWithResultString = array_map(function($registration) use ($opportunity) {
             return [
@@ -811,8 +811,8 @@ class Opportunity extends EntityController {
         $sql_status = "";
         if (isset($this->data['status'])) {
             if(preg_match('#EQ\( *(-?\d) *\)#', $this->data['status'], $matches)) {
-                $status = $matches[1];
-                $sql_status = " AND evaluation_status = {$status}";
+                $status = $matches[1] == -1 ? "IS NULL" : "= {$matches[1]}";
+                $sql_status = " AND evaluation_status {$status}";
             }
         }
 
@@ -827,7 +827,7 @@ class Opportunity extends EntityController {
                 $rdata[substr($k, 13)] = $v;
             }
         }
-      
+
         if(isset($this->data['valuer:id'])){
             if(preg_match('#EQ\( *(\d+) *\)#', $this->data['valuer:id'], $matches)) {
                 $valuer_id = $matches[1];
