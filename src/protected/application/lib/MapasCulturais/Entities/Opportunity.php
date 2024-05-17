@@ -620,7 +620,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
         
         $app = App::i();
         
-        $app->applyHookBoundTo($this, "entity({$this->hookClassPath}.importFields:before", [&$importSource]);
+        $app->applyHookBoundTo($this, "entity({$this->hookClassPath}).importFields:before", [&$importSource]);
 
         $created_fields = [];
         $created_files = [];
@@ -761,7 +761,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
 
             $this->save(true);
 
-            $app->applyHookBoundTo($this, "entity({$this->hookClassPath}.importFields:after", [&$importSource, &$created_fields, &$created_files]);
+            $app->applyHookBoundTo($this, "entity({$this->hookClassPath}).importFields:after", [&$importSource, &$created_fields, &$created_files]);
 
         }
     }
