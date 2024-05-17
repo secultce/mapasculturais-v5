@@ -5,6 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 use \MapasCulturais\App;
 use \MapasCulturais\i;
 use DateTime;
+use DateTimeZone;
 use Diligence\Controllers\Controller;
 use MapasCulturais\Entity;
 //Para uso do RabbitMQ
@@ -228,17 +229,20 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         if(count($diligenceRepository) > 0) {
             return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
         }
+
+        $dateTimeZone = $this->getDateTimeZone();
+
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
         $diligence->registration    = $regs['reg'];
         $diligence->openAgent       = $regs['openAgent'];
         $diligence->agent           = $regs['agent'];
-        $diligence->createTimestamp =  new DateTime();
+        $diligence->createTimestamp = $dateTimeZone;
         $diligence->description     = $class->data['description'];   
         $diligence->status          = $class->data['status'];
         //Considerando que será um envio
         if($class->data['status'] == "3"){
-            $diligence->sendDiligence = new DateTime();
+            $diligence->sendDiligence = $dateTimeZone;
         }
         App::i()->applyHook('entity(diligence).createDiligence:after', [&$diligence]);
         return self::saveEntity($diligence);
@@ -256,15 +260,17 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      */
     protected function updateContent($diligences, $description, $registration, $status = 0)
     {
+        $dateTimeZone = $this->getDateTimeZone();
+
         $save = null;
         foreach ($diligences as $diligence) {
             $diligence->description     = $description;
             $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
+            $diligence->createTimestamp = $dateTimeZone;
             $diligence->status          = $status;
             //Se for para enviar a diligência, então salva o momento do envio
             if($status == 3){
-                $diligence->sendDiligence =  new DateTime();
+                $diligence->sendDiligence = $dateTimeZone;
             }
 
             $save = self::saveEntity($diligence);
@@ -296,6 +302,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
 
         return false;
+    }
+
+    public function getDateTimeZone()
+    {
+        $dateTime = new DateTime();
+        $dateTimeZone = $dateTime->setTimezone(new DateTimeZone('America/Fortaleza'));
+
+        return $dateTimeZone;
     }
 
 }

@@ -2,6 +2,7 @@
 namespace Diligence\Entities;
 
 use DateTime;
+use DateTimeZone;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Doctrine\ORM\Mapping as ORM;
@@ -81,19 +82,22 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $diligence  = $repo->findId($class->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
+
+        $dateTime = new DateTime();
+        $dateTimeZone = $dateTime->setTimezone(new DateTimeZone('America/Fortaleza'));
       
         if(count($answerDiligences) > 0){
             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;
                 $answerDiligence->answer = $class->data['answer'];
-                $answerDiligence->createTimestamp = new DateTime();
+                $answerDiligence->createTimestamp = $dateTimeZone;
                 $answerDiligence->status = $class->data['status'];
             }
             $save = self::saveEntity($answerDiligence);
         }else{
             $answer->diligence = $diligence;
             $answer->answer = $class->data['answer'];
-            $answer->createTimestamp = new DateTime();
+            $answer->createTimestamp = $dateTimeZone;
             $answer->status = $class->data['status'];
             $save = self::saveEntity($answer);
         }
