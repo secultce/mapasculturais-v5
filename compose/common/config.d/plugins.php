@@ -8,6 +8,10 @@ return [
         'EvaluationMethodQualification' => ['namespace' => 'EvaluationMethodQualification'],
         'ValuersManagement' => [ 'namespace' => 'ValuersManagement' ],
         'OpinionManagement' => [ 'namespace' => 'OpinionManagement' ],
-        'Recourse' => [ 'namespace' => 'Recourse' ]
+        'Recourse' => [ 'namespace' => 'Recourse' ],
+        'EditOpportunityType' => ['namespace' => 'EditOpportunityType'],
+        'LocationStateCity' => ['namespace' => 'LocationStateCity'],
+        'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
+
     ]
 ];
