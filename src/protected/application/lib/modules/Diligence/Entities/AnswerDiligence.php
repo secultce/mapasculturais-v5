@@ -9,6 +9,7 @@ use Respect\Validation\Rules\Json;
 use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use Carbon\Carbon;
 /**
  * AnswerDiligence 
  * 
@@ -80,7 +81,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $diligence  = $repo->findId($class->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
-      
+    
         if(count($answerDiligences) > 0){
             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;
@@ -118,6 +119,32 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
             return $this->json(['message' => 'success', 'status' => 200], 200);
         }
         return $this->json(['message' => 'error', 'status' => 400], 400);
+    }
+
+    static public function vertifyWorkingDays($date, $dias) {
+        $currentDate = Carbon::parse($date);
+        $daysAdds = 0;
+        //Consultando no banco os feriados nacionais cadastrados
+        $app = App::i();
+        $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
+        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+
+        // Loop até que todos os dias úteis sejam adicionados
+        while ($daysAdds < $dias) {
+            // Adiciona 1 dia à data atual
+            $currentDate->addDay();
+    
+            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
+            if ($currentDate->isWeekday()) {
+                //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
+                $holiday = $currentDate->format('m-d');
+                if (!in_array($holiday, $holidays)) {
+                    $daysAdds++;
+                }
+            }
+        }
+    
+        return $currentDate;
     }
 
 }

@@ -8,6 +8,7 @@ use Diligence\Entities\NotificationDiligence;
 use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use Carbon\Carbon;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
 
@@ -118,6 +119,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_answer() : void
     {
+        if($this->data['answer'] == ''){
+            $this->errorJson(['message' => 'O Campo de resposta deve está preenchido'], 400);
+        }
         $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);
@@ -265,5 +269,39 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             }           
         }        
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
+    }
+
+    public function GET_carbon()
+    {
+        dump("Now: %s", Carbon::now());
+        $novaData = $this->addingBusinessDays('2024-12-24 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
+        echo $novaData->format('Y-m-d');
+    }
+
+    function addingBusinessDays($date, $dias) {
+        // Obtém a data e hora atual em objeto tyipo date
+        $currentDate = Carbon::parse($date);
+        $daysAdds = 0;
+        //Consultando no banco os feriados nacionais cadastrados
+        $app = App::i();
+        $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
+        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+
+        // Loop até que todos os dias úteis sejam adicionados
+        while ($daysAdds < $dias) {
+            // Adiciona 1 dia à data atual
+            $currentDate->addDay();
+    
+            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
+            if ($currentDate->isWeekday()) {
+                //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
+                $holiday = $currentDate->format('m-d');
+                if (!in_array($holiday, $holidays)) {
+                    $daysAdds++;
+                }
+            }
+        }
+        
+        return $currentDate;
     }
 }

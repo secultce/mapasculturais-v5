@@ -20,7 +20,7 @@
             },
 
             getAgents: function(userId) {
-                return $http.get(this.getUrl('api/agent', 'find') + '?@select=id,name,subsite.name,singleUrl,deleteUrl,archiveUrl,publishUrl,unarchiveUrl,undeleteUrl,destroyUrl,status,__agentRelations.hasControl,__agentRelations.agent.userId&user=EQ(' + userId + ')');
+                return $http.get(this.getUrl('api/agent', 'find') + `?@select=id,name,subsite.name,singleUrl,deleteUrl,archiveUrl,publishUrl,unarchiveUrl,undeleteUrl,destroyUrl,status,__agentRelations.hasControl,__agentRelations.agent.userId&user=EQ(${userId})&status=GTE(-10)`);
             },
 
             getRelatedsAgentControl: function(userId) {
@@ -138,15 +138,16 @@
         };
 
         $scope.load = function ($userId) {
-            $scope.user = { 'id':$userId, 
-                            'agents': {'spinnerShow':true},
-                            'spaces': {'spinnerShow':true},
-                            'events': {'spinnerShow':true},
-                       'permissions': {'spinnerShow':true},
-                           'history': {'spinnerShow':true}
-                         }            
+            $scope.user = {
+                'id':$userId,
+                'agents': {'spinnerShow':true},
+                'spaces': {'spinnerShow':true},
+                'events': {'spinnerShow':true},
+                'permissions': {'spinnerShow':true},
+                'history': {'spinnerShow':true},
+            };
             $scope.loadHistory($userId);
-        }
+        };
 
         $scope.loadHistory = function($userId) {
             $scope.user.history.spinnerShow = true;

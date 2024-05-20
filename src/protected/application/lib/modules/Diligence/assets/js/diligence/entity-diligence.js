@@ -51,6 +51,7 @@ var EntityDiligence = (function(){
 
     function hideRegistration() {
         $("#registration-content-all").hide();
+        $("#registration-valuers--admin").hide();        
     }
     
     function showRegistration() {
@@ -68,6 +69,7 @@ var EntityDiligence = (function(){
 
         if (urlAtual.includes(sentencaDesejada)) {
             $("#registration-content-all").hide();
+            $("#registration-valuers--admin").hide();
         } else {
             $("#diligence-diligence").hide();
 
@@ -120,32 +122,9 @@ var EntityDiligence = (function(){
 
     }
 
-    function getLimitDateAnswer(sendDiligence)
-    {
-        // Convertendo a string de data em um objeto Date
-        const originalDate = new Date(sendDiligence);
-
-        // Adicionando três dias à data
-        originalDate.setDate(originalDate.getDate() + 3);
-
-        // Formatando a nova data de acordo com suas necessidades
-        const newDate = originalDate.toISOString().split('T')[0];
-
-        var dateTimeDiligence = new Date(newDate);
-
-        // Obtendo a data e hora atual
-        var dtNow = new Date();
-
-        // Verificando se novaData é posterior à data atual
-        if (dateTimeDiligence < dtNow) {
-            return "encerrou";
-        }
-        return "no_periodo";
-    }
-
     function verifySituation(data)
     {
-          //Sempre verifica a situação para habilitar o botão de Fializar avaliação e avançar
+          //Sempre verifica a situação para habilitar o botão de Finalizar avaliação e avançar
         if (data.id > 0) {
            
            switch (data.situation) {
@@ -163,6 +142,41 @@ var EntityDiligence = (function(){
         }
     }
 
+    function validateLimiteDate(diligence_days)
+    {
+        //data atual
+        const dateNow = new Date();
+        //Data limitada para resposta
+        const dateLimitDate = new Date(diligence_days);
+
+        if (dateNow >= dateLimitDate ) {
+            return true
+        }
+        return false
+    }
+
+    //Oculta botão de abrir diligencia
+    function hideBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").attr('disabled', true);
+        $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+    }
+    //Remove o botão de abrir diligencia
+    function removeBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").remove();
+        $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+    }
+
+    //Mostra o botão de abrir diligencia
+    function showBtnOpenDiligence()
+    {
+        $("#btn-open-diligence").removeAttr('disabled');
+        $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
+    }
+
+
+
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -171,8 +185,11 @@ var EntityDiligence = (function(){
         formatDiligenceSendProponent: formatDiligenceSendProponent,
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
-        getLimitDateAnswer: getLimitDateAnswer,
+        validateLimiteDate: validateLimiteDate,
         verifySituation: verifySituation,
-        returnGetAuthorized: returnGetAuthorized
+        returnGetAuthorized: returnGetAuthorized,
+        hideBtnOpenDiligence: hideBtnOpenDiligence,
+        showBtnOpenDiligence: showBtnOpenDiligence,
+        removeBtnOpenDiligence: removeBtnOpenDiligence
       }
 }());

@@ -11,7 +11,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
-    $("#paragraf_label_project").hide();
+
     //Buscado diligencia se houver
 
     //Retornar valor se foi autorizado
@@ -25,7 +25,7 @@ $(document).ready(function () {
         }
         
     }).catch( (err) => {
-        console.log({err})
+        MapasCulturais.Messages.error('Ocorreu um erro na autorização do projeto');
     })
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
@@ -33,24 +33,20 @@ $(document).ready(function () {
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
         .then((res) => {
-            console.log({ res })
             if (
                 (res.message == 'sem_diligencia' || res.message == 'diligencia_aberta') &&
                 MapasCulturais.userEvaluate == true) {
                 //Se não tem diligencia
                 if (res.data.length == 0 && res.data.status == undefined) {
-                    console.log(res.data.length)
-                    console.log(res.data.status == undefined)
+                    
                     $("#descriptionDiligence").hide();
                     $("#paragraph_loading_content").hide();                   
                     hideBtnActionsDiligence();
                     showBtnSubmitEvaluation();
-                    showBtnOpenDiligence();
+                    EntityDiligence.showBtnOpenDiligence();
                 }
 
                 res.data.forEach((element, index) => {
-                    console.log({ element })
-                    console.log({ index })
                     //Verifica a situação da diligencia
                     EntityDiligence.verifySituation(element);
                     $("#btn-save-diligence").show();
@@ -65,7 +61,6 @@ $(document).ready(function () {
                         $("#descriptionDiligence").show();
                     }
                 });
-
                 $("#answer_diligence").hide();
                 $("#paragraph_info_status_diligence").html('A sua Diligência ainda não foi enviada');
             }
@@ -83,7 +78,6 @@ $(document).ready(function () {
             }
 
             if (res.message == "resposta_enviada" && MapasCulturais.userEvaluate == true) {
-                $("#paragraf_label_project").show();
                 res.data.forEach((answer, index) => {
                     EntityDiligence.showAnswerDraft(answer);
                     EntityDiligence.verifySituation(answer.diligence);
@@ -92,22 +86,23 @@ $(document).ready(function () {
                     $("#answer_diligence").show();
                     $("#descriptionDiligence").hide();
                     $("#btn-actions-diligence").hide();
-                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'))
+                    $("#paragraph_createTimestamp_answer").html(moment(answer.createTimestamp.date).format('lll'));
+                    $(".footer-btn-delete-file-diligence").hide();
                 });
             }
 
         })
         .catch((error) => {
-            console.log(error)
+            MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
         })
 
     $( "#select-value-project-diligence" ).on( "change", function (e) {
         e.preventDefault();
-        console.log(e.target.value)
-        console.log('change');
         saveAuthorizedProject('option_authorized', e.target.value)
         if(e.target.value == 'Sim') {
             $("#paragraph_value_project").show();
+        }else{
+            $("#paragraph_value_project").hide();
         }
     } );
 
@@ -134,7 +129,6 @@ function saveAuthorizedProject(keyAuth, valueAuth)
             }
         },
         error: function (err) {
-            console.log({err})
             MapasCulturais.Messages.error(err.responseJSON.data);
         }
     });
@@ -150,8 +144,6 @@ function showRegistration() {
 }
 
 function showSaveContent(status) {
-    console.log({ status })
-
     $("#label-save-content-diligence").show();
 
     setTimeout(() => {
@@ -184,12 +176,11 @@ function showSaveContent(status) {
             cancelButtonText: 'Desfazer envio',
             confirmButtonText: "OK",
         }).then((result) => {
-            console.log({ result })
             if (result.isConfirmed) {
                 sendNotification();
                 hideAfterSend();
                 showBtnSubmitEvaluation();
-                hideBtnOpenDiligence();
+                EntityDiligence.hideBtnOpenDiligence();
             }
 
             if (result.isDismissed && result.dismiss === 'cancel') {
@@ -202,7 +193,7 @@ function showSaveContent(status) {
                 sendNotification();
                 hideAfterSend();                
                 showBtnSubmitEvaluation();
-                hideBtnOpenDiligence();
+                EntityDiligence.hideBtnOpenDiligence();
                 setTimeout(() => {
                     hideAfterSend();
                 }, 500);
@@ -223,8 +214,7 @@ function sendNotification() {
         },
         dataType: "json",
         success: function (res) {
-            console.log('success sendNotification', res);
-            console.log({ res })
+            MapasCulturais.Messages.success('Notificação enviada');
         }
     });
 }
@@ -238,8 +228,6 @@ function cancelSend() {
         data: { registration: MapasCulturais.entity.id },
         dataType: "json",
         success: function (res) {
-            console.log({ res })
-
             if (res.status == 400) {
                 Swal.fire("Ops! Ocorreu um erro.");
             }
@@ -247,7 +235,6 @@ function cancelSend() {
     });
 }
 function saveDiligence(status) {
-    console.log('saveDiligence', status)
     if($("#descriptionDiligence").val() == ''){
         Swal.fire({
             title: "Ops! A descrição precisa ser preenchida",
@@ -296,9 +283,7 @@ function sendAjaxDiligence(status) {
             }
         },
         error: function (err) {
-            console.log({
-                err
-            })
+            MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
 }
@@ -330,22 +315,9 @@ function openDiligence(status) {
     $("tab-diligence-principal").removeClass('active');
     $("li-tab-diligence-diligence").addClass('active');
     showBtnActionsDiligence();
-    hideBtnOpenDiligence();
-    // hideBtnSubmitEvaluation();
+    EntityDiligence.hideBtnOpenDiligence();
 }
 
-//Oculta botão de abrir diligencia
-function hideBtnOpenDiligence()
-{
-    $("#btn-open-diligence").attr('disabled', true);
-    $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
-}
-//Mostra o botão de abrir diligencia
-function showBtnOpenDiligence()
-{
-    $("#btn-open-diligence").removeAttr('disabled');
-    $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
-}
 
 //Oculta o botão de Finalizar avaliação
 function showBtnSubmitEvaluation()

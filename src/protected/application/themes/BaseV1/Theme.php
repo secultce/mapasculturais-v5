@@ -1034,13 +1034,6 @@ class Theme extends MapasCulturais\Theme {
             return $formatted;
         };
 
-        $app->hook("API.find(agent).params", function(&$api_params) use ($app){
-            if($app->request->headers->get('Referer')){
-                $api_params['status'] = 'GTE(-10)';
-                $api_params['@permissions'] = 'view';
-            }
-        });
-
         // faz a keyword buscar pelo documento do owner nas inscrições
         $app->hook('repo(Registration).getIdsByKeywordDQL.join', function(&$joins, $keyword) use($format_doc) {
 

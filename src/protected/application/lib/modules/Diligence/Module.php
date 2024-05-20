@@ -18,6 +18,7 @@ require __DIR__.'/Service/NotificationInterface.php';
 
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
  use \Diligence\Traits\DiligenceSingle;
@@ -32,24 +33,37 @@ class Module extends \MapasCulturais\Module {
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
+           
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
-            //Mostra o prazo de forma diferente a depender do usuario logado
-            $term = $entityDiligence->verifyTerm($diligenceRepository, $entity);
+            //Verifica a data limite para resposta contando com dias úteis
+           if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
+           {
+                $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+           }else{
+                $diligence_days = null;
+           }
+            //Prazo registrado de dias uteis para responder a diligencia
+            $this->jsObject['diligence_days'] = $diligence_days;
+            
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
             $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
             $context = [
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
-                'term' => $term,
+                'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder
             ];
             //Verificando e globalizando se é um avaliador
-            $this->jsObject['userEvaluate'] = $entity->canUser('evaluate');
+            $this->jsObject['userEvaluate'] = false;
+            if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
+            {
+                $this->jsObject['userEvaluate'] = true;
+            }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-           
+            
             if($isProponent){              
               
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               

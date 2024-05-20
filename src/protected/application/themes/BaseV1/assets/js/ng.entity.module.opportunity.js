@@ -2611,19 +2611,26 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
 
 
             $scope.register = function(){                
-                var registration = $scope.data.registration;                
+                const registration = $scope.data.registration;
                 
-                RegistrationService.register(registration).success(function(rs){
-                    if(rs.error) {
-                        if(rs.data.owner) {
-                            MapasCulturais.Messages.error(rs.data.owner);
+                RegistrationService.register(registration)
+                    .success(function(rs){
+                        if(rs.error) {
+                            if(rs.data.owner) {
+                                MapasCulturais.Messages.error(rs.data.owner);
+                            } else {
+                                MapasCulturais.Messages.error(MapasCulturais.gettext.moduleOpportunity.unexpectedError);
+                            }
                         } else {
-                            MapasCulturais.Messages.error(MapasCulturais.gettext.moduleOpportunity.unexpectedError);
+                            document.location = rs.editUrl;
                         }
-                    } else {
-                        document.location = rs.editUrl;
-                    }
-                });
+                    })
+                    .error(function(err) {
+                        MapasCulturais.Messages.error('Não foi possível realizar a inscrição. Verifique se tem permissão a esse agente!');
+                        setTimeout(() => {
+                            document.location.reload()
+                        }, 3000);
+                    });
             };
 
             $scope.sendRegistrationRulesFile = function(){

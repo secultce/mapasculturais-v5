@@ -2,7 +2,6 @@
 
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
-
 if(!$sendEvaluation):
 ?>
 <p id="paragraph_loading_content">
@@ -30,9 +29,9 @@ if(!$sendEvaluation):
     <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
         <div class="item-col"></div>
         <div class="item-col" style="padding: 8px;">
-            <p>
+            <p style="font-size: smaller;">
                 <?php
-                EntityDiligence::infoTerm($entity, $diligenceRepository, $term);
+                EntityDiligence::infoTerm($entity, $diligenceRepository, $diligenceDays);
                 ?>
             </p>
         </div>
