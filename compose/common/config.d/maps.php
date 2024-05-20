@@ -1,16 +1,10 @@
 <?php
+$map_latitude = '-5.058114374355702';
+$map_longitude = '-39.4134521484375';
+$map_zoom = '7';
 
 return [
-    'maps.center'  => [
-        -14.2400732, //latitude
-        -53.1805018 // longitude
-    ],
-    
-    'maps.zoom.default'     => 5,
-    'maps.zoom.approximate' => 14,
-    'maps.zoom.precise'     => 16,
-    'maps.zoom.max'         => 18,
-    'maps.zoom.min'         => 5,
-
-    'maps.tileServer'       => '//{s}.tile.osm.org/{z}/{x}/{y}.png',
+    'maps.includeGoogleLayers' => true,
+    'maps.center' => array($map_latitude, $map_longitude),
+    'maps.zoom.default' => $map_zoom,
 ];
