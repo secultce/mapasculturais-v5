@@ -5,7 +5,6 @@ use Doctrine\ORM\Mapping as ORM;
 use \MapasCulturais\App;
 use \MapasCulturais\i;
 use DateTime;
-use DateTimeZone;
 use Diligence\Controllers\Controller;
 use MapasCulturais\Entity;
 //Para uso do RabbitMQ
@@ -263,11 +262,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         foreach ($diligences as $diligence) {
             $diligence->description     = $description;
             $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();;
+            $diligence->createTimestamp =  new DateTime();
             $diligence->status          = $status;
             //Se for para enviar a diligência, então salva o momento do envio
             if($status == 3){
-                $diligence->sendDiligence =  new DateTime();;
+                $diligence->sendDiligence =  new DateTime();
             }
 
             $save = self::saveEntity($diligence);

@@ -2,7 +2,6 @@
 namespace Diligence\Entities;
 
 use DateTime;
-use DateTimeZone;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Doctrine\ORM\Mapping as ORM;
@@ -94,7 +93,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         }else{
             $answer->diligence = $diligence;
             $answer->answer = $class->data['answer'];
-            $answer->createTimestamp = new DateTime();;
+            $answer->createTimestamp = new DateTime();
             $answer->status = $class->data['status'];
             $save = self::saveEntity($answer);
         }
