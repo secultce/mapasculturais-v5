@@ -21,12 +21,13 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
- use \Diligence\Traits\DiligenceSingle;
+    use \Diligence\Traits\DiligenceSingle;
     function _init () {
         
         $app = App::i();
-       
-        $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
+        $module = $this;
+
+        $app->hook('template(registration.view.content-diligence):begin', function () use ($app, $module) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
             $entity = self::getrequestedEntity($this);
@@ -60,8 +61,14 @@ class Module extends \MapasCulturais\Module {
             
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = false;
-            if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
-            {
+
+            /**
+             * @var $opportunity \MapasCulturais\Entities\Opportunity
+             */
+            $opportunity = $this->data['entity']->opportunity;
+            $isOpportunityAdmin = $module->isAdmin($opportunity);
+
+            if($entity->canUser('evaluate') || $isOpportunityAdmin) {
                 $this->jsObject['userEvaluate'] = true;
             }
             //Glabalizando se é um proponente
@@ -186,5 +193,35 @@ class Module extends \MapasCulturais\Module {
         $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
         $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
 
+    }
+
+    private function isAdmin(Entities\Opportunity $opportunity): bool
+    {
+        $app = App::i();
+
+        if($opportunity->owner === $app->user->profile)
+            return true;
+
+        $queryBuilder = $app->em->createQueryBuilder()
+            ->select('a')
+            ->from('\MapasCulturais\Entities\Agent', 'a')
+            ->innerJoin('\MapasCulturais\Entities\AgentRelation', 'ar')
+            ->where("ar.objectId = {$opportunity->id}")
+            ->andWhere("ar.agent = a")
+            ->andWhere("ar.group = 'group-admin'")
+            ->andWhere("ar.status = 1");
+        $query = $queryBuilder->getQuery();
+        /**
+         * @var $agentsAdmin Entities\Agent[]
+         */
+        $opportunityAdminAgents = $query->getResult();
+
+        // verifica se o usuário tem permissão sobre os agentes administradores da oportunidade
+        foreach ($opportunityAdminAgents as $agent) {
+            if($agent->canUser('control'))
+                return true;
+        }
+
+        return false;
     }
 }
