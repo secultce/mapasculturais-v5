@@ -81,7 +81,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $diligence  = $repo->findId($class->data['diligence']);
         $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
         $answer     = new AnswerDiligence();
-      
+    
         if(count($answerDiligences) > 0){
             foreach ($answerDiligences as $key => $answerDiligence) {
                 $answerDiligence->diligence = $diligence;

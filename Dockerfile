@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Install sass
     && gem install sass -v 3.4.22 \
     # Install extensions
-    && docker-php-ext-install opcache pdo_pgsql zip xml curl json \
+    && docker-php-ext-install opcache pdo_pgsql zip xml curl json sockets \
     # Install GD
     && docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
