@@ -13,6 +13,11 @@ class Json extends \MapasCulturais\ApiOutput{
 
     protected function _outputArray(array $data, $singular_object_name = 'Entity', $plural_object_name = 'Entities') {
         $app = App::i();
+        /**
+         * Evita que a request atinja o limite de memória do processo
+         * @todo: remover o ini_set() e implementar paginação no endpoint de Agents
+         */
+        ini_set('memory_limit', '256M');
         $app->response()->header('Access-Control-Allow-Origin', \MapasCulturais\App::i()->config['api.accessControlAllowOrigin']);
         echo json_encode($data);
     }

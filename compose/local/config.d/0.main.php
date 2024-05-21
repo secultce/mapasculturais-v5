@@ -8,7 +8,7 @@ return [
     'app.mode' => $_ENV['APP_MODE'],
     'doctrine.isDev' => false, // deixe true somente se estiver trabalhando nos mapeamentos das entidades
     'slim.debug' => true,
-    'cep.token' => '',
+    'cep.token' => '1a61e4d00bf9c6a85e3b696ef7014372',
 
     /* SELOS */
     'app.verifiedSealsIds' => [1],

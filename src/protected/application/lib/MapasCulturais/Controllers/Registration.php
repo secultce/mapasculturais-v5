@@ -97,7 +97,13 @@ class Registration extends EntityController {
             $finfo = pathinfo($this->name);
             $hash = uniqid();
 
-            $this->name = $this->owner->number . ' - ' . $hash . ' - ' . substr( preg_replace ('/[^\. \-\_\p{L}\p{N}]/u', '', $rfc->title),0,64) . '.' . $finfo['extension'];
+            $words = explode(' ', trim($rfc->title));
+            //Criando uma string com a primeira palavra do título do campo + números randômicos + as horas
+            $title = $words[0] . "-".rand()."-".microtime(true);
+
+            $this->name = $this->owner->number . ' - ' . $hash . ' - '
+                . substr( preg_replace ('/[^\p{L}\p{N}]/u', '', $title),0,64)
+                . '.' . $finfo['extension'];
             $tmpFile = $this->tmpFile;
             $tmpFile['name'] = $this->name;
             $this->tmpFile = $tmpFile;

@@ -231,12 +231,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 $class->data['status']
             );
         }
+      
+
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
         $diligence->registration    = $regs['reg'];
         $diligence->openAgent       = $regs['openAgent'];
         $diligence->agent           = $regs['agent'];
-        $diligence->createTimestamp =  new DateTime();
+        $diligence->createTimestamp = new DateTime();
         $diligence->description     = $class->data['description'];   
         $diligence->status          = $class->data['status'];
         //Considerando que será um envio
@@ -296,5 +298,4 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
         return false;
     }
-
 }

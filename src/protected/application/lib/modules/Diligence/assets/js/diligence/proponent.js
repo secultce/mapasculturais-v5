@@ -9,21 +9,28 @@ $(document).ready(function () {
     
     //Ocuta os arquivo comuns
     EntityDiligence.hideCommon();
+    
+    //Bloqueando aba para proponente
+    $("#li-tab-diligence-diligence > a").remove();
+    $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
+    $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
+
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
     .then((res) => {
-        console.log({res})
-        //Bloqueando aba para proponente
-        $("#li-tab-diligence-diligence > a").remove();
-        $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
-        $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
+       
+        const draftStatus = 0;
+        const diligences = res.data;
+        const diligenceSent = diligences.filter( diligence => {
+            return diligence.status != draftStatus;
+        });
         
         if (
             (res.message == 'sem_diligencia') &&
             MapasCulturais.userEvaluate == false) 
         {
             //Se tiver diligencia
-            if (res.data.length > 0) {
+            if (res.data.length && diligenceSent.length) {
                 res.data.forEach((element, index) => {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
                     if (dateLimitDate) {
@@ -60,6 +67,20 @@ $(document).ready(function () {
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
+            res.data.forEach((answer, index) => {
+                const limitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
+
+                if(limitDate){
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#descriptionDiligence").hide();
+                    $("#div-btn-actions-proponent").hide() 
+                }else{
+                    MapasCulturais.idDiligence = answer.diligence.id;               
+                    EntityDiligence.showAnswerDraft(answer);
+                    $("#descriptionDiligence").show();
+                    $("#div-btn-actions-proponent").show();
+                }
+            });   
         }
 
         $("#upload-file-diligence").submit(function(e) {
