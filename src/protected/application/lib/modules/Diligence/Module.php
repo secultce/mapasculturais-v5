@@ -21,7 +21,7 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
- use \Diligence\Traits\DiligenceSingle;
+    use \Diligence\Traits\DiligenceSingle;
     function _init () {
         
         $app = App::i();
@@ -74,7 +74,7 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
             $entity = self::getrequestedEntity($this);
-            $this->part('diligence/days', ['entity' => $entity]);
+            $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
@@ -123,6 +123,19 @@ class Module extends \MapasCulturais\Module {
             ]
         ]);
 
+        $this->registerOpportunityMetadata('use_diligence', [
+            'label' =>  i::__('Usar diligência?'),
+            'description' => i::__('Configura o tipo de diligência a ser usada'),
+            'type' => 'select',
+            'options' => [
+                'Não',
+                'simple' => i::__('Diligência Simples'),
+                'multiple' => i::__('Diligência Múltipla'),
+            ],
+            'default' => 'Não',
+            'required' => true,
+        ]);
+
         $this->registerRegistrationMetadata('value_project_diligence', [
             'label' =>  i::__('Valor estimado do projeto'),
             'type' => 'string',
@@ -138,7 +151,7 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-        
+
         $app->registerFileGroup(
             'registration',
             new Definitions\FileGroup(
