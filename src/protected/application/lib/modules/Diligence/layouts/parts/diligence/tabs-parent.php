@@ -64,7 +64,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             </p>
         </div>
         <div class="div-btn-send-diligence flex-container">
-            <div class="" id="btn-actions-diligence">
+            <div class="d-none" id="btn-actions-diligence">
                 <?php
                 if ($showText || is_null($diligenceAndAnswers)) {
                     $this->part('diligence/description', ['placeHolder' => $placeHolder]);

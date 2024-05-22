@@ -64,6 +64,7 @@ $(document).ready(function () {
                         actions = false;
                     }
                 })
+                $('#btn-actions-diligence').removeClass('d-none')
                 if (actions) {
                     showBtnActionsDiligence();
                 }
@@ -108,6 +109,7 @@ function openDiligence(status) {
     $("li-tab-diligence-diligence").addClass('active');
     showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
+    $('#btn-actions-diligence').removeClass('d-none')
 }
 
 //Editando a descrição do rascunho.
@@ -192,6 +194,7 @@ function showSaveContent(status) {
                 hideAfterSend();
                 showBtnSubmitEvaluation();
                 EntityDiligence.hideBtnOpenDiligence();
+                location.reload();
             }
 
             if (result.isDismissed && result.dismiss === 'cancel') {
@@ -205,9 +208,7 @@ function showSaveContent(status) {
                 hideAfterSend();
                 showBtnSubmitEvaluation();
                 EntityDiligence.hideBtnOpenDiligence();
-                setTimeout(() => {
-                    hideAfterSend();
-                }, 500);
+                location.reload();
             }
         });
     }
