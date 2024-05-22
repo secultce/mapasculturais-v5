@@ -20,13 +20,12 @@ trait DiligenceSingle{
         $app->disableAccessControl();
         $save       = $entity->save();
         $app->enableAccessControl();
-        return $save;
+        return ['save' => $save , 'entityId' => $entity->id];
     }
 
     static protected function returnJson($instance, $class)
     {
         if(is_null($instance)){
-            // EntityDiligence::sendQueue($userDestination);
             $class->json(['message' => 'success', 'status' => 200], 200);
         }else{
             $class->json(['message' => 'Error: ', 'status' => 400], 400);
@@ -36,4 +35,6 @@ trait DiligenceSingle{
     static protected function getrequestedEntity($class){
         return $class->controller->requestedEntity;
     }
+
+
 }

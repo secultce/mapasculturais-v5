@@ -10,6 +10,7 @@ use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
+
 /**
  * AnswerDiligence 
  * 
@@ -17,7 +18,6 @@ use Carbon\Carbon;
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
-
 class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
 
     use \Diligence\Traits\DiligenceSingle;
@@ -45,6 +45,16 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      * })
      */
     protected $diligence;
+
+    /**
+     * @var \MapasCulturais\Entities\Registration
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Registration")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="registration_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    protected $registration;
 
      /**
      * @var string
@@ -74,31 +84,49 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      * @param [object] $class
      * @return void
      */
-    public function create($class)
+    public function create($class): string
     {
+        $app = App::i();
         App::i()->applyHook('entity(diligence).createAnswer:before');
+
         $repo       = new DiligenceRepo();
-        $diligence  = $repo->findId($class->data['diligence']);
-        $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
+        // $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
+
+        //Buscando a ultima diligencia da inscrição passado por parametro
+        $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
+
         $answer     = new AnswerDiligence();
-    
-        if(count($answerDiligences) > 0){
-            foreach ($answerDiligences as $key => $answerDiligence) {
-                $answerDiligence->diligence = $diligence;
-                $answerDiligence->answer = $class->data['answer'];
-                $answerDiligence->createTimestamp = new DateTime();
-                $answerDiligence->status = $class->data['status'];
-            }
-            $save = self::saveEntity($answerDiligence);
-        }else{
-            $answer->diligence = $diligence;
-            $answer->answer = $class->data['answer'];
-            $answer->createTimestamp = new DateTime();
-            $answer->status = $class->data['status'];
-            $save = self::saveEntity($answer);
+        $reg        = $app->repo('Registration')->find($class->data['registration']);
+        
+        if($class->data['idAnswer'] > 0){
+            $isNewDiligence = true;
+             //Se tiver registro de diligência
+             $answerDiligences = App::i()->repo('Diligence\Entities\AnswerDiligence')->find($class->data['idAnswer']);
+            
+            $diligence  = $repo->findId($class->data['diligence']);
+            $answerDiligences->answer = $class->data['answer'];
+            $answerDiligences->createTimestamp = new DateTime();
+            $answerDiligences->registration = $reg;
+            $answerDiligences->status = $class->data['status'];
+         
+            $save = self::saveEntity($answerDiligences);
+            return json_encode(['message' => 'success', 'entityId' => $save['entityId'], 'status' => 200]);
+            // dump($save);
+            // die;
+            //  return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
         }
+
+
+        $answer->diligence = $lastDiligence;
+        $answer->answer = $class->data['answer'];
+        $answer->createTimestamp = new DateTime();
+        $answer->status = $class->data['status'];
+        $answer->registration = $reg;
+        $save = self::saveEntity($answer);
+       
         App::i()->applyHook('entity(diligence).createAnswer', [&$answer]);
-        return $save;
+        
+        return json_encode(['message' => 'success', 'entityId' => $save['entityId'], 'status' => 200]);
     }
 
     public function cancel(Controller $class) : Json

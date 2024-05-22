@@ -16,7 +16,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Service\DiligenceInterface;
 use MapasCulturais\ApiOutputs\Json;
-
+use PhpParser\Node\Expr\Cast\Bool_;
 
 /**
  * Diligence 
@@ -159,11 +159,10 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
                 new DateTime() <= $diligenceDays
             ){               
-                i::_e('Vocẽ tem até ' .
+                i::_e('Uma interação de diligência foi aberta e você tem até ' .
                 $diligenceDays->format('d/m/Y H:i') .
-                ' para responder a diligência.');
+                ' para responder.');
             }else{
-                
                 if($diligenceAgentId[0]->sendDiligence <= new DateTime() && !$entity->canUser('evaluate')){
                     i::_e('Desculpe, mas o prazo para responder está encerrado.');
                 }else{
@@ -220,13 +219,17 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             $class->data['registration'],
             $class->data['openAgent'],
             $class->data['agent']
-        );
+        );       
        
-        //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
-      
-        if(count($diligenceRepository) > 0) {
-            return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
+        if(isset($class->data['idDiligence']) && $class->data['idDiligence'] > 0){
+             //Se tiver registro de diligência
+            $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
+            return self::updateContent(
+                $diligenceRepository,
+                $class->data['description'], 
+                $regs['reg'],
+                $class->data['status']
+            );
         }
       
 
@@ -244,7 +247,6 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
         App::i()->applyHook('entity(diligence).createDiligence:after', [&$diligence]);
         return self::saveEntity($diligence);
-        
     }
 
     /**
@@ -259,23 +261,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected function updateContent($diligences, $description, $registration, $status = 0)
     {
         $save = null;
-        foreach ($diligences as $diligence) {
-            $diligence->description     = $description;
-            $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
-            $diligence->status          = $status;
-            //Se for para enviar a diligência, então salva o momento do envio
-            if($status == 3){
-                $diligence->sendDiligence =  new DateTime();
-            }
-
-            $save = self::saveEntity($diligence);
+        $diligences->description     = $description;
+        $diligences->registration    = $registration;
+        $diligences->createTimestamp =  new DateTime();
+        $diligences->status          = $status;
+        //Se for para enviar a diligência, então salva o momento do envio
+        if($status == 3){
+           $diligences->sendDiligence =  new DateTime();
         }
-       return $save;
+
+        $save = self::saveEntity($diligences);
+        return $save;
     }
 
-   public function cancel(Controller $class) : Json
-   {
+    public function cancel(Controller $class) : Json
+    {
         $app =  App::i();
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $class->data['registration']]);
         $save = null;
@@ -288,15 +288,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return $class->json(['message' => 'success', 'status' => 200], 200);
         }
         return $class->json(['message' => 'error', 'status' => 400], 400);
-   }
+    }
 
-    static public function evaluationSend($entity)
+    static public function evaluationSend($entity) : bool
     {
         if($entity->opportunity->isUserEvaluationsSent())
         {
             return true;
         }
-
         return false;
     }
 }

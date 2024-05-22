@@ -25,29 +25,42 @@ $template = '
             class="btn btn-small btn-danger delete hltip js-remove-item" onclick="decre()">Excluir</a>    
     </div>
 </article></div>';
-//    <a href="#" onclick="deleteFileDiligence({{id}})" class="btn btn-small btn-danger delete" >Excluir</a>
 ?>
 
 <div class="widget flex-items" id="div-btn-actions-proponent">
-
     <div style="width: 50%">
-
         <span class="title-send-file">ENVIAR ARQUIVO</span> <br>
-
-        <?php if ($countFile < 2) : ?>
+        <?php
+        if ($showText) { ?>
             <div id="div-upload-file-count">
                 <a class="js-open-editbox hltip" data-target="#file-diligence" href="#" title="Click para anexar arquivo"> Anexar arquivo</a>
                 <div id="file-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
-                    <?php $this->ajaxUploader($entity, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true) ?>
+                    <?php
+                    $this->ajaxUploader($entity, 'file-diligence', 'append', '.import-diligence', $template, '', false, false, true);
+                    // dump($diligence);
+                    // $file_owner = $diligence->id;
+                    // $file_group = 'file-diligence';
+                    // $response_action = 'append';
+                    // $response_target = '.import-diligence';
+                    // $response_template = $template;
+                    // $response_transform = '';
+                    // $add_description = false;
+                    // $file_types = false;
+                    // $human_crop = false;
+                    ?>
+
                 </div>
             </div>
-        <?php else :
+        <?php
+        } elseif (!$showText) {
+            echo "<span></span>";
+        } else {
             echo '<span>Atingido o limite de arquivos. <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button></span>';
-        endif; ?>
-        <span id="info-title-limit-file-diligence">
-
-        </span>
+        }
+        ?>
+        <span id="info-title-limit-file-diligence"></span>
     </div>
+
     <div class="div-actions-proponent">
         <button class="btn-save-diligence mr-10" title="Salva o conteúdo mas não envia sua resposta" id="btn-save-diligence-proponent" onclick="saveAnswerProponente(0)">
             Salvar
@@ -58,9 +71,10 @@ $template = '
             <i class="fas fa-paper-plane"></i>
         </button>
     </div>
+
 </div>
 <div style="width: 100%">
-    <span>Informações:</span>
+    <span>Informações sobre o anexo:</span>
     <ul style="color: #505050;">
         <li>Poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong>.</li>
         <li>Tamanho de arquivo suportado: <strong><?php echo $this->jsObject['maxUploadSizeFormatted']; ?></strong></li>

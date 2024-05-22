@@ -33,10 +33,11 @@ class Module extends \MapasCulturais\Module {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
             $entity = self::getrequestedEntity($this);
+
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
-
+            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($entity->id);
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
@@ -56,8 +57,10 @@ class Module extends \MapasCulturais\Module {
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
                 'diligenceDays' => $diligence_days ,
-                'placeHolder' => $placeHolder
+                'placeHolder' => $placeHolder,
+                'isProponent' => $isProponent
             ];
+
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = false;
             if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
@@ -66,13 +69,23 @@ class Module extends \MapasCulturais\Module {
             }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-            
-            if($isProponent){              
-              
-                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation]);               
+
+            if($isProponent){
+                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
+                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
+                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
-            
-            $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation] );
+
+            if($entity->opportunity->getMetadata('use_diligence') == 'multiple') {
+                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+                $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
+                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
+
+                $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
+            }else{
+                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+            }
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
@@ -105,14 +118,14 @@ class Module extends \MapasCulturais\Module {
             //Se Files é diferente de null
             //Se Files tem o indice com o grupo da diligencia
             //Se da inscrição é o mesmo quem está logado enviando a requisição.
+            //$registration->getOwnerUser() == $app->getUser()
             if(
                 isset($_FILES) && 
-                array_key_exists('file-diligence', $_FILES) && 
-                $registration->getOwnerUser() == $app->getUser()
+                array_key_exists('file-diligence', $_FILES)
             ) {
                 $app->disableAccessControl();
             }
-          
+
         });
 
     }

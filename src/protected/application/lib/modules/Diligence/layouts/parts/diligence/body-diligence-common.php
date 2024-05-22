@@ -2,56 +2,154 @@
 
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
-if(!$sendEvaluation):
-?>
-<p id="paragraph_loading_content">
-<label for="">
-    Carregando ... <img id="img-loading-content" />
-</label>
-<br />
+use Diligence\Entities\AnswerDiligence;
+use Carbon\Carbon;
 
-<br />
-</p>
-<label>
-    <strong>
-        <?php
-        i::_e('Diligência ao proponente')
-        ?>
-    </strong>
-</label>
-<div class="div-diligence" id="div-diligence">
-    <p id="paragraph_info_status_diligence"></p>
-</div>
-<div style="margin-top: 30px; width: 100%;" id="div-content-all-diligence-send">
-    <label class="label-diligence-send">Diligência:</label>
-    <p id="paragraph_content_send_diligence"></p>
-    <p id="paragraph_createTimestamp" class="paragraph-createTimestamp"></p>
-    <div style="width: 100%;  display: flex;justify-content: space-between;flex-wrap: wrap; ">
-        <div class="item-col"></div>
-        <div class="item-col" style="padding: 8px;">
-            <p style="font-size: smaller;">
-                <?php
-                EntityDiligence::infoTerm($entity, $diligenceRepository, $diligenceDays);
-                ?>
+$descriptionDraft = true;
+if (!$sendEvaluation) :
+?>
+    <p id="paragraph_loading_content">
+        <label for="">
+            Carregando ... <img id="img-loading-content" />
+        </label>
+        <br />
+        <br />
+    </p>
+    <label>
+        <strong>
+            <?php
+            i::_e('Diligências enviadas:');
+            ?>
+        </strong>
+    </label>
+    <div class="div-diligence" id="div-diligence">
+        <p id="paragraph_info_status_diligence"></p>
+    </div>
+    <div id="accordion-2" class="head">
+        <div style="display: flex; justify-content: space-between;" class="diligence-active div-accordion-diligence">
+            <label style="font-size: 14px">
+                Diligência
+            </label>
+        </div>
+        <div class="content" style="background-color: #F3F3F3;">
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, totam libero. 
+                Explicabo, itaque eius non expedita iure, magnam voluptatibus rerum rem porro,
+                    aut commodi nam excepturi maiores ducimus corporis amet?
             </p>
         </div>
-        <div class="item-col"></div>
+        <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+            <label style="font-size: 14px">
+                <strong>Resposta Recebida</strong>
+            </label>
+        </div>
+        <div class="content" style="background-color: #F3F3F3;">
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, totam libero. 
+                Explicabo, itaque eius non expedita iure, magnam voluptatibus rerum rem porro,
+                    aut commodi nam excepturi maiores ducimus corporis amet?
+            </p>
+        </div>
     </div>
-    <div id="answer_diligence" class="answer_diligence">
-        <label for="" style="font-size: 14px; font-weight: 700;  font-family: inherit;  line-height: 19.07px;">
-            Resposta do Proponente:
-        </label>
-        <p id="paragraph_content_send_answer" class="paragraph_content_send_answer"></p>
-        <p id="paragraph_createTimestamp_answer" class="paragraph-createTimestamp"></p>
+    <div style="display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: green;">
+   
+        <p style="color: #085E55; font-weight: 700; font-size: 14px;">
+            Mensagens mais antigas
+        </p>
+        <p>
+            <br>
+        </p>
     </div>
+    <?php 
+    // dump($diligenceAndAnswers);
+    if(!is_null($diligenceAndAnswers)) : ?>
+        <div id="accordion" class="head">
+            
+        <?php     
+        foreach ($diligenceAndAnswers as $key => $resultsDiligence) :
+            Carbon::setLocale('pt_BR');
+            $dt = null;
+            $dtSend = "";
 
-</div>
-<div>
-    <textarea name="description" id="descriptionDiligence" cols="30" rows="10" placeholder="<?= $placeHolder; ?>" class="diligence-context-open"></textarea>
-</div>
-<label class="diligence-label-save" id="label-save-content-diligence">
-    <i class="fas fa-check-circle mr-10"></i>
-    Suas alterações foram salvas
-</label>
-
+            if ($resultsDiligence !== null) {
+                $dt             = Carbon::parse($resultsDiligence->sendDiligence);
+                $dtSend         = $dt->isoFormat('LLL');
+                
+            }
+            
+            if($key > 1) {
+                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
+                    <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                        <label style="font-size: 14px">Diligência </label>
+                        <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                    </div>
+                    <div class="content">
+                        <p>
+                            <?php
+                            echo $resultsDiligence->description;
+                            ?>
+                        </p>
+                        <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
+                            <?php echo $dtSend; ?>
+                        </p>
+                    </div>
+                <?php
+                }
+                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
+                    $dtAnswer       = Carbon::parse($resultsDiligence->createTimestamp);
+                    $dtSendAnswer   = $dtAnswer->isoFormat('LLL');
+                    
+                ?>
+                    <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                        <label style="font-size: 14px">
+                            <strong>Resposta Recebida</strong>
+                        </label>
+                        <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                    </div>
+                    <div class="content" style="background-color: #F3F3F3;">
+                        <p>
+                            <?php
+                            echo $resultsDiligence->answer;
+                            
+                            ?>
+                        </p>
+                        <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
+                            <?php echo $dtSendAnswer;   ?>
+                        </p>
+                    </div>                
+                <?php
+                }
+            }
+            if (is_null($resultsDiligence))
+            {
+                $descriptionDraft = false;
+                echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                    <label style="font-size: 14px">Aguardando Resposta.</label>
+                    <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                </div><div class="content"><p>Aguardando respostasss</p></div>';
+                
+            }
+            if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 0)
+            {
+                $descriptionDraft = false;
+                echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                <label style="font-size: 14px">Aguardando Resposta.</label>
+                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+            </div><div class="content"><p>Aguardando resposta</p></div>';            
+        }
+       
+        if($key > 1) {
+            // echo '<hr/>';
+         }
+        endforeach; ?>
+        </div>
+   
+    <?php 
+    endif;//endif id=accordion
+    ?>
+    
 <?php endif; ?>

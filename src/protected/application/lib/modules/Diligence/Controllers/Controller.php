@@ -27,10 +27,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_save() : void
     {      
-        // $this->requireAuthentication();
+        $this->requireAuthentication();
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
-        self::returnJson($entity, $this);
+        $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
     }
 
      /**
@@ -45,23 +45,26 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             //Repositorio da Diligencia
             $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
             $content = 0;
-            foreach ($diligence as $key => $value) {
-            
-                //Verificando se existe diligencia
-                if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
+            if(!is_null($diligence))
+            {
+                foreach ($diligence as $key => $value)
                 {
-                    $content = 1;
+                    //Verificando se existe diligencia
+                    if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
+                    {
+                        $content = 1;
+                    }
+                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
+                    {
+                        $content = 2;
+                    }
+                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
+                    {
+                        $content = 3;
+                    }   
                 }
-                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
-                {
-                    $content = 2;
-                }
-                if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
-                {
-                    $content = 3;
-                }
-                
             }
+            
         
             switch ($content) {
                 case 0:
@@ -94,7 +97,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return void
      */
-    public function notification()
+    public function notification() : void
     {
         $this->requireAuthentication();
         App::i()->applyHook('controller(diligence).notification:before');
@@ -106,6 +109,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         App::i()->applyHook('controller(diligence).notification:after');
         //Enviando para fila RabbitMQ
         EntityDiligence::sendQueue($userDestination, 'proponente');
+        self::returnJson(null, $this);
     }
 
     public function POST_sendNotification()
@@ -125,7 +129,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);
-        self::returnJson($entity, $this);
+        $return = json_decode($entity);
+        $this->json(['message' => 'success','status' => 200, 'entityId' => $return->entityId]);
     }
     
     /**
@@ -146,13 +151,16 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy(['registration' => $this->data['registration']]);
         $userDestination = [];
         foreach ($dili as $diligence) {
-          $userDestination = [
-            'registration' => $this->data['registration'],
-            'comission' => $diligence->openAgent->user->email,
-            'owner' => $diligence->registration->opportunity->owner->user->email
-        ];
-        }       
+            $userDestination = [
+                'registration' => $this->data['registration'],
+                'comission' => $diligence->openAgent->user->email,
+                'owner' => $diligence->registration->opportunity->owner->user->email
+            ];
+        };
+        // dump($userDestination);
+        // die;
         EntityDiligence::sendQueue($userDestination, 'resposta');
+        $this->json(['message' => 'success','status' => 200]);
     }
 
     /**
@@ -167,62 +175,44 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $cancel->cancel($this);
     }
 
-    public function POST_valueProject()
+    public function POST_valueProject() : void
     {   
-        // $this->requireAuthentication();
+        $this->requireAuthentication();
         $app = App::i();
 
-        $request = array_keys($this->postData);
         $regMeta =[];
         $idEntity = $this->postData['entity'];
-        $reg = App::i()->repo('Registration')->find($idEntity);
+        $reg = $app->repo('Registration')->find($idEntity);
         $createMetadata = null;
         $regMeta = $app->repo('RegistrationMeta')->findBy([
             'owner' => $idEntity
         ]);
         foreach ($this->postData as $keyRequest => $meta) {
-           
-            // dump($keyRequest, $meta,$this->postData['entity']);
-            // dump($this->data[$meta]);
-           
-            //'key' => $key, 'value'=>  $meta, 
-            // dump($regMeta);
+
             if(empty($regMeta)){
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
-                $entity = self::saveEntity($createMeta);
+                self::saveEntity($createMeta);
             }
 
             foreach ($regMeta as $key => $value) {
-             
-                //option_authorized
                 //Se já existe dados cadastrados, então substitui por um valor novo
                 if($value->key == $keyRequest)
                 {
                     $value->value = $meta;
-                    $entity = self::saveEntity($value);
+                    self::saveEntity($value);
                 }
-               
-                // $entity = self::saveEntity($value);
-                // if($value->key == 'value_project_diligence') {
-                //     $value->value = $meta;
-                    
-                // }
-                // $entity = self::saveEntity($value);
-                // self::returnJson($entity, $this);
             }
            
-          
             $createMetadata = $app->repo('RegistrationMeta')->findBy([
                'key' => $keyRequest, 'owner' => $idEntity
             ]);
-            dump($createMetadata);
+           
             if(empty($createMetadata)) {
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
-                $entity = self::saveEntity($createMeta);
+                self::saveEntity($createMeta);
             }
         }
-     
-        self::returnJson($entity, $this);
+        self::returnJson(null, $this);
 
     }
 
@@ -271,13 +261,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
 
-    public function GET_carbon()
-    {
-        dump("Now: %s", Carbon::now());
-        $novaData = $this->addingBusinessDays('2024-12-24 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
-        echo $novaData->format('Y-m-d');
-    }
-
     function addingBusinessDays($date, $dias) {
         // Obtém a data e hora atual em objeto tyipo date
         $currentDate = Carbon::parse($date);
@@ -303,5 +286,14 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         }
         
         return $currentDate;
+    }
+
+    function POST_arquivo()
+    {
+        dump($this);
+        $app = App::i();
+
+        $file = $app->repo('\Diligence\Entities\AnswerDiligenceFile')->find($this->data['id']);
+        dump($file);
     }
 }
