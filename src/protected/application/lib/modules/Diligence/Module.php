@@ -32,7 +32,7 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
 
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
@@ -41,15 +41,14 @@ class Module extends \MapasCulturais\Module {
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
-           if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
-           {
+            if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
                 $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
-           }else{
+            }else{
                 $diligence_days = null;
-           }
+            }
             //Prazo registrado de dias uteis para responder a diligencia
             $this->jsObject['diligence_days'] = $diligence_days;
-            
+
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
             $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
@@ -63,7 +62,7 @@ class Module extends \MapasCulturais\Module {
 
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = false;
-            if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
+            if($entity->canUser('evaluate') || $app->user->is('superAdmin'))
             {
                 $this->jsObject['userEvaluate'] = true;
             }
@@ -76,7 +75,7 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
 
-            if($entity->opportunity->getMetadata('use_diligence') == 'multiple') {
+            if(in_array($entity->opportunity->getMetadata('use_diligence'), ['multiple', 'simple'])) {
                 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
@@ -89,12 +88,12 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             if($entity->opportunity->use_diligence == 'Não')
                 return;
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
@@ -102,7 +101,7 @@ class Module extends \MapasCulturais\Module {
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             if($entity->opportunity->use_diligence == 'Não')
                 return;
             $authorized = $entity->getMetadata('option_authorized');
