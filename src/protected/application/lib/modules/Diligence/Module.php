@@ -30,7 +30,7 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app, $module) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
@@ -39,12 +39,12 @@ class Module extends \MapasCulturais\Module {
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
-           if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
-           {
+            if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
+            {
                 $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
-           }else{
+            }else{
                 $diligence_days = null;
-           }
+            }
             //Prazo registrado de dias uteis para responder a diligencia
             $this->jsObject['diligence_days'] = $diligence_days;
             
@@ -68,9 +68,13 @@ class Module extends \MapasCulturais\Module {
             $opportunity = $this->data['entity']->opportunity;
             $isOpportunityAdmin = $module->isAdmin($opportunity);
 
-            if($entity->canUser('evaluate') || $isOpportunityAdmin) {
+            dump($isOpportunityAdmin);
+
+            if($entity->canUser('evaluate') && $isOpportunityAdmin) {
                 $this->jsObject['userEvaluate'] = true;
             }
+            dump($entity->canUser('evaluate') && $isOpportunityAdmin);
+
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
           
@@ -96,12 +100,12 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             $this->part('diligence/days', ['entity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
@@ -109,7 +113,7 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.form):end', function() use ($app) {
             // dump($app);
             // die;
-            $entity = self::getrequestedEntity($this);           
+            $entity = self::getRequestedEntity($this);
             $authorired = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
             if($authorired == 'Sim') {
@@ -127,7 +131,7 @@ class Module extends \MapasCulturais\Module {
             if(
                 isset($_FILES) && 
                 array_key_exists('file-diligence', $_FILES)
-                
+
             ) {
                 $app->disableAccessControl();
             }

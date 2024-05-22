@@ -32,7 +32,7 @@ trait DiligenceSingle{
         }    
     }
 
-    static protected function getrequestedEntity($class){
+    static protected function getRequestedEntity($class){
         return $class->controller->requestedEntity;
     }
 
