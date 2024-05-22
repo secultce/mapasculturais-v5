@@ -19,12 +19,10 @@ use Carbon\Carbon;
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
 class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
-
     use \Diligence\Traits\DiligenceSingle;
 
-    const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
-    const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
+    const STATUS_OPEN = 2; // Para respostas salvas não enviadas
+    const STATUS_SEND = 3; // Para respostas a diligência enviadas
 
     /**
      * @var integer
@@ -39,7 +37,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      /**
      * @var \Diligence\Entities\Diligence
      *
-     * @ORM\ManyToOne(targetEntity="Diligence\Entities\Diligence")
+     * @ORM\ManyToOne(targetEntity="Diligence\Entities\Diligence", inversedBy="answer")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="diligence_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
