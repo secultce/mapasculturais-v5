@@ -23,17 +23,20 @@ use Diligence\Entities\AnswerDiligence;
 class Module extends \MapasCulturais\Module {
     use \Diligence\Traits\DiligenceSingle;
     function _init () {
-        
+
         $app = App::i();
-       
+
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
+            if($this->data['entity']->opportunity->use_diligence == 'Não')
+                return;
+
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
             $entity = self::getrequestedEntity($this);
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
-           
+
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
@@ -79,19 +82,23 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getrequestedEntity($this);
+            if($entity->opportunity->use_diligence == 'Não')
+                return;
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            $entity = self::getrequestedEntity($this);           
-            $authorired = $entity->getMetadata('option_authorized');
+            $entity = self::getrequestedEntity($this);
+            if($entity->opportunity->use_diligence == 'Não')
+                return;
+            $authorized = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
-            if($authorired == 'Sim') {
-                $this->part('registration-diligence/info-value-project', ['authorired' => $authorired, 'valueProject' => $valueProject]);
+            if($authorized == 'Sim') {
+                $this->part('registration-diligence/info-value-project', ['authorized' => $authorized, 'valueProject' => $valueProject]);
             }
         });
-        
+
         //Hook para antes de upload para um logica para diligência
         $app->hook('POST(registration.upload):before', function() use ($app) {
             $registration = $this->requestedEntity;
@@ -107,9 +114,9 @@ class Module extends \MapasCulturais\Module {
             }
           
         });
-        
+
     }
-    
+
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
