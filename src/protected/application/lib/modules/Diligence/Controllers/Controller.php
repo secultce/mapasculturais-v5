@@ -31,7 +31,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
 
-        if($registration->opportunity->use_diligence == 'simple') {
+        if(($this->data['idDiligence']?:0) == 0 && $registration->opportunity->use_diligence == 'simple') {
             $diligences = $app->repo('Diligence\Entities\Diligence')
                 ->findBy(['registration' => $registration]);
             if(count($diligences) > 0) {
@@ -67,22 +67,25 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                     ['createTimestamp' => 'desc']
                 );
 
-            $lastDiligence = $diligences[0];
             $message = self::WITHOUT_DILIGENCE;
 
-            if (in_array(
-                $lastDiligence->status,
-                [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
-            )) {
-                $message = self::DILIGENCE_OPEN;
-            }
+            if(count($diligences) > 0) {
+                $lastDiligence = $diligences[0];
 
-            if (!is_null($lastDiligence->answer)) {
-                if ($lastDiligence->answer->status === AnswerDiligence::STATUS_OPEN) {
-                    $message = self::ANSWER_DRAFT;
+                if (in_array(
+                    $lastDiligence->status,
+                    [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+                )) {
+                    $message = self::DILIGENCE_OPEN;
                 }
-                if ($lastDiligence->answer->status === AnswerDiligence::STATUS_SEND) {
-                    $message = self::ANSWER_SEND;
+
+                if (!is_null($lastDiligence->answer)) {
+                    if ($lastDiligence->answer->status === AnswerDiligence::STATUS_OPEN) {
+                        $message = self::ANSWER_DRAFT;
+                    }
+                    if ($lastDiligence->answer->status === AnswerDiligence::STATUS_SEND) {
+                        $message = self::ANSWER_SEND;
+                    }
                 }
             }
 

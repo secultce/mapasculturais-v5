@@ -323,12 +323,13 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             'name' => $preSerialized['agent']->name,
             'singleUrl' => $preSerialized['agent']->singleUrl,
         ];
-        $serialized['answer'] = [
+        // Verifica se existe uma resposta. Caso não, atribui 'null'
+        $serialized['answer'] = $preSerialized['answer'] ? [
             'id' => $preSerialized['answer']->id,
             'answer' => $preSerialized['answer']->answer,
             'createTimestamp' => $preSerialized['answer']->createTimestamp,
             'status' => $preSerialized['answer']->status,
-        ];
+        ] : null;
         return  $serialized;
     }
 }
