@@ -21,16 +21,19 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
- use \Diligence\Traits\DiligenceSingle;
+    use \Diligence\Traits\DiligenceSingle;
     function _init () {
-        
+
         $app = App::i();
-       
+
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
+            if($this->data['entity']->opportunity->use_diligence == 'Não')
+                return;
+
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = self::getrequestedEntity($this);
-            
+            $entity = self::getRequestedEntity($this);
+
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
@@ -38,15 +41,14 @@ class Module extends \MapasCulturais\Module {
             //Repositório de Diligencia, busca Diligencia pela id da inscrição
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
-           if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0)
-           {
+            if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
                 $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
-           }else{
+            }else{
                 $diligence_days = null;
-           }
+            }
             //Prazo registrado de dias uteis para responder a diligencia
             $this->jsObject['diligence_days'] = $diligence_days;
-            
+
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
             $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
@@ -57,24 +59,23 @@ class Module extends \MapasCulturais\Module {
                 'placeHolder' => $placeHolder,
                 'isProponent' => $isProponent
             ];
-            
+
             //Verificando e globalizando se é um avaliador
             $this->jsObject['userEvaluate'] = false;
-            if($entity->canUser('evaluate') || $app->user->is('superAdmin') )
+            if($entity->canUser('evaluate') || $app->user->is('superAdmin'))
             {
                 $this->jsObject['userEvaluate'] = true;
             }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-          
+
             if($isProponent){
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
-               return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);               
+                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
-            
-            if($entity->opportunity->getMetadata('multiDiligence'))
-            {
+
+            if(in_array($entity->opportunity->getMetadata('use_diligence'), ['multiple', 'simple'])) {
                 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
@@ -84,32 +85,32 @@ class Module extends \MapasCulturais\Module {
             }else{
                 $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             }
-
-            
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
-            $entity = self::getrequestedEntity($this);
-            $this->part('diligence/days', ['entity' => $entity]);
+            $entity = self::getRequestedEntity($this);
+            $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = self::getrequestedEntity($this);
+            $entity = self::getRequestedEntity($this);
+            if($entity->opportunity->use_diligence == 'Não')
+                return;
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            // dump($app);
-            // die;
-            $entity = self::getrequestedEntity($this);           
-            $authorired = $entity->getMetadata('option_authorized');
+            $entity = self::getRequestedEntity($this);
+            if($entity->opportunity->use_diligence == 'Não')
+                return;
+            $authorized = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
-            if($authorired == 'Sim') {
-                $this->part('registration-diligence/info-value-project', ['authorired' => $authorired, 'valueProject' => $valueProject]);
+            if($authorized == 'Sim') {
+                $this->part('registration-diligence/info-value-project', ['authorized' => $authorized, 'valueProject' => $valueProject]);
             }
         });
-        
+
         //Hook para antes de upload para um logica para diligência
         $app->hook('POST(registration.upload):before', function() use ($app) {
             $registration = $this->requestedEntity;
@@ -120,15 +121,14 @@ class Module extends \MapasCulturais\Module {
             if(
                 isset($_FILES) && 
                 array_key_exists('file-diligence', $_FILES)
-                
             ) {
                 $app->disableAccessControl();
             }
-          
+
         });
-        
+
     }
-    
+
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
@@ -141,10 +141,17 @@ class Module extends \MapasCulturais\Module {
                 'v::intVal()->positive()->between(1, 365)' => 'O valor deve ser um número inteiro positivo'
             ]
         ]);
-        $this->registerOpportunityMetadata('multiDiligence', [
-            'label' => i::__('Oportunidade de Prestação de contas?'),
-            'options' => ['Sim', 'Não'],
-            'default' => 'Não',         
+
+        $this->registerOpportunityMetadata('use_diligence', [
+            'label' =>  i::__('Usar diligência?'),
+            'description' => i::__('Configura o tipo de diligência a ser usada'),
+            'type' => 'select',
+            'options' => [
+                'Não',
+                'simple' => i::__('Diligência Simples'),
+                'multiple' => i::__('Diligência Múltipla'),
+            ],
+            'default' => 'Não',
             'required' => true,
         ]);
 
@@ -163,7 +170,7 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-        
+
         $app->registerFileGroup(
             'registration',
             new Definitions\FileGroup(

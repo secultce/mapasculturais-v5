@@ -19,12 +19,10 @@ use Carbon\Carbon;
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
 class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
-
     use \Diligence\Traits\DiligenceSingle;
 
-    const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
-    const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
+    const STATUS_OPEN = 2; // Para respostas salvas não enviadas
+    const STATUS_SEND = 3; // Para respostas a diligência enviadas
 
     /**
      * @var integer
@@ -39,7 +37,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      /**
      * @var \Diligence\Entities\Diligence
      *
-     * @ORM\ManyToOne(targetEntity="Diligence\Entities\Diligence")
+     * @ORM\ManyToOne(targetEntity="Diligence\Entities\Diligence", inversedBy="answer")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="diligence_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
@@ -97,13 +95,11 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
 
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
-        
+
         if($class->data['idAnswer'] > 0){
-            $isNewDiligence = true;
-             //Se tiver registro de diligência
-             $answerDiligences = App::i()->repo('Diligence\Entities\AnswerDiligence')->find($class->data['idAnswer']);
-            
-            $diligence  = $repo->findId($class->data['diligence']);
+            //Se tiver registro de diligência
+            $answerDiligences = App::i()->repo('Diligence\Entities\AnswerDiligence')->find($class->data['idAnswer']);
+
             $answerDiligences->answer = $class->data['answer'];
             $answerDiligences->createTimestamp = new DateTime();
             $answerDiligences->registration = $reg;

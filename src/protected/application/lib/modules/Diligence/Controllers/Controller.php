@@ -11,13 +11,12 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
-
     use \Diligence\Traits\DiligenceSingle;
     use \MapasCulturais\Traits\ControllerUploads;
 
-    const NOT_DILIGENCE     = 'sem_diligencia';
-    const ONLY_DILIGENCE    = 'diligencia_aberta';
-    const WITH_ANSWER       = 'resposta_rascunho';
+    const WITHOUT_DILIGENCE = 'sem_diligencia';
+    const DILIGENCE_OPEN    = 'diligencia_aberta';
+    const ANSWER_DRAFT      = 'resposta_rascunho';
     const ANSWER_SEND       = 'resposta_enviada';
 
     /**
@@ -26,8 +25,25 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      * @return void
      */
     public function POST_save() : void
-    {      
+    {
         $this->requireAuthentication();
+
+        $app = App::i();
+        $registration = $app->repo('Registration')->find($this->data['registration']);
+
+        if(($this->data['idDiligence']?:0) == 0 && $registration->opportunity->use_diligence == 'simple') {
+            $diligences = $app->repo('Diligence\Entities\Diligence')
+                ->findBy(['registration' => $registration]);
+            if(count($diligences) > 0) {
+                $this->json([
+                    'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
+                    'error' => 'multiple_diligence_not_alowed',
+                ], 400);
+
+                return;
+            }
+        }
+
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
         $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
@@ -38,64 +54,50 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return void
      */
-    public function GET_getcontent() : string
+    public function GET_getcontent(): void
     {
+        $app = App::i();
+
         //ID é o número da inscrição
-        if(isset($this->data['id'])){
+        if(isset($this->data['id'])) {
             //Repositorio da Diligencia
-            $diligence = DiligenceRepo::getDiligenceAnswer($this->data['id']);
-            $content = 0;
-            if(!is_null($diligence))
-            {
-                foreach ($diligence as $key => $value)
-                {
-                    //Verificando se existe diligencia
-                    if($value instanceof \Diligence\Entities\Diligence && $value->status == 0)
-                    {
-                        $content = 0;
+            $diligences = $app->repo('Diligence\Entities\Diligence')
+                ->findBy(
+                    ['registration' => $this->data['id']],
+                    ['createTimestamp' => 'desc']
+                );
+
+            $message = self::WITHOUT_DILIGENCE;
+
+            if(count($diligences) > 0) {
+                $lastDiligence = $diligences[0];
+
+                if (in_array(
+                    $lastDiligence->status,
+                    [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+                )) {
+                    $message = self::DILIGENCE_OPEN;
+                }
+
+                if (!is_null($lastDiligence->answer)) {
+                    if ($lastDiligence->answer->status === AnswerDiligence::STATUS_OPEN) {
+                        $message = self::ANSWER_DRAFT;
                     }
-                    if($value instanceof \Diligence\Entities\Diligence && $value->status > 0)
-                    {
-                        $content = 1;
+                    if ($lastDiligence->answer->status === AnswerDiligence::STATUS_SEND) {
+                        $message = self::ANSWER_SEND;
                     }
-                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 0)
-                    {
-                        $content = 2;
-                    }
-                    if($value instanceof \Diligence\Entities\AnswerDiligence && $value->status == 3)
-                    {
-                        $content = 3;
-                    }   
                 }
             }
-            
-        
-            switch ($content) {
-                case 0:
-                    $this->json(['message' => self::NOT_DILIGENCE, 'data' =>$diligence, 'status' => 200], 200);
-                    break;
-                case 1:
-                    $this->json(['message' => self::ONLY_DILIGENCE, 'data' =>$diligence, 'status' => 200], 200);
-                    break; 
-                case 2:
-                    $this->json(['message' => self::WITH_ANSWER, 'data' =>$diligence, 'status' => 200], 200);
-                    break; 
-                case 3:
-                    $this->json(['message' => self::ANSWER_SEND, 'data' =>$diligence, 'status' => 200], 200);
-                    break; 
-                                  
-                default:
-                    # code...
-                    break;
-            }
-           
+
+            $this->json(['message' => $message, 'data' => $diligences]);
         }
+
         //Passando para o hook o conteúdo da instancia diligencia
-        App::i()->applyHook('controller(diligence).getContent', [&$diligence]);
+        $app->applyHook('controller(diligence).getContent', [&$diligences]);
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
     }
-    
+
     /**
      * Metodo da interface para notificação
      *
@@ -107,7 +109,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         App::i()->applyHook('controller(diligence).notification:before');
         //Notificação no Mapa Cultural
         $notification = new NotificationDiligence();
-        $notification->create($this);        
+        $notification->create($this);
 
         $userDestination = $notification->userDestination($this);
         App::i()->applyHook('controller(diligence).notification:after');
@@ -161,8 +163,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 'owner' => $diligence->registration->opportunity->owner->user->email
             ];
         };
-        // dump($userDestination);
-        // die;
         EntityDiligence::sendQueue($userDestination, 'resposta');
         $this->json(['message' => 'success','status' => 200]);
     }
