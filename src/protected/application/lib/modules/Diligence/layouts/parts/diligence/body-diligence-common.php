@@ -48,7 +48,7 @@ if ($diligenceAndAnswers) :
             </label>
             <p>
                 <?php
-                    echo $diligenceAndAnswers[1]->answer ?? 'Aguardando Resposta';
+                    echo is_null($diligenceAndAnswers[1]) || $diligenceAndAnswers[1]->status != AnswerDiligence::STATUS_SEND ? 'Aguardando Resposta' : $diligenceAndAnswers[1]->answer;
                 ?>
             </p>
         </div>

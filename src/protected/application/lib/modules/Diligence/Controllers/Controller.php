@@ -50,7 +50,11 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 foreach ($diligence as $key => $value)
                 {
                     //Verificando se existe diligencia
-                    if($value instanceof \Diligence\Entities\Diligence && $value->status >= 0)
+                    if($value instanceof \Diligence\Entities\Diligence && $value->status == 0)
+                    {
+                        $content = 0;
+                    }
+                    if($value instanceof \Diligence\Entities\Diligence && $value->status > 0)
                     {
                         $content = 1;
                     }
