@@ -40,7 +40,7 @@ $(document).ready(function () {
                         $("#div-btn-actions-proponent").show();                    
                     }
                     //Id da diligencia
-                    MapasCulturais.idDiligence = element.id;
+                    MapasCulturais.idDiligence = element?.id;
                     $("#paragraph_loading_content").hide();
                 });         
             }
