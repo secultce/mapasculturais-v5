@@ -74,7 +74,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
                 if (in_array(
                     $lastDiligence->status,
-                    [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+                    [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
                 )) {
                     $message = self::DILIGENCE_OPEN;
                 }
