@@ -21,7 +21,7 @@ $(document).ready(function () {
        
         const draftStatus = 0;
         const diligences = res.data;
-        const diligenceSent = diligences.filter( diligence => {
+        const diligenceSent = diligences?.filter( diligence => {
             return diligence?.status != draftStatus;
         });
 
@@ -30,7 +30,7 @@ $(document).ready(function () {
             MapasCulturais.userEvaluate == false)
         {
             //Se tiver diligencia
-            if (res.data.length && diligenceSent.length) {
+            if (res.data?.length && diligenceSent.length) {
                 res.data.forEach((element, index) => {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
                     if (dateLimitDate) {
@@ -40,7 +40,7 @@ $(document).ready(function () {
                         $("#div-btn-actions-proponent").show();
                     }
                     //Id da diligencia
-                    MapasCulturais.idDiligence = element.id;
+                    MapasCulturais.idDiligence = element?.id;
                     $("#paragraph_loading_content").hide();
                 });
             }

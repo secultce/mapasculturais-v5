@@ -256,3 +256,7 @@
     font-weight: normal;
     color: #454545;
 }
+
+.d-none {
+    display: none;
+}

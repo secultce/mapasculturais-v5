@@ -31,8 +31,9 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     use \Diligence\Traits\DiligenceSingle;
 
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_CLOSE = 3; // Para diligência que foi enviada para o proponente
+    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
+
     /**
      * @var integer
      *
@@ -112,6 +113,13 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      * @ORM\Column(name="send_diligence", type="datetime", nullable=false)
      */
     protected $sendDiligence;
+
+    /**
+     * @var \Diligence\Entities\AnswerDiligence
+     *
+     * @ORM\OneToOne(targetEntity="Diligence\Entities\AnswerDiligence", mappedBy="diligence")
+     */
+    protected $answer;
 
     /**
      * Envia para a fila do RabbitMQ
@@ -215,11 +223,12 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     {
         App::i()->applyHook('entity(diligence).createDiligence:before');
         //Buscando informações do agente e da inscrição
-        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
+        $newDiligenceData = DiligenceRepo::getRegistrationAgentOpenAndAgent(
             $class->data['registration'],
             $class->data['openAgent'],
             $class->data['agent']
-        );       
+        );
+
        
         if(isset($class->data['idDiligence']) && $class->data['idDiligence'] > 0){
              //Se tiver registro de diligência
@@ -227,7 +236,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return self::updateContent(
                 $diligenceRepository,
                 $class->data['description'], 
-                $regs['reg'],
+                $newDiligenceData['reg'],
                 $class->data['status']
             );
         }
@@ -235,11 +244,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
-        $diligence->registration    = $regs['reg'];
-        $diligence->openAgent       = $regs['openAgent'];
-        $diligence->agent           = $regs['agent'];
+        $diligence->registration    = $newDiligenceData['reg'];
+        $diligence->openAgent       = $newDiligenceData['openAgent'];
+        $diligence->agent           = $newDiligenceData['agent'];
         $diligence->createTimestamp = new DateTime();
-        $diligence->description     = $class->data['description'];   
+        $diligence->description     = $class->data['description'];
         $diligence->status          = $class->data['status'];
         //Considerando que será um envio
         if($class->data['status'] == "3"){
@@ -297,5 +306,30 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return true;
         }
         return false;
+    }
+
+    public function jsonSerialize()
+    {
+        $preSerialized = parent::jsonSerialize();
+        $serialized = $preSerialized;
+        $serialized['registration'] = $preSerialized['registration']->id;
+        $serialized['openAgent'] = [
+            'id' => $preSerialized['openAgent']->id,
+            'name' => $preSerialized['openAgent']->name,
+            'singleUrl' => $preSerialized['openAgent']->singleUrl,
+        ];
+        $serialized['agent'] = [
+            'id' => $preSerialized['agent']->id,
+            'name' => $preSerialized['agent']->name,
+            'singleUrl' => $preSerialized['agent']->singleUrl,
+        ];
+        // Verifica se existe uma resposta. Caso não, atribui 'null'
+        $serialized['answer'] = $preSerialized['answer'] ? [
+            'id' => $preSerialized['answer']->id,
+            'answer' => $preSerialized['answer']->answer,
+            'createTimestamp' => $preSerialized['answer']->createTimestamp,
+            'status' => $preSerialized['answer']->status,
+        ] : null;
+        return  $serialized;
     }
 }
