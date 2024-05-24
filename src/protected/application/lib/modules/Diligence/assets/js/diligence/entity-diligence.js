@@ -109,6 +109,7 @@ var EntityDiligence = (function(){
         $("#btn-save-diligence-proponent").show();
         $("#btn-send-diligence-proponente").show();
         $("#paragraph_loading_content").hide();
+        $("#div-content-all-diligence-send").show();
     }
 
     function validateLimiteDate(diligence_days)

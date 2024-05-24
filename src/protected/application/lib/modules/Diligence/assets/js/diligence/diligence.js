@@ -44,12 +44,13 @@ $(document).ready(function () {
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
+
+                if (res.data && res.data[0].status == 0) EntityDiligence.hideBtnOpenDiligence();
                 
             }
             if (res.message == 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
                 res.data.forEach((element, index) => {
-                    console.log({ element })
                     if (element?.status == 0) {
                         $("#descriptionDiligence").hide();
                         $("#paragraph_loading_content").hide();
@@ -59,7 +60,6 @@ $(document).ready(function () {
             if (res.message !== 'sem_diligencia') {
                 EntityDiligence.hideBtnOpenDiligence();
                 res.data.forEach((element, index) => {
-                    console.log({ element })
                     if (element == null) {
                         actions = false;
                     }
@@ -120,6 +120,7 @@ function editDescription(description, id) {
 
 //Mostrar os botões de ação da diligência
 function showBtnActionsDiligence() {
+    $('#btn-actions-diligence').removeClass('d-none')
     $("#btn-save-diligence").show();
     $("#btn-send-diligence").show();
 }
@@ -295,7 +296,6 @@ function sendAjaxDiligence(status, idDiligence) {
         data: objSendDiligence,
         dataType: "json",
         success: function (res) {
-            console.log({ res })
             if (res.status == 200) {
                 showSaveContent(status)
                 $("#id-input-diligence").val(res.entityId);

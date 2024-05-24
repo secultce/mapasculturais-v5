@@ -46,7 +46,7 @@ $(document).ready(function () {
             }
         }
        
-        if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {           
+        if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
             hideAnswerDraft();
             idsDiligences = [];
             res.data.forEach((answer, index) => {
@@ -80,7 +80,15 @@ $(document).ready(function () {
                     $("#descriptionDiligence").show();
                     $("#div-btn-actions-proponent").show();
                 }
-            });   
+            });  
+            if (res.data[1] != null) {
+                $("#descriptionDiligence").hide();
+                $("#div-btn-actions-proponent").hide();
+                $("#attachment-info").hide();
+                if (res.data[1].status == 3) $("#div-content-all-diligence-send").hide();
+            } else {
+                $("#div-content-all-diligence-send").show();
+            }
         }
 
         $("#upload-file-diligence").submit(function(e) {
@@ -114,6 +122,7 @@ function hideAnswerDraft()
 //Joga o conteudo do rascunho para text area
 function editDescription(description, id, type){
     $("#descriptionDiligence").show();
+    $("#attachment-info").show();
     EntityDiligence.showAnswerDraft(null);
     EntityDiligence.editDescription(description, id, type);
 }
@@ -172,6 +181,7 @@ function saveAnswerProponente(status) {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
                         sendNofificationAnswer();
+                        location.reload();
                     }
                     
                     if (result.isDismissed && result.dismiss === 'cancel') {
@@ -184,6 +194,7 @@ function saveAnswerProponente(status) {
                       ) {
                         sendNofificationAnswer();
                         hideViewActions();
+                        location.reload();
                         
                         // Aqui você pode adicionar a ação que deseja executar quando o tempo terminar
                       } 
