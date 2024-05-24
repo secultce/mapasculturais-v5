@@ -10,6 +10,7 @@ $diligence = App::i()->repo('Diligence\Entities\AnswerDiligence')->find(27);
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
 
+Carbon::setLocale('pt_BR');
 
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
@@ -21,7 +22,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
     <div id="diligence-diligence">
         <!-- PARA O PROPONENTE -->
         <?php
-        $this->part('diligence/body-diligence-common', [
+        $this->part('diligence/body-proponent-common', [
             'entity' => $context['entity'],
             'diligenceRepository' => $context['diligenceRepository'],
             'diligenceDays' => $context['diligenceDays'],
@@ -44,8 +45,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceAndAnswerLast[0]->sendDiligence, $context['entity']->opportunity->getMetadata('diligence_days'));
 
             if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 0) {
-                $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
-                
+                $dateDraft = Carbon::parse($diligenceAndAnswerLast[1]->createTimestamp)->diffForHumans();
                 if(new DateTime() <= $diligence_days){
                     $titleButton = 'Editar Resposta';
                 }else{

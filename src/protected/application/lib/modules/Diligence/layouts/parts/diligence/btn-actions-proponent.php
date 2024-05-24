@@ -73,7 +73,7 @@ $template = '
     </div>
 
 </div>
-<div style="width: 100%">
+<div style="width: 100%" id="attachment-info">
     <span>Informações sobre o anexo:</span>
     <ul style="color: #505050;">
         <li>Poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong>.</li>

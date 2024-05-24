@@ -6,6 +6,7 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $files = DiligenceRepo::getFilesDiligence($context['entity']->id);
+Carbon::setLocale('pt_BR');
 
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
 $showText = false;
@@ -19,18 +20,13 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
 <div class="tabs-content">
     <div id="diligence-principal"></div>
     <div id="diligence-diligence">
-        <?php
-            $this->part('diligence/body-diligence-common', [
-                'entity' => $context['entity'],
-                'diligenceRepository' => $context['diligenceRepository'],
-                'diligenceDays' => $context['diligenceDays'],
-                'placeHolder' => $context['placeHolder'],
-                'diligenceAndAnswers' => $diligenceAndAnswers,
-                'sendEvaluation' => $sendEvaluation,
-                'isProponent' => $context['isProponent'],
-                'diligenceAndAnswers' => $diligenceAndAnswers
-            ]);
-        ?>
+        <p id="paragraph_loading_content">
+            <label for="">
+                Carregando ... <img id="img-loading-content" />
+            </label>
+            <br />
+            <br />
+        </p>
         <?php
         if (!is_null($diligenceAndAnswers)) {
             $diligenceAndAnswerLast = [];
@@ -57,6 +53,18 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                 $showText = true;
             }
         }
+        ?>
+        <?php
+            $this->part('diligence/body-diligence-common', [
+                'entity' => $context['entity'],
+                'diligenceRepository' => $context['diligenceRepository'],
+                'diligenceDays' => $context['diligenceDays'],
+                'placeHolder' => $context['placeHolder'],
+                'diligenceAndAnswers' => $diligenceAndAnswers,
+                'sendEvaluation' => $sendEvaluation,
+                'isProponent' => $context['isProponent'],
+                'diligenceAndAnswers' => $diligenceAndAnswers
+            ]);
         ?>
         <div id="div-info-send" class="div-info-send">
             <p>
