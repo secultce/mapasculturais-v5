@@ -25,8 +25,9 @@ class Module extends \MapasCulturais\Module {
     function _init () {
 
         $app = App::i();
+        $module = $this;
 
-        $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
+        $app->hook('template(registration.view.content-diligence):begin', function () use ($app, $module) {
             if($this->data['entity']->opportunity->use_diligence == 'Não')
                 return;
 
@@ -49,25 +50,28 @@ class Module extends \MapasCulturais\Module {
             //Prazo registrado de dias uteis para responder a diligencia
             $this->jsObject['diligence_days'] = $diligence_days;
 
+            /**
+             * @var $opportunity \MapasCulturais\Entities\Opportunity
+             */
+            $opportunity = $this->data['entity']->opportunity;
+
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
-            $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity); 
+            $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity);
+            $isEvaluator = $module->isEvaluator($opportunity, $this->data['entity']);
             $context = [
                 'entity' => $entity,
                 'diligenceRepository' => $diligenceRepository,
                 'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder,
-                'isProponent' => $isProponent
+                'isProponent' => $isProponent,
+                'isEvaluator' => $isEvaluator,
             ];
 
-            //Verificando e globalizando se é um avaliador
-            $this->jsObject['userEvaluate'] = false;
-            if($entity->canUser('evaluate') || $app->user->is('superAdmin'))
-            {
-                $this->jsObject['userEvaluate'] = true;
-            }
             //Glabalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
+            //Verificando e globalizando se é um avaliador
+            $this->jsObject['isEvaluator'] = $isEvaluator;
 
             if($isProponent){
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
@@ -75,15 +79,12 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
 
-            if(in_array($entity->opportunity->getMetadata('use_diligence'), ['multiple', 'simple'])) {
-                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+            if($isEvaluator && $entity->opportunity->getMetadata('use_diligence') === 'multiple') {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
-
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
-            }else{
-                $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             }
         });
 
@@ -94,9 +95,8 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
-            if($entity->opportunity->use_diligence == 'Não')
-                return;
-            $this->part('registration-diligence/value-project', ['entity' => $entity]);
+            if($entity->opportunity->use_diligence === 'simple')
+                $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
@@ -193,5 +193,47 @@ class Module extends \MapasCulturais\Module {
         $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
         $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
 
+    }
+
+    private function isEvaluator(Entities\Opportunity $opportunity, Entities\Registration $registration): bool
+    {
+        $app = App::i();
+
+        if($opportunity->owner === $app->user->profile)
+            return true;
+
+        /**
+         * Verifica se o usuário tem permissão direta de avaliar a inscrição
+         * sem considerar o papel de Admin ou superior na plataforma
+         */
+        $evaluateAction = $app->repo('RegistrationPermissionCache')->findBy([
+            'user' => $app->user,
+            'action' => 'evaluate',
+            'owner' => $registration,
+        ]);
+        if(count($evaluateAction) > 0)
+            return true;
+
+        $queryBuilder = $app->em->createQueryBuilder()
+            ->select('a')
+            ->from('\MapasCulturais\Entities\Agent', 'a')
+            ->innerJoin('\MapasCulturais\Entities\AgentRelation', 'ar')
+            ->where("ar.objectId = {$opportunity->id}")
+            ->andWhere("ar.agent = a")
+            ->andWhere("ar.group = 'group-admin'")
+            ->andWhere("ar.status = 1");
+        $query = $queryBuilder->getQuery();
+        /**
+         * @var $agentsAdmin Entities\Agent[]
+         */
+        $opportunityAdminAgents = $query->getResult();
+
+        // verifica se o usuário tem permissão sobre os agentes administradores da oportunidade
+        foreach ($opportunityAdminAgents as $agent) {
+            if($agent->canUser('control'))
+                return true;
+        }
+
+        return false;
     }
 }

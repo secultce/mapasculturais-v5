@@ -6,10 +6,10 @@ $(document).ready(function () {
     //id da diligencia
     let idDiligence = 0;
     $("#id-input-diligence").val(idDiligence);
-    
+
     //Ocuta os arquivo comuns
     EntityDiligence.hideCommon();
-    
+
     //Bloqueando aba para proponente
     $("#li-tab-diligence-diligence > a").remove();
     $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
@@ -18,16 +18,15 @@ $(document).ready(function () {
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
     .then((res) => {
-       
         const draftStatus = 0;
         const diligences = res.data;
         const diligenceSent = diligences?.filter( diligence => {
             return diligence?.status != draftStatus;
         });
-        
+
         if (
             (res.message == 'sem_diligencia') &&
-            MapasCulturais.userEvaluate == false) 
+            MapasCulturais.isEvaluator == false)
         {
             //Se tiver diligencia
             if (res.data?.length && diligenceSent.length) {
@@ -35,18 +34,18 @@ $(document).ready(function () {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
                     if (dateLimitDate) {
                         $("#descriptionDiligence").hide();
-                        $("#div-btn-actions-proponent").hide() 
+                        $("#div-btn-actions-proponent").hide();
                     }else{
-                        $("#div-btn-actions-proponent").show();                    
+                        $("#div-btn-actions-proponent").show();
                     }
                     //Id da diligencia
                     MapasCulturais.idDiligence = element?.id;
                     $("#paragraph_loading_content").hide();
-                });         
+                });
             }
         }
-       
-        if(res.message !== 'sem_diligencia' &&  MapasCulturais.userEvaluate == false) {
+
+        if(res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
             hideAnswerDraft();
             idsDiligences = [];
             res.data.forEach((answer, index) => {
@@ -73,9 +72,9 @@ $(document).ready(function () {
                 if(limitDate){
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").hide();
-                    $("#div-btn-actions-proponent").hide() 
+                    $("#div-btn-actions-proponent").hide();
                 }else{
-                    MapasCulturais.idDiligence = answer?.diligence?.id;               
+                    MapasCulturais.idDiligence = answer?.diligence?.id;
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").show();
                     $("#div-btn-actions-proponent").show();
