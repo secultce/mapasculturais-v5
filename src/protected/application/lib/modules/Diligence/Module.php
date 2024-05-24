@@ -82,9 +82,16 @@ class Module extends \MapasCulturais\Module {
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
+        $app->hook('template(registration.view.registration-sidebar-rigth-value-project):end', function() use ($app){
+            $app->view->enqueueScript('app', 'tado-diligence', 'js/multi/tado.js');           
+            Module::publishAssets();
+            $this->part('multi/btn-generate-tado');
+        });
+
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            $entity = self::getrequestedEntity($this);           
+           
+            $entity = self::getrequestedEntity($this);
             $authorired = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
             if($authorired == 'Sim') {
@@ -113,6 +120,7 @@ class Module extends \MapasCulturais\Module {
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
+        $app->registerController('tado', Controllers\Tado::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
@@ -154,7 +162,7 @@ class Module extends \MapasCulturais\Module {
      * Publica todos os assets (css/js)
      *
      */
-    protected function _publishAssets()
+    static protected function publishAssets()
     {
         $app = App::i();
 

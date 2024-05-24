@@ -270,14 +270,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         }        
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
-
-    public function GET_carbon()
-    {
-        dump("Now: %s", Carbon::now());
-        $novaData = $this->addingBusinessDays('2024-12-24 20:09:09', 3); // Adiciona 3 dias úteis à data de hoje
-        echo $novaData->format('Y-m-d');
-    }
-
     function addingBusinessDays($date, $dias) {
         // Obtém a data e hora atual em objeto tyipo date
         $currentDate = Carbon::parse($date);
@@ -304,4 +296,5 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         
         return $currentDate;
     }
+
 }
