@@ -1,14 +1,15 @@
 <?php
 
 use MapasCulturais\App;
+use Dompdf\Dompdf;
 
-$this->layout = 'default';
+$this->layout = 'nolayout';
 $urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
 $app = App::i();
-// $app->view->enqueueStyle('app', 'diligence', 'css/diligence/milti.css');
-
-
+$dompdf = new Dompdf();
+$dompdf->loadHtml('hello world');
 ?>
+
 
 <div>
     <section class="clearfix">
@@ -102,8 +103,8 @@ $app = App::i();
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
                         <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Edital</label>
-                        <label class="content-value-name">EDITAL DE CHAMAMENTO PÚBLICO Nº 01/2024 - 
-                            EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO 
+                        <label class="content-value-name">EDITAL DE CHAMAMENTO PÚBLICO Nº 01/2024 -
+                            EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO
                             CULTURAL COM RECURSOS DA LEI COMPLEMENTAR 195/2022 (LEI PAULO GUSTAVO) CAMOCIM – CE.</label>
                     </div>
                 </div>
@@ -130,25 +131,17 @@ $app = App::i();
                         Fiscal responsável pela emissão
                     </p>
                     <div style=" display: flex; justify-content: space-between;">
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
-                        <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
+                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
+                            <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
-                        <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>"/>
-                    </div>
-                </div>
                 </div>
             </div>
         </article>
     </section>
-
-
 </div>
-
-<?php
-dump($app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'));
-dump($reg);
-
-?>

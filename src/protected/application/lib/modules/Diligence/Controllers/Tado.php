@@ -20,5 +20,13 @@ class Tado extends \MapasCulturais\Controller
         $this->render('emitir', ['reg' => $reg]);
     }
 
+    function GET_gerarTado()
+    {
+        $app = App::i();
+        $reg = $app->repo('Registration')->find($this->data['id']);
+        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
+        $this->render('gerar', ['reg' => $reg]);
+    }
+
 
 }
