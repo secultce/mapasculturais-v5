@@ -16,6 +16,7 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
+        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
         $this->render('emitir', ['reg' => $reg]);
     }
 
