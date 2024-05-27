@@ -9,31 +9,28 @@ $this->layout = 'nolayout-pdf';
 <div>
     <section class="clearfix">
         <article class="main-content">
-            <h5 class="entity-parent-title">
+            <!-- <h5 class="entity-parent-title">
                 <div class="icon icon-agent"></div>
-                <?php echo $reg->owner->name; ?>
+                <?php //echo $reg->owner->name; ?>
             </h5>
             <header class="main-content-header">
                 <div class="header-content">
                     <div class="avatar">
                         <img class="js-avatar-img" src="http://0.0.0.0:8088/assets/img/avatar--project-636617000-1709737773.png">
                     </div>
-                    <!--.avatar-->
+                  
                     <div class="entity-type registration-type">
                         <div class="icon icon-project"></div>
                         <a rel="noopener noreferrer">Edital</a>
                     </div>
-                    <!--.entity-type-->
-                    <!-- BaseV1/layouts/parts/entity-parent.php # BEGIN -->
                     <h4 class="entity-parent-title">
                         <a href="http://0.0.0.0:8088/oportunidade/4446/">
 
                         </a>
                     </h4>
-                    <!-- BaseV1/layouts/parts/entity-parent.php # END -->
                     <h2>
                         <a href="<?= $urlOpp; ?>">
-                            <?php echo $reg->opportunity->name; ?>
+                            <?php //echo $reg->opportunity->name; ?>
                         </a>
                     </h2>
                 </div>
@@ -42,101 +39,109 @@ $this->layout = 'nolayout-pdf';
                 <p>
                     <hr>
                 </p>
-            </div>
+            </div> -->
             <div>
-                <p style="display: flex;justify-content: center;">
-                    <label style="font-weight: 700; font-size: 20px; line-height: 27.24px;">
+                <p class="title-bold" style="text-align: center">
+                    <label class="title-bold">
                         Emissão do Termo de Aceitação Definitiva do Objeto (TADO)
                     </label>
                 </p>
             </div>
 
             <div class="form-container">
-                <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
-                    Informações de Identificação
+                <p class="title-bold">
+                   Identificação
                 </p>
-                <div style=" display: flex; justify-content: space-between;">
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Número do TEC</label>
-                        <input name="numbertec" />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Data</label>
-                        <input name="numbertec" />
-                    </div>
-                </div>
-
-                <div style=" display: flex; justify-content: space-between;">
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Período de Vigência</label>
-                        <input name="numbertec" placeholder="Data Inicial" />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Data</label>
-                        <input name="numbertec" placeholder="Data Final" />
-                    </div>
-                </div>
-
-                <div style=" display: flex; justify-content: space-between;">
-                    <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Agente Cultural</label>
-                        <label class="content-value-name">
-                            <?= $reg->owner->name; ?>
-                        </label>
-                    </div>
-                </div>
-
-                <div style=" display: flex; justify-content: space-between; margin-top: 10px">
-                    <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Projeto</label>
-                        <label class="content-value-name">
-                            <?= $reg->opportunity->ownerEntity->name; ?>
-                        </label>
-                    </div>
-                </div>
-
-                <div style=" display: flex; justify-content: space-between; margin-top: 10px">
-                    <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Edital</label>
-                        <label class="content-value-name">EDITAL DE CHAMAMENTO PÚBLICO Nº 01/2024 -
-                            EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO
-                            CULTURAL COM RECURSOS DA LEI COMPLEMENTAR 195/2022 (LEI PAULO GUSTAVO) CAMOCIM – CE.</label>
-                    </div>
-                </div>
-
-                <div style=" display: flex; justify-content: space-between; margin-top: 10px">
-                    <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Objeto</label>
-                        <label class="content-value-name">O nome do Objeto</label>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="form-container">
-                    <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
-                        Conclusão sobre o projeto
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="title-bold">Nº DO TEC : </td>
+                            <td class="title-bold">DATA :</td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">PERÍODO DE VIGÊNCIA : </td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">AGENTE CULTURAL : </td>
+                            <td> <?= $reg->owner->name; ?></td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">PROJETO : </td>
+                            <td> <?= $reg->opportunity->ownerEntity->name; ?> </td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">EDITAL : </td>
+                            <td>
+                                EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - 
+                                SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO 
+                                CULTURAL
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">OBJETO : </td>
+                            <td> </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                    <p>
+                        Segundo a Lei no 18.012, de 01 de abril de 2022, o Art. 73:
                     </p>
-                    <textarea name="" id="" rows="10" cols="100"></textarea>
-                </div>
-            </div>
-            <div>
-                <div class="form-container">
-                    <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
-                        Fiscal responsável pela emissão
+                    <p>
+                        § 3o. O agente público responsável pela análise do Relatório de Execução do Objeto
+                        deverá elaborar parecer técnico em que se manifestará:
                     </p>
-                    <div style=" display: flex; justify-content: space-between;">
-                        <div class="form-group">
-                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
-                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
-                        </div>
-                        <div class="form-group">
-                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
-                            <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
-                        </div>
-                    </div>
+                    <p>
+                        I - pela conclusão de que houve o cumprimento integral do objeto ou pela suficiência
+                        do cumprimento parcial, devidamente justificada, e providenciará imediato
+                        encaminhamento do processo à autoridade julgadora;
+                    </p>
+                    <p>
+                        <strong> - Conclusão - </strong>
+                    </p>
+                    <p>
+                        Declaro aceitar em caráter definitivo o objeto do instrumento acima especificado, cuja
+                        entrega foi total conforme Relatório de Execução Final do Objeto encaminhado, e
+                        meios de comprovação que relatam a execução do objeto, em conformidade com o
+                        item 50.1 abaixo, referente ao XII EDITAL CEARÁ DE INCENTIVO ÀS ARTES, a
+                        prestação de contas do projeto em questão, encontra-se aprovada.
+                    </p>
+                    <p>
+                        50.1. O Relatório Final de Execução do Objeto deve conter:
+                        I - relato das atividades realizadas para o cumprimento do
+                        objeto;
+                        II - comparativo de metas propostas com os resultados
+                        alcançados, a partir do projeto originalmente pactuado, podendo
+                        a comprovação sobre os produtos e serviços relativos às metas
+                        se dar pela apresentação de fotos, listas de presença, vídeos,
+                        publicações, entre outros; e
+
+                        Diante do exposto, o instrumento em questão encontra-se REGULAR, ou REGULAR
+                        COM RESSALVA no que concerne à execução física do objeto.
+                    </p>
                 </div>
             </div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="title-bold"  style="text-align: center">RESPONSÁVEL PELA EMISSÃO - FISCAL</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="title-bold" style="width: 40%">NOME : </td>
+                            <td> <?= $app->auth->getAuthenticatedUser()->profile->name; ?> </td>
+                        </tr>
+                        <tr>
+                            <td class="title-bold">CPF : </td>
+                            <td>
+                                <?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
         </article>
     </section>
 </div>

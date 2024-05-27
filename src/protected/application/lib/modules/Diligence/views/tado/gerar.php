@@ -23,6 +23,12 @@ $content = $app->view->fetch('tado/html-gerar');
 $footerPage = $app->view->fetch('tado/footer-pdf');
 // dump($content);die;
 $mpdf->SetTitle('Secult/CE - Relatório TADO');
+// dump(MODULES_PATH);
+// die;
+$stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
+// Adicione o CSS ao mPDF
+$mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+
 $mpdf->WriteHTML(ob_get_clean());
 $mpdf->WriteHTML($content);
 $mpdf->SetHTMLFooter($footerPage);
