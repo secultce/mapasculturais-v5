@@ -73,23 +73,26 @@ class Module extends \MapasCulturais\Module {
             //Verificando e globalizando se é um avaliador
             $this->jsObject['isEvaluator'] = $isEvaluator;
 
+            $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
+            $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
+            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
+
             if($isProponent){
-                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
-                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
-
-            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             if($isEvaluator && $entity->opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
-                $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
-                $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
             $entity = self::getRequestedEntity($this);
+            $app->view->enqueueScript(
+                'app',
+                'diligence-config-options',
+                'js/diligence/diligence-config-options.js'
+            );
             $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
         });
 

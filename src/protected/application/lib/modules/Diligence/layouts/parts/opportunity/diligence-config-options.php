@@ -53,23 +53,4 @@ if($this->isEditable()):
             a diligência enviada para ele.
         </p>
     </div>
-
-
-    <script>
-        <?php if($opportunity->use_diligence == 'Sim'): ?>
-            $('p.field-use-multiple-diligence').show();
-            $('p.field-diligence-days').show();
-        <?php endif; ?>
-        $('p.field-use-diligence').on('change', function(ev) {
-            console.log(ev)
-            if(ev.target.value === 'Sim') {
-                $('p.field-use-multiple-diligence').show();
-                $('p.field-diligence-days').show();
-            } else if(ev.target.value === 'Não') {
-                $('p.field-use-multiple-diligence').hide();
-                $('p.field-diligence-days').hide();
-            }
-        });
-    </script>
-
 <?php endif; ?>
