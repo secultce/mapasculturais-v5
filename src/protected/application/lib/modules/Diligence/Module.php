@@ -144,15 +144,17 @@ class Module extends \MapasCulturais\Module {
 
         $this->registerOpportunityMetadata('use_diligence', [
             'label' =>  i::__('Usar diligência?'),
-            'description' => i::__('Configura o tipo de diligência a ser usada'),
+            'description' => i::__('Configura se deve usar diligência'),
             'type' => 'select',
-            'options' => [
-                'Não',
-                'simple' => i::__('Diligência Simples'),
-                'multiple' => i::__('Diligência Múltipla'),
-            ],
+            'options' => ['Sim', 'Não'],
             'default' => 'Não',
             'required' => true,
+        ]);
+        $this->registerOpportunityMetadata('use_multiple_diligence', [
+            'label' =>  i::__('Usar diligência múltipla?'),
+            'description' => i::__('Configura se deve usar diligência múltipla'),
+            'type' => 'select',
+            'options' => ['Sim', 'Não'],
         ]);
 
         $this->registerRegistrationMetadata('value_project_diligence', [
