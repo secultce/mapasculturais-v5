@@ -80,7 +80,7 @@ class Module extends \MapasCulturais\Module {
             }
 
             $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
-            if($isEvaluator && $entity->opportunity->getMetadata('use_diligence') === 'multiple') {
+            if($isEvaluator && $entity->opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
                 $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
@@ -95,7 +95,7 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
-            if($entity->opportunity->use_diligence === 'simple')
+            if($entity->opportunity->use_multiple_diligence === 'Não')
                 $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 

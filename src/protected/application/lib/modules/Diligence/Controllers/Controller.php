@@ -31,7 +31,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
 
-        if(($this->data['idDiligence']?:0) == 0 && $registration->opportunity->use_diligence == 'simple') {
+        if(($this->data['idDiligence']?:0) == 0 && $registration->opportunity->use_multiple_diligence === 'Não') {
             $diligences = $app->repo('Diligence\Entities\Diligence')
                 ->findBy(['registration' => $registration]);
             if(count($diligences) > 0) {
