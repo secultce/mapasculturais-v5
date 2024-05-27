@@ -80,7 +80,7 @@ class Module extends \MapasCulturais\Module {
             if($isProponent){
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
-            if($isEvaluator && $entity->opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
+            if($isEvaluator) {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }

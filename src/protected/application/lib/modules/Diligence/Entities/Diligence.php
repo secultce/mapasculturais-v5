@@ -166,10 +166,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             if(
                 ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
                 new DateTime() <= $diligenceDays
-            ){               
-                i::_e('Uma interação de diligência foi aberta e você tem até ' .
-                $diligenceDays->format('d/m/Y H:i') .
-                ' para responder.');
+            ){
+                $simpleMsg = "Você tem até {$diligenceDays->format('d/m/Y H:i')} para responder essa diligência";
+                $multiMsg = "Uma interação de diligência foi aberta e você tem até {$diligenceDays->format('d/m/Y H:i')} para responder";
+
+                $entity->opportunity->use_diligence == 'simple' ? i::_e($simpleMsg) : i::_e($multiMsg);
             }else{
                 if($diligenceAgentId[0]->sendDiligence <= new DateTime() && !$entity->canUser('evaluate')){
                     i::_e('Desculpe, mas o prazo para responder está encerrado.');
