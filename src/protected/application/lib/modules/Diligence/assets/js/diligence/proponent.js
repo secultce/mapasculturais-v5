@@ -80,11 +80,11 @@ $(document).ready(function () {
                     $("#div-btn-actions-proponent").show();
                 }
             });  
-            if (res.data[1] != null) {
+            if (res.data[0].answer != null) {
                 $("#descriptionDiligence").hide();
                 $("#div-btn-actions-proponent").hide();
                 $("#attachment-info").hide();
-                if (res.data[1].status == 3) $("#div-content-all-diligence-send").hide();
+                if (res.data[0].answer.status == 3) $("#div-content-all-diligence-send").hide();
             } else {
                 $("#div-content-all-diligence-send").show();
             }

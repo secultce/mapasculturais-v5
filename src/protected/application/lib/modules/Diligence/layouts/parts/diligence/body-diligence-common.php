@@ -12,7 +12,7 @@ $descriptionDraft = true;
 <?php
 if ($diligenceAndAnswers) :
 ?>
-    <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_CLOSE) : ?>
+    <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
         <div>
             <h5>
                 <?php
