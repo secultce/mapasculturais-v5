@@ -14,7 +14,6 @@ $(document).ready(function () {
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
     EntityDiligence.showAccordion('#accordion');
-    EntityDiligence.showAccordion('#accordion-2');
 
     //id da diligencia
     let idDiligence = 0;
@@ -64,8 +63,7 @@ $(document).ready(function () {
                         actions = false;
                     }
                 })
-                $('#btn-actions-diligence').removeClass('d-none')
-                if (actions) {
+                if (actions && MapasCulturais.entity.object.opportunity.use_diligence != 'simple') {
                     showBtnActionsDiligence();
                 }
             }

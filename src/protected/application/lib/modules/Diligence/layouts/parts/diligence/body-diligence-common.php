@@ -2,7 +2,6 @@
 
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
-use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 
 $descriptionDraft = true;
@@ -16,13 +15,13 @@ if ($diligenceAndAnswers) :
         <div>
             <h5>
                 <?php
-                    i::_e('Diligências enviadas');
+                    i::_e('Diligência ao proponente');
                 ?>
             </h5>
             <div style="margin-top: 25px;">
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
-                        <b>Diligência (atual):</b>
+                        <b>Diligência:</b>
                     </label>
                     <p style="margin: 10px 0px;">
                         <?php
@@ -62,108 +61,6 @@ if ($diligenceAndAnswers) :
             </div>
         </div>
     <?php endif; ?>
-    <?php 
-    if(!is_null($diligenceAndAnswers) && count($diligenceAndAnswers) > 2) : ?>
-        <div style="display: flex;
-            justify-content: center;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            color: green;">
-    
-            <p style="color: #085E55; font-weight: 700; font-size: 14px;">
-                Mensagens mais antigas
-            </p>
-            <p>
-                <br>
-            </p>
-        </div>
-
-        <div id="accordion" class="head">
-            
-        <?php     
-        foreach ($diligenceAndAnswers as $key => $resultsDiligence) :
-            Carbon::setLocale('pt_BR');
-            $dt = null;
-            $dtSend = "";
-
-            if ($resultsDiligence !== null) {
-                $dt             = Carbon::parse($resultsDiligence->sendDiligence);
-                $dtSend         = $dt->isoFormat('LLL');
-                
-            }
-            
-            if($key > 1) {
-                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
-                    <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                        <label style="font-size: 14px">
-                            <b>Diligência:</b>
-                        </label>
-                        <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                    </div>
-                    <div class="content">
-                        <p>
-                            <?php
-                            echo $resultsDiligence->description;
-                            ?>
-                        </p>
-                        <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
-                            <?php echo $dtSend; ?>
-                        </p>
-                    </div>
-                <?php
-                }
-                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
-                    $dtAnswer       = Carbon::parse($resultsDiligence->createTimestamp);
-                    $dtSendAnswer   = $dtAnswer->isoFormat('LLL');
-                    
-                ?>
-                    <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                        <label style="font-size: 14px">
-                            <b>Resposta recebida:</b>
-                        </label>
-                        <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                    </div>
-                    <div class="content" style="background-color: #F3F3F3;">
-                        <p>
-                            <?php
-                            echo $resultsDiligence->answer;
-                            
-                            ?>
-                        </p>
-                        <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
-                            <?php echo $dtSendAnswer;   ?>
-                        </p>
-                    </div>                
-                <?php
-                }
-            }
-            /* if (is_null($resultsDiligence))
-            {
-                $descriptionDraft = false;
-                echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                    <label style="font-size: 14px">Aguardando Resposta.</label>
-                    <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                </div><div class="content"><p>Aguardando respostasss</p></div>';
-                
-            } */
-        //     if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 0)
-        //     {
-        //         $descriptionDraft = false;
-        //         echo ' <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-        //         <label style="font-size: 14px">Aguardando Resposta.</label>
-        //         <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-        //     </div><div class="content"><p>Aguardando resposta</p></div>';            
-        // }
-       
-        if($key > 1) {
-            // echo '<hr/>';
-         }
-        endforeach; ?>
-        </div>
-   
-    <?php 
-    endif;//endif id=accordion
-    ?>
     
 <?php endif; ?>
 

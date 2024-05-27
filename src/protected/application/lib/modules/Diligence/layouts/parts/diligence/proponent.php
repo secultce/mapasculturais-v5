@@ -22,7 +22,8 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
     <div id="diligence-diligence">
         <!-- PARA O PROPONENTE -->
         <?php
-        $this->part('diligence/body-proponent-common', [
+        $diligenceType = $context['entity']->opportunity->use_diligence == 'simple' ? 'common' : 'multi';
+        $this->part("diligence/body-proponent-$diligenceType", [
             'entity' => $context['entity'],
             'diligenceRepository' => $context['diligenceRepository'],
             'diligenceDays' => $context['diligenceDays'],
