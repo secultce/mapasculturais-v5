@@ -5,9 +5,7 @@ use MapasCulturais\App;
 $this->layout = 'default';
 $urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
 $app = App::i();
-// $app->view->enqueueStyle('app', 'diligence', 'css/diligence/milti.css');
-
-
+$this->jsObject['idEntity'] = $reg->id;
 ?>
 
 <div>
@@ -122,8 +120,8 @@ $app = App::i();
                         Conclusão sobre o projeto
                     </p>
                     <textarea
-                        name="editor1"
-                        id="editor1"
+                        name="conclusionTado"
+                        id="conclusionTado"
                         rows="10"
                         cols="100"
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."> </textarea>
@@ -135,21 +133,26 @@ $app = App::i();
                         Fiscal responsável pela emissão
                     </p>
                     <div style=" display: flex; justify-content: space-between;">
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
-                        <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
-                        <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>"/>
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
+                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
+                            <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>"/>
+                        </div>                   
                     </div>
                 </div>
+                <div class="form-container">
+                <div class="form-group">
+                        <button class="btn btn-primary" id="generateTado">Salvar</button>
+                    </div>
                 </div>
             </div>
         </article>
     </section>
 <script>
-    CKEDITOR.replace( 'editor1' );
+    
 </script>
 
 </div>

@@ -5,17 +5,18 @@ use MapasCulturais\App;
 $app = App::i();
 // $mpdf = new \Mpdf\Mpdf();
 
-$mpdf = new \Mpdf\Mpdf(['tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp','mode' => 
-'utf-8','format' => 'A4',
-'pagenumPrefix' => 'Página ',
-'pagenumSuffix' => '  ',
-'nbpgPrefix' => ' de ',
-'nbpgSuffix' => ''
+$mpdf = new \Mpdf\Mpdf([
+    'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
+    'utf-8', 'format' => 'A4',
+    'pagenumPrefix' => 'Página ',
+    'pagenumSuffix' => '  ',
+    'nbpgPrefix' => ' de ',
+    'nbpgSuffix' => ''
 ]);
 
 
 ob_start();
- //INSTANCIA DO TIPO ARRAY OBJETO
+//INSTANCIA DO TIPO ARRAY OBJETO
 $app->view->regObject = new \ArrayObject;
 $app->view->regObject['reg'] = $reg;
 
@@ -32,5 +33,5 @@ $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
 $mpdf->WriteHTML(ob_get_clean());
 $mpdf->WriteHTML($content);
 $mpdf->SetHTMLFooter($footerPage);
-$mpdf->Output(); exit;
-?>
+$mpdf->Output();
+exit;

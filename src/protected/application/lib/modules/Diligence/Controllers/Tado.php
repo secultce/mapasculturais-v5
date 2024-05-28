@@ -2,13 +2,7 @@
 namespace Diligence\Controllers;
 
 use \MapasCulturais\App;
-use Diligence\Entities\AnswerDiligence;
-use Diligence\Service\NotificationInterface;
-use Diligence\Entities\NotificationDiligence;
-use MapasCulturais\Entities\RegistrationMeta;
-use Diligence\Entities\Diligence as EntityDiligence;
-use Diligence\Repositories\Diligence as DiligenceRepo;
-use Carbon\Carbon;
+use \Diligence\Entities\DiligenceMeta;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -17,7 +11,7 @@ class Tado extends \MapasCulturais\Controller
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
-        // $app->view->enqueueScript('app', 'ckeditor-diligence', 'js/diligence/ckeditor/ckeditor.js');
+        $app->view->enqueueScript('app', 'tado', 'js/multi/tado.js');
         $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js');
         $this->render('emitir', ['reg' => $reg]);
     }
@@ -29,7 +23,14 @@ class Tado extends \MapasCulturais\Controller
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
         $this->render('gerar', ['reg' => $reg]);
     }
-    //vomito, soando, dores forte, Marcio
 
+    function POST_saveTado()
+    {
+        $diliMeta = new DiligenceMeta();
+        $diliMeta->key = 'conclusion';
+        $diliMeta->value = $this->data['conclusion'];
+        dump($diliMeta);
+        // $this->json(['Message' => $diliMeta]);
+    }
 
 }
