@@ -2,6 +2,8 @@
 
 use MapasCulturais\i;
 use Carbon\Carbon;
+use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\AnswerDiligence;
 
 $descriptionDraft = true;
 
@@ -24,7 +26,7 @@ if ($diligenceAndAnswers) :
         ?>
     </h5>
     <div style="margin-top: 25px;">
-        <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->status == 3) : ?>
+        <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência:</b>
@@ -41,7 +43,7 @@ if ($diligenceAndAnswers) :
                 </span>
             </div>
         <?php endif; ?>
-        <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == 3) : ?>
+        <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == AnswerDiligence::STATUS_SEND) : ?>
             <div style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
                 <label>
                     <b>Minha resposta:</b>

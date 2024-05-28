@@ -5,8 +5,6 @@ use MapasCulturais\App;
 use Diligence\Entities\AnswerDiligence;
 use Diligence\Entities\Diligence;
 
-$diligence = App::i()->repo('Diligence\Entities\AnswerDiligence')->find(27);
-
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
 
@@ -35,7 +33,6 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         ?>
         <?php
         $showText = false;
-        // dump($diligenceAndAnswers);
         if (!is_null($diligenceAndAnswers)) {
             $diligenceAndAnswerLast = [];
             foreach ($diligenceAndAnswers as $key => $resultsDraft) {
@@ -45,7 +42,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             };
             $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceAndAnswerLast[0]->sendDiligence, $context['entity']->opportunity->getMetadata('diligence_days'));
 
-            if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 0) {
+            if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == AnswerDiligence::STATUS_DRAFT) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[1]->createTimestamp)->diffForHumans();
                 if(new DateTime() <= $diligence_days){
                     $titleButton = 'Editar Resposta';
@@ -64,7 +61,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             }
             
             //Quando tem diligencia mas ainda não tem resposta
-            if (is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == 3) {
+            if (is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                 $showText = true;
                 new DateTime() <= $diligence_days ? $showText = true : $showText = false;
                 $this->part('diligence/info-term',[
@@ -73,8 +70,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                     'diligenceDays' => $diligence_days
                 ]);
             }
-            if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == 3) {
-                // dump($diligenceAndAnswerLast[0]->sendDiligence);
+            if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                
                 new DateTime() <= $diligence_days ? $showText = true : $showText = false;
                 $this->part('diligence/info-term',[
@@ -93,7 +89,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             if ($showText || is_null($diligenceAndAnswers)) {
                 $this->part('diligence/description', ['placeHolder' => $placeHolder]);
                 $this->part('diligence/message-success-draft');
-                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText, 'diligence' => $diligence]);
+                $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText]);
             }
             ?>
         </div>

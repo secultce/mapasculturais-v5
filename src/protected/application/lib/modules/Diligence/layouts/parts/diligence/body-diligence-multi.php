@@ -35,7 +35,7 @@ if ($diligenceAndAnswers) :
                         ?>
                     </span>
                 </div>
-                <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == 3) : ?>
+                <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == AnswerDiligence::STATUS_SEND) : ?>
                     <div style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
                         <label>
                             <b>Resposta recebida:</b>
@@ -93,7 +93,7 @@ if ($diligenceAndAnswers) :
             }
             
             if($key > 1) {
-                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
+                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
                     <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                         <label style="font-size: 14px">
                             <b>Diligência:</b>
@@ -112,7 +112,7 @@ if ($diligenceAndAnswers) :
                     </div>
                 <?php
                 }
-                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
+                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) {
                     $dtAnswer       = Carbon::parse($resultsDiligence->createTimestamp);
                     $dtSendAnswer   = $dtAnswer->isoFormat('LLL');
                     

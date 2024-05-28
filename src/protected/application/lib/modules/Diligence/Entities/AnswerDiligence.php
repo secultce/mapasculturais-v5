@@ -21,6 +21,7 @@ use Carbon\Carbon;
 class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
     use \Diligence\Traits\DiligenceSingle;
 
+    const STATUS_DRAFT = 0;
     const STATUS_OPEN = 2; // Para respostas salvas não enviadas
     const STATUS_SEND = 3; // Para respostas a diligência enviadas
 
@@ -88,7 +89,6 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         App::i()->applyHook('entity(diligence).createAnswer:before');
 
         $repo       = new DiligenceRepo();
-        // $answerDiligences = $repo->findBy('Diligence\Entities\AnswerDiligence', ['diligence' => $diligence]);
 
         //Buscando a ultima diligencia da inscrição passado por parametro
         $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
@@ -107,9 +107,6 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
          
             $save = self::saveEntity($answerDiligences);
             return json_encode(['message' => 'success', 'entityId' => $save['entityId'], 'status' => 200]);
-            // dump($save);
-            // die;
-            //  return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
         }
 
 

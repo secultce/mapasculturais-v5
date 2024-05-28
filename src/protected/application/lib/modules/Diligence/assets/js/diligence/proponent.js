@@ -261,9 +261,6 @@ function saveRequestAnswer(status)
                 EntityDiligence.hideShowSuccessAction();
                 $("#id-input-diligence").val(response.entityId);
             }
-            if(status == 3 && response.status == 200) {
-
-            }
         },
         error: function(err) {
             Swal.close();

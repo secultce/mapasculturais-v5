@@ -33,7 +33,7 @@ if (isset($diligencesSentReindexed)) :
         ?>
     </h5>
     <div style="margin-top: 25px;">
-        <?php if (isset($diligencesSentReindexed[0]) && $diligencesSentReindexed[0]->status == 3) : ?>
+        <?php if (isset($diligencesSentReindexed[0]) && $diligencesSentReindexed[0]->status == EntityDiligence::STATUS_SEND) : ?>
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência (atual):</b>
@@ -50,7 +50,7 @@ if (isset($diligencesSentReindexed)) :
                 </span>
             </div>
         <?php endif; ?>
-        <?php if (isset($diligencesSentReindexed[1]) && $diligencesSentReindexed[1]->status == 3) : ?>
+        <?php if (isset($diligencesSentReindexed[1]) && $diligencesSentReindexed[1]->status == AnswerDiligence::STATUS_SEND) : ?>
             <div style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
                 <label>
                     <b>Minha resposta:</b>
@@ -99,7 +99,7 @@ if (isset($diligencesSentReindexed)) :
             }
             
             if($key > 1) {
-                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) { ?>
+                if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
                     <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                         <label style="font-size: 14px">
                             <b>Diligência:</b>
@@ -118,7 +118,7 @@ if (isset($diligencesSentReindexed)) :
                     </div>
                 <?php
                 }
-                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == 3) {
+                if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) {
                     $dtAnswer       = Carbon::parse($resultsDiligence->createTimestamp);
                     $dtSendAnswer   = $dtAnswer->isoFormat('LLL');
                     

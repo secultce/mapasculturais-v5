@@ -13,9 +13,4 @@
             Abrir Diligência
         </button>
     </li>
-    <li class=""  style="float: right;">
-        <!-- <button type="button" class="btn btn-primary btn-diligence-open-active" id="btn-close-diligence" onclick="openDiligence(0)">
-            Fechar Diligência
-        </button> -->
-    </li>
 </ul>
