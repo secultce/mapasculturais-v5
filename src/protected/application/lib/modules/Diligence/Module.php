@@ -105,7 +105,7 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
-            if(is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não')
+            if($entity->opportunity->use_diligence === 'Sim' && (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não'))
                 $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
