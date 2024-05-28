@@ -1,0 +1,16 @@
+#diligence-config {
+    font-family: Epilogue, Inter, sans-serif;
+    color: #171a1f;
+}
+
+#diligence-config>* {
+    margin-bottom: 10px;
+}
+
+#diligence-config h4, #diligence-config span.label {
+    font-weight: 700;
+}
+
+#diligence-config span.label {
+    font-size: 1.13em;
+}
