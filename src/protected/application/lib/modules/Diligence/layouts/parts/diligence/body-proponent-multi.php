@@ -7,6 +7,13 @@ use Carbon\Carbon;
 
 $descriptionDraft = true;
 
+if ($diligenceAndAnswers) {
+    $diligencesSent = array_filter($diligenceAndAnswers, function($value, $key) use ($diligenceAndAnswers) {
+        return ($key % 2 != 0 && $diligenceAndAnswers[$key-1]->status == EntityDiligence::STATUS_SEND) || ($key % 2 == 0 && !is_null($value) && $value->status == EntityDiligence::STATUS_SEND);
+    }, ARRAY_FILTER_USE_BOTH);
+    $diligencesSentReindexed = array_values($diligencesSent);
+}
+
 ?>
 
 <p id="paragraph_loading_content">
@@ -18,7 +25,7 @@ $descriptionDraft = true;
 </p>
 
 <?php
-if ($diligenceAndAnswers) :
+if (isset($diligencesSentReindexed)) :
 ?>
     <h5>
         <?php
@@ -26,43 +33,43 @@ if ($diligenceAndAnswers) :
         ?>
     </h5>
     <div style="margin-top: 25px;">
-        <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->status == 3) : ?>
+        <?php if (isset($diligencesSentReindexed[0]) && $diligencesSentReindexed[0]->status == 3) : ?>
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência (atual):</b>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php
-                        echo $diligenceAndAnswers[0]->description;
+                        echo $diligencesSentReindexed[0]->description;
                     ?>
                 </p>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php
-                        echo Carbon::parse($diligenceAndAnswers[0]->sendDiligence)->isoFormat('LLL');
+                        echo Carbon::parse($diligencesSentReindexed[0]->sendDiligence)->isoFormat('LLL');
                     ?>
                 </span>
             </div>
         <?php endif; ?>
-        <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == 3) : ?>
+        <?php if (isset($diligencesSentReindexed[1]) && $diligencesSentReindexed[1]->status == 3) : ?>
             <div style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
                 <label>
                     <b>Minha resposta:</b>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php
-                        echo $diligenceAndAnswers[1]->answer;
+                        echo $diligencesSentReindexed[1]->answer;
                     ?>
                 </p>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php
-                        echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL');
+                        echo Carbon::parse($diligencesSentReindexed[1]->createTimestamp)->isoFormat('LLL');
                     ?>
                 </span>
             </div>
         <?php endif; ?>
     </div>
     <?php 
-    if(!is_null($diligenceAndAnswers) && count($diligenceAndAnswers) > 2) : ?>
+    if(!is_null($diligencesSentReindexed) && count($diligencesSentReindexed) > 2) : ?>
         <div style="display: flex;
             justify-content: center;
             margin-top: 10px;
@@ -80,7 +87,7 @@ if ($diligenceAndAnswers) :
         <div id="accordion" class="head">
             
         <?php     
-        foreach ($diligenceAndAnswers as $key => $resultsDiligence) :
+        foreach ($diligencesSentReindexed as $key => $resultsDiligence) :
             Carbon::setLocale('pt_BR');
             $dt = null;
             $dtSend = "";

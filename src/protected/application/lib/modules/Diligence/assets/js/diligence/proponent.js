@@ -30,6 +30,12 @@ $(document).ready(function () {
         {
             //Se tiver diligencia
             if (res.data?.length && diligenceSent.length) {
+                const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+                
+                $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
+                $("#li-tab-diligence-diligence > label").remove();
+                $("#li-tab-diligence-diligence").append(ahref);
+
                 res.data.forEach((element, index) => {
                     const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
                     if (dateLimitDate) {
