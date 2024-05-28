@@ -2,6 +2,7 @@
 
 namespace Diligence;
 
+use Doctrine\ORM\Query\Expr;
 use MapasCulturais\App,
     MapasCulturais\i,
     MapasCulturais\Entities,
@@ -86,14 +87,19 @@ class Module extends \MapasCulturais\Module {
             }
         });
 
-        $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
+        $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app, $module) {
             $entity = self::getRequestedEntity($this);
+            $isEditableConfig = $module::isEditableConfig($entity);
+
             $app->view->enqueueScript(
                 'app',
                 'diligence-config-options',
                 'js/diligence/diligence-config-options.js'
             );
-            $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
+            $this->part('opportunity/diligence-config-options', [
+                'opportunity' => $entity,
+                'isEditableConfig' => $isEditableConfig
+            ]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
@@ -240,5 +246,31 @@ class Module extends \MapasCulturais\Module {
         }
 
         return false;
+    }
+
+    /**
+     * Verifica se é pode editar as configurações de deligência em uma oportunidade
+     */
+    private static function isEditableConfig(Entities\Opportunity $opportunity): bool
+    {
+        if($opportunity->publishedRegistrations || $opportunity->publishedOpinions)
+            return false;
+
+        // Traz as diligências referentes a essa oportunidade
+        $app = App::i();
+        $qb = $app->em->createQueryBuilder()
+            ->select('d')
+            ->from('Diligence\Entities\Diligence', 'd')
+            ->innerJoin('\MapasCulturais\Entities\Registration', 'r', Expr\Join::WITH, 'd.registration = r')
+            ->where("r.opportunity = :opportunity")
+            ->setParameter('opportunity', $opportunity);
+        $query = $qb->getQuery();
+        $diligences = $query->getResult();
+
+        // Se existir diligência retorna 'false'
+        if(count($diligences) > 0)
+            return false;
+
+        return true;
     }
 }

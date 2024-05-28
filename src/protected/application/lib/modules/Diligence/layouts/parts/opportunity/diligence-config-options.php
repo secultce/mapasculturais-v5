@@ -1,16 +1,17 @@
 <?php
 /**
  * @var $opportunity \MapasCulturais\Entities\Opportunity
+ * @var $isEditableConfig bool
  */
 
 if($this->isEditable()):
 ?>
-    <div class="registration-fieldset" ng-controller="OpportunityController">
+    <div class="registration-fieldset" id="diligence-config" ng-controller="OpportunityController">
         <h4>Configurações de Diligência</h4>
         <p class="field-use-diligence">
             <span class="label">Usa Diligência:</span>
             <span
-                class="js-editable <?= $opportunity->publishedOpinions || $opportunity->publishedRegistrations ?: 'editable' ?> editable-click"
+                class="<?= !$isEditableConfig ?: 'js-editable editable' ?> editable-click"
                 data-edit="use_diligence"
                 data-original-title="Usa Diligência"
                 data-value="<?= $opportunity->getMetadata('use_diligence') ?>"
@@ -26,7 +27,7 @@ if($this->isEditable()):
             <p class="field-use-multiple-diligence" style="display:none">
                 <span class="label">Usa Diligência Múltipla:</span>
                 <span
-                    class="js-editable editable editable-click"
+                    class="<?= !$isEditableConfig ?: 'js-editable editable' ?>  editable-click"
                     data-edit="use_multiple_diligence"
                     data-original-title="Usa Diligência Múltipla"
                     data-value="<?= $opportunity->getMetadata('use_multiple_diligence') ?>"
@@ -44,7 +45,12 @@ if($this->isEditable()):
 
         <p class="field-diligence-days" style="display:none">
             <span class="label">Dias úteis para resposta da diligência:</span>
-            <span class="js-editable" data-edit="diligence_days" data-original-title="Público presente" data-emptytext="Selecione">
+            <span
+                class="<?= !$isEditableConfig ?: 'js-editable editable' ?>"
+                data-edit="diligence_days"
+                data-original-title="Público presente"
+                data-emptytext="Selecione"
+            >
                 <?php echo $opportunity->diligence_days; ?>
             </span>
         </p>
