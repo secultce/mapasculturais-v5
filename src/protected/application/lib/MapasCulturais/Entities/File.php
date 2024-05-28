@@ -42,7 +42,7 @@ use \MapasCulturais\i;
         "MapasCulturais\Entities\Seal"                          = "\MapasCulturais\Entities\SealFile",
         "MapasCulturais\Entities\Registration"                  = "\MapasCulturais\Entities\RegistrationFile",
         "MapasCulturais\Entities\RegistrationFileConfiguration" = "\MapasCulturais\Entities\RegistrationFileConfigurationFile",
-        "MapasCulturais\Entities\Subsite"                       = "\MapasCulturais\Entities\SubsiteFile"
+        "MapasCulturais\Entities\Subsite"                       = "\MapasCulturais\Entities\SubsiteFile",
    })
  */
 abstract class File extends \MapasCulturais\Entity
