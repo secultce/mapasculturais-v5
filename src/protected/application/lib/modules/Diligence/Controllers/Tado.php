@@ -17,6 +17,8 @@ class Tado extends \MapasCulturais\Controller
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
+        // $app->view->enqueueScript('app', 'ckeditor-diligence', 'js/diligence/ckeditor/ckeditor.js');
+        $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js');
         $this->render('emitir', ['reg' => $reg]);
     }
 
@@ -27,6 +29,7 @@ class Tado extends \MapasCulturais\Controller
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
         $this->render('gerar', ['reg' => $reg]);
     }
+    //vomito, soando, dores forte, Marcio
 
 
 }

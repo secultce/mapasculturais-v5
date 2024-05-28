@@ -121,7 +121,12 @@ $app = App::i();
                     <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
-                    <textarea name="" id="" rows="10" cols="100"></textarea>
+                    <textarea
+                        name="editor1"
+                        id="editor1"
+                        rows="10"
+                        cols="100"
+                        placeholder="Escreva aqui a sua conclusão sobre o projeto."> </textarea>
                 </div>
             </div>
             <div>
@@ -143,9 +148,13 @@ $app = App::i();
             </div>
         </article>
     </section>
-
+<script>
+    CKEDITOR.replace( 'editor1' );
+</script>
 
 </div>
+
+
 
 <?php
 dump($app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'));
