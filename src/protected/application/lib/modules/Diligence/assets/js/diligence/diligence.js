@@ -63,7 +63,7 @@ $(document).ready(function () {
                         actions = false;
                     }
                 })
-                if (actions && MapasCulturais.entity.object.opportunity.use_diligence != 'simple') {
+                if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim') {
                     showBtnActionsDiligence();
                 }
             }
