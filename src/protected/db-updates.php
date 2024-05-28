@@ -1963,5 +1963,15 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-02','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
+    },
+    
+    'create table diligence_meta' => function() {
+         __exec("CREATE SEQUENCE diligence_meta_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+         __exec("CREATE TABLE diligence_meta (id INT NOT NULL, object_id INT NOT NULL, key VARCHAR(255) NOT NULL, value TEXT DEFAULT NULL, PRIMARY KEY(id));");
+         __exec("CREATE INDEX diligence_meta_owner_idx ON diligence_meta (object_id);");
+         __exec("CREATE INDEX diligence_meta_owner_key_idx ON diligence_meta (object_id, key);");
+         __exec("CREATE INDEX diligence_meta_key_idx ON diligence_meta (key);");
+         __exec("CREATE INDEX diligence_meta_value_idx ON diligence_meta (value);");
+         __exec("ALTER TABLE diligence_meta ADD CONSTRAINT FK_855112BE232D562B FOREIGN KEY (object_id) REFERENCES diligence (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
     }
 ] + $updates ;
