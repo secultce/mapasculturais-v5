@@ -7,7 +7,12 @@
 if($this->isEditable()):
 ?>
     <div class="registration-fieldset" id="diligence-config" ng-controller="OpportunityController">
-        <h4>Configurações de Diligência</h4>
+        <div>
+            <h4>Configurações de Diligência</h4>
+            <p class="">A diligência é um recurso para que os avaliadores peçam mais informações ou
+                esclareçam dúvidas sobre um projeto ou prestação de contas.</p>
+        </div>
+
         <p class="field-use-diligence">
             <span class="label">Usa Diligência:</span>
             <span
@@ -19,44 +24,41 @@ if($this->isEditable()):
                 <?= $opportunity->use_diligence ?>
             </span>
         </p>
-        <p class="registration-help ng-scope">
-            Diligência é uma forma de atendimento ao proponente, que permite que o avaliador solicite uma
-            correção ou novos dados sobre o projeto sem alteração na ficha de inscrição.
-        </p>
+
         <?php if($opportunity->evaluationMethodConfiguration->type == 'documentary'): ?>
-            <p class="field-use-multiple-diligence" style="display:none">
-                <span class="label">Usa Diligência Múltipla:</span>
-                <span
-                    class="<?= !$isEditableConfig ?: 'js-editable editable' ?>  editable-click"
-                    data-edit="use_multiple_diligence"
-                    data-original-title="Usa Diligência Múltipla"
-                    data-value="<?= $opportunity->getMetadata('use_multiple_diligence') ?>"
-                >
-                    <?= $opportunity->use_multiple_diligence ?>
-                </span>
-            </p>
-            <p class="field-use-multiple-diligence registration-help ng-scope" style="display: none">
-                <strong>Diligência Múltipla</strong> permite que o avaliador abra quantas diligências forem necessárias
-                e o proponente responda individualmente. Mas apenas uma de cada vez. <!-- Verificar se pode haver várias diligências em paralelo -->
-            </p>
+            <div class="field-use-multiple-diligence" style="display:none">
+                <p>
+                    <span class="label">Usa Diligência Múltipla:</span>
+                    <span
+                        class="<?= !$isEditableConfig ?: 'js-editable editable' ?>  editable-click"
+                        data-edit="use_multiple_diligence"
+                        data-original-title="Usa Diligência Múltipla"
+                        data-value="<?= $opportunity->getMetadata('use_multiple_diligence') ?>"
+                    >
+                        <?= $opportunity->use_multiple_diligence ?>
+                    </span>
+                </p>
+                <p>
+                    <strong>Sim: </strong>O avaliador abre <strong>mais de uma</strong> diligência e recebe respostas individuais do proponente para cada uma.
+                    <br>
+                    <strong>Não: </strong>O avaliador abre <strong>apenas uma</strong> diligência e recebe somente uma resposta do proponente.
+                </p>
+            </div>
         <?php endif; ?>
 
-        <br>
-
-        <p class="field-diligence-days" style="display:none">
-            <span class="label">Dias úteis para resposta da diligência:</span>
-            <span
-                class="<?= !$isEditableConfig ?: 'js-editable editable' ?>"
-                data-edit="diligence_days"
-                data-original-title="Público presente"
-                data-emptytext="Selecione"
-            >
-                <?php echo $opportunity->diligence_days; ?>
-            </span>
-        </p>
-        <p class="field-diligence-days registration-help ng-scope" style="display: none">
-            Informe o total de dias úteis que o proponente terá para dá uma resposta
-            a diligência enviada para ele.
-        </p>
+        <div class="field-diligence-days" style="display:none">
+            <p>
+                <span class="label">Dias úteis para resposta da diligência:</span>
+                <span
+                    class="<?= !$isEditableConfig ?: 'js-editable editable' ?>"
+                    data-edit="diligence_days"
+                    data-original-title="Público presente"
+                    data-emptytext="Selecione"
+                >
+                    <?php echo $opportunity->diligence_days; ?>
+                </span>
+            </p>
+            <p>Informe o total de dias úteis que o proponente terá para dar uma resposta a diligência enviada para ele.</p>
+        </div>
     </div>
 <?php endif; ?>

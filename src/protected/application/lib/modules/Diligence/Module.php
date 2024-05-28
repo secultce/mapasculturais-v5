@@ -91,6 +91,7 @@ class Module extends \MapasCulturais\Module {
             $entity = self::getRequestedEntity($this);
             $isEditableConfig = $module::isEditableConfig($entity);
 
+            $app->view->enqueueStyle('app', 'form-config', 'css/diligence/form-config.css');
             $app->view->enqueueScript(
                 'app',
                 'diligence-config-options',
