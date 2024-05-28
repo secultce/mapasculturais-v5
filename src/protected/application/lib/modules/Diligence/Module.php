@@ -75,12 +75,11 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
             $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
+            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
 
             if($isProponent){
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
-
-            $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             if($isEvaluator) {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
@@ -89,12 +88,17 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
             $entity = self::getRequestedEntity($this);
+            $app->view->enqueueScript(
+                'app',
+                'diligence-config-options',
+                'js/diligence/diligence-config-options.js'
+            );
             $this->part('opportunity/diligence-config-options', ['opportunity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
-            if($entity->opportunity->use_diligence === 'simple')
+            if($entity->opportunity->use_multiple_diligence === 'Não')
                 $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
@@ -143,15 +147,17 @@ class Module extends \MapasCulturais\Module {
 
         $this->registerOpportunityMetadata('use_diligence', [
             'label' =>  i::__('Usar diligência?'),
-            'description' => i::__('Configura o tipo de diligência a ser usada'),
+            'description' => i::__('Configura se deve usar diligência'),
             'type' => 'select',
-            'options' => [
-                'Não',
-                'simple' => i::__('Diligência Simples'),
-                'multiple' => i::__('Diligência Múltipla'),
-            ],
+            'options' => ['Sim', 'Não'],
             'default' => 'Não',
             'required' => true,
+        ]);
+        $this->registerOpportunityMetadata('use_multiple_diligence', [
+            'label' =>  i::__('Usar diligência múltipla?'),
+            'description' => i::__('Configura se deve usar diligência múltipla'),
+            'type' => 'select',
+            'options' => ['Sim', 'Não'],
         ]);
 
         $this->registerRegistrationMetadata('value_project_diligence', [
