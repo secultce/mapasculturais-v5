@@ -1,16 +1,20 @@
 <?php 
 declare(strict_types=1);
-use PHPUnit\Framework\TestCase;
-use MapasCulturais\Entities\Agent;
-use MapasCulturais\App;
+include(dirname(__DIR__).'/application/lib/modules/Diligence/Entities/Diligence.php');
 
-final class AgentTest extends TestCase
+use PHPUnit\Framework\TestCase;
+use Diligence\Entities\Diligence;
+
+class AgentTest extends TestCase
 {
     public function testIsUser()
     {
-        $agent = $this->user = 30490;
+       
+        $diligence = new Diligence();
+        $diligence->getDiligence();
+        // $agent = $this->user = 30490;
 
-        $this->assertIsInt($agent, 'Ops!');
+        $this->assertIsInt($diligence, 'Ops!');
         
     }
 }

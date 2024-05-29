@@ -8,7 +8,7 @@ use MapasCulturais\App,
     MapasCulturais\Definitions,
     MapasCulturais\Exceptions;
     
-require __DIR__.'/Traits/DiligenceSingle.php';
+// require __DIR__.'/Traits/DiligenceSingle.php';
 require __DIR__.'/Service/DiligenceInterface.php';
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
@@ -21,7 +21,7 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
- use \Diligence\Traits\DiligenceSingle;
+
     function _init () {
         
         $app = App::i();

@@ -17,6 +17,9 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Service\DiligenceInterface;
 use MapasCulturais\ApiOutputs\Json;
 
+require_once dirname(__DIR__).'/Traits/DiligenceSingle.php';
+
+require_once dirname(__DIR__).'/Service/DiligenceInterface.php';
 
 /**
  * Diligence 
@@ -298,5 +301,10 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
 
         return false;
+    }
+
+    public function getDiligence()
+    {
+        return true;
     }
 }
