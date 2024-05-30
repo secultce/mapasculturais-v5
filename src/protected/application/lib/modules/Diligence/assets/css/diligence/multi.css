@@ -64,3 +64,14 @@ input[type="text"] {
     font-size: 18px; 
     line-height: 27.24px;
 }
+.title-label {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 19px;
+    margin-bottom: 8px;
+}
+.title-info {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 19px;
+}

@@ -59,29 +59,29 @@ $this->jsObject['idEntity'] = $reg->id;
                 </p>
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Número do TEC</label>
+                        <label class="title-info">Número do TEC</label>
                         <input name="numbertec" />
                     </div>
                     <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Data</label>
+                        <label class="title-info">Data</label>
                         <input name="numbertec" />
                     </div>
                 </div>
 
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Período de Vigência</label>
+                        <label class="title-info">Período de Vigência</label>
                         <input name="numbertec" placeholder="Data Inicial" />
                     </div>
                     <div class="form-group">
-                        <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Data</label>
+                        <label class="title-info">Data</label>
                         <input name="numbertec" placeholder="Data Final" />
                     </div>
                 </div>
 
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Agente Cultural</label>
+                        <label class="title-label">Agente Cultural</label>
                         <label class="content-value-name">
                             <?= $reg->owner->name; ?>
                         </label>
@@ -90,7 +90,7 @@ $this->jsObject['idEntity'] = $reg->id;
 
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Projeto</label>
+                        <label class="title-label">Projeto</label>
                         <label class="content-value-name">
                             <?= $reg->opportunity->ownerEntity->name; ?>
                         </label>
@@ -99,24 +99,24 @@ $this->jsObject['idEntity'] = $reg->id;
 
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Edital</label>
-                        <label class="content-value-name">EDITAL DE CHAMAMENTO PÚBLICO Nº 01/2024 - 
-                            EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO 
-                            CULTURAL COM RECURSOS DA LEI COMPLEMENTAR 195/2022 (LEI PAULO GUSTAVO) CAMOCIM – CE.</label>
+                        <label class="title-label">Edital</label>
+                        <label class="content-value-name">
+                            <?= $reg->opportunity->name; ?>
+                        </label>
                     </div>
                 </div>
 
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
-                        <label style="font-weight: 600; font-size: 14px; line-height: 19px;">Objeto</label>
-                        <label class="content-value-name">O nome do Objeto</label>
+                        <label class="title-label">Objeto</label>
+                        <input name="object" id="object" />
                     </div>
                 </div>
             </div>
 
             <div>
                 <div class="form-container">
-                    <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
+                    <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
                     <textarea
@@ -124,21 +124,21 @@ $this->jsObject['idEntity'] = $reg->id;
                         id="conclusionTado"
                         rows="10"
                         cols="100"
-                        placeholder="Escreva aqui a sua conclusão sobre o projeto."> </textarea>
+                        placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
                 </div>
             </div>
             <div>
                 <div class="form-container">
-                    <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
+                    <p class="title-label" style="font-size: 18px;">
                         Fiscal responsável pela emissão
                     </p>
                     <div style=" display: flex; justify-content: space-between;">
                         <div class="form-group">
-                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">Nome do Fiscal</label>
+                            <label class="title-info">Nome do Fiscal</label>
                             <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
                         </div>
                         <div class="form-group">
-                            <label style="font-weight: 500; font-size: 14px; line-height: 19px;">CPF do Fiscal</label>
+                            <label class="title-info">CPF do Fiscal</label>
                             <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>"/>
                         </div>                   
                     </div>

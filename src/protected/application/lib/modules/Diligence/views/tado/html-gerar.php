@@ -72,14 +72,14 @@ $this->layout = 'nolayout-pdf';
                         <tr>
                             <td class="title-bold">EDITAL : </td>
                             <td>
-                                EDITAL PARA AS DEMAIS ÁREAS CULTURAIS - 
-                                SELEÇÃO DE PROJETOS PARA FIRMAR TERMO DE EXECUÇÃO 
-                                CULTURAL
+                                <?= $reg->opportunity->name; ?> 
                             </td>
                         </tr>
                         <tr>
                             <td class="title-bold">OBJETO : </td>
-                            <td> </td>
+                            <td> 
+                                <?= $app->view->regObject['tado']->object; ?>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -100,25 +100,9 @@ $this->layout = 'nolayout-pdf';
                         <strong> - Conclusão - </strong>
                     </p>
                     <p>
-                        Declaro aceitar em caráter definitivo o objeto do instrumento acima especificado, cuja
-                        entrega foi total conforme Relatório de Execução Final do Objeto encaminhado, e
-                        meios de comprovação que relatam a execução do objeto, em conformidade com o
-                        item 50.1 abaixo, referente ao XII EDITAL CEARÁ DE INCENTIVO ÀS ARTES, a
-                        prestação de contas do projeto em questão, encontra-se aprovada.
+                        <?= $app->view->regObject['tado']->conclusion; ?>
                     </p>
-                    <p>
-                        50.1. O Relatório Final de Execução do Objeto deve conter:
-                        I - relato das atividades realizadas para o cumprimento do
-                        objeto;
-                        II - comparativo de metas propostas com os resultados
-                        alcançados, a partir do projeto originalmente pactuado, podendo
-                        a comprovação sobre os produtos e serviços relativos às metas
-                        se dar pela apresentação de fotos, listas de presença, vídeos,
-                        publicações, entre outros; e
-
-                        Diante do exposto, o instrumento em questão encontra-se REGULAR, ou REGULAR
-                        COM RESSALVA no que concerne à execução física do objeto.
-                    </p>
+                    
                 </div>
             </div>
                 <table>
@@ -132,12 +116,12 @@ $this->layout = 'nolayout-pdf';
                     <tbody>
                         <tr>
                             <td class="title-bold" style="width: 40%">NOME : </td>
-                            <td> <?= $app->auth->getAuthenticatedUser()->profile->name; ?> </td>
+                            <td> <?= $app->view->regObject['tado']->agentSignature->name; ?> </td>
                         </tr>
                         <tr>
                             <td class="title-bold">CPF : </td>
                             <td>
-                                <?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>
+                                <?= $app->view->regObject['tado']->agentSignature->getMetadata('cpf'); ?>
                             </td>
                         </tr>
                     </tbody>

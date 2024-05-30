@@ -8,11 +8,19 @@ $(document).ready(function () {
             type: "POST",
             url: MapasCulturais.createUrl('tado', 'saveTado/' + MapasCulturais.idEntity),
             data: {
-                conclusion: editor.getData()
+                object : $("#object").val(),
+                conclusion: editor.getData()                
             },
             dataType: "json",
-            success: function (response) {
+            success: function (res) {
                 console.log('response');
+                if(res.status == 200){
+                    Swal.fire({
+                        title: "O seu documento foi gerado",
+                        text: "Após baixar o documento, você pode editar e baixá-lo novamente enquanto estiver dentro do prazo",
+                        icon: "success"
+                      });
+                }
             }
         });
     });

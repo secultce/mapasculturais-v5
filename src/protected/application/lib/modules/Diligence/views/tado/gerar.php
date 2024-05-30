@@ -3,7 +3,16 @@
 use MapasCulturais\App;
 
 $app = App::i();
-// $mpdf = new \Mpdf\Mpdf();
+//Buscando o tado gerado
+$tado = $app->repo('Diligence\Entities\Tado')->findOneBy([
+    'registration' => $reg,
+    'status' => 1
+]);
+// dump($tado); die;
+//INSTANCIA DO TIPO ARRAY OBJETO
+$app->view->regObject = new \ArrayObject;
+$app->view->regObject['reg'] = $reg;
+$app->view->regObject['tado'] = $tado;
 
 $mpdf = new \Mpdf\Mpdf([
     'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
@@ -16,10 +25,6 @@ $mpdf = new \Mpdf\Mpdf([
 
 
 ob_start();
-//INSTANCIA DO TIPO ARRAY OBJETO
-$app->view->regObject = new \ArrayObject;
-$app->view->regObject['reg'] = $reg;
-
 $content = $app->view->fetch('tado/html-gerar');
 $footerPage = $app->view->fetch('tado/footer-pdf');
 // dump($content);die;

@@ -7,8 +7,11 @@ use Carbon\Carbon;
 
 class Tado extends \MapasCulturais\Controller
 {
+    use \Diligence\Traits\DiligenceSingle;
+
     function GET_emitirTado()
     {
+        
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
@@ -27,21 +30,25 @@ class Tado extends \MapasCulturais\Controller
 
     function POST_saveTado()
     {
-        dump($this->data['id']);
+        dump($this->data);
         $app = App::i();
+        $entityGet = self::getrequestedEntity($this);
         $reg = $app->repo('Registration')->find($this->data['id']);
         // dump($reg); die;
         $tado = new EntityTado();
-        $tado->number = rand(0, 100);
-        $tado->createTimestamp = Carbon::now();
-        $tado->periodFrom = Carbon::parse('2024-05-01 00:00:00');
-        $tado->periodTo = Carbon::parse('2024-05-31 00:00:00');
-        $tado->agent =   $reg->owner;
-        $tado->object = 'Lorem Ipsun';
-        $tado->registration = $reg;
-        $tado->shortDescription = 'Texto Longo';
-        $tado->agentSignature = $app->auth->getAuthenticatedUser()->profile;
-        dump($tado);
+        $tado->number           = rand(0, 100);
+        $tado->createTimestamp  = Carbon::now();
+        $tado->periodFrom       = Carbon::parse('2024-05-01 00:00:00');
+        $tado->periodTo         = Carbon::parse('2024-05-31 00:00:00');
+        $tado->agent            =   $reg->owner;
+        $tado->object           = $this->data['object'];
+        $tado->registration     = $reg;
+        $tado->conclusion       = $this->data['conclusion'];
+        $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
+
+        $entity = self::saveEntity($tado);
+        self::returnJson($entity, $this);
+        // dump($entity);
         // $this->json(['Message' => $diliMeta]);
     }
 

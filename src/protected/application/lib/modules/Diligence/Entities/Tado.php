@@ -57,7 +57,7 @@ class Tado extends \MapasCulturais\Entity {
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="rperiod_to", type="datetime", nullable=false)
+     * @ORM\Column(name="period_to", type="datetime", nullable=false)
      */
     protected $periodTo;
 
@@ -93,7 +93,7 @@ class Tado extends \MapasCulturais\Entity {
      *
      * @ORM\Column(name="conclusion", type="text", nullable=true)
      */
-    protected $shortDescription;
+    protected $conclusion;
 
      /**
      * @var \MapasCulturais\Entities\Agent
