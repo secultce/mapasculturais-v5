@@ -1,13 +1,13 @@
 <?php
 
 use MapasCulturais\App;
+use Diligence\Repositories\Diligence as RepoDiligence;
 
 $app = App::i();
 //Buscando o tado gerado
-$tado = $app->repo('Diligence\Entities\Tado')->findOneBy([
-    'registration' => $reg,
-    'status' => 1
-]);
+$td = new RepoDiligence();
+$tado = $td->getTado($reg, 1);
+
 // dump($tado); die;
 //INSTANCIA DO TIPO ARRAY OBJETO
 $app->view->regObject = new \ArrayObject;

@@ -1,11 +1,17 @@
 <?php
 
 use MapasCulturais\App;
+use Diligence\Repositories\Diligence as RepoDiligence;
 
 $this->layout = 'default';
 $urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
 $app = App::i();
 $this->jsObject['idEntity'] = $reg->id;
+
+//Buscando o tado gerado
+$td = new RepoDiligence();
+$tado = $td->getTado($reg, 1);
+
 ?>
 
 <div>
@@ -54,9 +60,18 @@ $this->jsObject['idEntity'] = $reg->id;
             </div>
 
             <div class="form-container">
-                <p style="margin-bottom: 15px; font-weight: 700; line-height: 24.51px; font-size: 18px">
-                    Informações de Identificação
-                </p>
+                <div class="content-space-bet">
+                    <p class="info-regis-tado">
+                        Informações de Identificação
+                    </p>
+                    <?php if($tado->status == 1): ?>
+                    <p>
+                        <button style="margin-right: 10px;">Editar Informações</button>
+                        <button class="btn btn-primary">Baixar Novamente</button>
+                    </p>
+                    <?php endif; ?>
+                </div>
+                
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
                         <label class="title-info">Número do TEC</label>
@@ -68,7 +83,7 @@ $this->jsObject['idEntity'] = $reg->id;
                     </div>
                 </div>
 
-                <div style=" display: flex; justify-content: space-between;">
+                <div class="content-space-bet">
                     <div class="form-group">
                         <label class="title-info">Período de Vigência</label>
                         <input name="numbertec" placeholder="Data Inicial" />
@@ -109,7 +124,17 @@ $this->jsObject['idEntity'] = $reg->id;
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
                         <label class="title-label">Objeto</label>
-                        <input name="object" id="object" />
+                        <?php if($tado->status == 1): ?>
+                            <input name="object" id="object" value="<?= $tado->object; ?>" />
+                        <?php endif; ?>
+                        <?php if(is_null($tado)): ?>
+                            <input name="object" id="object" />
+                        <?php endif; ?>
+                        <?php if($tado->status == 2): ?>
+                            <label class="content-value-name">
+                                <?= $tado->object; ?>
+                            </label>
+                        <?php endif; ?>                        
                     </div>
                 </div>
             </div>
@@ -119,12 +144,28 @@ $this->jsObject['idEntity'] = $reg->id;
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
-                    <textarea
+                    <?php if($tado->status == 1): ?>
+                        <textarea
+                        name="conclusionTado"
+                        id="conclusionTado"
+                        rows="10"
+                        cols="100"
+                        placeholder="Escreva aqui a sua conclusão sobre o projeto."><?= $tado->conclusion; ?></textarea>
+                    <?php endif; ?>
+                    <?php if(is_null($tado)): ?>
+                        <textarea
                         name="conclusionTado"
                         id="conclusionTado"
                         rows="10"
                         cols="100"
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
+                    <?php endif; ?>
+                    <?php if($tado->status == 2): ?>
+                        <label class="content-value-name">
+                            <?= $tado->conclusion; ?>
+                        </label>
+                    <?php endif; ?>
+                    
                 </div>
             </div>
             <div>
@@ -145,7 +186,7 @@ $this->jsObject['idEntity'] = $reg->id;
                 </div>
                 <div class="form-container">
                 <div class="form-group">
-                        <button class="btn btn-primary" id="generateTado">Salvar</button>
+                        <button class="btn btn-primary" id="generateTado">Salvar Rascunho</button>
                     </div>
                 </div>
             </div>

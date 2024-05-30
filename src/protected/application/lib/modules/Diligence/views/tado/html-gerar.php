@@ -99,7 +99,7 @@ $this->layout = 'nolayout-pdf';
                     <p>
                         <strong> - Conclusão - </strong>
                     </p>
-                    <p>
+                    <p style="border: 1px solid #c5c5c5; border-radius: 5px">
                         <?= $app->view->regObject['tado']->conclusion; ?>
                     </p>
                     
