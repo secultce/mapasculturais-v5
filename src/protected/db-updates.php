@@ -1970,7 +1970,7 @@ $$
         __exec("CREATE TABLE tado (
             id INT NOT NULL, 
             agent_id INT DEFAULT NULL, 
-            registration_id INT DEFAULT pseudo_random_id_generator() NOT NULL, 
+            registration_id INT NOT NULL, 
             agent_signature INT DEFAULT NULL, 
             number VARCHAR(24) DEFAULT NULL, 
             create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
