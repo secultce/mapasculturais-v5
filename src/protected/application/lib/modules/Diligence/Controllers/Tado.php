@@ -2,7 +2,8 @@
 namespace Diligence\Controllers;
 
 use \MapasCulturais\App;
-use \Diligence\Entities\DiligenceMeta;
+use Diligence\Entities\Tado as EntityTado;
+use Carbon\Carbon;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -26,10 +27,21 @@ class Tado extends \MapasCulturais\Controller
 
     function POST_saveTado()
     {
-        $diliMeta = new DiligenceMeta();
-        $diliMeta->key = 'conclusion';
-        $diliMeta->value = $this->data['conclusion'];
-        dump($diliMeta);
+        dump($this->data['id']);
+        $app = App::i();
+        $reg = $app->repo('Registration')->find($this->data['id']);
+        // dump($reg); die;
+        $tado = new EntityTado();
+        $tado->number = rand(0, 100);
+        $tado->createTimestamp = Carbon::now();
+        $tado->periodFrom = Carbon::parse('2024-05-01 00:00:00');
+        $tado->periodTo = Carbon::parse('2024-05-31 00:00:00');
+        $tado->agent =   $reg->owner;
+        $tado->object = 'Lorem Ipsun';
+        $tado->registration = $reg;
+        $tado->shortDescription = 'Texto Longo';
+        $tado->agentSignature = $app->auth->getAuthenticatedUser()->profile;
+        dump($tado);
         // $this->json(['Message' => $diliMeta]);
     }
 
