@@ -33,6 +33,13 @@ class Tado extends \MapasCulturais\Entity {
      */
     protected $id;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="number", type="string", length=24, nullable=true)
+     */
+    protected $number;
+
      /**
      * @var \DateTime
      *
@@ -53,4 +60,56 @@ class Tado extends \MapasCulturais\Entity {
      * @ORM\Column(name="rperiod_to", type="datetime", nullable=false)
      */
     protected $periodTo;
+
+    /**
+     * @var \MapasCulturais\Entities\Agent
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Agent", fetch="LAZY")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="agent_id", referencedColumnName="id", onDelete="CASCADE")
+     * })
+     */
+    protected $agent;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="object", type="string", length=255, nullable=false)
+     */
+    protected $object;
+
+    /**
+     * @var \MapasCulturais\Entities\Registration
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Registration")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="registration_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    protected $registration;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="conclusion", type="text", nullable=true)
+     */
+    protected $shortDescription;
+
+     /**
+     * @var \MapasCulturais\Entities\Agent
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Agent", fetch="LAZY")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="agent_signature", referencedColumnName="id", onDelete="CASCADE")
+     * })
+     */
+    protected $agentSignature;
+
+     /**
+     * @var integer
+     *
+     * @ORM\Column(name="status", type="smallint", nullable=false)
+     */
+    protected $status = self::STATUS_ENABLED;
+
 }

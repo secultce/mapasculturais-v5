@@ -1965,13 +1965,26 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
     },
     
-    'create table diligence_meta' => function() {
-         __exec("CREATE SEQUENCE diligence_meta_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
-         __exec("CREATE TABLE diligence_meta (id INT NOT NULL, object_id INT NOT NULL, key VARCHAR(255) NOT NULL, value TEXT DEFAULT NULL, PRIMARY KEY(id));");
-         __exec("CREATE INDEX diligence_meta_owner_idx ON diligence_meta (object_id);");
-         __exec("CREATE INDEX diligence_meta_owner_key_idx ON diligence_meta (object_id, key);");
-         __exec("CREATE INDEX diligence_meta_key_idx ON diligence_meta (key);");
-         __exec("CREATE INDEX diligence_meta_value_idx ON diligence_meta (value);");
-         __exec("ALTER TABLE diligence_meta ADD CONSTRAINT FK_855112BE232D562B FOREIGN KEY (object_id) REFERENCES diligence (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    'create table tado' => function() {
+        __exec("CREATE SEQUENCE tado_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec("CREATE TABLE tado (
+            id INT NOT NULL, 
+            agent_id INT DEFAULT NULL, 
+            registration_id INT DEFAULT pseudo_random_id_generator() NOT NULL, 
+            agent_signature INT DEFAULT NULL, 
+            number VARCHAR(24) DEFAULT NULL, 
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_from TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_to TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+            object VARCHAR(255) NOT NULL, 
+            conclusion TEXT DEFAULT NULL,
+            status SMALLINT NOT NULL, 
+            PRIMARY KEY(id));");
+        __exec("CREATE INDEX IDX_50909BAA3414710B ON tado (agent_id);");
+        __exec("CREATE INDEX IDX_50909BAA833D8F43 ON tado (registration_id);");
+        __exec("CREATE INDEX IDX_50909BAA59DC8705 ON tado (agent_signature);");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA3414710B FOREIGN KEY (agent_id) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA59DC8705 FOREIGN KEY (agent_signature) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
     }
 ] + $updates ;

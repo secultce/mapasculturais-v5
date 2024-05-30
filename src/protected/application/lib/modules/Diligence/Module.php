@@ -12,7 +12,7 @@ require __DIR__.'/Traits/DiligenceSingle.php';
 require __DIR__.'/Service/DiligenceInterface.php';
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
-require __DIR__.'/Entities/DiligenceMeta.php';
+
 require __DIR__.'/Entities/AnswerDiligence.php';
 require __DIR__.'/Entities/NotificationDiligence.php';
 require __DIR__.'/Service/NotificationInterface.php';
