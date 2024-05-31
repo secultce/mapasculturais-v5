@@ -246,4 +246,11 @@ abstract class MapasCulturais_TestCase extends \PHPUnit\Framework\TestCase
         return $this->request('HEAD', $path, $options);
     }
 
+    public function getUserOuther()
+    {
+        $app = App::i();
+        $agent = $app->repo('Agent')->find(138804);
+        return $agent;
+    }
+
 }
