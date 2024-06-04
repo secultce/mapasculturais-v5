@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use MapasCulturais\App;
 use Diligence\Repositories\Diligence as RepoDiligence;
 
@@ -79,7 +80,9 @@ $tado = $td->getTado($reg, 1);
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="numbertec" />
+                        <input name="dateTado" id="dateTado" data-type="date" 
+                        
+                        js-mask="00/00/0000"/>
                     </div>
                 </div>
 
@@ -184,9 +187,21 @@ $tado = $td->getTado($reg, 1);
                         </div>                   
                     </div>
                 </div>
-                <div class="form-container">
-                <div class="form-group">
-                        <button class="btn btn-primary" id="generateTado">Salvar Rascunho</button>
+                <div class="form-container footer-action-tado">
+                    <div class="form-group">
+                        <button 
+                            class="btn"
+                            id="drashTado"
+                            title="Salva os valores atuais do seu relatório"
+                            style="background: #CED4DA; color: #000000"
+                        >Salvar Rascunho</button>
+                    </div>
+                    <div class="form-group">
+                        <button
+                            class="btn btn-primary"
+                            id="generateTado"
+                            title="Finaliza o seu relatório"
+                        >Finalizar TADO</button>
                     </div>
                 </div>
             </div>
@@ -201,7 +216,7 @@ $tado = $td->getTado($reg, 1);
 
 
 <?php
-dump($app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'));
-dump($reg);
+// dump($app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'));
+// dump($reg);
 
 ?>

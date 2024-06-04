@@ -94,3 +94,9 @@ input[type="text"] {
     line-height: 24.51px;
     font-size: 18px
 }
+
+.footer-action-tado {
+    display: ruby-text;
+    justify-items: center;
+    text-align: center;
+}

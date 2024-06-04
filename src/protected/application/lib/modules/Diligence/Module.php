@@ -30,7 +30,7 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app) {
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = self::getrequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($entity);
@@ -74,12 +74,12 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app) {
-            $entity = self::getrequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             $this->part('diligence/days', ['entity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = self::getrequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
@@ -92,7 +92,7 @@ class Module extends \MapasCulturais\Module {
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
            
-            $entity = self::getrequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             $authorired = $entity->getMetadata('option_authorized');
             $valueProject = $entity->getMetadata('value_project_diligence');
             if($authorired == 'Sim') {

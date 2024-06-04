@@ -9,18 +9,24 @@ class Tado extends \MapasCulturais\Controller
 {
     use \Diligence\Traits\DiligenceSingle;
 
-    function GET_emitirTado()
+    function GET_emitir()
     {
-        
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
+        $isEvaluator = $app->isEvaluator($reg->opportunity, $reg);
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
         $app->view->enqueueScript('app', 'tado', 'js/multi/tado.js');
         $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js');
-        $this->render('emitir', ['reg' => $reg]);
+        //Acesso ao avaliador, superAdmin+ ou admin da oportunidade
+        if($isEvaluator || $app->user->is('superAdmin') || $reg->opportunity->canUser('@control'))
+        {
+            return $this->render('emitir', ['reg' => $reg]);
+        };       
+        //Redireciona se nao tiver permissão
+        return $app->redirect($app->createUrl('oportunidade', $reg->opportunity->id), 401);
     }
 
-    function GET_gerarTado()
+    function GET_gerar()
     {
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
