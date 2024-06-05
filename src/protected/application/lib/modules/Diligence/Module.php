@@ -103,6 +103,18 @@ class Module extends \MapasCulturais\Module {
             ]);
         });
 
+        $app->hook('template(opportunity.single.tab-evaluations):after', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim') {
+                $this->part('opportunity/tab-diligences');
+            }
+        });
+
+        $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim') {
+                $this->part('opportunity/tab-diligences');
+            }
+        });
+
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
             if($entity->opportunity->use_diligence === 'Sim' && (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não'))
