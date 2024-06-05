@@ -100,3 +100,9 @@ input[type="text"] {
     justify-items: center;
     text-align: center;
 }
+
+.ul-info {
+    list-style: none !important;
+    margin: 0 0 1.3rem 1.3rem;
+    color: #cd0a0a;
+}

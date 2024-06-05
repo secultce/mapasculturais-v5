@@ -4,10 +4,12 @@ namespace Diligence\Controllers;
 use \MapasCulturais\App;
 use Diligence\Entities\Tado as EntityTado;
 use Carbon\Carbon;
+use Diligence\Entities\AnswerDiligence;
 
 class Tado extends \MapasCulturais\Controller
 {
     use \Diligence\Traits\DiligenceSingle;
+    use \MapasCulturais\Traits\ControllerUploads;
 
     function GET_emitir()
     {
@@ -36,11 +38,24 @@ class Tado extends \MapasCulturais\Controller
 
     function POST_saveTado()
     {
-        dump($this->data);
+        $request = $this;
+        $tado = new EntityTado();
+        //Recebendo data preenchida ou data e hora atual
+        $dateDay = Carbon::parse($this->data['dateDay'])->format('Y-m-d H:i ');
+        if($dateDay == ""){
+            $dateDay = Carbon::now();
+        }
+        //Validando para o Frontend
+        $validateBack = $tado->validateForm($request);
+        //Se tiver campos obrigatório vazio então dispara mensagem
+        !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;       
+     
         $app = App::i();
-        $entityGet = self::getrequestedEntity($this);
+        if($request->data['idTado'] > 0)
+        {
+            //faz update
+        }
         $reg = $app->repo('Registration')->find($this->data['id']);
-        // dump($reg); die;
         $tado = new EntityTado();
         $tado->number           = rand(0, 100);
         $tado->createTimestamp  = Carbon::now();
@@ -52,8 +67,8 @@ class Tado extends \MapasCulturais\Controller
         $tado->conclusion       = $this->data['conclusion'];
         $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
 
-        $entity = self::saveEntity($tado);
-        self::returnJson($entity, $this);
+        // $entity = self::saveEntity($tado);
+        // self::returnJson($entity, $this);
         // dump($entity);
         // $this->json(['Message' => $diliMeta]);
     }

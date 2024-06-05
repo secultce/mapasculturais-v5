@@ -25,17 +25,21 @@ $(document).ready(function () {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
+                const postDataTado = {
+                    dateDay: $("#dateTado").val(),
+                    object : $("#object").val(),
+                    conclusion: editor.getData()  
+                };
+                if($("#idTado").val() !== '') {
+                    postDataTado['idTado'] = $("#idTado").val();
+                }
                 $.ajax({
                     type: "POST",
                     url: MapasCulturais.createUrl('tado', 'saveTado/' + MapasCulturais.idEntity),
-                    data: {
-                        dateDay: $("#dateTado").val(),
-                        object : $("#object").val(),
-                        conclusion: editor.getData()              
-                    },
+                    data: postDataTado,
                     dataType: "json",
                     success: function (res) {
-                        console.log('response');
+                      
                         if(res.status == 200){
                             Swal.fire({
                                 title: "O seu documento foi gerado",
@@ -43,6 +47,22 @@ $(document).ready(function () {
                                 icon: "success"
                             });
                         }
+
+                        if(res.status == 403){
+                            const infoErro = [];
+                            res.data.forEach(element => {
+                              infoErro.push('<li>'+element+'</li>')
+                            });
+                            const liInfoError = infoErro.join(' ');
+                            Swal.fire({
+                                title: "Ops! Observer",
+                                icon: "error",
+                                html: `<ul class="ul-info">${liInfoError}</ul>`,
+                            });
+                        }
+                    },
+                    error: function(err) {
+                        
                     }
                 });
             }

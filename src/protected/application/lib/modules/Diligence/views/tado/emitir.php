@@ -13,6 +13,7 @@ $this->jsObject['idEntity'] = $reg->id;
 $td = new RepoDiligence();
 $tado = $td->getTado($reg, 1);
 
+
 ?>
 
 <div>
@@ -65,7 +66,7 @@ $tado = $td->getTado($reg, 1);
                     <p class="info-regis-tado">
                         Informações de Identificação
                     </p>
-                    <?php if($tado->status == 1): ?>
+                    <?php if(isset($tado->status) && $tado->status == 1): ?>
                     <p>
                         <button style="margin-right: 10px;">Editar Informações</button>
                         <button class="btn btn-primary">Baixar Novamente</button>
@@ -80,9 +81,9 @@ $tado = $td->getTado($reg, 1);
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="dateTado" id="dateTado" data-type="date" 
-                        
-                        js-mask="00/00/0000"/>
+                        <input name="dateTado" id="dateTado"
+                        value="<?= Carbon::now()->format('d/m/Y'); ?>"
+                        />
                     </div>
                 </div>
 
@@ -93,7 +94,7 @@ $tado = $td->getTado($reg, 1);
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="numbertec" placeholder="Data Final" />
+                        <input name="numbertec" placeholder="Data Final"  />
                     </div>
                 </div>
 
@@ -127,17 +128,20 @@ $tado = $td->getTado($reg, 1);
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
                         <label class="title-label">Objeto</label>
-                        <?php if($tado->status == 1): ?>
+                        <?php if(isset($tado) && $tado->status == 1): ?>
                             <input name="object" id="object" value="<?= $tado->object; ?>" />
                         <?php endif; ?>
                         <?php if(is_null($tado)): ?>
                             <input name="object" id="object" />
                         <?php endif; ?>
-                        <?php if($tado->status == 2): ?>
+                        <?php if(isset($tado) && $tado->status == 2): ?>
                             <label class="content-value-name">
                                 <?= $tado->object; ?>
                             </label>
-                        <?php endif; ?>                        
+                        <?php endif; ?>
+                        <p class="registration-help ng-scope">
+                            Esse campo é obrigatório
+                        </p>     
                     </div>
                 </div>
             </div>
@@ -147,7 +151,7 @@ $tado = $td->getTado($reg, 1);
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
-                    <?php if($tado->status == 1): ?>
+                    <?php if(isset($tado) && $tado->status == 1): ?>
                         <textarea
                         name="conclusionTado"
                         id="conclusionTado"
@@ -155,7 +159,10 @@ $tado = $td->getTado($reg, 1);
                         cols="100"
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."><?= $tado->conclusion; ?></textarea>
                     <?php endif; ?>
-                    <?php if(is_null($tado)): ?>
+                    <?php
+                  
+                    
+                    if(is_null($tado)): ?>
                         <textarea
                         name="conclusionTado"
                         id="conclusionTado"
@@ -163,12 +170,14 @@ $tado = $td->getTado($reg, 1);
                         cols="100"
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
                     <?php endif; ?>
-                    <?php if($tado->status == 2): ?>
+                    <?php if(isset($tado) && $tado->status == 2): ?>
                         <label class="content-value-name">
                             <?= $tado->conclusion; ?>
                         </label>
                     <?php endif; ?>
-                    
+                    <p class="registration-help ng-scope">
+                        Esse campo é obrigatório
+                    </p>   
                 </div>
             </div>
             <div>
@@ -188,6 +197,7 @@ $tado = $td->getTado($reg, 1);
                     </div>
                 </div>
                 <div class="form-container footer-action-tado">
+                    <input type="text" id="idTado" value="<?= isset($tado) ? $tado->id : '' ?>">
                     <div class="form-group">
                         <button 
                             class="btn"
