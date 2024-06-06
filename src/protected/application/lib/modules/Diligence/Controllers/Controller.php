@@ -1,4 +1,5 @@
 <?php
+
 namespace Diligence\Controllers;
 
 use \MapasCulturais\App;
@@ -10,7 +11,8 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
 
-class Controller extends \MapasCulturais\Controller implements NotificationInterface {
+class Controller extends \MapasCulturais\Controller implements NotificationInterface
+{
     use \Diligence\Traits\DiligenceSingle;
     use \MapasCulturais\Traits\ControllerUploads;
 
@@ -20,21 +22,21 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     const ANSWER_SEND       = 'resposta_enviada';
 
     /**
-     * Salva uma diligencia
+     * Salva uma diligência
      *
      * @return void
      */
-    public function POST_save() : void
+    public function POST_save(): void
     {
         $this->requireAuthentication();
 
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
 
-        if(($this->data['idDiligence']?:0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
-            $diligences = $app->repo('Diligence\Entities\Diligence')
-                ->findBy(['registration' => $registration]);
-            if(count($diligences) > 0) {
+        if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
+            $diligences = $app->repo('Diligence\Entities\Diligence')->findBy(['registration' => $registration]);
+
+            if (count($diligences) > 0) {
                 $this->json([
                     'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
                     'error' => 'multiple_diligence_not_alowed',
@@ -46,11 +48,12 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
-        $this->json(['message' => 'success','status' => 200, 'entityId' => $entity['entityId']]);
+
+        $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
     }
 
-     /**
-     * Busca o conteúdo de uma diligencia salva ou enviada
+    /**
+     * Busca o conteúdo de uma diligência salva ou enviada
      *
      * @return void
      */
@@ -59,7 +62,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $app = App::i();
 
         //ID é o número da inscrição
-        if(isset($this->data['id'])) {
+        if (isset($this->data['id'])) {
             //Repositorio da Diligencia
             $diligences = $app->repo('Diligence\Entities\Diligence')
                 ->findBy(
@@ -69,7 +72,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
             $message = self::WITHOUT_DILIGENCE;
 
-            if(count($diligences) > 0) {
+            if (count($diligences) > 0) {
                 $lastDiligence = $diligences[0];
 
                 if (in_array(
@@ -103,7 +106,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return void
      */
-    public function notification() : void
+    public function notification(): void
     {
         $this->requireAuthentication();
         App::i()->applyHook('controller(diligence).notification:before');
@@ -127,28 +130,28 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return void
      */
-    public function POST_answer() : void
+    public function POST_answer(): void
     {
-        if($this->data['answer'] == ''){
+        if ($this->data['answer'] == '') {
             $this->errorJson(['message' => 'O Campo de resposta deve está preenchido'], 400);
         }
         $this->requireAuthentication();
         $answer = new AnswerDiligence();
         $entity = $answer->create($this);
         $return = json_decode($entity);
-        $this->json(['message' => 'success','status' => 200, 'entityId' => $return->entityId]);
+        $this->json(['message' => 'success', 'status' => 200, 'entityId' => $return->entityId]);
     }
-    
+
     /**
      * Altera o status da diligencia, retornando para rascunho
      *
      * @return void
      */
-    public function PUT_cancelsend() : void
+    public function PUT_cancelsend(): void
     {
         $this->requireAuthentication();
         $cancel = new EntityDiligence();
-        $cancel->cancel($this);        
+        $cancel->cancel($this);
     }
 
     public function POST_notifiAnswer()
@@ -164,7 +167,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             ];
         };
         EntityDiligence::sendQueue($userDestination, 'resposta');
-        $this->json(['message' => 'success','status' => 200]);
+        $this->json(['message' => 'success', 'status' => 200]);
     }
 
     /**
@@ -179,12 +182,12 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $cancel->cancel($this);
     }
 
-    public function POST_valueProject() : void
-    {   
+    public function POST_valueProject(): void
+    {
         $this->requireAuthentication();
         $app = App::i();
 
-        $regMeta =[];
+        $regMeta = [];
         $idEntity = $this->postData['entity'];
         $reg = $app->repo('Registration')->find($idEntity);
         $createMetadata = null;
@@ -193,31 +196,29 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         ]);
         foreach ($this->postData as $keyRequest => $meta) {
 
-            if(empty($regMeta)){
+            if (empty($regMeta)) {
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
                 self::saveEntity($createMeta);
             }
 
             foreach ($regMeta as $key => $value) {
                 //Se já existe dados cadastrados, então substitui por um valor novo
-                if($value->key == $keyRequest)
-                {
+                if ($value->key == $keyRequest) {
                     $value->value = $meta;
                     self::saveEntity($value);
                 }
             }
-           
+
             $createMetadata = $app->repo('RegistrationMeta')->findBy([
-               'key' => $keyRequest, 'owner' => $idEntity
+                'key' => $keyRequest, 'owner' => $idEntity
             ]);
-           
-            if(empty($createMetadata)) {
+
+            if (empty($createMetadata)) {
                 $createMeta = self::authorizedProject($reg, $keyRequest, $meta);
                 self::saveEntity($createMeta);
             }
         }
         self::returnJson(null, $this);
-
     }
 
     protected function authorizedProject($entity, $key, $value): object
@@ -233,7 +234,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $authorized = DiligenceRepo::getAuthorizedProject($this->data['id']);
         $this->json([
-            'optionAuthorized' => $authorized['optionAuthorized'] , 
+            'optionAuthorized' => $authorized['optionAuthorized'],
             'valueAuthorized' => $authorized['valueAuthorized']
         ]);
     }
@@ -243,42 +244,42 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return boolean
      */
-    public function GET_deleteFile() : bool
+    public function GET_deleteFile(): bool
     {
         $app = App::i();
         $conn = $app->em->getConnection();
         //Verificando se existe na rota esse indice
-        if(isset($this->data[1]))
-        {
+        if (isset($this->data[1])) {
             $entity = $app->repo('Registration')->find($this->data[1]);
             //Verificando se o dono da inscrição é o mesmo usuario logado
-            if($entity->getOwnerUser() == $app->getUser())
-            {
-                $query = $conn->executeQuery('DELETE FROM file WHERE id = '.$this->data['id']);
+            if ($entity->getOwnerUser() == $app->getUser()) {
+                $query = $conn->executeQuery('DELETE FROM file WHERE id = ' . $this->data['id']);
                 $result = $query->execute();
-                if($result)
-                {
+                if ($result) {
                     self::returnJson(null, $this);
                 }
-            }           
-        }        
+            }
+        }
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
 
-    function addingBusinessDays($date, $dias) {
+    function addingBusinessDays($date, $dias)
+    {
         // Obtém a data e hora atual em objeto tyipo date
         $currentDate = Carbon::parse($date);
         $daysAdds = 0;
         //Consultando no banco os feriados nacionais cadastrados
         $app = App::i();
         $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
-        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+        $holidays = array_map(function ($term) {
+            return $term->term;
+        }, $termsHolidays);
 
         // Loop até que todos os dias úteis sejam adicionados
         while ($daysAdds < $dias) {
             // Adiciona 1 dia à data atual
             $currentDate->addDay();
-    
+
             // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
             if ($currentDate->isWeekday()) {
                 //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
@@ -288,16 +289,135 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 }
             }
         }
-        
+
         return $currentDate;
     }
 
-    function POST_arquivo()
+    function POST_upload()
     {
-        dump($this);
+        $this->requireAuthentication();
+
+        $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
+
+        if (!$owner) {
+            $this->errorJson(\MapasCulturais\i::__('O dono não existe'));
+            return;
+        }
+
+        $file_class_name = 'Diligence\Entities\DiligenceFile';
+
         $app = App::i();
 
-        $file = $app->repo('\Diligence\Entities\AnswerDiligenceFile')->find($this->data['id']);
-        dump($file);
+        if (empty($_FILES) || !$this->data['id']) {
+            $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado'));
+            return;
+        }
+
+        $result = [];
+        $files = [];
+
+        foreach (array_keys($_FILES) as $group_name) {
+            $ext = pathinfo($_FILES[$group_name]['name'], PATHINFO_EXTENSION);
+            $name = pathinfo($_FILES[$group_name]['name'], PATHINFO_FILENAME);
+            $_FILES[$group_name]['name'] = $app->slugify($name) . "." . $ext;
+
+            $upload_group = $app->getRegisteredFileGroup($this->id, $group_name);
+
+            if ($upload_group = $app->getRegisteredFileGroup($this->id, $group_name)) {
+                try {
+                    $file = $app->handleUpload($group_name, $file_class_name);
+
+                    if (is_array($file) && $upload_group->unique) {
+                        continue;
+                    } elseif (is_array($file) && !$upload_group->unique) {
+                        foreach ($file as $f) {
+                            if ($error = $upload_group->getError($f)) {
+                                $files[] = ['error' => $error, 'group' => $upload_group];
+                            } else {
+                                $f->group = $group_name;
+                                $files[] = $f;
+                            }
+                        }
+                    } else {
+                        if (key_exists('description', $this->data) && is_array($this->data['description']) && key_exists($group_name, $this->data['description']))
+                            $file->description = $this->data['description'][$group_name];
+
+                        if ($errors = $file->getValidationErrors()) {
+                            $error_messages = [];
+                            foreach ($errors as $_errors) {
+                                $error_messages = array_merge(array_values($_errors), $error_messages);
+                            }
+                            $files[$group_name] = ['error' => implode(', ', $error_messages), 'group' => $upload_group];
+                        } else if ($error = $upload_group->getError($file)) {
+                            $files[] = ['error' => $error, 'group' => $upload_group];
+                        } else {
+                            $file->group = $group_name;
+                            $files[] = $file;
+                        }
+                    }
+                } catch (\MapasCulturais\Exceptions\FileUploadError $e) {
+
+                    $files[] = [
+                        'error' => $e->message,
+                        'group' => $upload_group
+                    ];
+                }
+            }
+        }
+
+        if (empty($files)) {
+            $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo válido enviado'));
+            return;
+        } else {
+            $all_files_contains_error = true;
+            foreach ($files as $f) {
+                if (is_object($f)) {
+                    $all_files_contains_error = false;
+                    break;
+                }
+            }
+
+            if ($all_files_contains_error) {
+                $result = [];
+                foreach ($files as $error)
+                    if (key_exists('group', $error) && $error['group']->unique)
+                        $result[$error['group']->name] = $error['error'];
+                    else {
+                        if (!isset($result[$error['group']->name])) {
+                            $result[$error['group']->name] = [];
+                        }
+                        $result[$error['group']->name][] = $error['error'];
+                    }
+                $this->errorJson($result);
+                return;
+            }
+        }
+
+        foreach ($files as $file) {
+            $upload_group = $app->getRegisteredFileGroup($this->id, $file->group);
+
+            $file->owner = $owner;
+
+            if ($upload_group->unique) {
+                $old_file = $app->repo($file_class_name)->findOneBy(['owner' => $owner, 'group' => $file->group]);
+                if ($old_file)
+                    $old_file->delete();
+            }
+
+            $file->save();
+            $file_group = $file->group;
+
+            if ($upload_group->unique) {
+                $result[$file_group] = $file;
+            } else {
+                if (!key_exists($file->group, $result))
+                    $result[$file->group] = [];
+                $result[$file_group][] = $file;
+            }
+        }
+
+        $app->em->flush();
+        $this->json($result);
+        return;
     }
 }

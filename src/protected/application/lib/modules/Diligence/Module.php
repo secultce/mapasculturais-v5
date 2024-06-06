@@ -13,6 +13,7 @@ require __DIR__.'/Traits/DiligenceSingle.php';
 require __DIR__.'/Service/DiligenceInterface.php';
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
+require __DIR__.'/Entities/DiligenceFile.php';
 require __DIR__.'/Entities/AnswerDiligence.php';
 require __DIR__.'/Entities/NotificationDiligence.php';
 require __DIR__.'/Service/NotificationInterface.php';
@@ -122,19 +123,23 @@ class Module extends \MapasCulturais\Module {
         });
 
         //Hook para antes de upload para um logica para diligência
-        $app->hook('POST(registration.upload):before', function() use ($app) {
-            $registration = $this->requestedEntity;
+        $app->hook('POST(diligence.upload):before', function () use ($app) {
+            $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]]);
+
             //Se Files é diferente de null
             //Se Files tem o indice com o grupo da diligencia
             //Se da inscrição é o mesmo quem está logado enviando a requisição.
-            //$registration->getOwnerUser() == $app->getUser()
-            if(
-                isset($_FILES) && 
-                array_key_exists('file-diligence', $_FILES)
+            if (
+                isset($_FILES) &&
+                array_key_exists('answer-diligence', $_FILES) &&
+                $diligence[0]->getOwnerUser() == $app->getUser()
             ) {
                 $app->disableAccessControl();
             }
+        });
 
+        $app->hook('doctrine.emum(object_type).values', function (&$result) {
+            $result["Diligence"] = 'Diligence\Entities\Diligence';
         });
 
     }
@@ -184,10 +189,10 @@ class Module extends \MapasCulturais\Module {
 
 
         $app->registerFileGroup(
-            'registration',
+            'diligence',
             new Definitions\FileGroup(
-                'file-diligence',
-                ['application/pdf','image/(gif|jpeg|pjpeg|png)'],
+                'answer-diligence',
+                ['application/pdf', 'image/(gif|jpeg|pjpeg|png)'],
                 'O arquivo não e valido'
             )
         );
