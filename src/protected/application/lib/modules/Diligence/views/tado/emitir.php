@@ -81,8 +81,11 @@ $tado = $td->getTado($reg, 1);
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="dateTado" id="dateTado"
-                        value="<?= Carbon::now()->format('d/m/Y'); ?>"
+                        <input
+                            name="dateTado"
+                            id="dateTado"
+                            class="dateTado"
+                            value="<?= Carbon::now()->format('d/m/Y'); ?>"
                         />
                     </div>
                 </div>
@@ -90,11 +93,15 @@ $tado = $td->getTado($reg, 1);
                 <div class="content-space-bet">
                     <div class="form-group">
                         <label class="title-info">Período de Vigência</label>
-                        <input name="numbertec" placeholder="Data Inicial" />
+                        <input name="periodInitial"
+                            id="periodInitial"
+                            class="dateTado"
+                            placeholder="Data Inicial"
+                        />
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="numbertec" placeholder="Data Final"  />
+                        <input name="periodEnd" id="periodEnd" class="dateTado" placeholder="Data Final"  />
                     </div>
                 </div>
 
@@ -128,13 +135,13 @@ $tado = $td->getTado($reg, 1);
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
                         <label class="title-label">Objeto</label>
-                        <?php if(isset($tado) && $tado->status == 1): ?>
-                            <input name="object" id="object" value="<?= $tado->object; ?>" />
-                        <?php endif; ?>
                         <?php if(is_null($tado)): ?>
                             <input name="object" id="object" />
                         <?php endif; ?>
-                        <?php if(isset($tado) && $tado->status == 2): ?>
+                        <?php if(isset($tado) && $tado->status == 0): ?>
+                            <input name="object" id="object" value="<?= $tado->object; ?>" />
+                        <?php endif; ?>
+                        <?php if(isset($tado) && $tado->status == 1): ?>
                             <label class="content-value-name">
                                 <?= $tado->object; ?>
                             </label>
@@ -147,11 +154,12 @@ $tado = $td->getTado($reg, 1);
             </div>
 
             <div>
+                <?php dump($tado); ?>
                 <div class="form-container">
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
-                    <?php if(isset($tado) && $tado->status == 1): ?>
+                    <?php if(isset($tado) && $tado->status == 0): ?>
                         <textarea
                         name="conclusionTado"
                         id="conclusionTado"
@@ -160,8 +168,6 @@ $tado = $td->getTado($reg, 1);
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."><?= $tado->conclusion; ?></textarea>
                     <?php endif; ?>
                     <?php
-                  
-                    
                     if(is_null($tado)): ?>
                         <textarea
                         name="conclusionTado"
@@ -170,7 +176,7 @@ $tado = $td->getTado($reg, 1);
                         cols="100"
                         placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
                     <?php endif; ?>
-                    <?php if(isset($tado) && $tado->status == 2): ?>
+                    <?php if(isset($tado) && $tado->status == 1): ?>
                         <label class="content-value-name">
                             <?= $tado->conclusion; ?>
                         </label>
@@ -197,13 +203,13 @@ $tado = $td->getTado($reg, 1);
                     </div>
                 </div>
                 <div class="form-container footer-action-tado">
-                    <input type="text" id="idTado" value="<?= isset($tado) ? $tado->id : '' ?>">
+                    <input type="text" id="idTado" value="<?= isset($tado) ? $tado->id : 0 ?>">
                     <div class="form-group">
                         <button 
                             class="btn"
-                            id="drashTado"
+                            id="draftTado"
                             title="Salva os valores atuais do seu relatório"
-                            style="background: #CED4DA; color: #000000"
+                            style="background: #CED4DA; color: #000000"                          
                         >Salvar Rascunho</button>
                     </div>
                     <div class="form-group">

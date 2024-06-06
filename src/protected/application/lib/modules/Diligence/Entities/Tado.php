@@ -119,7 +119,6 @@ class Tado extends \MapasCulturais\Entity
   {
     $return = [];
     foreach ($request->data as $key => $value) {
-      // dump($key, $value);
       if ($key == "object" && $value == "") {
         array_push($return, 'O Objeto é obrigatório');
       }
