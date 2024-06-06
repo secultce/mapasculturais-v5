@@ -230,29 +230,32 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         return $metaData;
     }
 
-    public function GET_list(): void
+    public function GET_registrationsInDiligence(): void
     {
         $this->requireAuthentication();
 
-        $opportunityId = $this->data['opportunityId'] ?? null;
-        $registrationId = $this->data['registrationId'] ?? null;
-
-        if($registrationId === null && $opportunityId === null)
+        if(!isset($this->data['opportunityId'])) {
             $this->json([], 400);
+            return;
+        }
+
+        $opportunityId = $this->data['opportunityId'];
 
         $app = App::i();
 
         $qb = $app->em->createQueryBuilder();
-        $qb->select('re')
-            ->from('\MapasCulturais\Entities\RegistrationEvaluation', 're')
-            ->innerJoin('\MapasCulturais\Entities\Registration', 'r', 'WITH', 're.registration = r')
-            ->where($qb->expr()->eq('r.opportunity', '?1'));
+        $qb->select('r')
+            ->from('\Diligence\Entities\Diligence', 'd')
+            ->innerJoin('\MapasCulturais\Entities\Registration', 'r', 'WITH', 'd.registration = r')
+            ->having('count(d) > 0')
+            ->where($qb->expr()->in('r.opportunity', '?1'))
+            ->groupBy('r')
+            ->setParameter('1', $opportunityId);
+
         $query = $qb->getQuery();
-        $query->setParameter('1', $opportunityId);
+        $registrations = $query->getResult();
 
-        $evaluations = $query->getResult();
-
-        $this->json($evaluations);
+        $this->json($registrations);
     }
 
     public function GET_getAuthorizedProject()
