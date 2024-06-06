@@ -9,6 +9,7 @@ use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
+use PHPUnit\Exception;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
     use \Diligence\Traits\DiligenceSingle;
@@ -229,6 +230,31 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         return $metaData;
     }
 
+    public function GET_list(): void
+    {
+        $this->requireAuthentication();
+
+        $opportunityId = $this->data['opportunityId'] ?? null;
+        $registrationId = $this->data['registrationId'] ?? null;
+
+        if($registrationId === null && $opportunityId === null)
+            $this->json([], 400);
+
+        $app = App::i();
+
+        $qb = $app->em->createQueryBuilder();
+        $qb->select('re')
+            ->from('\MapasCulturais\Entities\RegistrationEvaluation', 're')
+            ->innerJoin('\MapasCulturais\Entities\Registration', 'r', 'WITH', 're.registration = r')
+            ->where($qb->expr()->eq('r.opportunity', '?1'));
+        $query = $qb->getQuery();
+        $query->setParameter('1', $opportunityId);
+
+        $evaluations = $query->getResult();
+
+        $this->json($evaluations);
+    }
+
     public function GET_getAuthorizedProject()
     {
         $authorized = DiligenceRepo::getAuthorizedProject($this->data['id']);
@@ -243,7 +269,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return boolean
      */
-    public function GET_deleteFile() : bool
+    public function GET_deleteFile() : void
     {
         $app = App::i();
         $conn = $app->em->getConnection();

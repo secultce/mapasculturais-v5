@@ -111,7 +111,7 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
             if($this->data['entity']->use_diligence === 'Sim') {
-                $this->part('opportunity/tab-diligences');
+                $this->part('opportunity/diligence-content');
             }
         });
 
@@ -154,6 +154,7 @@ class Module extends \MapasCulturais\Module {
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
+        $app->registerController('dilig', Controllers\Diligence::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
