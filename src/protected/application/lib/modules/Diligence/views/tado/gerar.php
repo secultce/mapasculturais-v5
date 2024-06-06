@@ -38,5 +38,5 @@ $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
 $mpdf->WriteHTML(ob_get_clean());
 $mpdf->WriteHTML($content);
 $mpdf->SetHTMLFooter($footerPage);
-$mpdf->Output();
-exit;
+$pdf = $mpdf->Output('Trado.pdf', \Mpdf\Output\Destination::DOWNLOAD);
+// exit;

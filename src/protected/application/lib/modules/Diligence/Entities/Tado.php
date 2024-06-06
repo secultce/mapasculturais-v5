@@ -113,7 +113,7 @@ class Tado extends \MapasCulturais\Entity
    *
    * @ORM\Column(name="status", type="smallint", nullable=false)
    */
-  protected $status = self::STATUS_ENABLED;
+  protected $status = self::STATUS_DRAFT;
 
   public function validateForm(ControllerTado $request): array
   {
@@ -125,6 +125,13 @@ class Tado extends \MapasCulturais\Entity
       if ($key == "conclusion" && $value == "") {
         array_push($return, 'A Conclusão é obrigatória');
       }
+      if (
+        $request->data['status'] == 1 && 
+        ($key == "datePeriodInitial" && $value == "") || $key == "datePeriodEnd" && $value == ""  
+      ) {
+        array_push($return, 'O Período Final da Vigência é Obrigatório');
+      }
+      
     }
     return $return;
   }

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    // CKEDITOR.replace( 'conclusionTado' );
+    //Plugin jquery CKEDITOR
     var editor = CKEDITOR.replace('conclusionTado');
     //Mascara de data
     $("#dateTado").mask('00/00/0000');
@@ -34,15 +34,16 @@ function saveTado(editor, status)
     }
     
     if(status === 1){
+        //VALIDANDO NO FRONTEND
         if($("#periodInitial").val() == '' || $("#periodEnd").val() == '') {
             Swal.fire({
                 title: "Ops!",
                 icon: "error",
-                text: "O Período da de vigência é obrigatório",
+                text: "O Período da vigência é obrigatório",
             });
             return false;
         }
-
+        //CONFIRMAÇÃO
         Swal.fire({
             title: "Confirmar gerar o seu relatório?",
             text: "Essa ação não pode ser desfeita. Por isso, revise seu relatório com cuidado.",
@@ -57,19 +58,17 @@ function saveTado(editor, status)
                 cancelButton: "btn-warning-rec"
             },
         }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {            
                 save(postDataTado);
             }
         });
     }else{
-        console.log({postDataTado});
         save(postDataTado);
     }
    
 
 }
-
+//SALVANDO OS DADOS DEPENDENDO DO STATUS
 function save(postDataTado)
 {
      $.ajax({
@@ -87,6 +86,18 @@ function save(postDataTado)
                     text: res.message,
                     icon: "success"
                 });
+                
+                if(postDataTado.status == 1) {
+                    setTimeout(() => {
+                        const urlRedirect = MapasCulturais.createUrl('tado', 'gerar/'+MapasCulturais.idEntity);
+                        window.location.href=urlRedirect;
+                    }, 2000);
+    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                }
+               
             }
 
             if(res.status == 403){
@@ -103,7 +114,7 @@ function save(postDataTado)
             }
         },
         error: function(err) {
-            
+            console.log({err})
         }
     });
 }

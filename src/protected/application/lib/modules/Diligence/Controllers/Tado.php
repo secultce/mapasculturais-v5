@@ -1,11 +1,11 @@
 <?php
 namespace Diligence\Controllers;
 
-use \MapasCulturais\App;
-use Diligence\Entities\Tado as EntityTado;
+use DateTime;
 use Carbon\Carbon;
-use Diligence\Entities\AnswerDiligence;
+use \MapasCulturais\App;
 use MapasCulturais\Entity;
+use Diligence\Entities\Tado as EntityTado;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -58,41 +58,44 @@ class Tado extends \MapasCulturais\Controller
        
         if(intval($request->data['idTado']) > 0)
         {
-            $entity = self::update($request);
-           
-           
+            self::update($request);           
         }else{
             $reg = $app->repo('Registration')->find($this->data['id']);
             $tado = new EntityTado();
             $tado->number           = rand(0, 100);
             $tado->createTimestamp  = Carbon::now();
-            $tado->periodFrom       = Carbon::parse('2024-05-01 00:00:00');
-            $tado->periodTo         = Carbon::parse('2024-05-31 00:00:00');
-            $tado->agent            =   $reg->owner;
+            $tado->periodFrom       = new DateTime($request->data['datePeriodInitial']);
+            $tado->periodTo         = new DateTime($request->data['datePeriodEnd']);
+            $tado->agent            = $reg->owner;
             $tado->object           = $this->data['object'];
             $tado->registration     = $reg;
             $tado->conclusion       = $this->data['conclusion'];
+            $tado->status           = self::STATUS_DRAFT;
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
-            dump($tado);
-            // $entity = self::saveEntity($tado);
-            // self::returnJson($entity, $this);
+            
+            $entity = self::saveEntity($tado);
+            if(is_null($entity)){
+                self::returnRequestJson('Sucesso!', 'Racunho criado com sucesso.', 200);
+            }
         }
-       
-        
     }
-
+    //Atualizando a instancia
     function update($request)
     {
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->find($request->data['idTado']);
+        $reg = $app->repo('Registration')->find($request->data['id']);
+        $tado->periodFrom       = new DateTime($request->data['datePeriodInitial']);
+        $tado->periodTo         = new DateTime($request->data['datePeriodEnd']);
         $tado->object           = $request->data['object'];
         $tado->conclusion       = $request->data['conclusion'];
         $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
         $tado->status           = $request->data['status'];
         $entity = self::saveEntity($tado);
+
         if(is_null($entity)){
             if($request->data['status'] == 1){
-                self::returnRequestJson('Sucesso!', 'Tado finalizado e gerado com sucesso.', 200);
+                self::returnRequestJson('O seu documento foi gerado!', 'Tado finalizado e gerado com sucesso.', 200);
             }else{
                 self::returnRequestJson('Sucesso!', 'Tado alterado com sucesso', 200);
             }            
@@ -113,6 +116,4 @@ class Tado extends \MapasCulturais\Controller
             'status' => $status
         ]);
     }
-
-
 }

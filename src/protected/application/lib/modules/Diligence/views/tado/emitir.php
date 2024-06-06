@@ -11,7 +11,7 @@ $this->jsObject['idEntity'] = $reg->id;
 
 //Buscando o tado gerado
 $td = new RepoDiligence();
-$tado = $td->getTado($reg, 1);
+$tado = $td->getTado($reg);
 
 
 ?>
@@ -97,11 +97,17 @@ $tado = $td->getTado($reg, 1);
                             id="periodInitial"
                             class="dateTado"
                             placeholder="Data Inicial"
+                            value="<?= !is_null($tado) ? Carbon::parse($tado->periodFrom)->format('d/m/Y') : null ; ?>"
                         />
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="periodEnd" id="periodEnd" class="dateTado" placeholder="Data Final"  />
+                        <input name="periodEnd"
+                            id="periodEnd"
+                            class="dateTado"
+                            placeholder="Data Final"
+                            value="<?= !is_null($tado) ? Carbon::parse($tado->periodTo)->format('d/m/Y') : null ; ?>"
+                        />
                     </div>
                 </div>
 
@@ -154,7 +160,7 @@ $tado = $td->getTado($reg, 1);
             </div>
 
             <div>
-                <?php dump($tado); ?>
+                <?php //dump($tado); ?>
                 <div class="form-container">
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
@@ -203,7 +209,8 @@ $tado = $td->getTado($reg, 1);
                     </div>
                 </div>
                 <div class="form-container footer-action-tado">
-                    <input type="text" id="idTado" value="<?= isset($tado) ? $tado->id : 0 ?>">
+                    <?php if( (isset($tado) && $tado->status == 0) || is_null($tado) ): ?>
+                    <input type="hidden" id="idTado" value="<?= isset($tado) ? $tado->id : 0 ?>">
                     <div class="form-group">
                         <button 
                             class="btn"
@@ -212,13 +219,14 @@ $tado = $td->getTado($reg, 1);
                             style="background: #CED4DA; color: #000000"                          
                         >Salvar Rascunho</button>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group">                 
                         <button
                             class="btn btn-primary"
                             id="generateTado"
                             title="Finaliza o seu relatório"
                         >Finalizar TADO</button>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </article>
