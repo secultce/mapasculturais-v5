@@ -4,6 +4,7 @@ use MapasCulturais\i;
 use Carbon\Carbon;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $descriptionDraft = true;
 
@@ -53,6 +54,19 @@ if ($diligenceAndAnswers) :
                         echo $diligenceAndAnswers[1]->answer;
                     ?>
                 </p>
+                <?php
+                    $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
+
+                    foreach ($files as $file) {
+                        echo '
+                            <p style="margin-bottom: 10px;">
+                                <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
+                                    ' . $file["name"] . '
+                                </a>
+                            </p>
+                        ';
+                    }
+                ?>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php
                         echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL');

@@ -1,14 +1,16 @@
 <?php
 
+use Diligence\Entities\AnswerDiligence;
 use \MapasCulturais\App;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $app = App::i();
 
 $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $entity->id]);
+$diligenceId = $diligence ? $diligence[0]->id : null;
 
 // Buscando os arquivos da diligência
-$files = DiligenceRepo::getFilesDiligence($diligence[0]->id);
+$files = DiligenceRepo::getFilesDiligence($diligenceId);
 $this->jsObject['countFileUpload'] = count($files);
 ?>
 
@@ -19,7 +21,7 @@ $this->jsObject['countFileUpload'] = count($files);
             <div id="div-upload-file-count">
                 <a class="js-open-editbox hltip" data-target="#answer-diligence" href="#" title="Click para anexar arquivo">Anexar arquivo</a>
                 <div id="answer-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
-                    <form class="js-ajax-upload" id="upload-file-diligence" data-action="append" data-target=".import-diligence" data-group="answer-diligence" method="post" action="<?php echo $app->createUrl('diligence', 'upload', ['id' => $diligence[0]->id]) ?>" enctype="multipart/form-data">
+                    <form class="js-ajax-upload" id="upload-file-diligence" data-action="append" data-target=".import-diligence" data-group="answer-diligence" method="post" action="<?php echo $app->createUrl('diligence', 'upload', ['id' => $diligenceId]) ?>" enctype="multipart/form-data">
                         <div class="alert danger hidden"></div>
                         <input type="file" name="answer-diligence" />
                     </form>
@@ -62,25 +64,27 @@ $this->jsObject['countFileUpload'] = count($files);
 </div>
 <div class="import-diligence" style="width: 100%">
     <?php
-    foreach ($files as $file) {
-        $id = $file["id"];
-        echo '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
-                <span>Arquivo</span>
-                <h1>
-                    <a href="/arquivos/privateFile/' . $id . '" class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer">
-                        ' . $file["name"] . '
-                    </a>
-                </h1>
-                <div class="botoes footer-btn-delete-file-diligence">
-                    <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $entity->id . '"
-                        data-target="#file-diligence-up-' . $id . '"
-                        data-configm-message="Remover este arquivo?"
-                        class="btn btn-small btn-danger delete hltip js-remove-item"
-                        title="Excluir arquivo">
-                        Excluir
-                    </a>
-                </div>
-            </article>';
+    if ($diligence && (is_null($diligence[0]->answer) || $diligence[0]->answer->status != AnswerDiligence::STATUS_SEND)) {
+        foreach ($files as $file) {
+            $id = $file["id"];
+            echo '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
+                    <span>Arquivo</span>
+                    <h1>
+                        <a href="/arquivos/privateFile/' . $id . '" class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer">
+                            ' . $file["name"] . '
+                        </a>
+                    </h1>
+                    <div class="botoes footer-btn-delete-file-diligence">
+                        <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $entity->id . '"
+                            data-target="#file-diligence-up-' . $id . '"
+                            data-configm-message="Remover este arquivo?"
+                            class="btn btn-small btn-danger delete hltip js-remove-item"
+                            title="Excluir arquivo">
+                            Excluir
+                        </a>
+                    </div>
+                </article>';
+        }
     }
     ?>
 </div>

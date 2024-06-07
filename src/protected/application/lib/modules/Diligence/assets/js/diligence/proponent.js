@@ -100,7 +100,9 @@ $(document).ready(function () {
             const numberSavedFiles = ++MapasCulturais.countFileUpload;
 
             if (numberSavedFiles <= 2) {
-                location.reload();
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             } else {
                 setTimeout(() => {
                     $('#info-title-limit-file-diligence').html(`
@@ -111,7 +113,7 @@ $(document).ready(function () {
                     `);
 
                     $('#div-upload-file-count .mc-cancel').click();
-                }, 1000)
+                }, 1000);
             }
         });
     })
