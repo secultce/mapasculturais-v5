@@ -244,7 +244,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return boolean
      */
-    public function GET_deleteFile(): bool
+    public function GET_deleteFile()
     {
         $app = App::i();
         $conn = $app->em->getConnection();
@@ -295,6 +295,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     function POST_upload()
     {
+        $savedFiles = DiligenceRepo::getFilesDiligence($this->data["id"]);
+
+        if (count($savedFiles) >= 2) return;
+
         $this->requireAuthentication();
 
         $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];

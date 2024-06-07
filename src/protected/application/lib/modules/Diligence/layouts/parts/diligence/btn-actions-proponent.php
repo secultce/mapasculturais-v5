@@ -10,25 +10,6 @@ $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registratio
 // Buscando os arquivos da diligência
 $files = DiligenceRepo::getFilesDiligence($diligence[0]->id);
 $this->jsObject['countFileUpload'] = count($files);
-
-// Template de exibição dos arquivos enviados
-$template = '
-    <div ng-if="id > 0">
-        <article id="file-diligence-{{id}}" class="objeto">
-            <h1>
-                <a href="{{url}}" rel="noopener noreferrer">{{description}}</a>
-            </h1> 
-            <div class="botoes footer-btn-delete-file-diligence">
-                <a data-href="/diligence/deleteFile/{{id}}/registration/' . $entity->id . '"
-                   data-target="#file-diligence-{{id}}"
-                   data-configm-message="Deseja remover este arquivo?"
-                   class="btn btn-small btn-danger delete hltip js-remove-item"
-                   onclick="decre()">
-                   Excluir
-                </a>    
-            </div>
-        </article>
-    </div>';
 ?>
 
 <div class="widget flex-items" id="div-btn-actions-proponent">
@@ -40,10 +21,6 @@ $template = '
                 <div id="answer-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
                     <form class="js-ajax-upload" id="upload-file-diligence" data-action="append" data-target=".import-diligence" data-group="answer-diligence" method="post" action="<?php echo $app->createUrl('diligence', 'upload', ['id' => $diligence[0]->id]) ?>" enctype="multipart/form-data">
                         <div class="alert danger hidden"></div>
-                        <?php if ($template) : ?>
-                            <script type="js-template"><?php echo $template; ?></script>
-                        <?php endif; ?>
-
                         <input type="file" name="answer-diligence" />
                     </form>
                     <div class="js-ajax-upload-progress">
@@ -85,8 +62,6 @@ $template = '
 </div>
 <div class="import-diligence" style="width: 100%">
     <?php
-    echo $template;
-
     foreach ($files as $file) {
         $id = $file["id"];
         echo '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
@@ -95,12 +70,13 @@ $template = '
                     <a href="/arquivos/privateFile/' . $id . '" class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer">
                         ' . $file["name"] . '
                     </a>
-                </h1> 
+                </h1>
                 <div class="botoes footer-btn-delete-file-diligence">
                     <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $entity->id . '"
                         data-target="#file-diligence-up-' . $id . '"
                         data-configm-message="Remover este arquivo?"
-                        class="btn btn-small btn-danger delete hltip js-remove-item">
+                        class="btn btn-small btn-danger delete hltip js-remove-item"
+                        title="Excluir arquivo">
                         Excluir
                     </a>
                 </div>
