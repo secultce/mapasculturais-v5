@@ -111,7 +111,36 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
             if($this->data['entity']->use_diligence === 'Sim') {
-                $this->part('opportunity/diligence-content');
+                $qb = $app->em->createQueryBuilder();
+
+                $registrations = $qb
+                    ->select('r')
+                    ->from('\MapasCulturais\Entities\Registration', 'r')
+                    ->innerJoin('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.registration = r')
+                    ->where($qb->expr()->in('r.opportunity', '?1'))
+                    ->groupBy('r.id')
+                    ->having('COUNT(d) > 0')
+                    ->setParameter(1, $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $registrationsWithDiligences = [];
+                foreach ($registrations as $registration) {
+                    $diligences = $app->em->createQueryBuilder()
+                        ->select('d')
+                        ->from('\Diligence\Entities\Diligence', 'd')
+                        ->where('d.registration = :registration')
+                        ->setParameter('registration', $registration->id)
+                        ->getQuery()
+                        ->getResult();
+
+                    $registrationsWithDiligences[] = [
+                        'registration' => $registration,
+                        'diligences' => $diligences
+                    ];
+                }
+
+                $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences]);
             }
         });
 
