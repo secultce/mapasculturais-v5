@@ -95,7 +95,7 @@ class Tado extends \MapasCulturais\Controller
 
         if(is_null($entity)){
             if($request->data['status'] == 1){
-                self::returnRequestJson('O seu documento foi gerado!', 'Tado finalizado e gerado com sucesso.', 200);
+                self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
             }else{
                 self::returnRequestJson('Sucesso!', 'Tado alterado com sucesso', 200);
             }            
