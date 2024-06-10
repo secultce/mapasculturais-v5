@@ -66,12 +66,13 @@ $tado = $td->getTado($reg);
                     <p class="info-regis-tado">
                         Informações de Identificação
                     </p>
-                    <?php if(isset($tado->status) && $tado->status == 1): ?>
+                    <?php if(!is_null($tado) && $tado->status == 1): ?>
                     <p>
-                        <button style="margin-right: 10px;">Editar Informações</button>
-                        <button class="btn btn-primary">Baixar Novamente</button>
+                        <a onclick="regenerateTado()"
+                           class="btn btn-primary">Baixar Novamente</a>
                     </p>
                     <?php endif; ?>
+
                 </div>
                 
                 <div style=" display: flex; justify-content: space-between;">

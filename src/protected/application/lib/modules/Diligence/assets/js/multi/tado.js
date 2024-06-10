@@ -118,3 +118,9 @@ function save(postDataTado)
         }
     });
 }
+
+function regenerateTado()
+{
+    // $app->redirect($app->createUrl('tado/gerar/', $reg->id));
+    location.href=MapasCulturais.createUrl('tado/gerar', MapasCulturais.idEntity);
+}
