@@ -257,9 +257,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $entity = $app->repo('Registration')->find($registrationId);
             //Verificando se o dono da inscrição é o mesmo usuario logado
             if ($entity->getOwnerUser() == $app->getUser()) {
-                $query = $conn->executeQuery('DELETE FROM file WHERE id = ' . $this->data['id']);
-                $result = $query->execute();
-                if ($result) {
+                $stmt = $conn->prepare('DELETE FROM file WHERE id = :id');
+                $stmt->bindParam('id', $this->data['id']);
+                $affectedRows = $stmt->executeStatement();
+                if ($affectedRows) {
                     unlink($file->path);
                     self::returnJson(null, $this);
                 }
