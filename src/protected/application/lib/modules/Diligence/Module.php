@@ -193,7 +193,6 @@ class Module extends \MapasCulturais\Module {
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
-        $app->registerController('dilig', Controllers\Diligence::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
