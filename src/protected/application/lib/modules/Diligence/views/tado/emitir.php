@@ -5,7 +5,7 @@ use MapasCulturais\App;
 use Diligence\Repositories\Diligence as RepoDiligence;
 
 $this->layout = 'default';
-$urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
+$urlOpp = App::i()->createUrl('oportunidade/' . $reg->opportunity->id);
 $app = App::i();
 $this->jsObject['idEntity'] = $reg->id;
 
@@ -36,7 +36,7 @@ $tado = $td->getTado($reg);
                     <!--.entity-type-->
                     <!-- BaseV1/layouts/parts/entity-parent.php # BEGIN -->
                     <h4 class="entity-parent-title">
-                        <a href="http://0.0.0.0:8088/oportunidade/4446/">
+                        <a href="#">
 
                         </a>
                     </h4>

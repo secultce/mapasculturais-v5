@@ -17,6 +17,7 @@ class Tado extends \MapasCulturais\Controller
 
     function GET_emitir()
     {
+        $this->requireAuthentication();
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
         $isEvaluator = $app->isEvaluator($reg->opportunity, $reg);

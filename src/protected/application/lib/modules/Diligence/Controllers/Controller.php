@@ -27,7 +27,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_save() : void
     {      
-        // $this->requireAuthentication();
+        $this->requireAuthentication();
         $answer = new EntityDiligence();
         $entity = $answer->create($this);
         self::returnJson($entity, $this);
