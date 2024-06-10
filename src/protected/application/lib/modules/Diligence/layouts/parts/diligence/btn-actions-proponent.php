@@ -78,7 +78,7 @@ $this->jsObject['countFileUpload'] = count($files);
                         <a data-href="/diligence/deleteFile/' . $id . '/registration/' . $entity->id . '"
                             data-target="#file-diligence-up-' . $id . '"
                             data-configm-message="Remover este arquivo?"
-                            class="btn btn-small btn-danger delete hltip js-remove-item"
+                            class="btn btn-small btn-danger delete hltip js-remove-item-diligence"
                             title="Excluir arquivo">
                             Excluir
                         </a>

@@ -97,9 +97,11 @@ $(document).ready(function () {
         }
 
         $("#upload-file-diligence").submit(() => {
-            const numberSavedFiles = ++MapasCulturais.countFileUpload;
+            const numberSavedFiles = MapasCulturais.countFileUpload + 1;
 
             if (numberSavedFiles <= 2) {
+                MapasCulturais.countFileUpload++;
+
                 setTimeout(() => {
                     location.reload();
                 }, 1000);
@@ -115,6 +117,33 @@ $(document).ready(function () {
                     $('#div-upload-file-count .mc-cancel').click();
                 }, 1000);
             }
+        });
+
+        $('body').on('click', '.js-remove-item-diligence', function (e) {
+            e.stopPropagation();
+            var $this = $(this);
+            MapasCulturais.confirm('Deseja remover este item?', function () {
+                var $target = $($this.data('target'));
+                var href = $this.data('href');
+
+                $.getJSON(href, function (r) {
+                    if (r.error) {
+                        MapasCulturais.Messages.error(r.data);
+                    } else {
+                        var cb = function () { };
+                        if ($this.data('remove-callback'))
+                            cb = $this.data('remove-callback');
+                        $target.remove();
+                        MapasCulturais.countFileUpload--
+                        if (typeof cb === 'string')
+                            eval(cb);
+                        else
+                            cb();
+                    }
+                });
+            });
+
+            return false;
         });
     })
     .catch((error) => {
@@ -337,4 +366,3 @@ function deleteFileDiligence(id)
         dataType: "json"
     });
 }
-
