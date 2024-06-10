@@ -248,14 +248,19 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $app = App::i();
         $conn = $app->em->getConnection();
+
+        $registrationId = $this->data[1];
+        $file = $app->repo('File')->findBy(['id' => $this->data['id']])[0];
+
         //Verificando se existe na rota esse indice
-        if (isset($this->data[1])) {
-            $entity = $app->repo('Registration')->find($this->data[1]);
+        if (isset($registrationId)) {
+            $entity = $app->repo('Registration')->find($registrationId);
             //Verificando se o dono da inscrição é o mesmo usuario logado
             if ($entity->getOwnerUser() == $app->getUser()) {
                 $query = $conn->executeQuery('DELETE FROM file WHERE id = ' . $this->data['id']);
                 $result = $query->execute();
                 if ($result) {
+                    unlink($file->path);
                     self::returnJson(null, $this);
                 }
             }
@@ -401,6 +406,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $upload_group = $app->getRegisteredFileGroup($this->id, $file->group);
 
             $file->owner = $owner;
+            $file->private = true;
 
             if ($upload_group->unique) {
                 $old_file = $app->repo($file_class_name)->findOneBy(['owner' => $owner, 'group' => $file->group]);
