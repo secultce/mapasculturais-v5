@@ -45,18 +45,6 @@
         <?php $this->applyTemplateHook('opportunity-diligences--table-tbody','before'); ?>
         <tbody>
         <?php $this->applyTemplateHook('opportunity-diligences--table-tbody','begin'); ?>
-        <tr>
-            <td colspan='9'>
-<!--                <span ng-if="data.evaluations.length === 0">--><?php //\MapasCulturais\i::_e("Nenhuma avaliação enviada.");?><!--</span>-->
-<!--                <span ng-if="data.evaluations.length === 1">--><?php //\MapasCulturais\i::_e("1 avaliação encontrada.");?><!--</span>-->
-<!--                <span ng-if="data.evaluations.length > 1">{{data.evaluations.length}}-->
-<!--                        <span ng-if="data.evaluationsAPIMetadata.count > 0">-->
-<!--                            <i> de {{ data.evaluationsAPIMetadata.count }}</i>-->
-<!--                        </span>-->
-<!--                     --><?php //\MapasCulturais\i::_e("Avaliações");?>
-<!--                 </span>-->
-            </td>
-        </tr>
 
         <?php
             $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','begin');
