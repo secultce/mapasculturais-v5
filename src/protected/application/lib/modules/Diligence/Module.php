@@ -110,7 +110,7 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
-            if($this->data['entity']->use_diligence === 'Sim') {
+            if($this->data['entity']->use_diligence === 'Sim' && $this->data['entity']->canUser('@control')) {
                 $qb = $app->em->createQueryBuilder();
 
                 $registrations = $qb
@@ -140,7 +140,17 @@ class Module extends \MapasCulturais\Module {
                     ];
                 }
 
-                $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences]);
+                $evaluators = $app->em->createQueryBuilder()
+                    ->select('a')
+                    ->from('\MapasCulturais\Entities\Agent', 'a')
+                    ->join('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.openAgent = a')
+                    ->join('\MapasCulturais\Entities\Registration', 'r', 'WITH', 'r = d.registration')
+                    ->where('r.opportunity = :opportunity')
+                    ->setParameter('opportunity', $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences, 'evaluators' => $evaluators]);
             }
         });
 

@@ -230,34 +230,6 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         return $metaData;
     }
 
-    public function GET_registrationsInDiligence(): void
-    {
-        $this->requireAuthentication();
-
-        if(!isset($this->data['opportunityId'])) {
-            $this->json([], 400);
-            return;
-        }
-
-        $opportunityId = $this->data['opportunityId'];
-
-        $app = App::i();
-
-        $qb = $app->em->createQueryBuilder();
-        $qb->select('r')
-            ->from('\Diligence\Entities\Diligence', 'd')
-            ->innerJoin('\MapasCulturais\Entities\Registration', 'r', 'WITH', 'd.registration = r')
-            ->having('count(d) > 0')
-            ->where($qb->expr()->in('r.opportunity', '?1'))
-            ->groupBy('r')
-            ->setParameter('1', $opportunityId);
-
-        $query = $qb->getQuery();
-        $registrations = $query->getResult();
-
-        $this->json($registrations);
-    }
-
     public function GET_getAuthorizedProject()
     {
         $authorized = DiligenceRepo::getAuthorizedProject($this->data['id']);

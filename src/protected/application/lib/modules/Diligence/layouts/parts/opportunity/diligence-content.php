@@ -1,5 +1,4 @@
 <div id="diligences">
-<!--    --><?php //dump() ?>
     <table class="js-registration-list registrations-table"><!-- adicionar a classe registrations-results quando resultados publicados-->
         <?php $this->applyTemplateHook('opportunity-diligences--table-thead','before'); ?>
         <thead>
@@ -12,7 +11,13 @@
                 <?php \MapasCulturais\i::_e("Inscrição");?>
             </th>
             <th class="registration-id-col">
-                <mc-select placeholder="<?php \MapasCulturais\i::esc_attr_e("Avaliador"); ?>" model="evaluationsFilters['valuer:id']" data="data.evaluationCommittee"></mc-select>
+                <select id="evaluator-filter" class="dropdown">
+                    <option value="0" selected>Avaliador</option>
+                    <?php /** @var \MapasCulturais\Entities\Agent[] $evaluators */
+                    foreach ($evaluators as $evaluator): ?>
+                    <option value="<?= $evaluator->id ?>" class="dropdown"><?= $evaluator->name ?></option>
+                    <?php endforeach; ?>
+                </select>
             </th>
             <th ng-if="data.entity.registrationCategories" class="registration-option-col">
                 <mc-select placeholder="<?php \MapasCulturais\i::esc_attr_e("Categoria"); ?>" model="evaluationsFilters['registration:category']" data="data.registrationCategoriesToFilter"></mc-select>
@@ -25,7 +30,11 @@
                 <?php \MapasCulturais\i::_e('Tipo de Diligência');?>
             </th>
             <th class="registration-status-col">
-                <?php \MapasCulturais\i::esc_attr_e("Status"); ?>
+                <select id="status-filter" class="select-filter dropdown">
+                    <option value="all" selected>Status</option>
+                    <option value="3">Enviado ao proponente</option>
+                    <option value="4">Respondido</option>
+                </select>
             </th>
             <?php $this->applyTemplateHook('opportunity-diligences--table-thead-tr','end'); ?>
         </tr>
@@ -63,7 +72,7 @@
                 $registration = $dataGroup['registration'];
                 foreach ($dataGroup['diligences'] as $diligence):
         ?>
-        <tr>
+        <tr data-evaluator-filter="<?= $diligence->openAgent->id ?>" data-status-filter="<?= $diligence->status ?>">
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','before'); ?>
             <td class="registration-id-col">
                 <a href="<?= $registration->singleUrl . 'uid:' . $diligence->openAgent->user->id ?>" rel='noopener
@@ -74,8 +83,9 @@
             <td class="registration-id-col">
                 <?= $diligence->openAgent->name ?>
             </td>
-            <td ng-if="data.entity.registrationCategories"
-            class="registration-option-col"><?= $registration->category ?></td>
+            <td ng-if="data.entity.registrationCategories" class="registration-option-col">
+                <?= $registration->category ?>
+            </td>
             <td class="registration-agents-col">
                 <p>
                     <span class="label"><?php \MapasCulturais\i::_e("Responsável");?></span><br />
@@ -84,11 +94,12 @@
                     </a>
                 </p>
             </td>
-            <td class="register-options">
+            <td class="registration-status-col">
                 <?= $registration->opportunity->use_multiple_diligence === 'Sim' ? 'Múltipla' : 'Simples' ?>
             </td>
             <td class="registration-status-col">
                 <?= $diligence->getStatusLabel() ?>
+                <?= $diligence->status == 3 ? '<br>' . $diligence->createTimestamp->format('d-m-Y H:i:s') : '' ?>
             </td>
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','end'); ?>
         </tr>
@@ -101,4 +112,3 @@
         <?php $this->applyTemplateHook('opportunity-diligences--table-tbody','after'); ?>
     </table>
 </div>
-<?php
