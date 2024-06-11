@@ -103,6 +103,57 @@ class Module extends \MapasCulturais\Module {
             ]);
         });
 
+        $app->hook('template(opportunity.single.tab-evaluations):after', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim') {
+                $this->part('opportunity/tab-diligences');
+            }
+        });
+
+        $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim' && $this->data['entity']->canUser('@control')) {
+                $qb = $app->em->createQueryBuilder();
+
+                $registrations = $qb
+                    ->select('r')
+                    ->from('\MapasCulturais\Entities\Registration', 'r')
+                    ->innerJoin('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.registration = r')
+                    ->where($qb->expr()->in('r.opportunity', '?1'))
+                    ->groupBy('r.id')
+                    ->having('COUNT(d) > 0')
+                    ->setParameter(1, $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $registrationsWithDiligences = [];
+                foreach ($registrations as $registration) {
+                    $diligences = $app->em->createQueryBuilder()
+                        ->select('d')
+                        ->from('\Diligence\Entities\Diligence', 'd')
+                        ->where('d.registration = :registration')
+                        ->setParameter('registration', $registration->id)
+                        ->getQuery()
+                        ->getResult();
+
+                    $registrationsWithDiligences[] = [
+                        'registration' => $registration,
+                        'diligences' => $diligences
+                    ];
+                }
+
+                $evaluators = $app->em->createQueryBuilder()
+                    ->select('a')
+                    ->from('\MapasCulturais\Entities\Agent', 'a')
+                    ->join('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.openAgent = a')
+                    ->join('\MapasCulturais\Entities\Registration', 'r', 'WITH', 'r = d.registration')
+                    ->where('r.opportunity = :opportunity')
+                    ->setParameter('opportunity', $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences, 'evaluators' => $evaluators]);
+            }
+        });
+
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
             if($entity->opportunity->use_diligence === 'Sim' && (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não'))

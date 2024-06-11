@@ -9,6 +9,7 @@ use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
+use PHPUnit\Exception;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface {
     use \Diligence\Traits\DiligenceSingle;
@@ -243,7 +244,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      *
      * @return boolean
      */
-    public function GET_deleteFile() : bool
+    public function GET_deleteFile() : void
     {
         $app = App::i();
         $conn = $app->em->getConnection();
