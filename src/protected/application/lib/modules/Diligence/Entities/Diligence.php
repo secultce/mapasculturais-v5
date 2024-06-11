@@ -122,6 +122,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $answer;
 
     /**
+     * @var \Diligence\Entities\DiligenceFile[] Files
+     *
+     * @ORM\OneToMany(targetEntity="Diligence\Entities\DiligenceFile", mappedBy="owner", cascade="remove", orphanRemoval=true)
+     * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
+    */
+    protected $files;
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination

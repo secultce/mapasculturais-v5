@@ -96,18 +96,54 @@ $(document).ready(function () {
             }
         }
 
-        $("#upload-file-diligence").submit(function(e) {
-            MapasCulturais.countFileUpload = (MapasCulturais.countFileUpload + 1);
-            const baseUrl = MapasCulturais.baseURL+'inscricao/'+MapasCulturais.entity.id
-            $("#div-upload-file-count").hide();
-            $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
-            +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
-            // if(MapasCulturais.countFileUpload >= 2)
-            // {
-            //     $("#div-upload-file-count").hide();
-            //     $("#info-title-limit-file-diligence").html('Limite de arquivo excedido <button class="btn-reload-diligence"' 
-            //     +'onClick="window.location.reload();" title="Recarregar arquivos"> <i class="fa fa-redo-alt"></i> </button>');
-            // }
+        $("#upload-file-diligence").submit(() => {
+            const numberSavedFiles = MapasCulturais.countFileUpload + 1;
+
+            if (numberSavedFiles <= 2) {
+                MapasCulturais.countFileUpload++;
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    $('#info-title-limit-file-diligence').html(`
+                        Limite de arquivo excedido
+                        <button class="btn-reload-diligence" onClick="window.location.reload();" title="Recarregar página">
+                            <i class="fa fa-redo-alt"></i>
+                        </button>
+                    `);
+
+                    $('#div-upload-file-count .mc-cancel').click();
+                }, 1000);
+            }
+        });
+
+        $('body').on('click', '.js-remove-item-diligence', function (e) {
+            e.stopPropagation();
+            var $this = $(this);
+            MapasCulturais.confirm('Deseja remover este item?', function () {
+                var $target = $($this.data('target'));
+                var href = $this.data('href');
+
+                $.getJSON(href, function (r) {
+                    if (r.error) {
+                        MapasCulturais.Messages.error(r.data);
+                    } else {
+                        var cb = function () { };
+                        if ($this.data('remove-callback'))
+                            cb = $this.data('remove-callback');
+                        $target.remove();
+                        MapasCulturais.countFileUpload--
+                        if (typeof cb === 'string')
+                            eval(cb);
+                        else
+                            cb();
+                    }
+                });
+            });
+
+            return false;
         });
     })
     .catch((error) => {
@@ -330,4 +366,3 @@ function deleteFileDiligence(id)
         dataType: "json"
     });
 }
-
