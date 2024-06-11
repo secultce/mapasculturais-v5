@@ -317,6 +317,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         return false;
     }
 
+    public function getStatusLabel(): ?string
+    {
+        switch ($this->status):
+            case 0:
+            case 2:
+                return \MapasCulturais\i::_e('Rascunho');
+            case 3:
+                return \MapasCulturais\i::_e('Enviado ao proponente');
+            case 4:
+                return \MapasCulturais\i::_e('Respondido');
+            default:
+                throw new \Exception('Invalid status');
+        endswitch;
+    }
+
     public function jsonSerialize()
     {
         $preSerialized = parent::jsonSerialize();

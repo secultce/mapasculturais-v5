@@ -1,0 +1,14 @@
+.select-filter {
+    position: relative;
+    background: none;
+    width: 100%;
+    border: none;
+    text-align: center;
+    font-weight: bold;
+}
+.select-filter option {
+    position: relative;
+    width: 100%;
+    font-weight: bold;
+    padding: .5rem;
+}
