@@ -98,8 +98,9 @@ $(document).ready(function () {
 
         $("#upload-file-diligence").submit(() => {
             const numberSavedFiles = MapasCulturais.countFileUpload + 1;
+            const useMultiDiligence = MapasCulturais.entity.object.opportunity.use_multiple_diligence;
 
-            if (numberSavedFiles <= 2) {
+            if (useMultiDiligence == 'Sim' || numberSavedFiles <= 2) {
                 MapasCulturais.countFileUpload++;
 
                 setTimeout(() => {

@@ -302,13 +302,13 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     function POST_upload()
     {
+        $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
         $savedFiles = DiligenceRepo::getFilesDiligence($this->data["id"]);
+        $useMultiDiligence = $owner->registration->opportunity->use_multiple_diligence;
 
-        if (count($savedFiles) >= 2) return;
+        if (count($savedFiles) >= 2 && (is_null($useMultiDiligence) || $useMultiDiligence == 'Não')) return;
 
         $this->requireAuthentication();
-
-        $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
 
         if (!$owner) {
             $this->errorJson(\MapasCulturais\i::__('O dono não existe'));

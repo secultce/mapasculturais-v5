@@ -4,6 +4,7 @@ use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $descriptionDraft = true;
 
@@ -45,7 +46,20 @@ if ($diligenceAndAnswers) :
                                 echo $diligenceAndAnswers[1]->answer;
                             ?>
                         </p>
-                        <span style="font-size: 12px;">
+                        <?php
+                            $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
+
+                            foreach ($files as $file) {
+                                echo '
+                                    <p style="margin-bottom: 10px;">
+                                        <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
+                                            ' . $file["name"] . '
+                                        </a>
+                                    </p>
+                                ';
+                            }
+                        ?>
+                        <span style="font-size: 12px; font-weight: 700; color: #404040;">
                             <?php
                                 echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL');
                             ?>
@@ -123,16 +137,29 @@ if ($diligenceAndAnswers) :
                         </label>
                         <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
                     </div>
-                    <div class="content" style="background-color: #F3F3F3;">
-                        <p>
+                    <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
+                        <p style="margin: 10px 0px;">
                             <?php
                             echo $resultsDiligence->answer;
                             
                             ?>
                         </p>
-                        <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
+                        <?php
+                            $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
+
+                            foreach ($files as $file) {
+                                echo '
+                                    <p style="margin-bottom: 10px;">
+                                        <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
+                                            ' . $file["name"] . '
+                                        </a>
+                                    </p>
+                                ';
+                            }
+                        ?>
+                        <span style="font-size: 12px; font-weight: 700; color: #404040;">
                             <?php echo $dtSendAnswer;   ?>
-                        </p>
+                        </span>
                     </div>                
                 <?php
                 }
