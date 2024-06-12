@@ -165,7 +165,7 @@ class Module extends \MapasCulturais\Module {
             $app->view->enqueueScript('app', 'tado-diligence', 'js/multi/tado.js');           
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
-            $this->part('multi/btn-generate-tado', ['opportunity' => $entity->opportunity]);
+            $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
         });
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
@@ -246,7 +246,13 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-
+        $this->registerOpportunityMetadata('use_multiple_diligence', [
+            'label' =>  i::__('Usa Multi Diligência?'),
+            'type' => 'string',
+            'options' => ['Sim', 'Não'],
+            'default' => 'Não'
+        ]);
+        
         $app->registerFileGroup(
             'diligence',
             new Definitions\FileGroup(
