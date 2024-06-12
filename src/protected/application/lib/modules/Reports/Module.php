@@ -118,6 +118,31 @@ class Module extends \MapasCulturais\Module
             $app->view->jsObject['chartColors'] = $self->chartColors;
         });
 
+        $app->hook('controller(opportunity).partial(report-evaluations)', function (&$data) use ($app) {
+            $opportunity = $this->requestedEntity;
+            $useDiligence = $opportunity->use_diligence == 'Sim' ? true : false;
+            if(!$useDiligence)
+                return;
+
+            $useMultipleDiligence = $opportunity->use_multiple_diligence === 'Sim' ? true : false;
+            if (!$useMultipleDiligence) {
+                $data['cfg']['Valor destinado ao projeto'] =  (object) [
+                    'label' => i::__('Valor do projeto'),
+                    'getValue' => function (\MapasCulturais\Entities\RegistrationEvaluation $evaluation) use ($app) {
+                        $metadata = $app->em->createQueryBuilder()
+                            ->select('m')
+                            ->from('MapasCulturais\Entities\RegistrationMeta', 'm')
+                            ->where('m.owner = :registration')
+                            ->andWhere('m.key = \'value_project_diligence\'')
+                            ->setParameter('registration', $evaluation->registration)
+                            ->getQuery()
+                            ->getSingleResult();
+                        return $metadata->value;
+                    }
+                ];
+            }
+        });
+
     }
 
     public function register()
