@@ -1,5 +1,4 @@
 var EntityDiligence = (function(){
-    
     //Conteúdo da diligencia
     function contentDiligence() {
         return new Promise((resolve, reject) => {
@@ -59,14 +58,11 @@ var EntityDiligence = (function(){
     }
 
     function hideCommon()
-    {
-       
+    {  
         // Declaração da variável fora de qualquer função para torná-la global
-        var urlAtual = window.location.href;
-      
+        var urlAtual = window.location.href;      
         // Sentença de string para ser verificada na URL
         var sentencaDesejada = "#/tab=diligence-diligence";
-
         if (urlAtual.includes(sentencaDesejada)) {
             $("#registration-content-all").hide();
             $("#registration-valuers--admin").hide();
@@ -77,15 +73,13 @@ var EntityDiligence = (function(){
         $("#img-loading-content").attr('src', MapasCulturais.spinnerUrl)
         $("#descriptionDiligence").hide()
         $("#btn-save-diligence-proponent").hide()
-        $("#btn-send-diligence-proponente").hide()
-        
+        $("#btn-send-diligence-proponente").hide()        
         $("#btn-save-diligence").hide();
         $("#label-save-content-diligence").hide();
         $("#div-info-send").hide();
         $("#div-content-all-diligence-send").hide();
         $("#descriptionDiligence").show();
         $("#answer_diligence").hide();
-        
     }
     /**
      * Formata a página para o parecerista apos envio de diligencia so proponente
@@ -104,42 +98,18 @@ var EntityDiligence = (function(){
     function hideShowSuccessAction()
     {
         $("#label-save-content-diligence").show();
-
         setTimeout(() => {
             $("#label-save-content-diligence").hide()
         }, 2000);
     }
 
-    function showAnswerDraft(answer)
+    function showAnswerDraft()
     {
-        $("#paragraph_content_send_diligence").html(answer.diligence.description);
-        $("#div-content-all-diligence-send").show();
-        $("#descriptionDiligence").val(answer.answer);
         $("#div-btn-actions-proponent").show();
         $("#btn-save-diligence-proponent").show();
         $("#btn-send-diligence-proponente").show();
         $("#paragraph_loading_content").hide();
-
-    }
-
-    function verifySituation(data)
-    {
-          //Sempre verifica a situação para habilitar o botão de Finalizar avaliação e avançar
-        if (data.id > 0) {
-           
-           switch (data.situation) {
-            case 2:
-                $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
-                $("#btn-open-diligence").attr('disabled', true);
-                break;
-            case 3:
-                $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
-                $("#btn-open-diligence").attr('disabled',false);
-                break;            
-            default:
-                break;
-           }
-        }
+        $("#div-content-all-diligence-send").show();
     }
 
     function validateLimiteDate(diligence_days)
@@ -175,8 +145,25 @@ var EntityDiligence = (function(){
         $("#btn-open-diligence").removeClass('btn-diligence-open-desactive');
     }
 
+    function showAccordion(idRef)
+    {
+        $( idRef ).accordion({
+            active: false,
+            collapsible: true,
+            heightStyle: "content"
+        });
+        $(".div-accordion-diligence > span").remove();
+    }
 
 
+    function editDescription(description, id)
+    {
+        $("#descriptionDiligence").show();
+        $("#descriptionDiligence").html(description);
+        $("#id-input-diligence").val(id);
+        $("#draft-description-diligence").remove();
+    }
+    
     return {
         showContentDiligence: showContentDiligence,
         hideCommon: hideCommon,
@@ -186,10 +173,11 @@ var EntityDiligence = (function(){
         hideShowSuccessAction: hideShowSuccessAction,
         showAnswerDraft: showAnswerDraft,
         validateLimiteDate: validateLimiteDate,
-        verifySituation: verifySituation,
         returnGetAuthorized: returnGetAuthorized,
         hideBtnOpenDiligence: hideBtnOpenDiligence,
         showBtnOpenDiligence: showBtnOpenDiligence,
-        removeBtnOpenDiligence: removeBtnOpenDiligence
+        removeBtnOpenDiligence: removeBtnOpenDiligence,
+        showAccordion: showAccordion,
+        editDescription: editDescription
       }
 }());

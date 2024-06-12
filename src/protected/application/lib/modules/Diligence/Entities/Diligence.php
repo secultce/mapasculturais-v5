@@ -16,7 +16,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Service\DiligenceInterface;
 use MapasCulturais\ApiOutputs\Json;
-
+use PhpParser\Node\Expr\Cast\Bool_;
 
 /**
  * Diligence 
@@ -31,8 +31,9 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     use \Diligence\Traits\DiligenceSingle;
 
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_CLOSE = 3; // Para diligência que foi enviada para o proponente
+    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
+
     /**
      * @var integer
      *
@@ -114,6 +115,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $sendDiligence;
 
     /**
+     * @var \Diligence\Entities\AnswerDiligence
+     *
+     * @ORM\OneToOne(targetEntity="Diligence\Entities\AnswerDiligence", mappedBy="diligence")
+     */
+    protected $answer;
+
+    /**
+     * @var \Diligence\Entities\DiligenceFile[] Files
+     *
+     * @ORM\OneToMany(targetEntity="Diligence\Entities\DiligenceFile", mappedBy="owner", cascade="remove", orphanRemoval=true)
+     * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
+    */
+    protected $files;
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination
@@ -158,12 +174,12 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             if(
                 ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
                 new DateTime() <= $diligenceDays
-            ){               
-                i::_e('Vocẽ tem até ' .
-                $diligenceDays->format('d/m/Y H:i') .
-                ' para responder a diligência.');
+            ){
+                $simpleMsg = "Você tem até {$diligenceDays->format('d/m/Y H:i')} para responder essa diligência";
+                $multiMsg = "Uma interação de diligência foi aberta e você tem até {$diligenceDays->format('d/m/Y H:i')} para responder";
+
+                $entity->opportunity->use_multiple_diligence == 'Sim' ? i::_e($multiMsg) : i::_e($simpleMsg);
             }else{
-                
                 if($diligenceAgentId[0]->sendDiligence <= new DateTime() && !$entity->canUser('evaluate')){
                     i::_e('Desculpe, mas o prazo para responder está encerrado.');
                 }else{
@@ -216,27 +232,32 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     {
         App::i()->applyHook('entity(diligence).createDiligence:before');
         //Buscando informações do agente e da inscrição
-        $regs = DiligenceRepo::getRegistrationAgentOpenAndAgent(
+        $newDiligenceData = DiligenceRepo::getRegistrationAgentOpenAndAgent(
             $class->data['registration'],
             $class->data['openAgent'],
             $class->data['agent']
         );
+
        
-        //Se tiver registro de diligência
-        $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $class->data['registration']]);
-      
-        if(count($diligenceRepository) > 0) {
-            return self::updateContent($diligenceRepository, $class->data['description'], $regs['reg'], $class->data['status']);
+        if(isset($class->data['idDiligence']) && $class->data['idDiligence'] > 0){
+             //Se tiver registro de diligência
+            $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
+            return self::updateContent(
+                $diligenceRepository,
+                $class->data['description'], 
+                $newDiligenceData['reg'],
+                $class->data['status']
+            );
         }
       
 
         //Instanciando para gravar no banco de dados
         $diligence = new EntityDiligence;
-        $diligence->registration    = $regs['reg'];
-        $diligence->openAgent       = $regs['openAgent'];
-        $diligence->agent           = $regs['agent'];
+        $diligence->registration    = $newDiligenceData['reg'];
+        $diligence->openAgent       = $newDiligenceData['openAgent'];
+        $diligence->agent           = $newDiligenceData['agent'];
         $diligence->createTimestamp = new DateTime();
-        $diligence->description     = $class->data['description'];   
+        $diligence->description     = $class->data['description'];
         $diligence->status          = $class->data['status'];
         //Considerando que será um envio
         if($class->data['status'] == "3"){
@@ -244,7 +265,6 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
         App::i()->applyHook('entity(diligence).createDiligence:after', [&$diligence]);
         return self::saveEntity($diligence);
-        
     }
 
     /**
@@ -259,23 +279,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected function updateContent($diligences, $description, $registration, $status = 0)
     {
         $save = null;
-        foreach ($diligences as $diligence) {
-            $diligence->description     = $description;
-            $diligence->registration    = $registration;
-            $diligence->createTimestamp =  new DateTime();
-            $diligence->status          = $status;
-            //Se for para enviar a diligência, então salva o momento do envio
-            if($status == 3){
-                $diligence->sendDiligence =  new DateTime();
-            }
-
-            $save = self::saveEntity($diligence);
+        $diligences->description     = $description;
+        $diligences->registration    = $registration;
+        $diligences->createTimestamp =  new DateTime();
+        $diligences->status          = $status;
+        //Se for para enviar a diligência, então salva o momento do envio
+        if($status == 3){
+           $diligences->sendDiligence =  new DateTime();
         }
-       return $save;
+
+        $save = self::saveEntity($diligences);
+        return $save;
     }
 
-   public function cancel(Controller $class) : Json
-   {
+    public function cancel(Controller $class) : Json
+    {
         $app =  App::i();
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy( ['registration' => $class->data['registration']]);
         $save = null;
@@ -288,15 +306,54 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return $class->json(['message' => 'success', 'status' => 200], 200);
         }
         return $class->json(['message' => 'error', 'status' => 400], 400);
-   }
+    }
 
-    static public function evaluationSend($entity)
+    static public function evaluationSend($entity) : bool
     {
         if($entity->opportunity->isUserEvaluationsSent())
         {
             return true;
         }
-
         return false;
+    }
+
+    public function getStatusLabel(): ?string
+    {
+        switch ($this->status):
+            case 0:
+            case 2:
+                return \MapasCulturais\i::_e('Rascunho');
+            case 3:
+                return \MapasCulturais\i::_e('Enviado ao proponente');
+            case 4:
+                return \MapasCulturais\i::_e('Respondido');
+            default:
+                throw new \Exception('Invalid status');
+        endswitch;
+    }
+
+    public function jsonSerialize()
+    {
+        $preSerialized = parent::jsonSerialize();
+        $serialized = $preSerialized;
+        $serialized['registration'] = $preSerialized['registration']->id;
+        $serialized['openAgent'] = [
+            'id' => $preSerialized['openAgent']->id,
+            'name' => $preSerialized['openAgent']->name,
+            'singleUrl' => $preSerialized['openAgent']->singleUrl,
+        ];
+        $serialized['agent'] = [
+            'id' => $preSerialized['agent']->id,
+            'name' => $preSerialized['agent']->name,
+            'singleUrl' => $preSerialized['agent']->singleUrl,
+        ];
+        // Verifica se existe uma resposta. Caso não, atribui 'null'
+        $serialized['answer'] = $preSerialized['answer'] ? [
+            'id' => $preSerialized['answer']->id,
+            'answer' => $preSerialized['answer']->answer,
+            'createTimestamp' => $preSerialized['answer']->createTimestamp,
+            'status' => $preSerialized['answer']->status,
+        ] : null;
+        return  $serialized;
     }
 }

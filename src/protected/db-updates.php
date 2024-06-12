@@ -1934,7 +1934,6 @@ $$
         CONSTRAINT diligence_open_agent_id_fk
         FOREIGN KEY (open_agent_id) REFERENCES agent (id)
         ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
-        // $conn->executeQuery("UPDATE evaluation_method_configuration SET type = 'documentary' WHERE opportunity_id IN ({$ids})");
     },
 
     'create table answer_diligence' => function() {
@@ -1986,5 +1985,9 @@ $$
         __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA3414710B FOREIGN KEY (agent_id) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
         __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
         __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA59DC8705 FOREIGN KEY (agent_signature) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    },
+
+    'add a column to table answer_diligence' => function() {
+        __exec("ALTER TABLE answer_diligence ADD registration_id INT");
     }
 ] + $updates ;
