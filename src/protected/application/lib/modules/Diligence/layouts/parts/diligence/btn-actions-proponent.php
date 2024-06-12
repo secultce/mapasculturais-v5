@@ -6,8 +6,9 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $app = App::i();
 
-$diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $entity->id]);
-$diligenceId = $diligence ? $diligence[0]->id : null;
+$diligences = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $entity->id]);
+$mostRecentDiligence = end($diligences);
+$diligenceId = $diligences ? $mostRecentDiligence->id : null;
 
 // Buscando os arquivos da diligência
 $files = DiligenceRepo::getFilesDiligence($diligenceId);
@@ -15,7 +16,7 @@ $this->jsObject['countFileUpload'] = count($files);
 ?>
 
 <div class="widget flex-items" id="div-btn-actions-proponent">
-    <div style="width: 50%">
+    <div style="width: 50%; float: left;">
         <span class="title-send-file">ENVIAR ARQUIVO</span><br>
         <?php if ($showText) { ?>
             <div id="div-upload-file-count">
@@ -57,14 +58,19 @@ $this->jsObject['countFileUpload'] = count($files);
 <div style="width: 100%" id="attachment-info">
     <span>Informações sobre o anexo:</span>
     <ul style="color: #505050;">
-        <li>Você poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong></li>
+        <?php if (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence == 'Não') : ?>
+            <li>Você poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong></li>
+        <?php endif; ?>
         <li>Tamanho de arquivo suportado: <strong><?php echo $this->jsObject['maxUploadSizeFormatted']; ?></strong></li>
         <li>Tipos de arquivos suportados: <strong>.pdf|.gif|jpeg|pjpeg|png</strong></li>
+        <li>Preferencialmente, salve a resposta antes de anexar o arquivo</li>
+        <li><b>Não é possível anexar ou excluir um arquivo após o envio da resposta</b></li>
     </ul>
 </div>
+
 <div class="import-diligence" style="width: 100%">
     <?php
-    if ($diligence && (is_null($diligence[0]->answer) || $diligence[0]->answer->status != AnswerDiligence::STATUS_SEND)) {
+    if ($diligences && (is_null($mostRecentDiligence->answer) || $mostRecentDiligence->answer->status != AnswerDiligence::STATUS_SEND)) {
         foreach ($files as $file) {
             $id = $file["id"];
             echo '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
