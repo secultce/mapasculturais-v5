@@ -193,6 +193,33 @@ class Module extends \MapasCulturais\Module {
             $result["Diligence"] = 'Diligence\Entities\Diligence';
         });
 
+        $app->hook('controller(opportunity).partial(report-evaluations)', function ($template, &$data) use ($app) {
+            $opportunity = $this->requestedEntity;
+            $useDiligence = $opportunity->use_diligence == 'Sim';
+            if(!$useDiligence)
+                return;
+
+            $useMultipleDiligence = $opportunity->use_multiple_diligence === 'Sim' ? true : false;
+            if (!$useMultipleDiligence) {
+                $data['cfg']['evaluation']->columns['projectValue'] = (object)[
+                    'label' => i::__('Valor destinado ao projeto'),
+                    'getValue' => function (int $registration): ?string
+                    {
+                        $app = \MapasCulturais\App::i();
+                        $metadata = $app->em->createQueryBuilder()
+                            ->select('m')
+                            ->from('MapasCulturais\Entities\RegistrationMeta', 'm')
+                            ->where('m.owner = :registration')
+                            ->andWhere('m.key = \'value_project_diligence\'')
+                            ->setParameter('registration', $registration)
+                            ->getQuery()
+                            ->getResult();
+                        return isset($metadata[0]) ? 'R$ ' . $metadata[0]->value : '--';
+                    }
+                ];
+            }
+        });
+
     }
 
     function register () {
