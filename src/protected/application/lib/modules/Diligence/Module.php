@@ -206,14 +206,10 @@ class Module extends \MapasCulturais\Module {
                     'getValue' => function (int $registration): ?string
                     {
                         $app = \MapasCulturais\App::i();
-                        $metadata = $app->em->createQueryBuilder()
-                            ->select('m')
-                            ->from('MapasCulturais\Entities\RegistrationMeta', 'm')
-                            ->where('m.owner = :registration')
-                            ->andWhere('m.key = \'value_project_diligence\'')
-                            ->setParameter('registration', $registration)
-                            ->getQuery()
-                            ->getResult();
+                        $metadata = $app->repo('RegistrationMeta')->findBy([
+                            'owner' => $registration,
+                            'key' => 'value_project_diligence',
+                        ]);
                         return isset($metadata[0]) ? 'R$ ' . $metadata[0]->value : '--';
                     }
                 ];
