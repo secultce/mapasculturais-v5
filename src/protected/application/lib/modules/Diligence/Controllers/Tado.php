@@ -46,14 +46,14 @@ class Tado extends \MapasCulturais\Controller
         $request = $this;
         $tado = new EntityTado();
         //Recebendo data preenchida ou data e hora atual
-        $dateDay = Carbon::parse($this->data['dateDay'])->format('Y-m-d H:i ');
+        $dateDay = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["dateDay"]} 00:00");
         if($dateDay == ""){
-            $dateDay = Carbon::now();
+            $dateDay = Carbon::now()->setTimezone('America/Fortaleza')->format('Y-m-d H:i');
         }
         //Validando para o Frontend
         $validateBack = $tado->validateForm($request);
         //Se tiver campos obrigatório vazio então dispara mensagem
-        !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;       
+        !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;
      
         $app = App::i();
        
@@ -64,19 +64,19 @@ class Tado extends \MapasCulturais\Controller
             $reg = $app->repo('Registration')->find($this->data['id']);
             $tado = new EntityTado();
             $tado->number           = rand(0, 100);
-            $tado->createTimestamp  = Carbon::now();
-            $tado->periodFrom       = new DateTime($request->data['datePeriodInitial']);
-            $tado->periodTo         = new DateTime($request->data['datePeriodEnd']);
+            $tado->createTimestamp  = $dateDay;
+            $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
+            $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
             $tado->agent            = $reg->owner;
             $tado->object           = $this->data['object'];
             $tado->registration     = $reg;
             $tado->conclusion       = $this->data['conclusion'];
             $tado->status           = self::STATUS_DRAFT;
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
-            
+
             $entity = self::saveEntity($tado);
-            if(is_null($entity)){
-                self::returnRequestJson('Sucesso!', 'Racunho criado com sucesso.', 200);
+            if($entity["entityId"]){
+                self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
             }
         }
     }

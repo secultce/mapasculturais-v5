@@ -35,7 +35,7 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = self::getRequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
 
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
@@ -89,7 +89,7 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app, $module) {
-            $entity = self::getRequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             $isEditableConfig = $module::isEditableConfig($entity);
 
             $app->view->enqueueStyle('app', 'form-config', 'css/diligence/form-config.css');
@@ -156,13 +156,12 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
-            $entity = self::getRequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             if($entity->opportunity->use_diligence === 'Sim' && (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não'))
                 $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
         $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app){
-            $app->view->enqueueScript('app', 'tado-diligence', 'js/multi/tado.js');           
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
             $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
@@ -170,7 +169,7 @@ class Module extends \MapasCulturais\Module {
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado
         $app->hook('template(registration.view.form):end', function() use ($app) {
-            $entity = self::getRequestedEntity($this);
+            $entity = $this->controller->requestedEntity;
             if($entity->opportunity->use_diligence == 'Não')
                 return;
             $authorized = $entity->getMetadata('option_authorized');

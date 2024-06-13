@@ -31,8 +31,4 @@ trait DiligenceSingle{
             $class->json(['message' => 'Error: ', 'status' => 400], 400);
         }    
     }
-
-    static protected function getRequestedEntity($class){
-        return $class->controller->requestedEntity;
-    }
 }
