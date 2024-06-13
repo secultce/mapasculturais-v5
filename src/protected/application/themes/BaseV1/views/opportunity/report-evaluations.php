@@ -1,6 +1,9 @@
 <?php
 $columns_counter = $status_order = 0;
+$projectValue_order = 0;
 $columns = [];
+
+$projectValueLabel = 'Valor destinado ao projeto';
 
 $sum = count($cfg["registration"]->columns) + count($cfg["committee"]->columns);
 ?>
@@ -16,7 +19,8 @@ $sum = count($cfg["registration"]->columns) + count($cfg["committee"]->columns);
         <tr>
             <?php foreach($cfg as $section):
                 foreach($section->columns as $column):
-                    if ("Status" == $column->label) { $status_order = $columns_counter; } ?>
+                    if ("Status" == $column->label) { $status_order = $columns_counter; }
+                    if ($projectValueLabel == $column->label) { $projectValue_order = $columns_counter; } ?>
                     <th bgcolor="<?php echo $section->color ?>"> <?php echo $column->label; ?> </th>
                 <?php
                     $columns_counter++;
@@ -59,6 +63,8 @@ $sum = count($cfg["registration"]->columns) + count($cfg["committee"]->columns);
                             } else {
                                 echo $getter($evaluation);
                             }
+                        } else if ($projectValueLabel == $column->label) {
+                            echo $getter($evaluation->registration->id);
                         } else {
                             echo $getter($evaluation);
                         }
@@ -94,6 +100,8 @@ $sum = count($cfg["registration"]->columns) + count($cfg["committee"]->columns);
                                 <?php
                                 if ($i + $sum === $status_order) {
                                     echo "Não avaliado";
+                                } else if ($i + $sum === $projectValue_order) {
+                                    echo ($cfg['evaluation']->columns['projectValue']->getValue)($valuer_pending['registration']['id']);
                                 } else {
                                     echo "--";
                                 } ?>
