@@ -14,13 +14,14 @@ trait DiligenceSingle{
      */
     static protected function saveEntity($entity)
     {
+
         $app        = App::i();
         $app->em->persist($entity);
         $app->em->flush();
         $app->disableAccessControl();
-        $save       = $entity->save();
+        $entity->save();
         $app->enableAccessControl();
-        return ['save' => $save , 'entityId' => $entity->id];
+        return ['entityId' => $entity->id];
     }
 
     static protected function returnJson($instance, $class)

@@ -45,6 +45,7 @@ class Tado extends \MapasCulturais\Controller
     {
         $request = $this;
         $tado = new EntityTado();
+
         //Recebendo data preenchida ou data e hora atual
         $dateDay = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["dateDay"]} 00:00");
         if($dateDay == ""){
@@ -86,15 +87,15 @@ class Tado extends \MapasCulturais\Controller
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->find($request->data['idTado']);
         $reg = $app->repo('Registration')->find($request->data['id']);
-        $tado->periodFrom       = new DateTime($request->data['datePeriodInitial']);
-        $tado->periodTo         = new DateTime($request->data['datePeriodEnd']);
+        $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
+        $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
         $tado->object           = $request->data['object'];
         $tado->conclusion       = $request->data['conclusion'];
         $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
         $tado->status           = $request->data['status'];
         $entity = self::saveEntity($tado);
 
-        if(is_null($entity)){
+        if($entity["entityId"]){
             if($request->data['status'] == 1){
                 self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
             }else{

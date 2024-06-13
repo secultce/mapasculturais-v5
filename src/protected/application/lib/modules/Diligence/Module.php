@@ -161,10 +161,14 @@ class Module extends \MapasCulturais\Module {
                 $this->part('registration-diligence/value-project', ['entity' => $entity]);
         });
 
-        $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app){
+        $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app, $module){
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
-            $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
+            if ( $module->isEvaluator($entity->opportunity, $entity) )
+            {
+                $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
+            };
+
         });
 
         //Hook para mostrar o valor destinado do projeto ao proponente apos a autorização e a publicação do resultado

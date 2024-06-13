@@ -6,9 +6,8 @@ use Diligence\Repositories\Diligence as RepoDiligence;
 $app = App::i();
 //Buscando o tado gerado
 $td = new RepoDiligence();
-$tado = $td->getTado($reg, 1);
+$tado = $td->getTado($reg);
 
-// dump($tado); die;
 //INSTANCIA DO TIPO ARRAY OBJETO
 $app->view->regObject = new \ArrayObject;
 $app->view->regObject['reg'] = $reg;
@@ -22,15 +21,10 @@ $mpdf = new \Mpdf\Mpdf([
     'nbpgPrefix' => ' de ',
     'nbpgSuffix' => ''
 ]);
-
-
 ob_start();
 $content = $app->view->fetch('tado/html-gerar');
 $footerPage = $app->view->fetch('tado/footer-pdf');
-// dump($content);die;
 $mpdf->SetTitle('Secult/CE - Relatório TADO');
-// dump(MODULES_PATH);
-// die;
 $stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
 // Adicione o CSS ao mPDF
 $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
@@ -38,7 +32,7 @@ $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
 $mpdf->WriteHTML(ob_get_clean());
 $mpdf->WriteHTML($content);
 $mpdf->SetHTMLFooter($footerPage);
-$pdf = $mpdf->Output('Trado.pdf', \Mpdf\Output\Destination::DOWNLOAD);
+$pdf = $mpdf->Output('Tado.pdf', \Mpdf\Output\Destination::DOWNLOAD);
 //Uso para visualização no navegador
 //$pdf = $mpdf->Output();
 // exit;

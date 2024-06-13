@@ -12,8 +12,6 @@ $this->jsObject['idEntity'] = $reg->id;
 //Buscando o tado gerado
 $td = new RepoDiligence();
 $tado = $td->getTado($reg);
-
-
 ?>
 
 <div>
@@ -66,15 +64,14 @@ $tado = $td->getTado($reg);
                     <p class="info-regis-tado">
                         Informações de Identificação
                     </p>
-                    <?php if(!is_null($tado) && $tado->status == 1): ?>
-                    <p>
-                        <a onclick="regenerateTado()"
-                           class="btn btn-primary">Baixar Novamente</a>
-                    </p>
+                    <?php if (!is_null($tado) && $tado->status == 1) : ?>
+                        <p>
+                            <a onclick="regenerateTado()" class="btn btn-primary">Baixar Novamente</a>
+                        </p>
                     <?php endif; ?>
 
                 </div>
-                
+
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
                         <label class="title-info">Número do TEC</label>
@@ -82,33 +79,18 @@ $tado = $td->getTado($reg);
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input
-                            name="dateTado"
-                            id="dateTado"
-                            class="dateTado"
-                            value="<?= Carbon::now()->format('d/m/Y'); ?>"
-                        />
+                        <input name="dateTado" id="dateTado" class="dateTado" value="<?= Carbon::now()->format('d/m/Y'); ?>" />
                     </div>
                 </div>
 
                 <div class="content-space-bet">
                     <div class="form-group">
                         <label class="title-info">Período de Vigência</label>
-                        <input name="periodInitial"
-                            id="periodInitial"
-                            class="dateTado"
-                            placeholder="Data Inicial"
-                            value="<?= !is_null($tado) ? Carbon::parse($tado->periodFrom)->format('d/m/Y') : null ; ?>"
-                        />
+                        <input name="periodInitial" id="periodInitial" class="dateTado" placeholder="Data Inicial" value="<?= !is_null($tado) ? Carbon::parse($tado->periodFrom)->format('d/m/Y') : null; ?>" />
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
-                        <input name="periodEnd"
-                            id="periodEnd"
-                            class="dateTado"
-                            placeholder="Data Final"
-                            value="<?= !is_null($tado) ? Carbon::parse($tado->periodTo)->format('d/m/Y') : null ; ?>"
-                        />
+                        <input name="periodEnd" id="periodEnd" class="dateTado" placeholder="Data Final" value="<?= !is_null($tado) ? Carbon::parse($tado->periodTo)->format('d/m/Y') : null; ?>" />
                     </div>
                 </div>
 
@@ -142,55 +124,46 @@ $tado = $td->getTado($reg);
                 <div style=" display: flex; justify-content: space-between; margin-top: 10px">
                     <div class="form-group">
                         <label class="title-label">Objeto</label>
-                        <?php if(is_null($tado)): ?>
+                        <?php if (is_null($tado)) : ?>
                             <input name="object" id="object" />
                         <?php endif; ?>
-                        <?php if(isset($tado) && $tado->status == 0): ?>
+                        <?php if (isset($tado) && $tado->status == 0) : ?>
                             <input name="object" id="object" value="<?= $tado->object; ?>" />
                         <?php endif; ?>
-                        <?php if(isset($tado) && $tado->status == 1): ?>
+                        <?php if (isset($tado) && $tado->status == 1) : ?>
                             <label class="content-value-name">
                                 <?= $tado->object; ?>
                             </label>
                         <?php endif; ?>
                         <p class="registration-help ng-scope">
                             Esse campo é obrigatório
-                        </p>     
+                        </p>
                     </div>
                 </div>
             </div>
 
             <div>
-                <?php //dump($tado); ?>
+                <?php //dump($tado); 
+                ?>
                 <div class="form-container">
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
                     </p>
-                    <?php if(isset($tado) && $tado->status == 0): ?>
-                        <textarea
-                        name="conclusionTado"
-                        id="conclusionTado"
-                        rows="10"
-                        cols="100"
-                        placeholder="Escreva aqui a sua conclusão sobre o projeto."><?= $tado->conclusion; ?></textarea>
+                    <?php if (isset($tado) && $tado->status == 0) : ?>
+                        <textarea name="conclusionTado" id="conclusionTado" rows="10" cols="100" placeholder="Escreva aqui a sua conclusão sobre o projeto."><?= $tado->conclusion; ?></textarea>
                     <?php endif; ?>
                     <?php
-                    if(is_null($tado)): ?>
-                        <textarea
-                        name="conclusionTado"
-                        id="conclusionTado"
-                        rows="10"
-                        cols="100"
-                        placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
+                    if (is_null($tado)) : ?>
+                        <textarea name="conclusionTado" id="conclusionTado" rows="10" cols="100" placeholder="Escreva aqui a sua conclusão sobre o projeto."></textarea>
                     <?php endif; ?>
-                    <?php if(isset($tado) && $tado->status == 1): ?>
+                    <?php if (isset($tado) && $tado->status == 1) : ?>
                         <label class="content-value-name">
                             <?= $tado->conclusion; ?>
                         </label>
                     <?php endif; ?>
                     <p class="registration-help ng-scope">
                         Esse campo é obrigatório
-                    </p>   
+                    </p>
                 </div>
             </div>
             <div>
@@ -205,43 +178,26 @@ $tado = $td->getTado($reg);
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF do Fiscal</label>
-                            <input name="numbertec" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>"/>
-                        </div>                   
+                            <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                        </div>
                     </div>
                 </div>
                 <div class="form-container footer-action-tado">
-                    <?php if( (isset($tado) && $tado->status == 0) || is_null($tado) ): ?>
-                    <input type="hidden" id="idTado" value="<?= isset($tado) ? $tado->id : 0 ?>">
-                    <div class="form-group">
-                        <button 
-                            class="btn"
-                            id="draftTado"
-                            title="Salva os valores atuais do seu relatório"
-                            style="background: #CED4DA; color: #000000"                          
-                        >Salvar Rascunho</button>
-                    </div>
-                    <div class="form-group">                 
-                        <button
-                            class="btn btn-primary"
-                            id="generateTado"
-                            title="Finaliza o seu relatório"
-                        >Finalizar TADO</button>
-                    </div>
+                    <?php if ((isset($tado) && $tado->status == 0) || is_null($tado)) : ?>
+                        <input type="hidden" id="idTado" value="<?= isset($tado) ? $tado->id : 0 ?>">
+                        <div class="form-group">
+                            <button class="btn" id="draftTado" title="Salva os valores atuais do seu relatório" style="background: #CED4DA; color: #000000">Salvar Rascunho</button>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="generateTado" title="Finaliza o seu relatório">Finalizar TADO</button>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
         </article>
     </section>
-<script>
-    
-</script>
+    <script>
+
+    </script>
 
 </div>
-
-
-
-<?php
-// dump($app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'));
-// dump($reg);
-
-?>

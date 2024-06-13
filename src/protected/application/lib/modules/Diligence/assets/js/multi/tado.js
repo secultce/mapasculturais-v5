@@ -2,7 +2,8 @@ $(document).ready(function () {
     //Plugin jquery CKEDITOR
     var editor = CKEDITOR.replace('conclusionTado');
     //Mascara de data
-    $("#dateTado").mask('00/00/0000');
+    $(".dateTado").mask('00/00/0000');
+    $("#cpfTado").mask('000.000.000-00');
     $( ".dateTado" ).datepicker({
         altFormat: "dd/mm/YYYY"
     });
@@ -112,9 +113,22 @@ function save(postDataTado)
                     html: `<ul class="ul-info">${liInfoError}</ul>`,
                 });
             }
+
+            if(res.status == 401){
+                Swal.fire({
+                    title: res.title,
+                    text: res.message,
+                    icon: "error"
+                });
+            }
         },
         error: function(err) {
             console.log({err})
+            Swal.fire({
+                title: res.title,
+                text: res.message,
+                icon: "error"
+            });
         }
     });
 }
