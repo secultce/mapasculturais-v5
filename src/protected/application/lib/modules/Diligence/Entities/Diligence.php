@@ -122,6 +122,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $answer;
 
     /**
+     * @var \Diligence\Entities\DiligenceFile[] Files
+     *
+     * @ORM\OneToMany(targetEntity="Diligence\Entities\DiligenceFile", mappedBy="owner", cascade="remove", orphanRemoval=true)
+     * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
+    */
+    protected $files;
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination
@@ -307,6 +315,21 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             return true;
         }
         return false;
+    }
+
+    public function getStatusLabel(): ?string
+    {
+        switch ($this->status):
+            case 0:
+            case 2:
+                return \MapasCulturais\i::_e('Rascunho');
+            case 3:
+                return \MapasCulturais\i::_e('Enviado ao proponente');
+            case 4:
+                return \MapasCulturais\i::_e('Respondido');
+            default:
+                throw new \Exception('Invalid status');
+        endswitch;
     }
 
     public function jsonSerialize()

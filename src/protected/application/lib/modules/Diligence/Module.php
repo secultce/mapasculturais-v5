@@ -13,6 +13,7 @@ require __DIR__.'/Traits/DiligenceSingle.php';
 require __DIR__.'/Service/DiligenceInterface.php';
 require __DIR__.'/Repositories/Diligence.php';
 require __DIR__.'/Entities/Diligence.php';
+require __DIR__.'/Entities/DiligenceFile.php';
 require __DIR__.'/Entities/AnswerDiligence.php';
 require __DIR__.'/Entities/NotificationDiligence.php';
 require __DIR__.'/Service/NotificationInterface.php';
@@ -103,6 +104,57 @@ class Module extends \MapasCulturais\Module {
             ]);
         });
 
+        $app->hook('template(opportunity.single.tab-evaluations):after', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim') {
+                $this->part('opportunity/tab-diligences');
+            }
+        });
+
+        $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
+            if($this->data['entity']->use_diligence === 'Sim' && $this->data['entity']->canUser('@control')) {
+                $qb = $app->em->createQueryBuilder();
+
+                $registrations = $qb
+                    ->select('r')
+                    ->from('\MapasCulturais\Entities\Registration', 'r')
+                    ->innerJoin('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.registration = r')
+                    ->where($qb->expr()->in('r.opportunity', '?1'))
+                    ->groupBy('r.id')
+                    ->having('COUNT(d) > 0')
+                    ->setParameter(1, $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $registrationsWithDiligences = [];
+                foreach ($registrations as $registration) {
+                    $diligences = $app->em->createQueryBuilder()
+                        ->select('d')
+                        ->from('\Diligence\Entities\Diligence', 'd')
+                        ->where('d.registration = :registration')
+                        ->setParameter('registration', $registration->id)
+                        ->getQuery()
+                        ->getResult();
+
+                    $registrationsWithDiligences[] = [
+                        'registration' => $registration,
+                        'diligences' => $diligences
+                    ];
+                }
+
+                $evaluators = $app->em->createQueryBuilder()
+                    ->select('a')
+                    ->from('\MapasCulturais\Entities\Agent', 'a')
+                    ->join('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.openAgent = a')
+                    ->join('\MapasCulturais\Entities\Registration', 'r', 'WITH', 'r = d.registration')
+                    ->where('r.opportunity = :opportunity')
+                    ->setParameter('opportunity', $this->data['entity']->id)
+                    ->getQuery()
+                    ->getResult();
+
+                $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences, 'evaluators' => $evaluators]);
+            }
+        });
+
         $app->hook('template(registration.view.registration-sidebar-rigth-value-project):begin', function() use ($app){
             $entity = self::getRequestedEntity($this);
             if($entity->opportunity->use_diligence === 'Sim' && (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence === 'Não'))
@@ -122,19 +174,46 @@ class Module extends \MapasCulturais\Module {
         });
 
         //Hook para antes de upload para um logica para diligência
-        $app->hook('POST(registration.upload):before', function() use ($app) {
-            $registration = $this->requestedEntity;
+        $app->hook('POST(diligence.upload):before', function () use ($app) {
+            $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]]);
+
             //Se Files é diferente de null
             //Se Files tem o indice com o grupo da diligencia
             //Se da inscrição é o mesmo quem está logado enviando a requisição.
-            //$registration->getOwnerUser() == $app->getUser()
-            if(
-                isset($_FILES) && 
-                array_key_exists('file-diligence', $_FILES)
+            if (
+                isset($_FILES) &&
+                array_key_exists('answer-diligence', $_FILES) &&
+                $diligence[0]->getOwnerUser() == $app->getUser()
             ) {
                 $app->disableAccessControl();
             }
+        });
 
+        $app->hook('doctrine.emum(object_type).values', function (&$result) {
+            $result["Diligence"] = 'Diligence\Entities\Diligence';
+        });
+
+        $app->hook('controller(opportunity).partial(report-evaluations)', function ($template, &$data) use ($app) {
+            $opportunity = $this->requestedEntity;
+            $useDiligence = $opportunity->use_diligence == 'Sim';
+            if(!$useDiligence)
+                return;
+
+            $useMultipleDiligence = $opportunity->use_multiple_diligence === 'Sim' ? true : false;
+            if (!$useMultipleDiligence) {
+                $data['cfg']['evaluation']->columns['projectValue'] = (object)[
+                    'label' => i::__('Valor destinado ao projeto'),
+                    'getValue' => function (int $registration): ?string
+                    {
+                        $app = \MapasCulturais\App::i();
+                        $metadata = $app->repo('RegistrationMeta')->findBy([
+                            'owner' => $registration,
+                            'key' => 'value_project_diligence',
+                        ]);
+                        return isset($metadata[0]) ? 'R$ ' . $metadata[0]->value : '--';
+                    }
+                ];
+            }
         });
 
     }
@@ -184,10 +263,10 @@ class Module extends \MapasCulturais\Module {
 
 
         $app->registerFileGroup(
-            'registration',
+            'diligence',
             new Definitions\FileGroup(
-                'file-diligence',
-                ['application/pdf','image/(gif|jpeg|pjpeg|png)'],
+                'answer-diligence',
+                ['application/pdf', 'image/(gif|jpeg|pjpeg|png)'],
                 'O arquivo não e valido'
             )
         );
