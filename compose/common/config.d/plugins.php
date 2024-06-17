@@ -12,5 +12,6 @@ return [
         'EditOpportunityType' => ['namespace' => 'EditOpportunityType'],
         'LocationStateCity' => ['namespace' => 'LocationStateCity'],
         'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
+        'PDFReport' => ['namespace' => 'PDFReport']
     ]
 ];
