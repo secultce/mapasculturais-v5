@@ -17,7 +17,6 @@ services:
       - ../docker-data/public-files:/var/www/html/files
       - ../docker-data/private-files:/var/www/private-files
       - ../tests:/var/www/tests
-      - ../src/protected/application/plugins/Diligence:/var/www/html/protected/application/plugins/Diligence
     links:
       - db
       - redis
