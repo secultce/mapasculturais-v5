@@ -3,6 +3,7 @@
 namespace RegistrationsDraw;
 
 use MapasCulturais\App;
+use MapasCulturais\Controllers\RegistrationsDraw;
 
 class Module extends \MapasCulturais\Module
 {
@@ -49,5 +50,7 @@ class Module extends \MapasCulturais\Module
 
     public function register()
     {
+        $app = App::i();
+        $app->registerController('sorteio-inscricao', RegistrationsDraw::class);
     }
 }
