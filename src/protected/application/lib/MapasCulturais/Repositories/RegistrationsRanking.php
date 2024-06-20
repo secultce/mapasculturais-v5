@@ -36,7 +36,7 @@ class RegistrationsRanking extends Repository
      * @param string $category
      * @return \MapasCulturais\Entities\RegistrationsRanking[]
      */
-    public static function getRanking(Opportunity $opportunity, string $category): array
+    public static function findRanking(Opportunity $opportunity, string $category): array
     {
         return self::findBy([
             'opportunity' => $opportunity,

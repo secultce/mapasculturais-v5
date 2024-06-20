@@ -51,6 +51,6 @@ class Module extends \MapasCulturais\Module
     public function register()
     {
         $app = App::i();
-        $app->registerController('sorteio-inscricao', RegistrationsDraw::class);
+        $app->registerController('sorteio-inscricoes', RegistrationsDraw::class);
     }
 }

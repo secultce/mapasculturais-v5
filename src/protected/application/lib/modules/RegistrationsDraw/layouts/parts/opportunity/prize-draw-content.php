@@ -21,11 +21,39 @@
         <div style="display: flex; align-items: stretch">
             <select name="categories-draw" id="categories-draw" class="new-ui-select">
                 <option disabled selected>Selecionar categoria</option>
-                <?php foreach($categories as $category): ?>
+                <?php if(empty($categories)): ?>
+                    <option value="">Todas as inscrições (não existem categorias cadastradas)</option>
+                <?php else: foreach($categories as $category): ?>
                     <option><?= $category ?></option>
-                <?php endforeach; ?>
+                <?php endforeach; endif; ?>
             </select>
-            <button class="btn btn-primary">Realizar sorteio</button>
+            <button class="btn btn-primary" id="draw-button">Realizar sorteio</button>
         </div>
     </div>
 </div>
+
+<script>
+    // @todo: Remover
+
+    $('#draw-button').on('click', e => {
+        e.preventDefault();
+
+        const url = MapasCulturais.createUrl('sorteio-inscricoes', 'draw', [MapasCulturais.entity.id]);
+        const category = $('#categories-draw').val();
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({category}).toString(),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    });
+</script>
