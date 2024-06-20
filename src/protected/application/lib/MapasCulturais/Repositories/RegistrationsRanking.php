@@ -2,16 +2,33 @@
 
 namespace MapasCulturais\Repositories;
 
+use MapasCulturais\App;
 use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Repository;
 
 class RegistrationsRanking extends Repository
 {
-    public static function saveRanking(array $registrationsOrdered): bool
-    {
-        // @todo: implements save ranking
 
-        return false;
+    /**
+     * @param \MapasCulturais\Entities\RegistrationsRanking[] $registrationsRanked
+     * @return bool
+     */
+    public static function saveRanking(array $registrationsRanked): bool
+    {
+        $app = App::i();
+        $app->em->beginTransaction();
+        foreach ($registrationsRanked as $registration) {
+            try {
+                $registration->save(true);
+            } catch (\Exception $e) {
+                $app->em->rollback();
+                throw $e;
+            }
+        }
+        // @todo: Implementar registro de que a categoria já foi sorteada
+        $app->em->commit();
+
+        return true;
     }
 
     /**

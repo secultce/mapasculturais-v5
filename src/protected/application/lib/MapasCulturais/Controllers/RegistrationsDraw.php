@@ -24,12 +24,13 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         if(empty($ranking))
             $this->json(['message' => 'Not exists approved registrations in category'], 404);
 
-        dump($ranking);
-
-        exit;
+        $this->json($ranking, 201);
     }
 
-    private function drawRanking(OpportunityEntity $opportunity, string $category): array
+    /**
+     * @throws \Exception
+     */
+    private function drawRanking(OpportunityEntity $opportunity, string $category = ''): array
     {
         $app = App::i();
 
@@ -57,13 +58,9 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $i++;
         }
 
-        try {
-            $saved = \MapasCulturais\Controllers\RegistrationsRanking::saveRanking($ranking);
-            if(!$saved)
-                throw new Exception('Not saved');
-        } catch (\Exception $e) {
-            echo 'erro';
-        }
+        $saved = $app->repo('RegistrationsRanking')->saveRanking($ranking);
+        if(!$saved)
+            throw new Exception('Not saved');
 
         return $ranking;
     }
