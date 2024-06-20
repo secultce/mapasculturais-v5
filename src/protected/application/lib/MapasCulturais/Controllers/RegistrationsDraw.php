@@ -2,15 +2,15 @@
 
 namespace MapasCulturais\Controllers;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use MapasCulturais\App;
 use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
     Registration as RegistrationEntity,
     RegistrationsRanking};
-use WideImage\Exception\Exception;
 
 class RegistrationsDraw extends \MapasCulturais\Controller
 {
-    public function GET_draw(): void
+    public function POST_draw(): void
     {
         /**
          * @var OpportunityEntity $opportunity
@@ -18,8 +18,15 @@ class RegistrationsDraw extends \MapasCulturais\Controller
          */
 
         $app = App::i();
-        $opportunity = $app->repo('Opportunity')->find($this->data['id']);
-        $ranking = $this->drawRanking($opportunity, $this->data['category']);
+        try{
+            $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+            $ranking = $this->drawRanking($opportunity, $this->data['category']);
+        } catch (\Exception $e) {
+            if($e->getMessage() === 'Ranking previously generated')
+                $this->json(['message' => $e->getMessage()], 400);
+            else if($e->getMessage() === 'Ranking not saved')
+                $this->json(['message' => $e->getMessage()], 500);
+        }
 
         if(empty($ranking))
             $this->json(['message' => 'Not exists approved registrations in category'], 404);
@@ -40,7 +47,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             'category' => $category,
         ]);
 
-        $randomMax = count($registrations) * 100;
+        $randomMax = count($registrations) * 10;
         $randomizedArray = [];
         foreach ($registrations as $registration) {
             do {
@@ -58,9 +65,14 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $i++;
         }
 
-        $saved = $app->repo('RegistrationsRanking')->saveRanking($ranking);
+        try {
+            $saved = $app->repo('RegistrationsRanking')->saveRanking($ranking);
+        } catch (UniqueConstraintViolationException $e) {
+            throw new \Exception('Ranking previously generated');
+        }
+
         if(!$saved)
-            throw new Exception('Not saved');
+            throw new \Exception('Ranking not saved');
 
         return $ranking;
     }
