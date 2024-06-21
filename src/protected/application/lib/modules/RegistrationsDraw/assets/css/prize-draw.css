@@ -9,7 +9,7 @@
     margin-bottom: 10px;
 }
 
-#categories-draw {
+#categories-draw, #drawed-categories-filter {
     width: 35em;
     height: fit-content;
     border-radius: 2px;
@@ -18,11 +18,11 @@
     font-size: 1.1em;
 }
 
-#categories-draw-label {
+.categories-draw-label {
     display: block;
 }
 
-#prize-draw .btn-primary {
+#prize-draw .btn {
     height: auto;
     margin-left: 16px;
     /*aspect-ratio: 4/1;*/
