@@ -12,9 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="registrations_ranking_opportunity_category_idx", columns={"opportunity_id", "category"}),
  *     @ORM\Index(name="registrations_ranking_category_idx", columns={"category"}),
  * }, uniqueConstraints={
- *     @ORM\UniqueConstraint(name="category_rank", columns={"category", "rank"})
+ *     @ORM\UniqueConstraint(name="opportunity_category_rank", columns={"opportunity_id", "category", "rank"})
  * })
- * @ORM\Entity(repositoryClass="MapasCulturais\Repositories\RegistrationsRanking")
+ * @ORM\Entity(repositoryClass="MapasCulturais\Repositories\RegistrationsRanking", readOnly=true)
  * @ORM\HasLifecycleCallbacks
  */
 class RegistrationsRanking extends Entity
@@ -57,9 +57,16 @@ class RegistrationsRanking extends Entity
      */
     protected $category;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct(Registration $registration, Opportunity $opportunity, int $rank, string $category)
     {
         parent::__construct();
+
+        // Valida se a categoria da inscrição é igual a que será registrada
+        if($registration->category !== $category)
+            throw new \Exception('Invalid category to registration');
 
         $this->registration = $registration;
         $this->opportunity = $opportunity;

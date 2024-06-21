@@ -1993,6 +1993,6 @@ $$
                 FOREIGN KEY(opportunity_id)
                     REFERENCES opportunity(id)
                     ON DELETE CASCADE,
-            UNIQUE (category, rank));');
+            UNIQUE (opportunity_id, category, rank));');
     }
 ] + $updates ;

@@ -12,14 +12,16 @@ class RegistrationsRanking extends Repository
     /**
      * @param \MapasCulturais\Entities\RegistrationsRanking[] $registrationsRanked
      * @return bool
+     * @throws \MapasCulturais\Exceptions\WorkflowRequest
+     * @throws \MapasCulturais\Exceptions\PermissionDenied
      */
     public static function saveRanking(array $registrationsRanked): bool
     {
         $app = App::i();
         $app->em->beginTransaction();
-        foreach ($registrationsRanked as $registration) {
+        foreach ($registrationsRanked as $rankingPosition) {
             try {
-                $registration->save(true);
+                $rankingPosition->save(true);
             } catch (\Exception $e) {
                 $app->em->rollback();
                 throw $e;
