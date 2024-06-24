@@ -32,6 +32,8 @@ services:
       - MAILER_PORT=1025
       - MAILER_FROM=sysadmin@localhost
       - MAILER_PROTOCOL= #precisa ficar vazio para o mailhog funcionar
+      - HOST_API_AUDIT=172.18.3.44
+      - PORT_API_AUDIT=9501
       
       # chaves de teste do google recaptcha
       - GOOGLE_RECAPTCHA_SITEKEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
