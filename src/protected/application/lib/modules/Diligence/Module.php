@@ -249,12 +249,6 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-        $this->registerOpportunityMetadata('use_multiple_diligence', [
-            'label' =>  i::__('Usa Multi Diligência?'),
-            'type' => 'string',
-            'options' => ['Sim', 'Não'],
-            'default' => 'Não'
-        ]);
         
         $app->registerFileGroup(
             'diligence',

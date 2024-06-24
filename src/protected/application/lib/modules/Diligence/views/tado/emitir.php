@@ -31,14 +31,11 @@ $tado = $td->getTado($reg);
                         <div class="icon icon-project"></div>
                         <a rel="noopener noreferrer">Edital</a>
                     </div>
-                    <!--.entity-type-->
-                    <!-- BaseV1/layouts/parts/entity-parent.php # BEGIN -->
                     <h4 class="entity-parent-title">
                         <a href="#">
 
                         </a>
                     </h4>
-                    <!-- BaseV1/layouts/parts/entity-parent.php # END -->
                     <h2>
                         <a href="<?= $urlOpp; ?>">
                             <?php echo $reg->opportunity->name; ?>
@@ -143,8 +140,6 @@ $tado = $td->getTado($reg);
             </div>
 
             <div>
-                <?php //dump($tado); 
-                ?>
                 <div class="form-container">
                     <p style="margin-bottom: 10px; font-weight: 700; line-height: 24.51px; font-size: 18px">
                         Conclusão sobre o projeto
