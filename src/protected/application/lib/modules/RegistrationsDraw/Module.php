@@ -21,8 +21,10 @@ class Module extends \MapasCulturais\Module
             // todo: Implements draw setting
             $drawSetted = true;
 
-            /** Skip the hook when opportunity not setted to prize draw or user can't control this opportunity */
-            if(!$drawSetted || !$opportunity->canUser('@control'))
+            /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
+             *  or registrations period is open.
+             */
+            if(!$drawSetted || !$opportunity->canUser('@control') || $opportunity->registrationTo > new \DateTime())
                 return;
 
             $this->part('opportunity/tab-draw');
@@ -38,8 +40,10 @@ class Module extends \MapasCulturais\Module
             // todo: Implements draw setting
             $drawSetted = true;
 
-            /** Skip the hook when the user can't control this opportunity */
-            if(!$drawSetted || !$opportunity->canUser('@control'))
+            /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
+             *  or registrations period is open.
+             */
+            if(!$drawSetted || !$opportunity->canUser('@control') || $opportunity->registrationTo > new \DateTime())
                 return;
 
             $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
