@@ -43,6 +43,7 @@ class Module extends \MapasCulturais\Module
                 return;
 
             $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
+            $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
             $drawedCategories = ['Ficção', 'Direção Estreante']; // @todo: Recuperar metadado com as categorias sorteadas
             $rankings = [];
             $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {

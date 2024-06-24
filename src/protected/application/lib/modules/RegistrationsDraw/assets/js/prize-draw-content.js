@@ -1,27 +1,47 @@
-$('#draw-button').on('click', e => {
-    e.preventDefault();
+$(document).ready(() => {
+    $('#draw-button').on('click', e => {
+        e.preventDefault();
 
-    const url = MapasCulturais.createUrl('sorteio-inscricoes', 'draw', [MapasCulturais.entity.id]);
-    const category = $('#categories-draw').val();
+        const url = MapasCulturais.createUrl('sorteio-inscricoes', 'draw', [MapasCulturais.entity.id]);
+        const category = $('#categories-draw').val();
 
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({category}).toString(),
-    })
-        .then(response => response.json())
-        .then(data => {
-            renderRanking(data);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({category}).toString(),
         })
-        .catch(error => {
-            console.error(error);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    let err = new Error("HTTP status code: " + response.status);
+                    err.response = response;
+                    err.status = response.status;
+                    throw err;
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderRanking(data, category);
+            })
+            .catch(error => {
+                if(error.status === 400) {
+                    MapasCulturais.Messages.alert('Essa categoria já foi sorteada.');
+                    return;
+                }
+                console.error(error);
+                MapasCulturais.Messages.error('Ocorreu um erro ao gerar ranking');
+                MapasCulturais.Messages.alert('Atualize a página e tente novamente!');
+            });
+    });
 
-    const renderRanking = arrayRanking => {
+    const renderRanking = ((arrayRanking, category) => {
         const tableBodyElement = $('table#ranking-table tbody');
         tableBodyElement.children().each((key, elem) => elem.style.display = 'none');
+        $('#categories-draw').children()
+            .each((key, elem) =>
+                elem.innerText === category ? elem.setAttribute('disabled', '') : '');
+        $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
 
         arrayRanking.sort((current, next) => {
             return current.rank - next.rank;
@@ -49,5 +69,5 @@ $('#draw-button').on('click', e => {
 
             tableBodyElement.append(tr);
         }, 200)
-    }
+    });
 });
