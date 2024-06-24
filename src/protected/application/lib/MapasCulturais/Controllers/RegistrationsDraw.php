@@ -11,7 +11,6 @@ use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
 class RegistrationsDraw extends \MapasCulturais\Controller
 {
     public function POST_draw(): void
-//    public function GET_draw(): void
     {
         /**
          * @var OpportunityEntity $opportunity
@@ -68,8 +67,14 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
         try {
             $app->repo('RegistrationsRanking')->saveRanking($ranking);
+            $drawedCategories = $opportunity->drawedRegistrationsCategories;
+            $drawedCategories[] = $this->data['category'];
+            $opportunity->drawedRegistrationsCategories = $drawedCategories;
+            $opportunity->save(true);
         } catch (UniqueConstraintViolationException $e) {
             throw new \Exception('Ranking previously generated');
+        } catch (\Exception $e) {
+            throw new \Exception('Unexpected exception');
         }
 
         return $ranking;

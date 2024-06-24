@@ -44,7 +44,7 @@ class Module extends \MapasCulturais\Module
 
             $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
             $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
-            $drawedCategories = ['Ficção', 'Direção Estreante']; // @todo: Recuperar metadado com as categorias sorteadas
+            $drawedCategories = $opportunity->drawedRegistrationsCategories ?? [];
             $rankings = [];
             $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {
                 $isDrawed = in_array($category, $drawedCategories, true);
@@ -68,5 +68,17 @@ class Module extends \MapasCulturais\Module
     {
         $app = App::i();
         $app->registerController('sorteio-inscricoes', RegistrationsDraw::class);
+
+        $this->registerOpportunityMetadata('drawedRegistrationsCategories', [
+            'type' => 'string',
+            'label' => 'Categorias com ranking sorteados',
+            'default' => json_encode([]),
+            'serialize' => function($value) {
+                return json_encode($value);
+            },
+            'unserialize' => function($value) {
+                return json_decode($value);
+            },
+        ]);
     }
 }
