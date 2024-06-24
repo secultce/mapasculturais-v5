@@ -10,7 +10,7 @@
 ?>
 <div id="prize-draw">
     <?php $this->applyTemplateHook('opportunity-draw','begin'); ?>
-    <h3 style="font-family: 'Open Sans'; font-weight: 700">Sorteio</h3>
+    <h3>Sorteio</h3>
     <p class="new-ui-paragraph">
         Realize sorteio a partir de categorias para gerar listas com as pessoas selecionadas neste edital.
         <br>
@@ -29,12 +29,13 @@
                 <?php endforeach; endif; ?>
             </select>
             <button class="btn btn-primary" id="draw-button">Realizar sorteio</button>
+            <span id="draw-loading" style="display:none;"><img src="<?php $this->asset('img/spinner_192.gif') ?>"/></span>
         </div>
     </div>
 
     <hr>
     <div id="rankings" style="background:#f5f5f5;padding:10px;">
-        <h3 style="font-family: 'Open Sans'; font-weight: 700">Sorteios realizados</h3>
+        <h3>Sorteios realizados</h3>
 
         <label class="new-ui-label categories-draw-label" for="drawed-categories-filter">Filtrar por categoria sorteios já realizados</label>
         <div style="display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap">

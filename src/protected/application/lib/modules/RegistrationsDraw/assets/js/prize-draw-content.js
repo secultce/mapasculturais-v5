@@ -1,6 +1,22 @@
 $(document).ready(() => {
-    $('#draw-button').on('click', e => {
+    $('#draw-button').on('click', async e => {
         e.preventDefault();
+
+        const confirmWindow = await Swal.fire({
+            title: 'Confirmar o sorteio?',
+            showDenyButton: true,
+            denyButtonText: 'Não, sortear depois',
+            confirmButtonText: 'Sim',
+            reverseButtons: true,
+            customClass: {
+                actions: 'space-between',
+            },
+        })
+        if(!confirmWindow.isConfirmed)
+            return;
+
+        $('#draw-button').hide();
+        $('#draw-loading').show();
 
         const url = MapasCulturais.createUrl('sorteio-inscricoes', 'draw', [MapasCulturais.entity.id]);
         const category = $('#categories-draw').val();
@@ -13,6 +29,9 @@ $(document).ready(() => {
             body: new URLSearchParams({category}).toString(),
         })
             .then(response => {
+                $('#draw-button').show();
+                $('#draw-loading').hide();
+
                 if (!response.ok) {
                     let err = new Error("HTTP status code: " + response.status);
                     err.response = response;
@@ -77,6 +96,7 @@ $(document).ready(() => {
                     `<td>#${rank.rank}</td>`));
 
             tableBodyElement.append(tr);
+            document.getElementById('ranking-table').scrollIntoView();
         }, 200)
     });
 });

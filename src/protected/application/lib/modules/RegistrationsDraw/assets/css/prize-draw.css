@@ -29,3 +29,16 @@
     font-size: 1em;
     padding-inline: 16px;
 }
+
+.swal2-actions.space-between {
+    justify-content: space-between;
+}
+
+#draw-loading {
+    position: relative;
+    height: 100%;
+    width: 4em;
+}
+#draw-loading img {
+    margin-left: 15px;
+}
