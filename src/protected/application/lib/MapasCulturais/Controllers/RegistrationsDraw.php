@@ -67,10 +67,6 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
         try {
             $app->repo('RegistrationsRanking')->saveRanking($ranking);
-            $drawedCategories = $opportunity->drawedRegistrationsCategories;
-            $drawedCategories[] = $this->data['category'];
-            $opportunity->drawedRegistrationsCategories = $drawedCategories;
-            $opportunity->save(true);
         } catch (UniqueConstraintViolationException $e) {
             throw new \Exception('Ranking previously generated');
         } catch (\Exception $e) {

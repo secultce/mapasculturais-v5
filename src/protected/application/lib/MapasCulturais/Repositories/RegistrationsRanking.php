@@ -27,7 +27,19 @@ class RegistrationsRanking extends Repository
                 throw $e;
             }
         }
-        // @todo: Implementar registro de que a categoria já foi sorteada
+
+        // Registra nos metadados que houve o sorteio para essa categoria
+        try {
+            $opportunity = $registrationsRanked[0]->opportunity;
+            $category = $registrationsRanked[0]->category;
+            $drawedCategories = $opportunity->drawedRegistrationsCategories;
+            $drawedCategories[] = $category;
+            $opportunity->drawedRegistrationsCategories = $drawedCategories;
+            $opportunity->save(true);
+        } catch (\Exception $e) {
+            $app->em->rollback();
+            throw $e;
+        }
         $app->em->commit();
 
         return true;
