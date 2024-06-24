@@ -35,6 +35,15 @@ $(document).ready(() => {
             });
     });
 
+    $('#drawed-categories-filter').on('change', e => {
+        const tableBodyElement = $('table#ranking-table tbody');
+        tableBodyElement.children()
+            .each((key, elem) =>
+                elem.getAttribute('data-category') !== e.target.value && e.target.value !== ''
+                ? elem.style.display = 'none'
+                : elem.style.display = 'table-row');
+    })
+
     const renderRanking = ((arrayRanking, category) => {
         const tableBodyElement = $('table#ranking-table tbody');
         tableBodyElement.children().each((key, elem) => elem.style.display = 'none');
@@ -61,7 +70,7 @@ $(document).ready(() => {
 
             const rank = arrayRanking[i];
             i++;
-            const tr = $('<tr class="approved"></tr>')
+            const tr = $(`<tr data-category="${category}" class="approved"></tr>`)
                 .append($(`<td><a href="/inscricao/${rank.registration.id}">${rank.registration.number}</a></td>` +
                     `<td>${rank.registration.category}</td>` +
                     `<td><a href="/agente/${rank.registration.owner.id}">${rank.registration.owner.name}</a></td>` +

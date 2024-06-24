@@ -39,6 +39,7 @@
         <label class="new-ui-label categories-draw-label" for="drawed-categories-filter">Filtrar por categoria sorteios já realizados</label>
         <div style="display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap">
             <select id="drawed-categories-filter" class="new-ui-select">
+                <option value="">Todas as categorias</option>
                 <?php foreach ($categories as $category): if($category->isDrawed): ?>
                     <option><?= $category->name ?></option>
                 <?php endif; endforeach; ?>
