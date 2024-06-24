@@ -101,6 +101,16 @@ class Diligence{
         return $result;
     }
 
+    public function getTado($registratrion)
+    {
+        $app = App::i();  
+        //Buscando o tado gerado
+        $tado = $app->repo('Diligence\Entities\Tado')->findOneBy([
+            'registration' => $registratrion
+        ]);
+        return $tado;
+    }
+
     /**
      * Buscando a ultima diligência relacionado a inscrição Desejada
      *

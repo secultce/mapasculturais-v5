@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use MapasCulturais\App;
 use Diligence\Entities\AnswerDiligence;
 use Diligence\Entities\Diligence;
+use Diligence\Repositories\Diligence as RepoDiligence;
 
 $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
@@ -12,6 +13,9 @@ Carbon::setLocale('pt_BR');
 
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
+//Tado
+$td = new RepoDiligence();
+$tado = $td->getTado($context['entity']);
 ?>
 
 <?php $this->applyTemplateHook('tabs', 'after'); ?>
@@ -64,25 +68,28 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             if (is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                 $showText = true;
                 new DateTime() <= $diligence_days ? $showText = true : $showText = false;
-                $this->part('diligence/info-term',[
-                    'entity' => $context['entity'],
-                    'diligenceRepository' => $context['diligenceRepository'],
-                    'diligenceDays' => $diligence_days
-                ]);
+                if(is_null($tado) || !is_null($tado) && $tado->status == 0):
+                    $this->part('diligence/info-term',[
+                        'entity' => $context['entity'],
+                        'diligenceRepository' => $context['diligenceRepository'],
+                        'diligenceDays' => $diligence_days
+                    ]);
+                endif;
             }
             if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                
                 new DateTime() <= $diligence_days ? $showText = true : $showText = false;
-                $this->part('diligence/info-term',[
-                    'entity' => $context['entity'],
-                    'diligenceRepository' => $context['diligenceRepository'],
-                    'diligenceDays' => $diligence_days
-                ]);
+                if(is_null($tado) || !is_null($tado) && $tado->status == 0):
+                    $this->part('diligence/info-term',[
+                        'entity' => $context['entity'],
+                        'diligenceRepository' => $context['diligenceRepository'],
+                        'diligenceDays' => $diligence_days
+                    ]);
+                endif;
             }
-
-                       
-            
         }
+        //Se tiver TADO finalizado não tem mais interação
+        if(is_null($tado) || !is_null($tado) && $tado->status == 0):
         ?>
         <div class="flex-container" id="btn-actions-proponent">
             <?php
@@ -93,6 +100,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             }
             ?>
         </div>
+        <?php endif; ?>
         <!-- FIM PROPONENTE -->
     </div>
 </div>

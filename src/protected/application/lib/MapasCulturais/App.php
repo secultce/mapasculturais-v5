@@ -3223,4 +3223,51 @@ class App extends \Slim\Slim{
         }
         return null;
     }
+
+    /**
+     * Função para verificar exclusivamente se o usuário é avaliador de uma inscrição
+     *
+     * @return boolean
+     */
+    public function isEvaluator(Entities\Opportunity $opportunity, Entities\Registration $registration): bool
+    {
+        $app = App::i();
+
+        if($opportunity->owner === $app->user->profile)
+            return true;
+
+        /**
+         * Verifica se o usuário tem permissão direta de avaliar a inscrição
+         * sem considerar o papel de Admin ou superior na plataforma
+         */
+        $evaluateAction = $app->repo('RegistrationPermissionCache')->findBy([
+            'user' => $app->user,
+            'action' => 'evaluate',
+            'owner' => $registration,
+        ]);
+        if(count($evaluateAction) > 0)
+            return true;
+
+        $queryBuilder = $app->em->createQueryBuilder()
+            ->select('a')
+            ->from('\MapasCulturais\Entities\Agent', 'a')
+            ->innerJoin('\MapasCulturais\Entities\AgentRelation', 'ar')
+            ->where("ar.objectId = {$opportunity->id}")
+            ->andWhere("ar.agent = a")
+            ->andWhere("ar.group = 'group-admin'")
+            ->andWhere("ar.status = 1");
+        $query = $queryBuilder->getQuery();
+        /**
+         * @var $agentsAdmin Entities\Agent[]
+         */
+        $opportunityAdminAgents = $query->getResult();
+
+        // verifica se o usuário tem permissão sobre os agentes administradores da oportunidade
+        foreach ($opportunityAdminAgents as $agent) {
+            if($agent->canUser('control'))
+                return true;
+        }
+
+        return false;
+    }
 }
