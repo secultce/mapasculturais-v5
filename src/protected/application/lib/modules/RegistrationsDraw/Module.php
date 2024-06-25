@@ -12,6 +12,10 @@ class Module extends \MapasCulturais\Module
     {
         $app = App::i();
 
+        $app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () use ($app) {
+            $this->part('opportunity/config-fieldset', ['opportunity' => $this->controller->requestedEntity]);
+        });
+
         $app->hook('template(opportunity.single.opportunity-support--tab):after', function () {
             /**
              * @var \MapasCulturais\Entities\Opportunity $opportunity
@@ -82,6 +86,19 @@ class Module extends \MapasCulturais\Module
             },
             'unserialize' => function($value) {
                 return json_decode($value);
+            },
+        ]);
+
+        $this->registerOpportunityMetadata('useRegistrationsDraw', [
+            'type' => 'select',
+            'label' => 'Usar sorteio de para ranking de inscrições',
+            'default' => false,
+            'options' => [
+                false => 'Não',
+                true => 'Sim',
+            ],
+            'unserialize' => function($value) {
+                return $value == 'Sim';
             },
         ]);
     }
