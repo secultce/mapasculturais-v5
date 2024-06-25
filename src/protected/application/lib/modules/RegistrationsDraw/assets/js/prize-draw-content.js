@@ -69,7 +69,9 @@ $(document).ready(() => {
         $('#categories-draw').children()
             .each((key, elem) =>
                 elem.innerText === category ? elem.setAttribute('disabled', '') : '');
-        $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
+        if(category !== '') {
+            $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
+        }
 
         arrayRanking.sort((current, next) => {
             return current.rank - next.rank;

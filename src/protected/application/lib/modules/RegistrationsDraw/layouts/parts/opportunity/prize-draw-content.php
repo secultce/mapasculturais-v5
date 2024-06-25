@@ -22,7 +22,7 @@
         <div style="display: flex; align-items: stretch">
             <select name="categories-draw" id="categories-draw" class="new-ui-select">
                 <option disabled selected>Selecionar categoria</option>
-                <?php if(empty($categories)): ?>
+                <?php if(empty($categories) || (count($categories) === 1 && $categories[0]->name == '')): ?>
                     <option value="">Todas as inscrições (não existem categorias cadastradas)</option>
                 <?php else: foreach($categories as $category): ?>
                     <option <?= $category->isDrawed ? 'disabled' : '' ?>><?= $category->name ?></option>
@@ -41,7 +41,7 @@
         <div style="display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap">
             <select id="drawed-categories-filter" class="new-ui-select">
                 <option value="">Todas as categorias</option>
-                <?php foreach ($categories as $category): if($category->isDrawed): ?>
+                <?php foreach ($categories as $category): if($category->isDrawed && $category->name != ''): ?>
                     <option><?= $category->name ?></option>
                 <?php endif; endforeach; ?>
             </select>
