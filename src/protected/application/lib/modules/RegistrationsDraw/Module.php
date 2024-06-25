@@ -13,7 +13,11 @@ class Module extends \MapasCulturais\Module
         $app = App::i();
 
         $app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () use ($app) {
-            $this->part('opportunity/config-fieldset', ['opportunity' => $this->controller->requestedEntity]);
+            $opportunity = $this->controller->requestedEntity;
+            if($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary')
+                return;
+
+            $this->part('opportunity/config-fieldset', ['opportunity' => $opportunity]);
         });
 
         $app->hook('template(opportunity.single.opportunity-support--tab):after', function () {
@@ -22,8 +26,7 @@ class Module extends \MapasCulturais\Module
              * @var bool $drawSetted
              */
             $opportunity = $this->controller->requestedEntity;
-            // todo: Implements draw setting
-            $drawSetted = true;
+            $drawSetted = $opportunity->useRegistrationsDraw;
 
             /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
              *  or registrations period is open.
@@ -41,8 +44,7 @@ class Module extends \MapasCulturais\Module
              * @var bool $drawSetted
              */
             $opportunity = $this->controller->requestedEntity;
-            // todo: Implements draw setting
-            $drawSetted = true;
+            $drawSetted = $opportunity->useRegistrationsDraw;
 
             /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
              *  or registrations period is open.
@@ -63,7 +65,7 @@ class Module extends \MapasCulturais\Module
                     'name' => $category,
                     'isDrawed' => $isDrawed,
                 ];
-            }, $opportunity->registrationCategories);
+            }, $opportunity->registrationCategories ?: [""]);
 
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
