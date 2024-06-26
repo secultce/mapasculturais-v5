@@ -137,10 +137,9 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      */
     static public function sendQueue($userDestination, $routeKey)
     {
-
         $exchange = 'router';
         $queue = 'msgs';
-        $connection = new AMQPStreamConnection('rabbitmq', '5672', 'mqadmin', 'Admin123XX_', '/');
+        $connection = new AMQPStreamConnection($_ENV['RABBITMQ_HOST'], $_ENV['RABBITMQ_PORT'], $_ENV['RABBITMQ_USER'], $_ENV['RABBITMQ_PASSWORD'], $_ENV['RABBITMQ_VHOST']);
        
         $channel = $connection->channel();
         $channel->queue_declare($queue, false, true, false, false);
