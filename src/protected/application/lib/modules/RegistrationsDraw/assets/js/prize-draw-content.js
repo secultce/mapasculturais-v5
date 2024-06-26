@@ -69,6 +69,7 @@ $(document).ready(() => {
         $('#categories-draw').children()
             .each((key, elem) =>
                 elem.innerText === category ? elem.setAttribute('disabled', '') : '');
+
         if(category !== '') {
             $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
         }
