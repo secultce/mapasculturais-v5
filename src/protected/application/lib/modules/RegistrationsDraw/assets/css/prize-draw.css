@@ -1,0 +1,44 @@
+.new-ui-paragraph {
+    color: #000;
+}
+
+.new-ui-label {
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#categories-draw, #drawed-categories-filter {
+    width: 35em;
+    height: fit-content;
+    border-radius: 2px;
+    color: #000;
+    padding: 10px;
+    font-size: 1.1em;
+}
+
+.categories-draw-label {
+    display: block;
+}
+
+#prize-draw .btn {
+    height: auto;
+    margin-left: 16px;
+    /*aspect-ratio: 4/1;*/
+    font-size: 1em;
+    padding-inline: 16px;
+}
+
+.swal2-actions.space-between {
+    justify-content: space-between;
+}
+
+#draw-loading {
+    position: relative;
+    height: 100%;
+    width: 4em;
+}
+#draw-loading img {
+    margin-left: 15px;
+}

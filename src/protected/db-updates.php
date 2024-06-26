@@ -1989,5 +1989,24 @@ $$
 
     'add a column to table answer_diligence' => function() {
         __exec("ALTER TABLE answer_diligence ADD registration_id INT");
-    }
+    },
+
+    'create table registrations_ranking' => function () {
+        __exec('CREATE TABLE registrations_ranking(
+            id INT NOT NULL GENERATED ALWAYS AS IDENTITY,
+            registration_id INT NOT NULL,
+            opportunity_id INT NOT NULL,
+            category TEXT NOT NULL,
+            rank INT NOT NULL,
+            PRIMARY KEY(id),
+            CONSTRAINT fk_registration
+                FOREIGN KEY(registration_id)
+                    REFERENCES registration(id)
+                    ON DELETE CASCADE,
+            CONSTRAINT fk_opportunity
+                FOREIGN KEY(opportunity_id)
+                    REFERENCES opportunity(id)
+                    ON DELETE CASCADE,
+            UNIQUE (opportunity_id, category, rank));');
+    },
 ] + $updates ;
