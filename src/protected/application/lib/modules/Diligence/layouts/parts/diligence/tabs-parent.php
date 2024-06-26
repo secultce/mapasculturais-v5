@@ -11,6 +11,11 @@ Carbon::setLocale('pt_BR');
 $this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
 $showText = false;
 $placeHolder = "Digite aqui a sua diligência";
+
+//Tado
+$td = new DiligenceRepo();
+$tado = $td->getTado($context['entity']);
+
 ?>
 <?php
 $this->applyTemplateHook('tabs', 'before');
@@ -73,6 +78,10 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             </p>
         </div>
         <div class="div-btn-send-diligence flex-container">
+            <?php
+                //Se tiver TADO finalizado não tem mais interação
+                if(is_null($tado) || !is_null($tado) && $tado->status == 0) :
+            ?>
             <div class="d-none" id="btn-actions-diligence">
                 <?php
                 if ($showText || is_null($diligenceAndAnswers)) {
@@ -85,6 +94,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                 }
                 ?>
             </div>
+            <?php endif; ?>
             <div class="import-diligence" style="width: 100%">
                 <?php
                 foreach ($files as $file) {

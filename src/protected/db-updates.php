@@ -1934,7 +1934,6 @@ $$
         CONSTRAINT diligence_open_agent_id_fk
         FOREIGN KEY (open_agent_id) REFERENCES agent (id)
         ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
-        // $conn->executeQuery("UPDATE evaluation_method_configuration SET type = 'documentary' WHERE opportunity_id IN ({$ids})");
     },
 
     'create table answer_diligence' => function() {
@@ -1964,17 +1963,32 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
     },
+    
+    'create table tado' => function() {
+        __exec("CREATE SEQUENCE tado_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec("CREATE TABLE tado (
+            id INT NOT NULL, 
+            agent_id INT DEFAULT NULL, 
+            registration_id INT NOT NULL, 
+            agent_signature INT DEFAULT NULL, 
+            number VARCHAR(24) DEFAULT NULL, 
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_from TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_to TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+            object VARCHAR(255) NOT NULL, 
+            conclusion TEXT DEFAULT NULL,
+            status SMALLINT NOT NULL, 
+            PRIMARY KEY(id));");
+        __exec("CREATE INDEX IDX_50909BAA3414710B ON tado (agent_id);");
+        __exec("CREATE INDEX IDX_50909BAA833D8F43 ON tado (registration_id);");
+        __exec("CREATE INDEX IDX_50909BAA59DC8705 ON tado (agent_signature);");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA3414710B FOREIGN KEY (agent_id) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA59DC8705 FOREIGN KEY (agent_signature) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    },
 
     'add a column to table answer_diligence' => function() {
-        // __exec("ALTER TABLE answer_diligence DROP CONSTRAINT answer_diligence_registration_fk");
-        // __exec("ALTER TABLE answer_diligence DROP registration_id");
-
         __exec("ALTER TABLE answer_diligence ADD registration_id INT");
-
-        // __exec("ALTER TABLE answer_diligence ADD
-        // CONSTRAINT answer_diligence_registration_fk
-        // FOREIGN KEY (registration_id) REFERENCES registration (id)
-        // ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
     },
 
     'create table registrations_ranking' => function () {
@@ -1994,5 +2008,5 @@ $$
                     REFERENCES opportunity(id)
                     ON DELETE CASCADE,
             UNIQUE (opportunity_id, category, rank));');
-    }
+    },
 ] + $updates ;
