@@ -2009,4 +2009,12 @@ $$
                     ON DELETE CASCADE,
             UNIQUE (opportunity_id, category, rank));');
     },
+
+    'add columns user_id and crete_timestamp to registrations_ranking' => function () {
+        __exec("ALTER TABLE registrations_ranking
+            ADD COLUMN agent_id INT NOT NULL,
+            ADD COLUMN create_timestamp TIMESTAMP DEFAULT NOW(),
+            ADD CONSTRAINT fk_agent_ranking
+                FOREIGN KEY(agent_id) REFERENCES agent(id)");
+    },
 ] + $updates ;
