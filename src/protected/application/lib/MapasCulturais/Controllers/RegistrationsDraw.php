@@ -61,7 +61,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $ranking = [];
         $i = 1;
         foreach ($randomizedArray as $registration) {
-            $ranking[] = new RegistrationsRanking($registration, $registration->opportunity, $i, $category);
+            $ranking[] = new RegistrationsRanking($registration, $registration->opportunity, $i, $category, $app->user->profile);
             $i++;
         }
 
@@ -73,6 +73,10 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             throw new \Exception('Unexpected exception');
         }
 
-        return $ranking;
+        return [
+            'owner' => $app->user->profile,
+            'createTimestamp' => $ranking[0]->createTimestamp,
+            'ranking' => $ranking,
+        ];
     }
 }
