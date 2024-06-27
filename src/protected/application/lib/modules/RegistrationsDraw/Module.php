@@ -58,8 +58,12 @@ class Module extends \MapasCulturais\Module
             $rankings = [];
             $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {
                 $isDrawed = in_array($category, $drawedCategories, true);
-                if($isDrawed)
-                    $rankings[$category] = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
+                if($isDrawed) {
+                    $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
+                    $rankings[$category]['registrations'] = $registrationsRanking;
+                    $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
+                    $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
+                }
 
                 return (object)[
                     'name' => $category,

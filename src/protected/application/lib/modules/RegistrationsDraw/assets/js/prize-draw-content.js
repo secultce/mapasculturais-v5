@@ -41,7 +41,7 @@ $(document).ready(() => {
                 return response.json();
             })
             .then(data => {
-                renderRanking(data, category);
+                renderRanking(data.ranking, category);
             })
             .catch(error => {
                 if(error.status === 400) {
