@@ -13,5 +13,6 @@ return [
         'LocationStateCity' => ['namespace' => 'LocationStateCity'],
         'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
         'PublicConsultation' => ['namespace' => 'PublicConsultation'],
+        'PDFReport' => ['namespace' => 'PDFReport'],
     ]
 ];

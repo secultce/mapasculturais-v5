@@ -34,7 +34,9 @@
         "shuchkin/simplexls": "^0.10.3",
         "shuchkin/simplexlsx": "^1.0",
         "php-amqplib/php-amqplib": "^3.2",
-        "nesbot/carbon": "^2.72"
+        "nesbot/carbon": "^2.72",
+        "dompdf/dompdf": "^3.0",
+        "mpdf/mpdf": "^8.2"
     },
     "require-dev": {
     },

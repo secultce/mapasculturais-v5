@@ -1,3 +1,4 @@
+<?php $this->applyTemplateHook('opportunity-registrations--rules', 'before'); ?>
 <p ng-if="!data.isEditable && data.entity.registrationRulesFile"><a class="btn btn-default download" href="{{data.entity.registrationRulesFile.url}}" target="_blank" rel='noopener noreferrer'><?php \MapasCulturais\i::_e("Baixar o regulamento");?></a></p>
 <div ng-if="data.isEditable" class="registration-fieldset">
     <h4><?php \MapasCulturais\i::_e("Regulamento");?></h4>
@@ -29,3 +30,4 @@
     <?php endif ?>
 </div>
 <!-- #registration-rules -->
+<?php $this->applyTemplateHook('opportunity-registrations--rules', 'after'); ?>
