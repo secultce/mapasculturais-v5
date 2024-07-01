@@ -18,16 +18,18 @@ class RegistrationsDraw extends \MapasCulturais\Controller
          * @var OpportunityEntity $opportunity
          * @var RegistrationEntity[] $registrations
          */
-
+       
         $app = App::i();
         try{
+            //Evita de continuar o codigo em casos de não está logado
+            $this->requireAuthentication();
             $opportunity = $app->repo('Opportunity')->find($this->data['id']);
             $ranking = $this->drawRanking($opportunity, $this->data['category']);
         } catch (\Exception $e) {
             if($e->getMessage() === 'Ranking previously generated')
                 $this->json(['message' => $e->getMessage()], 400);
             else
-                $this->json(['message' => $e->getMessage()], 500);
+                $this->json(['message' => $e->getMessage()], 404);
         }
 
         if(empty($ranking))
@@ -114,16 +116,23 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         ];
     }
 
+    /**
+     * Metodo que devolve uma pdf com os dados do sorteio
+     *
+     * @return void
+     */
     public function GET_pdf() {
-        // dump($this->data);
+        $this->requireAuthentication();
         $app = App::i();
         $draw = $app->repo('RegistrationsRanking')->findBy(['opportunity' => $this->data['id']]);
         $opp = $app->repo('Opportunity')->find($this->data['id']);
-        // dump($opp); die;
+       
         $pdf = new PDF( [
-            'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
-            'utf-8', 'format' => 'A4',
-            'pagenumPrefix' => 'Página ',
+            'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 
+            'mode' => 'utf-8',
+            'default_font' => 'dejavusans',
+            'format' => 'A4',
+            'pagenumPrefix' => 'Pagina ',
             'pagenumSuffix' => '  ',
             'nbpgPrefix' => ' de ',
             'nbpgSuffix' => ''
@@ -134,38 +143,22 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $app->view->regObject['draw'] = $draw;
         $app->view->regObject['opp'] = $opp;
 
-        ob_start();  
+        //Add estilo
+        $stylesheet = file_get_contents(MODULES_PATH . 'RegistrationsDraw/assets/css/prize-draw.css');
+        $pdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+
+        //Configuração para o footer
+        $footerPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-pdf.php');
+        $footerDocumentPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-document.php');
+        $pdf->SetHTMLFooter($footerPage);
+        $pdf->SetHTMLFooter($footerPage, 'E');
+        $pdf->writingHTMLfooter = true;
+        //Gerando o pdf
+        $pdf->SetTitle('Secult/CE - Relatório de sorteio');
         $content = $app->view->fetch('draw/pdf');
         $pdf->WriteHTML($content);
+        $pdf->SetHTMLFooter($footerPage . $footerDocumentPage);
         $pdf->Output();
         exit;
-        // $html = '<bookmark content="Start of the Document" /><div>Section 1 text</div>';
-
-        // $mpdf = new \Mpdf\Mpdf();
-        // $mpdf->WriteHTML($html);
-        // $mpdf->Output();
-        // exit;
-// //Buscando o tado gerado
-// $td = new RepoDiligence();
-// $tado = $td->getTado($reg);
-
-// //INSTANCIA DO TIPO ARRAY OBJETO
-// $app->view->regObject = new \ArrayObject;
-// $app->view->regObject['reg'] = $reg;
-// $app->view->regObject['tado'] = $tado;
-
-// $mpdf = new \Mpdf\Mpdf();
-// ob_start();
-// $content = $app->view->fetch('tado/html-gerar');
-// $footerPage = $app->view->fetch('tado/footer-pdf');
-// $mpdf->SetTitle('Secult/CE - Relatório TADO');
-// $stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
-// // Adicione o CSS ao mPDF
-// $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-
-// $mpdf->WriteHTML(ob_get_clean());
-// $mpdf->WriteHTML($content);
-// $mpdf->SetHTMLFooter($footerPage);
-// $pdf = $mpdf->Output('Tado.pdf', \Mpdf\Output\Destination::DOWNLOAD);
     }
 }
