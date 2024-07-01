@@ -50,3 +50,13 @@
     color: #fff;
     cursor: not-allowed;
 }
+
+.published-draw-label {
+    background: transparent;
+    border: none;
+}
+.published-draw-label:hover {
+    border: none;
+    cursor: text;
+    box-shadow: none;
+}

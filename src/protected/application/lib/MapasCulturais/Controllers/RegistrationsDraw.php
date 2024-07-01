@@ -67,6 +67,16 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             ->downloadAs('planilha.xlsx');
     }
 
+    public function POST_publish(): void
+    {
+        $app = App::i();
+        $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+        $opportunity->isPublishedDraw = true;
+        $opportunity->save();
+
+        $this->json(['message' => 'Published'], 204);
+    }
+
     /**
      * @throws \Exception
      */
