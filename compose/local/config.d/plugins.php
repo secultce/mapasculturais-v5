@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     'plugins' => [
         'EvaluationMethodTechnical' => ['namespace' => 'EvaluationMethodTechnical', 'config' => ['step' => 0.1]],
@@ -13,6 +12,7 @@ return [
         'EditOpportunityType' => ['namespace' => 'EditOpportunityType'],
         'LocationStateCity' => ['namespace' => 'LocationStateCity'],
         'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
-        'PDFReport' => ['namespace' => 'PDFReport']
+        'PublicConsultation' => ['namespace' => 'PublicConsultation'],
+        'PDFReport' => ['namespace' => 'PDFReport'],
     ]
 ];
