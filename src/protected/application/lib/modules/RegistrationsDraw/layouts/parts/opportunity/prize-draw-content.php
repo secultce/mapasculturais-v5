@@ -48,7 +48,7 @@
 
             <div style="display:flex;flex-wrap:wrap;">
                 <button class="btn btn-default">Baixar em PDF</button>
-                <button class="btn btn-default">Baixar em .csv</button>
+                <button class="btn btn-default" id="download-ranking">Baixar planilha (XLSX)</button>
                 <button class="btn btn-primary" id="pusblish-ranking">Publicar os sorteios</button>
             </div>
         </div>

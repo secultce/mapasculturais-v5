@@ -61,7 +61,26 @@ $(document).ready(() => {
                 elem.getAttribute('data-category') !== e.target.value && e.target.value !== ''
                 ? elem.style.display = 'none'
                 : elem.style.display = 'table-row');
-    })
+    });
+
+    $('#download-ranking').on('click', e => {
+        e.preventDefault();
+
+        const category = $('#drawed-categories-filter').val();
+
+        window.location = MapasCulturais.createUrl('sorteio-inscricoes', 'downloadcsv', {
+            id: MapasCulturais.entity.id,
+            category,
+        });
+
+        console.log(e.target)
+
+        $('#download-ranking').addClass('loading-button');
+
+        setTimeout(() => {
+            $('#download-ranking').removeClass('loading-button');
+        }, 4000)
+    });
 
     const renderRanking = ((arrayRanking, category) => {
         const tableBodyElement = $('table#ranking-table tbody');

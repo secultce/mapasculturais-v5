@@ -7,6 +7,7 @@ use MapasCulturais\App;
 use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
     Registration as RegistrationEntity,
     RegistrationsRanking};
+use Shuchkin\SimpleXLSXGen;
 
 class RegistrationsDraw extends \MapasCulturais\Controller
 {
@@ -32,6 +33,38 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $this->json(['message' => 'Not exists approved registrations in category'], 404);
 
         $this->json($ranking, 201);
+    }
+
+    public function GET_downloadcsv(): void
+    {
+        $app = App::i();
+
+        $criteria = ['opportunity' => $this->data['id']];
+        if(isset($criteria['category']))
+            $criteria['category'] = $this->data['category'];
+
+        $rankingList = $app->repo('RegistrationsRanking')->findBy($criteria, ['category' => 'asc','rank' => 'asc']);
+
+        $output = [['Inscrição','','Oportunidade','','Posição', 'Categoria', 'Data do sorteio','Responsável pelo sorteio','']];
+        foreach ($rankingList as $rankingPosition) {
+            $outputLine[0] = $rankingPosition->registration->number;
+            $outputLine[1] = $rankingPosition->registration->singleUrl;
+            $outputLine[2] = $rankingPosition->opportunity->name;
+            $outputLine[3] = $rankingPosition->opportunity->singleUrl;
+            $outputLine[4] = $rankingPosition->rank;
+            $outputLine[5] = $rankingPosition->category;
+            $outputLine[6] = $rankingPosition->createTimestamp;
+            $outputLine[7] = $rankingPosition->owner->name;
+            $outputLine[8] = $rankingPosition->owner->singleUrl;
+
+            $output[] = $outputLine;
+        }
+
+        SimpleXLSXGen::fromArray($output)
+            ->mergeCells('A1:B1')
+            ->mergeCells('C1:D1')
+            ->mergeCells('H1:I1')
+            ->downloadAs('planilha.xlsx');
     }
 
     /**

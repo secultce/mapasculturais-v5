@@ -42,3 +42,11 @@
 #draw-loading img {
     margin-left: 15px;
 }
+
+.loading-button, .loading-button:hover {
+    pointer-events: none;
+    background: #ccc;
+    transition: background .5s;
+    color: #fff;
+    cursor: not-allowed;
+}
