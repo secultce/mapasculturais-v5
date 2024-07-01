@@ -68,11 +68,12 @@
             <tbody>
                 <?php $this->applyTemplateHook('ranking-table--body','begin'); ?>
                 <?php foreach($rankings as $category => $ranking):
-                    uasort($ranking, function ($current, $next) {
+                    $rankingList = $ranking['registrations'];
+                    uasort($rankingList, function ($current, $next) {
                         return $current->rank > $next->rank;
                     });
 
-                    foreach ($ranking as $rank):
+                    foreach ($rankingList as $rank):
                 ?>
                     <tr data-category="<?= $category ?>" class="approved">
                         <td>

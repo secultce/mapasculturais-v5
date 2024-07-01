@@ -58,9 +58,24 @@ class RegistrationsRanking extends Entity
     protected $category;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="create_timestamp", type="datetime", nullable=false)
+     */
+    protected $createTimestamp;
+
+    /**
+     * @var Agent
+     *
+     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Agent")
+     * @ORM\JoinColumn(name="agent_id", referencedColumnName="id", nullable=false)
+     */
+    protected $owner;
+
+    /**
      * @throws \Exception
      */
-    public function __construct(Registration $registration, Opportunity $opportunity, int $rank, string $category)
+    public function __construct(Registration $registration, Opportunity $opportunity, int $rank, string $category, Agent $owner)
     {
         parent::__construct();
 
@@ -72,5 +87,7 @@ class RegistrationsRanking extends Entity
         $this->opportunity = $opportunity;
         $this->rank = $rank;
         $this->category = $category;
+        $this->createTimestamp = new \DateTime();
+        $this->owner = $owner;
     }
 }
