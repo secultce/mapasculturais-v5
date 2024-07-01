@@ -56,26 +56,35 @@ class Module extends \MapasCulturais\Module
             $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
             $drawedCategories = $opportunity->drawedRegistrationsCategories ?? [];
             $rankings = [];
-            $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {
-                $isDrawed = in_array($category, $drawedCategories, true);
-                if($isDrawed) {
-                    $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
-                    $rankings[$category]['registrations'] = $registrationsRanking;
-                    $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
-                    $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
-                }
-
-                return (object)[
-                    'name' => $category,
-                    'isDrawed' => $isDrawed,
-                ];
-            }, $opportunity->registrationCategories ?: [""]);
+            
+            $categories = self::getPrizeDraw($drawedCategories, $opportunity, $app, $rankings);
 
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
                 'rankings' => $rankings,
+                'entity' => $this->controller->requestedEntity
             ]);
         });
+    }
+
+    static public function getPrizeDraw($drawedCategories, $opportunity, $app, $rankings)
+    {
+        $categories = array_map(function ($category) use ($drawedCategories, $opportunity, $app, $rankings) {
+            $isDrawed = in_array($category, $drawedCategories, true);
+            if($isDrawed) {
+                $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
+                $rankings[$category]['registrations'] = $registrationsRanking;
+                $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
+                $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
+            }
+
+            return (object)[
+                'name' => $category,
+                'isDrawed' => $isDrawed,
+            ];
+        }, $opportunity->registrationCategories ?: [""]);
+
+        return  $categories;
     }
 
     public function register()

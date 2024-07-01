@@ -117,7 +117,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     public function GET_pdf() {
         // dump($this->data);
         $app = App::i();
-        $draw = $app->repo('RegistrationsRanking')->findOneBy(['opportunity' => $this->data['id']]);
+        $draw = $app->repo('RegistrationsRanking')->findBy(['opportunity' => $this->data['id']]);
         $opp = $app->repo('Opportunity')->find($this->data['id']);
         // dump($opp); die;
         $pdf = new PDF( [
