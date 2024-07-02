@@ -9,6 +9,36 @@ $opp = $app->view->regObject['opp'];
 $titleNull = '';
 
 ?>
+<style>
+
+.wdtd-table {
+    text-align: center;
+}
+
+.title-thead {
+    background-color: green;
+    color: #fff;
+    font-weight: bold;
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+.font-td {
+    padding: 5px;
+    font-size: 12px;
+}
+
+.back-category {
+    background-color: #c7c7c7;
+}
+
+</style>
 
 <div style="text-align: center; border-bottom: 1px solid #c3c3c3;">
     <img src="<?= THEMES_PATH . '/Ceara/assets/img/logo-org-ceara.png'; ?>" width="40%">
