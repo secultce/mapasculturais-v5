@@ -1,0 +1,1 @@
+<div style="width: 100%; float: left;"><p style="text-align: center; padding-right 30px; font-size: 10px;"><span> {PAGENO}{nbpg} - {DATE j/m/Y H:i:s}</span></p></div>
