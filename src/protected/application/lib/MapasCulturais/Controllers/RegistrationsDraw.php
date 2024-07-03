@@ -24,15 +24,17 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             //Evita de continuar o codigo em casos de não está logado
             $this->requireAuthentication();
             $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+            if(is_null($opportunity))
+                $this->json(['message' => 'Opportunity not found'], 404);
             $ranking = $this->drawRanking($opportunity, $this->data['category']);
         } catch (\Exception $e) {
             if($e->getMessage() === 'Ranking previously generated')
                 $this->json(['message' => $e->getMessage()], 400);
             else
-                $this->json(['message' => $e->getMessage()], 404);
+                $this->json(['message' => $e->getMessage()], 500);
         }
 
-        if(empty($ranking))
+        if(empty($ranking['ranking']))
             $this->json(['message' => 'Not exists approved registrations in category'], 404);
 
         $this->json($ranking, 201);
@@ -43,7 +45,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $app = App::i();
 
         $criteria = ['opportunity' => $this->data['id']];
-        if(isset($criteria['category']))
+        if(isset($this->data['category']) && !empty($this->data['category']))
             $criteria['category'] = $this->data['category'];
 
         $rankingList = $app->repo('RegistrationsRanking')->findBy($criteria, ['category' => 'asc','rank' => 'asc']);
