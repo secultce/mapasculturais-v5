@@ -10,34 +10,32 @@ $titleNull = '';
 
 ?>
 <style>
+    .wdtd-table {
+        text-align: center;
+    }
 
-.wdtd-table {
-    text-align: center;
-}
+    .title-thead {
+        background-color: green;
+        color: #fff;
+        font-weight: bold;
+    }
 
-.title-thead {
-    background-color: green;
-    color: #fff;
-    font-weight: bold;
-}
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        font-size: 16px;
+    }
 
-table,
-th,
-td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    font-size: 16px;
-}
+    .font-td {
+        padding: 5px;
+        font-size: 12px;
+    }
 
-.font-td {
-    padding: 5px;
-    font-size: 12px;
-}
-
-.back-category {
-    background-color: #c7c7c7;
-}
-
+    .back-category {
+        background-color: #c7c7c7;
+    }
 </style>
 
 <div style="text-align: center; border-bottom: 1px solid #c3c3c3;">
@@ -52,12 +50,17 @@ td {
             <tr>
                 <td class="font-td">
                     <?php
-                    is_null($draw) ? $titleNull = 'Ainda sem sorteio' : $titleNull = 'Total de Sorteados: ' . count($draw);
+                    empty($draw) ? $titleNull = 'Ainda sem sorteio' : $titleNull = 'Total de Sorteados: ' . count($draw);
                     echo $titleNull;
                     ?>
                 </td>
                 <td style="padding: 5px; font-size: 12px; text-align: right;">
-                    Data do sorteio: <?= Carbon::parse($draw[0]->createTimestamp)->format('d/m/Y'); ?>
+                    Data do sorteio:
+                    <?php
+                    if (isset($draw[0])) {
+                        echo Carbon::parse($draw[0]->createTimestamp)->format('d/m/Y');
+                    }
+                    ?>
                 </td>
             </tr>
         </thead>
@@ -72,20 +75,20 @@ td {
         foreach ($draw as $registration) {
             $registrationsByCategory[$registration->category][] = $registration;
         }
-        foreach ($registrationsByCategory as $category => $registrations) : 
-           
+        foreach ($registrationsByCategory as $category => $registrations) :
+
         ?>
             <thead>
-                <?php  if($category !== "") :?>
+                <?php if ($category !== "") : ?>
+                    <tr>
+                        <td class="wdtd-table font-td back-category"><?= i::_e('Categoria'); ?></td>
+                        <td class="wdtd-table font-td back-category" colspan="3">
+                            <strong><?= $category; ?></strong>
+                        </td>
+                    </tr>
+                <?php endif; ?>
                 <tr>
-                    <td class="wdtd-table font-td back-category"><?= i::_e('Categoria'); ?></td>
-                    <td class="wdtd-table font-td back-category" colspan="3">
-                        <strong><?= $category; ?></strong>
-                    </td>
-                <tr>
-                <?php  endif; ?>
-                <tr>
-                    <td class="wdtd-table title-thead font-td" style=""><?= i::_e('Ranking'); ?></td>                    
+                    <td class="wdtd-table title-thead font-td" style=""><?= i::_e('Ranking'); ?></td>
                     <td class="wdtd-table title-thead font-td"><?= i::_e('Inscrição'); ?></td>
                     <td class="wdtd-table title-thead font-td"><?= i::_e('Responsável'); ?></td>
                     <td class="wdtd-table title-thead font-td" style=""><?= i::_e('Sorteado'); ?></td>
@@ -96,13 +99,13 @@ td {
                 foreach ($draw as $rank) :
                     if ($rank->category == $category) :
                 ?>
-                    <tr>
-                        <td class="font-td"><?= '#' . $rank->rank; ?></td>
-                        <td class="font-td"><?= $rank->registration->number; ?></td>
-                        <td class="font-td"><?= $rank->registration->owner->name; ?></td>
-                        <td class="font-td"><?= Carbon::parse($draw[0]->createTimestamp)->format('d/m/Y H:i') ?></td>
-                    </tr>
-                <?php 
+                        <tr>
+                            <td class="font-td"><?= '#' . $rank->rank; ?></td>
+                            <td class="font-td"><?= $rank->registration->number; ?></td>
+                            <td class="font-td"><?= $rank->registration->owner->name; ?></td>
+                            <td class="font-td"><?= Carbon::parse($draw[0]->createTimestamp)->format('d/m/Y H:i') ?></td>
+                        </tr>
+                <?php
                     endif;
                 endforeach; ?>
             </tbody>
