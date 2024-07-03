@@ -56,47 +56,28 @@ class Module extends \MapasCulturais\Module
             $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
             $drawedCategories = $opportunity->drawedRegistrationsCategories ?? [];
             $rankings = [];
-            
-            $categories = self::getPrizeDraw($drawedCategories, $opportunity, $app, $rankings);
+            $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {
+                $isDrawed = in_array($category, $drawedCategories, true);
+                if($isDrawed) {
+                    $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
+                    $rankings[$category]['registrations'] = $registrationsRanking;
+                    $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
+                    $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
+                }
+
+                return (object)[
+                    'name' => $category,
+                    'isDrawed' => $isDrawed,
+                ];
+            }, $opportunity->registrationCategories ?: [""]);
+
 
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
                 'rankings' => $rankings,
-                'entity' => $this->controller->requestedEntity
+                'entity' => $opportunity
             ]);
         });
-    }
-
-    /**
-     * Retorna os sorteados e se a categoria já foi sorteada
-     *
-     * @param [array] $drawedCategories
-     * @param [object] $opportunity
-     * @param [object] $app
-     * @param [array] $rankings
-     * @return void
-     */
-    static public function getPrizeDraw($drawedCategories, $opportunity, $app, $rankings)
-    {
-       $categories = array_map(function ($category) use ($drawedCategories, $opportunity, $app, $rankings) {
-            $isDrawed = in_array($category, $drawedCategories, true);
-            
-            if($isDrawed) {
-                $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
-                isset($registrationsRanking[0]->owner) ? $owner = $registrationsRanking[0]->owner : $owner = null;
-                isset($registrationsRanking[0]->createTimestamp) ? $createdAt = $registrationsRanking[0]->createTimestamp->owner : $createdAt = null;
-                $rankings[$category]['owner'] = $owner;
-                $rankings[$category]['registrations'] = $registrationsRanking;
-                $rankings[$category]['createTimestamp'] = $createdAt;
-            }
-
-            return (object)[
-                'name' => $category,
-                'isDrawed' => $isDrawed,
-            ];
-        }, $opportunity->registrationCategories ?: [""]);
-
-        return  $categories;
     }
 
     public function register()
