@@ -130,7 +130,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $opp = $app->repo('Opportunity')->find($this->data['id']);
        
         $pdf = new PDF( [
-            'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 
+            'tempDir' => dirname(__DIR__) . '/tmp', 
             'mode' => 'utf-8',
             'default_font' => 'dejavusans',
             'format' => 'A4',
