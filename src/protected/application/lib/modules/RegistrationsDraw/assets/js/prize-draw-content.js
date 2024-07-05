@@ -82,6 +82,29 @@ $(document).ready(() => {
         }, 4000)
     });
 
+    $('#pusblish-ranking').on('click', e => {
+        e.preventDefault();
+
+        const url = MapasCulturais.createUrl(
+            'sorteio-inscricoes',
+            'publish',
+            [MapasCulturais.entity.id]
+        );
+
+        fetch(url, {
+            method: 'POST',
+        })
+            .then(response => {
+                if(response.status !== 204)
+                    throw new Error(response.status);
+
+                const btnPublish = $('#pusblish-ranking');
+                btnPublish.after($('<button class="btn published-draw-label">&#9989; Sorteios publicados</button>'));
+                btnPublish.remove();
+            })
+            .catch(err => console.error(err))
+    });
+
     const renderRanking = ((arrayRanking, category) => {
         const tableBodyElement = $('table#ranking-table tbody');
         tableBodyElement.children().each((key, elem) => elem.style.display = 'none');

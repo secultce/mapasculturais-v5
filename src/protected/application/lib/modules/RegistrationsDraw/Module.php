@@ -20,6 +20,15 @@ class Module extends \MapasCulturais\Module
             $this->part('opportunity/config-fieldset', ['opportunity' => $opportunity]);
         });
 
+        $app->hook('template(opportunity.single.tab-main-content):after', function () use ($app) {
+            $opportunity = $this->controller->requestedEntity;
+            if($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary')
+                return;
+
+            if($opportunity->useRegistrationsDraw && $opportunity->isPublishedDraw)
+                $this->part('opportunity/tab-draw', ['opportunity' => $opportunity]);
+        });
+
         $app->hook('template(opportunity.single.opportunity-support--tab):after', function () {
             /**
              * @var \MapasCulturais\Entities\Opportunity $opportunity
@@ -49,7 +58,9 @@ class Module extends \MapasCulturais\Module
             /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
              *  or registrations period is open.
              */
-            if(!$drawSetted || !$opportunity->canUser('@control') || $opportunity->registrationTo > new \DateTime())
+            if(!$drawSetted
+                || (!$opportunity->canUser('@control') && !$opportunity->isPublishedDraw)
+                || $opportunity->registrationTo > new \DateTime())
                 return;
 
             $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
@@ -108,6 +119,14 @@ class Module extends \MapasCulturais\Module
             'unserialize' => function($value) {
                 return $value == 'Sim';
             },
+        ]);
+
+        $this->registerOpportunityMetadata('isPublishedDraw', [
+            'type' => 'boolean',
+            'required' => 'true',
+            'label' => 'Sorteio de inscrições publicados',
+            'default' => false,
+            'options' => [false, true],
         ]);
     }
 }

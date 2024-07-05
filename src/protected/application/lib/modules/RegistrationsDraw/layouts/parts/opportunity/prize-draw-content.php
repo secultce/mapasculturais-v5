@@ -6,10 +6,14 @@
  *    }
  * } $categories
  * @var array<string, \MapasCulturais\Entities\RegistrationsRanking[]> $rankings
+ * @var bool $isAdmin
+ * @var bool $isPublished
  */
 ?>
 <div id="prize-draw">
     <?php $this->applyTemplateHook('opportunity-draw','begin'); ?>
+
+    <?php if($isAdmin): ?>
     <h3>Sorteio</h3>
     <p class="new-ui-paragraph">
         Realize sorteio a partir de categorias para gerar listas com as pessoas selecionadas neste edital.
@@ -34,6 +38,8 @@
     </div>
 
     <hr>
+    <?php endif; ?>
+
     <div id="rankings" style="background:#f5f5f5;padding:10px;">
         <h3>Sorteios realizados</h3>
 
@@ -52,7 +58,11 @@
                     target="_blank" class="btn btn-default">Imprimir em PDF
                 </a>
                 <button class="btn btn-default" id="download-ranking">Baixar planilha (XLSX)</button>
+                <?php if($isAdmin && !$isPublished): ?>
                 <button class="btn btn-primary" id="pusblish-ranking">Publicar os sorteios</button>
+                <?php elseif($isPublished): ?>
+                <button class="btn published-draw-label">&#9989; Sorteios publicados</button>
+                <?php endif; ?>
             </div>
         </div>
 
