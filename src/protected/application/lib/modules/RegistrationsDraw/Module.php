@@ -82,9 +82,11 @@ class Module extends \MapasCulturais\Module
                 ];
             }, $opportunity->registrationCategories ?: [""]);
 
+
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
                 'rankings' => $rankings,
+                'entity' => $opportunity,
                 'isAdmin' => $opportunity->canUser('@control'),
                 'isPublished' => $opportunity->isPublishedDraw,
             ]);

@@ -8,6 +8,7 @@ use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
     Registration as RegistrationEntity,
     RegistrationsRanking};
 use Shuchkin\SimpleXLSXGen;
+use \Mpdf\Mpdf as PDF;
 
 class RegistrationsDraw extends \MapasCulturais\Controller
 {
@@ -17,10 +18,14 @@ class RegistrationsDraw extends \MapasCulturais\Controller
          * @var OpportunityEntity $opportunity
          * @var RegistrationEntity[] $registrations
          */
-
+       
         $app = App::i();
         try{
+            //Evita de continuar o codigo em casos de não está logado
+            $this->requireAuthentication();
             $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+            if(is_null($opportunity))
+                $this->json(['message' => 'Opportunity not found'], 404);
             $ranking = $this->drawRanking($opportunity, $this->data['category']);
         } catch (\Exception $e) {
             if($e->getMessage() === 'Ranking previously generated')
@@ -29,7 +34,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
                 $this->json(['message' => $e->getMessage()], 500);
         }
 
-        if(empty($ranking))
+        if(empty($ranking['ranking']))
             $this->json(['message' => 'Not exists approved registrations in category'], 404);
 
         $this->json($ranking, 201);
@@ -40,7 +45,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $app = App::i();
 
         $criteria = ['opportunity' => $this->data['id']];
-        if(isset($criteria['category']))
+        if(isset($this->data['category']) && !empty($this->data['category']))
             $criteria['category'] = $this->data['category'];
 
         $rankingList = $app->repo('RegistrationsRanking')->findBy($criteria, ['category' => 'asc','rank' => 'asc']);
@@ -121,5 +126,51 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             'createTimestamp' => $ranking[0]->createTimestamp,
             'ranking' => $ranking,
         ];
+    }
+
+    /**
+     * Metodo que devolve uma pdf com os dados do sorteio
+     *
+     * @return void
+     */
+    public function GET_pdf() {
+        $this->requireAuthentication();
+        $app = App::i();
+        $draw = $app->repo('RegistrationsRanking')->findBy(['opportunity' => $this->data['id']]);
+        $opp = $app->repo('Opportunity')->find($this->data['id']);
+       
+        $pdf = new PDF( [
+            'tempDir' => dirname(__DIR__) . '/tmp', 
+            'mode' => 'utf-8',
+            'default_font' => 'dejavusans',
+            'format' => 'A4',
+            'pagenumPrefix' => 'Pagina ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+            'nbpgSuffix' => ''
+        ]);
+
+        //INSTANCIA DO TIPO ARRAY OBJETO
+        $app->view->regObject = new \ArrayObject;
+        $app->view->regObject['draw'] = $draw;
+        $app->view->regObject['opp'] = $opp;
+
+        //Add estilo
+        $stylesheet = file_get_contents(MODULES_PATH . 'RegistrationsDraw/assets/css/prize-draw.css');
+        $pdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+
+        //Configuração para o footer
+        $footerPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-pdf.php');
+        $footerDocumentPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-document.php');
+        $pdf->SetHTMLFooter($footerPage);
+        $pdf->SetHTMLFooter($footerPage, 'E');
+        $pdf->writingHTMLfooter = true;
+        //Gerando o pdf
+        $pdf->SetTitle('Secult/CE - Relatório de sorteio');
+        $content = $app->view->fetch('draw/pdf');
+        $pdf->WriteHTML($content);
+        $pdf->SetHTMLFooter($footerPage . $footerDocumentPage);
+        $pdf->Output();
+        exit;
     }
 }
