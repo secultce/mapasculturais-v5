@@ -53,7 +53,10 @@
             </select>
 
             <div style="display:flex;flex-wrap:wrap;">
-                <button class="btn btn-default">Baixar em PDF</button>
+                <a href="<?= $app->createUrl('sorteio-inscricoes' , 'pdf/' . $entity->id); ?>"
+                    style="height: 33px;"
+                    target="_blank" class="btn btn-default">Imprimir em PDF
+                </a>
                 <button class="btn btn-default" id="download-ranking">Baixar planilha (XLSX)</button>
                 <?php if($isAdmin && !$isPublished): ?>
                 <button class="btn btn-primary" id="pusblish-ranking">Publicar os sorteios</button>
