@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 
 namespace MapasCulturais\Controllers;
 
@@ -16,26 +16,25 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     {
         /**
          * @var OpportunityEntity $opportunity
-         * @var RegistrationEntity[] $registrations
          */
        
         $app = App::i();
-        try{
-            //Evita de continuar o codigo em casos de não está logado
-            $this->requireAuthentication();
-            $opportunity = $app->repo('Opportunity')->find($this->data['id']);
-            if(is_null($opportunity))
-                $this->json(['message' => 'Opportunity not found'], 404);
-            $ranking = $this->drawRanking($opportunity, $this->data['category']);
+
+        $this->requireAuthentication();
+
+        $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+        $category = $this->data['category'];
+        if (in_array($category, $opportunity->drawedRegistrationsCategories))
+            $this->json(['message' => 'Ranking previously generated'], 400);
+
+        try {
+            $ranking = $this->drawRanking($opportunity, $category);
         } catch (\Exception $e) {
-            if($e->getMessage() === 'Ranking previously generated')
-                $this->json(['message' => $e->getMessage()], 400);
-            else
-                $this->json(['message' => $e->getMessage()], 500);
+            $this->json(['message' => $e->getMessage()], 500);
         }
 
-        if(empty($ranking['ranking']))
-            $this->json(['message' => 'Not exists approved registrations in category'], 404);
+        if (is_null($ranking))
+            $this->json(['message' => 'Not exists approved registrations in category'], 400);
 
         $this->json($ranking, 201);
     }
@@ -85,7 +84,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     /**
      * @throws \Exception
      */
-    private function drawRanking(OpportunityEntity $opportunity, string $category = ''): array
+    private function drawRanking(OpportunityEntity $opportunity, string $category = ''): ?array
     {
         $app = App::i();
 
@@ -94,6 +93,9 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             'status' => RegistrationEntity::STATUS_APPROVED,
             'category' => $category,
         ]);
+        // Caso não existam inscrições que obdeçam aos critérios, para a execução e retorna 'null'
+        if(empty($registrations))
+            return null;
 
         $randomMax = count($registrations) * 10;
         $randomizedArray = [];
