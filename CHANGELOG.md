@@ -8,12 +8,15 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Novas Funcionalidades
 - Adicionando módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental
 
-## [5.9.2] - 2024-06-25
+## [5.9.2-rc1] - 2024-07-09
 ### Melhorias
 - Adicionado novo plugin no gitmodule
-- Adicionado arquivo de configuração no ambiente de desenvolvimento
-- Adicionado geração do relatório TADO
-- Removido código desnecessário
+- Adicionado plugin para realizar Consulta Pública
+- Adicionado Publicação do resultado dos sorteios
+- Geração do resultado do sorteio em PDF
+- Adicionado arquivos de configuração para robots
+### Correções
+- Adicionado arquivo cache
 
 ## [5.9.1] - 2024-06-25
 ### Melhorias
