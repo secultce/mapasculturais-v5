@@ -45,6 +45,13 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="integer", nullable=true)
+     */
+    protected $type;
+
+    /**
      * @var \MapasCulturais\Entities\Registration
      *
      * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Registration")

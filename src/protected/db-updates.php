@@ -2017,4 +2017,8 @@ $$
             ADD CONSTRAINT fk_agent_ranking
                 FOREIGN KEY(agent_id) REFERENCES agent(id)");
     },
+
+    'add column type to diligence' => function () {
+        __exec('ALTER TABLE diligence ADD type INT');
+    }
 ] + $updates ;
