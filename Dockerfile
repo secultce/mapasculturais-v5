@@ -2,6 +2,7 @@ FROM php:7.2-fpm
 
 # Copy source
 COPY src/index.php /var/www/html/index.php
+COPY src/robots.txt /var/www/html/robots.txt
 COPY src/protected /var/www/html/protected
 COPY scripts /var/www/scripts
 

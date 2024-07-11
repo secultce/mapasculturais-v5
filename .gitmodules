@@ -26,6 +26,10 @@
 	path = src/protected/application/plugins/EditOpportunityType
 	url = https://github.com/secultce/plugin-EditOpportunityType
 	branch = main
+[submodule "src/protected/application/plugins/PublicConsultation"]
+	path = src/protected/application/plugins/PublicConsultation
+	url = https://github.com/secultce/plugin-PublicConsultation.git
+	branch = main
 [submodule "src/protected/application/plugins/PDFReport"]
 	path = src/protected/application/plugins/PDFReport
 	url = https://github.com/secultce/plugin-PDFReport.git
