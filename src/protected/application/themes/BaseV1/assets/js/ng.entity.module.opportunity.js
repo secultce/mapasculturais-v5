@@ -2609,10 +2609,9 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
                 RegistrationService.save();
             };            
 
-
             $scope.register = function(){                
                 const registration = $scope.data.registration;
-                
+
                 RegistrationService.register(registration)
                     .success(function(rs){
                         if(rs.error) {
@@ -2625,8 +2624,12 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
                             document.location = rs.editUrl;
                         }
                     })
-                    .error(function(err) {
-                        MapasCulturais.Messages.error('Não foi possível realizar a inscrição. Verifique se tem permissão a esse agente!');
+                    .error(function (err) {
+                        const defaultMessage = 'Não foi possível realizar a inscrição. Verifique se tem permissão a esse agente!'
+                        const message = err.message ?? defaultMessage
+
+                        MapasCulturais.Messages.alert(message);
+
                         setTimeout(() => {
                             document.location.reload()
                         }, 3000);

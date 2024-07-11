@@ -109,16 +109,23 @@ class Registration extends EntityController {
             $this->tmpFile = $tmpFile;
         });
 
-        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function() {
+        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function () use ($app) {
             $registration = $this->getRequestedEntity();
-           
-            if(!$registration || !$registration->id){
+
+            if (!$registration || !$registration->id) {
+                $opportunity = $app->repo('Opportunity')->find((int) $this->data["opportunityId"]);
+                $registration_limit = (int) $opportunity->registrationLimit;
+
+                if ($registration_limit && count($opportunity->getSentRegistrations()) >= $registration_limit) {
+                    $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+                }
+
                 return;
             }
 
             $registration->registerFieldsMetadata();
-            
         });
+
         //Dados recebido vindo da criação do formulário quando seleciona opção do espaço
         $app->hook('POST(registration.spaceRel)' , function() {
            $this->createSpaceRelation();
