@@ -17,7 +17,7 @@ return [
 
     'app.enabled.apps' => false,
     
-    'app.verifiedSealsIds' => '1', 
+    'app.verifiedSealsIds' => [1], 
 
     'module.CompliantSuggestion' => [
         'compliant' => true,
