@@ -1,9 +1,15 @@
 <?php
 $editEntity = $this->controller->action === 'create' || $this->controller->action === 'edit';
+$registration_limit = (int) $entity->registrationLimit;
+$quant_registrations_send = count($entity->getSentRegistrations());
 ?>
 
 <div id="main-content" class="aba-content">
     <?php $this->applyTemplateHook('tab-about','begin'); ?>
+
+    <?php if ($registration_limit && $quant_registrations_send >= $registration_limit) : ?>
+        <div class="alert info"><?php \MapasCulturais\i::_e("O número máximo de inscrições já foi atingido"); ?></div>
+    <?php endif; ?>
 
     <?php $this->part('singles/opportunity-about--highlighted-message', ['entity' => $entity]) ?>
 

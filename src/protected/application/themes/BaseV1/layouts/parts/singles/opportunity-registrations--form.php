@@ -24,6 +24,4 @@ if ($entity->isRegistrationOpen() && ($registration_limit === 0 || $quant_regist
             <?php \MapasCulturais\i::_e("Entrar"); ?>
         </a>
     <?php endif; ?>
-<?php elseif ($registration_limit && $quant_registrations_send >= $registration_limit && !$entity->canUser('@control')) : ?>
-    <p class="registration-form clearfix registration-help"><?php \MapasCulturais\i::_e("O número máximo de inscrições já foi atingido"); ?></p>
 <?php endif; ?>
