@@ -288,6 +288,8 @@ function sendAjaxDiligence(status, idDiligence) {
     objSendDiligence['description'] = $("#descriptionDiligence").val();
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;
+    objSendDiligence['type'] = $('input[name="diligence-type"]:checked').val();
+
     $.ajax({
         type: "POST",
         url: urlSaveDiligence,

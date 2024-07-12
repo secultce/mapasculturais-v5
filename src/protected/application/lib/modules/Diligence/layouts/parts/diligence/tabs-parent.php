@@ -85,6 +85,9 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             <div class="d-none" id="btn-actions-diligence">
                 <?php
                 if ($showText || is_null($diligenceAndAnswers)) {
+                    if ($context['entity']->opportunity->use_multiple_diligence == 'Sim') {
+                        $this->part('diligence/type-fieldset');
+                    }
                     $this->part('diligence/description', ['placeHolder' => $placeHolder]);
                     $this->part('diligence/message-success-draft');
                     $this->part('diligence/btn-actions-diligence', [
