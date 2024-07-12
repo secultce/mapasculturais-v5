@@ -10,7 +10,9 @@
 .diligence-context-open {
     width: 100%;
     margin-top: 20px;
-    border-radius: 10px;
+    border-radius: .57em;
+    font-size: 14px;
+    padding: 1.14em;
 }
 
 .div-btn-send-diligence {
@@ -259,4 +261,24 @@
 
 .d-none {
     display: none;
+}
+
+.diligence-fieldset {
+    font-size: 14px;
+    padding: .57em 1.14em;
+    border: 1px solid #a3a3a3;
+    border-radius: .57em;
+}
+
+.diligence-fieldset p {
+    font-weight: 500;
+    margin-bottom: .785em;
+    color: #000;
+}
+
+.diligence-fieldset label {
+    color: inherit;
+    display: inline-flex;
+    gap: .57em;
+    margin-right: 1.71em;
 }
