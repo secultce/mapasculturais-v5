@@ -256,6 +256,12 @@ class Module extends \MapasCulturais\Module {
             'type' => 'select',
             'options' => ['Sim', 'Não'],
         ]);
+        $this->registerOpportunityMetadata('type_day_response_diligence', [
+            'label' =>  i::__('Tipo de dia para resposta da diligência:'),
+            'description' => i::__('Configura o tipo de dia que será usado para a resposta da diligência'),
+            'type' => 'select',
+            'options' => ['Úteis', 'Corridos'],
+        ]);
 
         $this->registerRegistrationMetadata('value_project_diligence', [
             'label' =>  i::__('Valor estimado do projeto'),
