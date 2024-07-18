@@ -179,11 +179,11 @@ if ($diligenceAndAnswers) :
                 <label class="multi-title-label">Assunto da diligência</label>
                 <div class="radio-group">
                     <label style="margin-right: 50px;">
-                        <input type="checkbox" name="assunto" checked >
+                        <input type="checkbox" name="assunto[]" checked id="subject_exec_phisical">
                         Execução física do objeto
                     </label>
                     <label>
-                        <input type="checkbox" name="assunto">
+                        <input type="checkbox" name="assunto[]" id="subject_report_finance">
                         Relatório financeiro
                     </label>
                 </div>

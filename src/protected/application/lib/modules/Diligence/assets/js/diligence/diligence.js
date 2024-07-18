@@ -36,7 +36,6 @@ $(document).ready(function () {
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
     $("#subject_info_status_diligence").hide();
-    console.log('subject');
     //Formatando o layout
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
@@ -114,6 +113,7 @@ function openDiligence(status) {
 
 //Editando a descrição do rascunho.
 function editDescription(description, id) {
+
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
 }
@@ -252,7 +252,7 @@ function cancelSend() {
     });
 }
 function saveDiligence(status, st, idDiligence) {
-    if ($("#descriptionDiligence").val() == '') {
+     if ($("#descriptionDiligence").val() == '') {
         Swal.fire({
             title: "Ops! A descrição precisa ser preenchida",
             timer: 2000,
@@ -288,6 +288,30 @@ function saveDiligence(status, st, idDiligence) {
 }
 
 function sendAjaxDiligence(status, idDiligence) {
+    //Enviando o assunto com formato de array
+    objSendDiligence['subject'] = [];
+    //se a escolha for execusão do objeto
+    if($("#subject_exec_phisical:checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_exec_phisical');
+    }
+    //se a escolha for relatorio financeiro
+    if($("#subject_report_finance:checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_report_finance');
+    }
+    if( $("#subject_exec_phisical:checked").val() == undefined && $("#subject_report_finance:checked").val() == undefined )
+    {
+        Swal.fire({
+            title: "Ops!",
+            text: 'Escolha um ou todos os assuntos',
+            timer: 2000,
+            showConfirmButton: true,
+            reverseButtons: false,
+        });
+        return false;
+    }
+
     objSendDiligence['description'] = $("#descriptionDiligence").val();
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;

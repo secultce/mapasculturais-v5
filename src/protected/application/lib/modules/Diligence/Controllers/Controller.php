@@ -29,6 +29,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function POST_save(): void
     {
+        dump($this->data); die;
+
+
         $this->requireAuthentication();
 
         $app = App::i();
@@ -48,7 +51,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         }
 
         $answer = new EntityDiligence();
-        $entity = $answer->create($this);
+        $entity = $answer->createOrUpdate($this);
 
         $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
     }

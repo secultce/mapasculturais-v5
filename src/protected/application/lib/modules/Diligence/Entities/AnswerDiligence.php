@@ -83,7 +83,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      * @param [object] $class
      * @return void
      */
-    public function create($class): string
+    public function createOrUpdate($class): string
     {
         $app = App::i();
         App::i()->applyHook('entity(diligence).createAnswer:before');

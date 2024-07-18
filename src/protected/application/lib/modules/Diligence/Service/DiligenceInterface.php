@@ -11,7 +11,7 @@ interface DiligenceInterface {
      * @param [object] $class
      * @return void
      */
-    public function create($class);
+    public function createOrUpdate($class);
 
     /**
      * Injeção de dependência do controle do modulo

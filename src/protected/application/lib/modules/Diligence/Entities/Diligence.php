@@ -130,6 +130,13 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $files;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="subject", type="text", nullable=false)
+     */
+    protected $subject;
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination
@@ -227,7 +234,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         return false;
     }
 
-    public function create($class)
+    public function createOrUpdate($class)
     {
         App::i()->applyHook('entity(diligence).createDiligence:before');
         //Buscando informações do agente e da inscrição
@@ -258,6 +265,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $diligence->createTimestamp = new DateTime();
         $diligence->description     = $class->data['description'];
         $diligence->status          = $class->data['status'];
+        $diligence->subject         = $class->data['subject'];
         //Considerando que será um envio
         if($class->data['status'] == "3"){
             $diligence->sendDiligence = new DateTime();
