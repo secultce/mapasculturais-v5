@@ -171,6 +171,22 @@ if ($diligenceAndAnswers) :
     
 <?php endif; ?>
 
-<div class="div-diligence" id="div-diligence">
-    <p id="paragraph_info_status_diligence"></p>
-</div>
+    <div class="div-diligence" id="div-diligence">
+        <p id="paragraph_info_status_diligence"></p>
+        <div class="container-multi-description" id="subject_info_status_diligence">
+            <h2 class="multi-title-h2 ">Escrever diligência</h2>
+            <div class="box">
+                <label class="multi-title-label">Assunto da diligência</label>
+                <div class="radio-group">
+                    <label style="margin-right: 50px;">
+                        <input type="checkbox" name="assunto" checked >
+                        Execução física do objeto
+                    </label>
+                    <label>
+                        <input type="checkbox" name="assunto">
+                        Relatório financeiro
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>

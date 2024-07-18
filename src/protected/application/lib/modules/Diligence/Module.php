@@ -84,6 +84,7 @@ class Module extends \MapasCulturais\Module {
             }
             if($isEvaluator) {
                 $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+                $app->view->enqueueStyle('app', 'multi-diligence', 'css/diligence/multi.css');
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }
         });

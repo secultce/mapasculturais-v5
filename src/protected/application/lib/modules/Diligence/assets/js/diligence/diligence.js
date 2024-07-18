@@ -35,6 +35,8 @@ $(document).ready(function () {
     })
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
+    $("#subject_info_status_diligence").hide();
+    console.log('subject');
     //Formatando o layout
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
@@ -121,6 +123,7 @@ function showBtnActionsDiligence() {
     $('#btn-actions-diligence').removeClass('d-none')
     $("#btn-save-diligence").show();
     $("#btn-send-diligence").show();
+    $("#subject_info_status_diligence").show();
 }
 
 //Salvando a autorização e o valor do projeto
