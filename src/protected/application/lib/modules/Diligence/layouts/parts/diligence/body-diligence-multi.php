@@ -182,9 +182,10 @@ if ($diligenceAndAnswers) :
         <p id="paragraph_info_status_diligence"></p>
         <?php
         //Array para marcar como confirmado a opção
-        $subjectReplace = $diligenceAndAnswers[0]->subjectToArray();
-        $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace);
-        if (!is_null($diligenceAndAnswers[1]) || is_null($diligenceAndAnswers) || !is_null($diligenceAndAnswers[0])) : ?>
+        if (!is_null($diligenceAndAnswers[1]) || is_null($diligenceAndAnswers) || !is_null($diligenceAndAnswers[0])) :
+            isset($diligenceAndAnswers[0]) ?  $subjectReplace = $diligenceAndAnswers[0]->subjectToArray() : $subjectReplace = [];
+            isset($diligenceAndAnswers[0]) ? $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace) : $checked = ['checkPhysical' => "checked", 'checkFinance' => ""];
+            ?>
             <div class="container-multi-description" id="subject_info_status_diligence">
                 <h2 class="multi-title-h2 ">Escrever diligência</h2>
                 <div class="box">

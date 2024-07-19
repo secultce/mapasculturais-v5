@@ -376,7 +376,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $retSubject = [];
         //Tratando os termos para o usuário
         foreach ($subject as $item) {
-           if($item == "subject_exec_phisical")
+           if($item == "subject_exec_physical")
            {
                array_push($retSubject, "Execução Física do Objeto");
            }
@@ -388,15 +388,17 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 
         $subjectItem = [];
         //Criando um novo array com o assunto legìvel para usuário
-        foreach ($retSubject as $subject)
+        foreach ($retSubject as $itemSubject)
         {
-            array_push($subjectItem,$subject);
+            array_push($subjectItem,$itemSubject);
         }
         //Tratando a forma de escrita
-        if(count($retSubject) == 2){
+
+
+        if(count($subjectItem) > 1){
             echo '<strong>Assunto(s):</strong> '.implode(', ', $subjectItem).'.';
         }else{
-            echo '<strong>Assunto:</strong> ' . $subjectItem[0]. '.';
+            echo '<strong>Assunto:</strong> ' . implode(', ', $subjectItem). '.';
         }
     }
 

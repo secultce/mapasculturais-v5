@@ -11,6 +11,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
+
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
     EntityDiligence.showAccordion('#accordion');
@@ -56,6 +57,7 @@ $(document).ready(function () {
                         $("#paragraph_loading_content").hide();
                     }
                 });
+                $("#subject_info_status_diligence").hide();
             }
             if (res.message !== 'sem_diligencia') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -63,10 +65,11 @@ $(document).ready(function () {
                     if (element == null) {
                         actions = false;
                     }
-                })
+                });
                 if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim') {
                     showBtnActionsDiligence();
                 }
+
             }
             $("#paragraph_loading_content").hide();
         })
