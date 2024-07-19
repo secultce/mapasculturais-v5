@@ -45,7 +45,11 @@ class Module extends \MapasCulturais\Module {
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
             if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
-                $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+                $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
+                    $diligenceRepository[0]->sendDiligence,
+                    $entity->opportunity->getMetadata('diligence_days'),
+                    $entity->opportunity->getMetadata('type_day_response_diligence')
+                );
             }else{
                 $diligence_days = null;
             }
