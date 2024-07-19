@@ -93,13 +93,10 @@ $(document).ready(function () {
 //Clico do botão de abrir a diligência
 function openDiligence(status) {
     objSendDiligence['description'] = '';
-    objSendDiligence['status'] = status
-    const imgLoad = MapasCulturais.spinnerUrl;
-    Swal.fire({
-        title: "Abrindo a sua diligência",
-        html: '<img src="' + imgLoad + '" style="height: 24px" />',
-        showConfirmButton: false,
-    });
+    objSendDiligence['status'] = status;
+    //Load
+    diligenceMessage.loadSimple();
+
     setTimeout(() => {
         Swal.close();
     }, 1000);
@@ -113,7 +110,6 @@ function openDiligence(status) {
 
 //Editando a descrição do rascunho.
 function editDescription(description, id) {
-
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
 }
@@ -253,15 +249,11 @@ function cancelSend() {
 }
 function saveDiligence(status, st, idDiligence) {
      if ($("#descriptionDiligence").val() == '') {
-        Swal.fire({
-            title: "Ops! A descrição precisa ser preenchida",
-            timer: 2000,
-            showConfirmButton: true,
-            reverseButtons: false,
-        });
-        return false;
+         diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
+         return false;
     }
     if (status == 3) {
+        //Mensagem de confirmação
         Swal.fire({
             title: "Confirmar o envio da diligência?",
             text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
@@ -276,42 +268,19 @@ function saveDiligence(status, st, idDiligence) {
                 cancelButton: "btn-warning-rec"
             },
         }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                sendAjaxDiligence(status, idDiligence)
+                sendAjaxDiligence(status, idDiligence);
             }
         });
     } else {
-        sendAjaxDiligence(status, idDiligence)
+        sendAjaxDiligence(status, idDiligence);
     }
 
 }
 
 function sendAjaxDiligence(status, idDiligence) {
     //Enviando o assunto com formato de array
-    objSendDiligence['subject'] = [];
-    //se a escolha for execusão do objeto
-    if($("#subject_exec_phisical:checked").val() == 'on')
-    {
-        objSendDiligence['subject'].push('subject_exec_phisical');
-    }
-    //se a escolha for relatorio financeiro
-    if($("#subject_report_finance:checked").val() == 'on')
-    {
-        objSendDiligence['subject'].push('subject_report_finance');
-    }
-    if( $("#subject_exec_phisical:checked").val() == undefined && $("#subject_report_finance:checked").val() == undefined )
-    {
-        Swal.fire({
-            title: "Ops!",
-            text: 'Escolha um ou todos os assuntos',
-            timer: 2000,
-            showConfirmButton: true,
-            reverseButtons: false,
-        });
-        return false;
-    }
-
+    objSendDiligence['subject'] = verifySubject("subject_exec_physical", "subject_report_finance");
     objSendDiligence['description'] = $("#descriptionDiligence").val();
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;
@@ -330,6 +299,33 @@ function sendAjaxDiligence(status, idDiligence) {
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
+}
+
+/**
+ * Metodo que verifica se o assunto está confirmado
+ * @param subject_exec_physical string
+ * @param subject_report_finance string
+ * @returns {array}
+ */
+function verifySubject(subject_exec_physical, subject_report_finance)
+{
+    objSendDiligence['subject'] = [];
+    //se a escolha for execusão do objeto
+    if($("#"+subject_exec_physical+":checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_exec_physical');
+    }
+    //se a escolha for relatorio financeiro
+    if($("#"+subject_report_finance+":checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_report_finance');
+    }
+    if( $("#"+subject_exec_physical+":checked").val() == undefined && $("#"+subject_report_finance+":checked").val() == undefined )
+    {
+        diligenceMessage.messageSimple("Ops!", "Escolha um os as duas opções", 2000);
+        return false;
+    }
+    return objSendDiligence['subject'];
 }
 
 //Oculta o botão de Finalizar avaliação

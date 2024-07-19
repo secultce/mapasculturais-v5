@@ -83,8 +83,8 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
             if($isEvaluator) {
-                $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
-                $app->view->enqueueStyle('app', 'multi-diligence', 'css/diligence/multi.css');
+                //Todos os assetos para multi diligencia
+                self::multiPublishAssets();
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }
         });
@@ -296,6 +296,19 @@ class Module extends \MapasCulturais\Module {
         $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
         $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
 
+    }
+
+    /**
+     * Todos os assets que serão usados na multi diligencia
+     * @return void
+     */
+    static protected function multiPublishAssets()
+    {
+        $app = App::i();
+        $app->view->enqueueScript('app', 'diligence-message', 'js/diligence/diligenceMessage.js');
+        $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
+        $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+        $app->view->enqueueStyle('app', 'multi-diligence', 'css/diligence/multi.css');
     }
 
     private function isEvaluator(Entities\Opportunity $opportunity, Entities\Registration $registration): bool
