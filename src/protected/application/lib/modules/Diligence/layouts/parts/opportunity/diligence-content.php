@@ -36,6 +36,9 @@
                     <option value="4">Respondido</option>
                 </select>
             </th>
+            <th class="registration-status-col">
+                <?php \MapasCulturais\i::_e('Assunto');?>
+            </th>
             <?php $this->applyTemplateHook('opportunity-diligences--table-thead-tr','end'); ?>
         </tr>
         <?php $this->applyTemplateHook('opportunity-diligences--table-thead','end'); ?>
@@ -89,8 +92,12 @@
                 <?= $diligence->getStatusLabel() ?>
                 <?= $diligence->status == 3 ? '<br>' . $diligence->createTimestamp->format('d-m-Y H:i:s') : '' ?>
             </td>
+            <td class="registration-status-col">
+                <?php $diligence->getSubject();?>
+            </td>
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','end'); ?>
         </tr>
+
         <?php endforeach;
         endforeach; ?>
 

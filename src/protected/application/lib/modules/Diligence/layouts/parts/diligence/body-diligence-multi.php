@@ -25,7 +25,8 @@ if ($diligenceAndAnswers) :
                         </b>
                     </label>
                     <label for="">
-                        <?php $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
+                        <strong>Assunto(s): </strong>
+                        <?php  $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                     </label>
                     <p style="margin: 10px 0px;">
                         <?php
@@ -119,6 +120,7 @@ if ($diligenceAndAnswers) :
                     <div class="content">
                         <p>
                             <label for="">
+                                <strong>Assunto(s): </strong>
                                 <?php echo $resultsDiligence->getSubject(); ?>
                             </label>
                         </p>

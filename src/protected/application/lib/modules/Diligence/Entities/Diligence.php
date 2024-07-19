@@ -393,13 +393,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             array_push($subjectItem,$itemSubject);
         }
         //Tratando a forma de escrita
-
-
-        if(count($subjectItem) > 1){
-            echo '<strong>Assunto(s):</strong> '.implode(', ', $subjectItem).'.';
-        }else{
-            echo '<strong>Assunto:</strong> ' . implode(', ', $subjectItem). '.';
-        }
+        echo  implode(', ', $subjectItem). '.';
     }
 
     /**
