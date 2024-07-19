@@ -8,9 +8,6 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $descriptionDraft = true;
 
-?>
-
-<?php
 if ($diligenceAndAnswers) :
 ?>
     <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
@@ -23,7 +20,12 @@ if ($diligenceAndAnswers) :
             <div style="margin-top: 25px;">
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
-                        <b>Diligência (atual):</b>
+                        <b>
+                            Diligência (atual):
+                        </b>
+                    </label>
+                    <label for="">
+                        <?php $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                     </label>
                     <p style="margin: 10px 0px;">
                         <?php
@@ -116,6 +118,11 @@ if ($diligenceAndAnswers) :
                     </div>
                     <div class="content">
                         <p>
+                            <label for="">
+                                <?php echo $resultsDiligence->getSubject(); ?>
+                            </label>
+                        </p>
+                        <p>
                             <?php
                             echo $resultsDiligence->description;
                             ?>
@@ -173,20 +180,27 @@ if ($diligenceAndAnswers) :
 
     <div class="div-diligence" id="div-diligence">
         <p id="paragraph_info_status_diligence"></p>
-        <div class="container-multi-description" id="subject_info_status_diligence">
-            <h2 class="multi-title-h2 ">Escrever diligência</h2>
-            <div class="box">
-                <label class="multi-title-label">Assunto da diligência</label>
-                <div class="radio-group">
-                    <label style="margin-right: 50px;">
-                        <input type="checkbox" name="assunto[]" checked id="subject_exec_phisical">
-                        Execução física do objeto
-                    </label>
-                    <label>
-                        <input type="checkbox" name="assunto[]" id="subject_report_finance">
-                        Relatório financeiro
-                    </label>
+        <?php
+        //Array para marcar como confirmado a opção
+        $subjectReplace = $diligenceAndAnswers[0]->subjectToArray();
+        $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace);
+        if (!is_null($diligenceAndAnswers[1]) || is_null($diligenceAndAnswers) || !is_null($diligenceAndAnswers[0])) : ?>
+            <div class="container-multi-description" id="subject_info_status_diligence">
+                <h2 class="multi-title-h2 ">Escrever diligência</h2>
+                <div class="box">
+                    <label class="multi-title-label">Assunto da diligência</label>
+                    <div class="radio-group">
+                        <label style="margin-right: 50px;">
+                            <input type="checkbox" name="assunto[]" <?= $checked['checkPhysical']; ?> id="subject_exec_physical">
+                            Execução física do objeto
+                        </label>
+                        <label>
+                            <input type="checkbox" name="assunto[]" <?= $checked['checkFinance']; ?> id="subject_report_finance">
+                            Relatório financeiro
+                        </label>
+                    </div>
                 </div>
             </div>
-        </div>
+        <?php endif; ?>
+
     </div>

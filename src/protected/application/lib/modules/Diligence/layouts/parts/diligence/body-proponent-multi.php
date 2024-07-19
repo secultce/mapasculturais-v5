@@ -38,6 +38,9 @@ if (isset($diligencesSentReindexed)) :
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência (atual):</b>
+                </label> <br>
+                <label for="">
+                    <?php $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php
@@ -122,6 +125,12 @@ if (isset($diligencesSentReindexed)) :
                     </div>
                     <div class="content">
                         <p>
+                            <label for="">
+                                <?php echo $resultsDiligence->getSubject(); ?>
+                            </label>
+                        </p>
+                        <p>
+
                             <?php
                             echo $resultsDiligence->description;
                             ?>
