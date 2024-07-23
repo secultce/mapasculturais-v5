@@ -11,6 +11,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
+    // $("#subject_info_status_diligence").hide();
 
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
@@ -36,16 +37,17 @@ $(document).ready(function () {
     })
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
-    $("#subject_info_status_diligence").hide();
+
     //Formatando o layout
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
         .then((res) => {
             let actions = true;
+            console.log('message', res.message);
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
-
+                $("#subject_info_status_diligence").hide();//Oculta o assunto da diligencia
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
                 
             }
@@ -69,13 +71,12 @@ $(document).ready(function () {
                 if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim') {
                     showBtnActionsDiligence();
                 }
-
             }
             $("#paragraph_loading_content").hide();
         })
         .catch((error) => {
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
-        })
+        });
 
     $("#select-value-project-diligence").on("change", function (e) {
         e.preventDefault();
@@ -115,22 +116,23 @@ function openDiligence(status) {
 function editDescription(description, id) {
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
+    //Mostrando itens de assunto
+    $("#subject_info_status_diligence").show();
 }
 
 //Mostrar os botões de ação da diligência
 function showBtnActionsDiligence() {
-    $('#btn-actions-diligence').removeClass('d-none')
+    $('#btn-actions-diligence').removeClass('d-none');
     $("#btn-save-diligence").show();
     $("#btn-send-diligence").show();
-    $("#subject_info_status_diligence").show();
 }
 
 //Salvando a autorização e o valor do projeto
 function saveAuthorizedProject(keyAuth, valueAuth) {
     const dataAuthorized = {
         entity: MapasCulturais.entity.id
-    }
-    dataAuthorized[keyAuth] = valueAuth
+    };
+    dataAuthorized[keyAuth] = valueAuth;
     $.ajax({
         type: "POST",
         url: MapasCulturais.createUrl('diligence', 'valueProject'),
