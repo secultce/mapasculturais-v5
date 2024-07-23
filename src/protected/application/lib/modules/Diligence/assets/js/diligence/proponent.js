@@ -199,10 +199,9 @@ function saveAnswerProponente(status) {
             reverseButtons: true
         }).then((result) => {
             //Formatando a view
-            hideViewActions()
-            /* Read more about isConfirmed, isDenied below */
+            hideViewActions();
             if (result.isConfirmed) {
-                saveRequestAnswer(status)
+                saveRequestAnswer(status);
                 Swal.fire({
                     title: "<strong>Sucesso!</strong>",
                     html: `
@@ -237,8 +236,6 @@ function saveAnswerProponente(status) {
                         sendNofificationAnswer();
                         hideViewActions();
                         location.reload();
-                        
-                        // Aqui você pode adicionar a ação que deseja executar quando o tempo terminar
                       } 
                 }).catch( (err) => {
                     Swal.close();
@@ -258,7 +255,7 @@ function saveAnswerProponente(status) {
             MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
         });
     } else {
-        saveRequestAnswer(status)
+        saveRequestAnswer(status);
     }
 }
 
@@ -281,7 +278,7 @@ function cancelAnswer()
 
 function saveRequestAnswer(status)
 {
-    idAnswer = $('#id-input-diligence').val()
+    idAnswer = $('#id-input-diligence').val();
     $.ajax({
         type: "POST",
         url: MapasCulturais.createUrl('diligence', 'answer'),
@@ -307,7 +304,7 @@ function saveRequestAnswer(status)
                 title: err.responseJSON.data.message,
                 reverseButtons: true,
                 timer: 2500
-            })
+            });
             return false;
         }
     });
@@ -324,7 +321,7 @@ function sendNofificationAnswer()
         dataType: "json",
         success: function(res) {
            if(res.status == 200){
-                window.location.href=MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id)
+                window.location.href=MapasCulturais.createUrl('inscricao', MapasCulturais.entity.id);
             }
         }
     });

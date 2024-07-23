@@ -385,15 +385,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 array_push($retSubject, "Relatório Financeiro");
            }
         }
-
-        $subjectItem = [];
-        //Criando um novo array com o assunto legìvel para usuário
-        foreach ($retSubject as $itemSubject)
-        {
-            array_push($subjectItem,$itemSubject);
-        }
-        //Tratando a forma de escrita
-        echo  implode(', ', $subjectItem). '.';
+        echo  implode(', ', $retSubject). '.';
     }
 
     /**
@@ -406,7 +398,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     }
 
     /**
-     * Metodo que retorno a confirmação do assunto marcado
+     * Metodo que retorna a confirmação do assunto marcado
      * @param $subjectReplace
      * @return string[]
      */

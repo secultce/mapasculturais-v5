@@ -43,7 +43,7 @@ $(document).ready(function () {
     entityDiligence
         .then((res) => {
             let actions = true;
-            console.log('message', res.message);
+
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
