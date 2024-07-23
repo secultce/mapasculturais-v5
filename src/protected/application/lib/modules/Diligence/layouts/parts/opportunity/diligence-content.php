@@ -37,7 +37,13 @@
                 </select>
             </th>
             <th class="registration-status-col">
-                <?php \MapasCulturais\i::_e('Assunto');?>
+
+                <select id="subject-filter" class="select-filter dropdown">
+                    <option value="all" selected><?php \MapasCulturais\i::_e('Assunto');?></option>
+                    <option value="Execução Física do Objeto."><?php \MapasCulturais\i::_e('Execução Física do Objeto');?></option>
+                    <option value="Relatório Financeiro."><?php \MapasCulturais\i::_e('Relatório Financeiro');?></option>
+                    <option value="Execução Física do Objeto, Relatório Financeiro."><?php \MapasCulturais\i::_e('Execução Física do Objeto, Relatório Financeiro.');?></option>
+                </select>
             </th>
             <?php $this->applyTemplateHook('opportunity-diligences--table-thead-tr','end'); ?>
         </tr>
@@ -62,8 +68,14 @@
             foreach ($registrationsWithDiligences as $dataGroup):
                 $registration = $dataGroup['registration'];
                 foreach ($dataGroup['diligences'] as $diligence):
+                   
         ?>
-        <tr data-evaluator-filter="<?= $diligence->openAgent->id ?>" data-status-filter="<?= $diligence->status ?>">
+        <tr 
+            data-evaluator-filter="<?= $diligence->openAgent->id ?>" 
+            data-status-filter="<?= $diligence->status ?>"
+            data-subject-filter="<?= $diligence->getSubject() ?>"
+        
+        >
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','before'); ?>
             <td class="registration-id-col">
                 <a href="<?= $registration->singleUrl . 'uid:' . $diligence->openAgent->user->id ?>" rel='noopener
@@ -93,7 +105,7 @@
                 <?= $diligence->status == 3 ? '<br>' . $diligence->createTimestamp->format('d-m-Y H:i:s') : '' ?>
             </td>
             <td class="registration-status-col">
-                <?php $diligence->getSubject();?>
+                <?php $diligence->getSubject(); ?>
             </td>
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','end'); ?>
         </tr>

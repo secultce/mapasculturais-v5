@@ -156,6 +156,8 @@ class Module extends \MapasCulturais\Module {
                     ->getQuery()
                     ->getResult();
 
+                $app->view->enqueueScript('app','opp-diligence','js/diligence/opportunity-diligence.js');
+
                 $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences, 'evaluators' => $evaluators]);
             }
         });

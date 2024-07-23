@@ -376,15 +376,16 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $retSubject = [];
         //Tratando os termos para o usuário
         foreach ($subject as $item) {
-           if($item == "subject_exec_physical")
-           {
-               array_push($retSubject, "Execução Física do Objeto");
-           }
-           if($item == "subject_report_finance")
-           {
+            if($item == "subject_exec_physical")
+            {
+                array_push($retSubject, "Execução Física do Objeto");
+            }
+            if($item == "subject_report_finance")
+            {
                 array_push($retSubject, "Relatório Financeiro");
-           }
+            }
         }
+        //Tratando a forma de escrita
         echo  implode(', ', $retSubject). '.';
     }
 
