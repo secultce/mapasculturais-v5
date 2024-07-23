@@ -44,7 +44,11 @@ $tado = $td->getTado($context['entity']);
                     array_push($diligenceAndAnswerLast, $resultsDraft);
                 }
             };
-            $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceAndAnswerLast[0]->sendDiligence, $context['entity']->opportunity->getMetadata('diligence_days'));
+            $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
+                $diligenceAndAnswerLast[0]->sendDiligence,
+                $context['entity']->opportunity->getMetadata('diligence_days'),
+                $context['entity']->opportunity->getMetadata('type_day_response_diligence')
+            );
 
             if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == AnswerDiligence::STATUS_DRAFT) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[1]->createTimestamp)->diffForHumans();

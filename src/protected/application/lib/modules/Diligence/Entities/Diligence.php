@@ -191,7 +191,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 }else{
                     i::_e('O Proponente tem apenas ' .
                     $entity->opportunity->getMetadata('diligence_days') .
-                    ' dias úteis para responder essa diligência.');
+                    ' dias para responder essa diligência.');
                 }
             }
         }
