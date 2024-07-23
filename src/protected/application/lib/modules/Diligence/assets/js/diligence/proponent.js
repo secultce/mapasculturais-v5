@@ -23,7 +23,7 @@ $(document).ready(function () {
         const diligenceSent = diligences?.filter( diligence => {
             return diligence?.status != draftStatus;
         });
-
+       
         if (
             (res.message == 'sem_diligencia') &&
             MapasCulturais.isEvaluator == false)
@@ -53,6 +53,8 @@ $(document).ready(function () {
 
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
             hideAnswerDraft();
+            console.log('message', res.message);
+            console.log('resposta', res.data)
             idsDiligences = [];
             res.data.forEach((answer, index) => {
                 if(answer?.id === undefined)
@@ -93,6 +95,8 @@ $(document).ready(function () {
                 if (res.data[0].answer.status == 3) $("#div-content-all-diligence-send").hide();
             } else {
                 $("#div-content-all-diligence-send").show();
+                EntityDiligence.showAnswerDraft(null);
+                $("#descriptionDiligence").show();
             }
         }
 
