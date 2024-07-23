@@ -3,7 +3,7 @@ $(document).ready(function () {
     //Remove o botão de abrir diligencias
     EntityDiligence.removeBtnOpenDiligence();
 
-    //id da diligencia
+    //id da diligencia se houver
     let idDiligence = 0;
     $("#id-input-diligence").val(idDiligence);
 
