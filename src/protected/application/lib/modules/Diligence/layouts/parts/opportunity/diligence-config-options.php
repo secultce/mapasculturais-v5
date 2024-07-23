@@ -48,7 +48,7 @@ if($this->isEditable()):
 
         <div class="field-diligence-days" style="display:none">
             <p>
-                <span class="label">Dias úteis para resposta da diligência:</span>
+                <span class="label">Dias para resposta da diligência:</span>
                 <span
                     class="<?= !$isEditableConfig ?: 'js-editable editable' ?>"
                     data-edit="diligence_days"
@@ -58,7 +58,18 @@ if($this->isEditable()):
                     <?php echo $opportunity->diligence_days; ?>
                 </span>
             </p>
-            <p>Informe o total de dias úteis que o proponente terá para dar uma resposta a diligência enviada para ele.</p>
+            <p>Informe o total de dias que o proponente terá para dar uma resposta a diligência enviada para ele.</p>
+            <p>
+                <span class="label">Tipo de dia para resposta da diligência:</span>
+                <span
+                    class="<?= !$isEditableConfig ?: 'js-editable editable' ?>"
+                    data-edit="type_day_response_diligence"
+                    data-value="<?= $opportunity->getMetadata('type_day_response_diligence') ?? 'Úteis' ?>"
+                    data-emptytext="Selecione"
+                >
+                    <?php echo $opportunity->type_day_response_diligence; ?>
+                </span>
+            </p>
         </div>
     </div>
 <?php endif; ?>
