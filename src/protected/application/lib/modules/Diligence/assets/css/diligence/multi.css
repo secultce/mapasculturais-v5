@@ -150,3 +150,26 @@ input[type="text"] {
     background-color: transparent;
     border: 0;
 }
+/*PARA O USO DO PDF*/
+.multi-title-edital {
+    margin-left: 20px;
+    color: rgba(107, 102, 102, 0.6);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 11px;
+    /* display: flex; */
+    align-items: center;
+    margin-top: 5px;
+ }
+ 
+ .multi-sub-title-edital {
+    margin-left: 20px;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 20px;
+    align-items: center;
+ }

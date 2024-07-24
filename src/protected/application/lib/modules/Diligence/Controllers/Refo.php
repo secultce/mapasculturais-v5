@@ -13,9 +13,22 @@ class Refo extends \MapasCulturais\Controller
 
     function GET_report()
     {
-      $mpdf = self::mpdfConfig();
-      $mpdf->WriteHTML('Hello World');
-      $mpdf->Output(); exit;
+        $app = App::i();
+        $mpdf = self::mpdfConfig();
+        $content = $app->view->fetch('refo/report-finance');
+        $mpdf->SetTitle('Secult/CE - Relatório Financeiro');
+        $stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
+        
+        $footerPage = $app->view->fetch('tado/footer-pdf');
+        // Adicione o CSS ao mPDF
+
+        $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+
+        $mpdf->WriteHTML(ob_get_clean());
+        $mpdf->WriteHTML($content);
+        $mpdf->SetHTMLFooter($footerPage);
+        $mpdf->Output();
+
     //   dump($mpdf);
     }
 }
