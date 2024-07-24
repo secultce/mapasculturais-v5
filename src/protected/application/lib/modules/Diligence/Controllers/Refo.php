@@ -5,7 +5,7 @@ use DateTime;
 use Carbon\Carbon;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
-use Diligence\Entities\Tado as EntityTado;
+use Diligence\Repositories\Diligence;
 
 class Refo extends \MapasCulturais\Controller
 {
@@ -14,21 +14,14 @@ class Refo extends \MapasCulturais\Controller
     function GET_report()
     {
         $app = App::i();
+        $dili = Diligence::getDiligenceAnswer($this->data['id']);
+        //INSTANCIA DO TIPO ARRAY OBJETO
+        $app->view->regObject = new \ArrayObject;
+        $app->view->regObject['diligence'] = $dili;
         $mpdf = self::mpdfConfig();
-        $content = $app->view->fetch('refo/report-finance');
-        $mpdf->SetTitle('Secult/CE - Relatório Financeiro');
-        $stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
-        
-        $footerPage = $app->view->fetch('tado/footer-pdf');
-        // Adicione o CSS ao mPDF
-
-        $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-
-        $mpdf->WriteHTML(ob_get_clean());
-        $mpdf->WriteHTML($content);
-        $mpdf->SetHTMLFooter($footerPage);
-        $mpdf->Output();
-
-    //   dump($mpdf);
+        self::mdfBodyMulti($mpdf,
+        'refo/report-finance', 
+        'Secult/CE - Relatório Financeiro',
+        'Diligence/assets/css/diligence/multi.css');
     }
 }

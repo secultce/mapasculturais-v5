@@ -1,5 +1,7 @@
 <?php
 use MapasCulturais\App;
+$dili = $app->view->regObject['diligence'];
+
 
 $this->layout = 'nolayout-pdf';
 ?>
@@ -8,7 +10,6 @@ $this->layout = 'nolayout-pdf';
         section, table, div { font-family: Open Sans, sans-serif !important;}
     </style>
 </head>
-<div>
     <section class="clearfix">
         <div>
             <p style="text-align: center">
@@ -70,5 +71,45 @@ $this->layout = 'nolayout-pdf';
             </tr>
         </thead>
     </table>
+    </section>
+    <section>
+        <div style="width: 100%">
+            <h2>Diligências</h2>
+            <?php 
+            $br = "<br/>";
+                foreach($dili as $diligence)
+                {
+                    if(!is_null($diligence)){
+                        if(!is_null($diligence->description))
+                        {
+                          echo '<div style="width: 90%; background-color: #c3c3c3">'
+                            ."<b>Diligência</b>".$br
+                            ."ID :".$diligence->description."<br/>"
+                          .'</div>';
+                        }else{
+                           
+                            echo '<div style="width: 80%; border: 1px solid #c3c3c3; float: right">'
+                            ."<b>Resposta</b>".$br
+                            ."ID :".$diligence->answer."<br/>"
+                          .'</div>';
+                        }
+                        
+
+                        
+                        // if(isset($diligence->description))
+                        // {
+                        //     echo $diligence->description;
+                        // }
+                        echo $br;
+                    }else{
+                        echo '<div style="width: 80%; border: 1px solid #c3c3c3; float: right">'
+                            ."<b>Resposta</b>".$br
+                            ."Não enviada.<br/>"
+                          .'</div>';
+                        echo $br;
+                    }
+                }
+            ?>
+        </div>
     </section>
 </div>
