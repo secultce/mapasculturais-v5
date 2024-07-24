@@ -173,6 +173,8 @@ class Module extends \MapasCulturais\Module {
             $entity = $this->controller->requestedEntity;
             if ( $module->isEvaluator($entity->opportunity, $entity) )
             {
+                $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
+                $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
                 $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
             };
 
@@ -239,6 +241,7 @@ class Module extends \MapasCulturais\Module {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
         $app->registerController('tado', Controllers\Tado::class);
+        $app->registerController('refo', Controllers\Refo::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
@@ -284,7 +287,6 @@ class Module extends \MapasCulturais\Module {
             'options' => ['Sim', 'Não'],
             'default' => 'Não'
         ]);
-
         
         $app->registerFileGroup(
             'diligence',
@@ -295,6 +297,11 @@ class Module extends \MapasCulturais\Module {
             )
         );
 
+        $this->registerRegistrationMetadata('situacion_diligence', [
+            'label' =>  i::__('Situação do REFO'),
+            'type' => 'string',
+            'options' => ['approved', 'partially', 'disapproved'],
+        ]);
     }
 
     /**

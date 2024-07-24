@@ -26,3 +26,15 @@ if($enableBtn) {
 <?php
   }
 ?>
+<div style="width: 100%;
+    text-align: center;
+    margin-top: 10px;" class="form-group-multi">
+    <label style="font-weight: bold">Situação do REFO</label>
+    <select name="" id="situacion-refo-multi" class="form-control-multi">
+        <option value="">-- Selecione --</option>
+        <option value="approved">Aprovada</option>
+        <option value="partially">Parcialmente aprovada</option>
+        <option value="disapproved">Reprovada</option>
+    </select>
+
+</div>

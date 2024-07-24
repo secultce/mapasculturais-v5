@@ -108,42 +108,45 @@ input[type="text"] {
     margin: 0 0 1.3rem 1.3rem;
     color: #cd0a0a;
 }
-.container-multi-description {
-    padding: 3px;
+/* Para relatorio REFO */
+.form-group-multi {
+    margin-bottom: 15px;
 }
-
-.multi-title-h2 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 1px;
-    text-align: left;
-}
-
-.box {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px 15px;
+.form-control-multi {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
     background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
-.multi-title-label {
-    text-align: left;
-    font-weight: 600;
-    font-size: 14px;
+.form-control-multi:focus {
+     border-color: #66afe9;
+     outline: 0;
+     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+ }
+.form-control-multi::-moz-placeholder {
+    color: #999;
+    opacity: 1;
 }
-.radio-group {
-    display: flex;
-    /*justify-content: space-between;*/
-    margin-top: 10px;
+.form-control-multi:-ms-input-placeholder {
+    color: #999;
 }
-
-.radio-group label {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    cursor: pointer;
+.form-control-multi::-webkit-input-placeholder {
+    color: #999;
 }
-
-input[type="checkbox"] {
-    margin-right: 8px;
-    accent-color: teal; /* Cor da bolinha do radio button */
+.form-control-multi::-ms-expand {
+    background-color: transparent;
+    border: 0;
 }
