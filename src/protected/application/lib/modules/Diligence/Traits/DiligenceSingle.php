@@ -32,4 +32,17 @@ trait DiligenceSingle{
             $class->json(['message' => 'Error: ', 'status' => 400], 400);
         }    
     }
+
+    static public function mpdfConfig()
+    {
+        return new \Mpdf\Mpdf([
+            'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
+            'utf-8', 'format' => 'A4',
+            'pagenumPrefix' => 'Página ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+            'nbpgSuffix' => ''
+        ]);
+        
+    }
 }
