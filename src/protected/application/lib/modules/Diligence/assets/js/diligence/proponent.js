@@ -53,8 +53,6 @@ $(document).ready(function () {
 
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
             hideAnswerDraft();
-            console.log('message', res.message);
-            console.log('resposta', res.data)
             idsDiligences = [];
             res.data.forEach((answer, index) => {
                 if(answer?.id === undefined)

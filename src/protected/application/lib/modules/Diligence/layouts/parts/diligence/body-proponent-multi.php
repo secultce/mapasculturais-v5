@@ -41,7 +41,7 @@ if (isset($diligencesSentReindexed)) :
                 </label> <br>
                 <strong><?= i::_e('Assunto(s)'); ?></strong>
                 <label for="">
-                    <?php $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
+                    <?php $diligenceAndAnswers ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php

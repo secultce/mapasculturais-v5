@@ -11,7 +11,6 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
-    // $("#subject_info_status_diligence").hide();
 
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
@@ -43,7 +42,6 @@ $(document).ready(function () {
     entityDiligence
         .then((res) => {
             let actions = true;
-            console.log('message', res.message);
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
@@ -327,7 +325,7 @@ function verifySubject(subject_exec_physical, subject_report_finance)
     }
     if( $("#"+subject_exec_physical+":checked").val() == undefined && $("#"+subject_report_finance+":checked").val() == undefined )
     {
-        diligenceMessage.messageSimple("Ops!", "Escolha um os as duas opções", 2000);
+        diligenceMessage.messageSimple("Ops!", "Escolha um ou as duas opções", 2000);
         return false;
     }
     return objSendDiligence['subject'];

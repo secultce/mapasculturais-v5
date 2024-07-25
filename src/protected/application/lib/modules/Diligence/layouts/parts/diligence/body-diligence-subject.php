@@ -1,6 +1,3 @@
-<?php
-?>
-
 <div class="container-multi-description" id="subject_info_status_diligence">
     <h2 class="multi-title-h2 ">Escrever diligência</h2>
     <div class="box">
