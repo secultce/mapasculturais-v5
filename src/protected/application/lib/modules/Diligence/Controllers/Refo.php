@@ -15,9 +15,18 @@ class Refo extends \MapasCulturais\Controller
     {
         $app = App::i();
         $dili = Diligence::getDiligenceAnswer($this->data['id']);
+        // dump($dili); die;
+        $reg = [];
+        if(!is_null($dili[0])){
+            $reg = $dili[0]->registration;
+        }else{
+            $reg = $app->repo('Registration')->find($this->data['id']);
+        }
+
         //INSTANCIA DO TIPO ARRAY OBJETO
         $app->view->regObject = new \ArrayObject;
         $app->view->regObject['diligence'] = $dili;
+        $app->view->regObject['registration'] = $reg;
         $mpdf = self::mpdfConfig();
         self::mdfBodyMulti($mpdf,
         'refo/report-finance', 
