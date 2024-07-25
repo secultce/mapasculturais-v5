@@ -157,7 +157,7 @@ input[type="text"] {
     font-family: Arial;
     font-style: normal;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 11px;
     /* display: flex; */
     align-items: center;
@@ -170,6 +170,20 @@ input[type="text"] {
     font-family: Arial;
     font-style: normal;
     font-weight: normal;
-    font-size: 20px;
+    font-size: 14px;
     align-items: center;
+ }
+ .multi-report-diligence {
+    width: 90%;
+    background-color: #EEEEEE;
+    padding: 8px; 
+    border-radius: 3px
+ }
+ .multi-report-answer {
+    width: 80%; 
+    border: 1px solid #c3c3c3; 
+    float: right; 
+    padding: 8px; 
+    border-radius: 3px; 
+    margin-bottom: 10px
  }

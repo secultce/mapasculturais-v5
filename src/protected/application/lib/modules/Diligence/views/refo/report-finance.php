@@ -1,7 +1,9 @@
 <?php
 use MapasCulturais\App;
-$dili = $app->view->regObject['diligence'];
+use Carbon\Carbon;
 
+$dili = $app->view->regObject['diligence'];
+$reg = $app->view->regObject['registration'];
 
 $this->layout = 'nolayout-pdf';
 ?>
@@ -26,13 +28,25 @@ $this->layout = 'nolayout-pdf';
         <div class="row">
         <div class="container">
             <div class="col-md-12" class="table-info-ins">
-                <div class="col-md-6" style="width: 40%; float: left;">
-                    <label class="title-ins-label">Inscrição</label> <br>
-                    <label class="title-ins-sublabel">on-125477</label>
+                <div class="col-md-6" style="width: 100%; float: left;">
+                    <label class="title-ins-label">
+                        <strong>Número da Inscrição:</strong>
+                    </label>
+                    <label class="title-ins-sublabel">
+                        <?= $reg->number; ?>
+                    </label>
+                    <br>
+                    <label class="title-ins-label">
+                        <strong>Nome do agente:</strong>
+                    </label>
+                    <label class="title-ins-sublabel">
+                        <?= $reg->owner->name; ?>
+                    </label>
+                    <hr>
                 </div>
                 <div class="col-md-6  title-ins-sublabel-right" style="width: 50%;float: left;">
                     <label class="title-ins-sublabel">
-                        24/07/2024
+                
                     </label> <br>
                 </div>
             </div>
@@ -42,8 +56,8 @@ $this->layout = 'nolayout-pdf';
         <thead>
             <tr class="">
                 <td style="width: 10%;">
-                    <?php if (true) : ?>
-                    <img src="https://mapacultural.secult.ce.gov.br/files/opportunity/5317/file/5295876/blob.-6b12f99fc1a163b1dbf533e5516cb474.png"
+                    <?php if (!empty($reg->opportunity->files['avatar'])) : ?>
+                    <img src="<?php echo $reg->opportunity->files['avatar']->path; ?>"
                         style="width: 80px; height: 80px; border: 1px solid #c5c5c5; margin-right: 8px">
                     <?php else : ?>
                     <img src="<?php echo THEMES_PATH . 'BaseV1/assets/img/avatar--opportunity.png'; ?>"
@@ -56,7 +70,7 @@ $this->layout = 'nolayout-pdf';
                             <label class="">Edital</label><br>
                         </div>
                         <div class="multi-sub-title-edital">
-                            <label class="">Edital teste</label>
+                            <label class=""><?php echo $reg->opportunity->ownerEntity->name; ?></label>
                         </div>
                     </div>
                     <div>
@@ -64,7 +78,7 @@ $this->layout = 'nolayout-pdf';
                             <label for="" class="title-edital">Oportunidade</label><br>
                         </div>
                         <div class="multi-sub-title-edital">
-                            <label class="sub-title-edital">Oportunidade Teste</label>
+                            <label class="sub-title-edital"><?php echo $reg->opportunity->name; ?></label>
                         </div>
                     </div>
                 </td>
@@ -74,7 +88,7 @@ $this->layout = 'nolayout-pdf';
     </section>
     <section>
         <div style="width: 100%">
-            <h2>Diligências</h2>
+            <h3>Histórico da prestação de contas</h3>
             <?php 
             $br = "<br/>";
                 foreach($dili as $diligence)
@@ -82,27 +96,28 @@ $this->layout = 'nolayout-pdf';
                     if(!is_null($diligence)){
                         if(!is_null($diligence->description))
                         {
-                          echo '<div style="width: 90%; background-color: #c3c3c3">'
-                            ."<b>Diligência</b>".$br
-                            ."ID :".$diligence->description."<br/>"
+                            $subjects = "Não informado";
+                            if(isset($diligence->subject)) {
+                                $subjects = $diligence->getSubject();
+                            }
+
+                            $dateDiligence = Carbon::parse($diligence->createTimestamp)->format('d/m/Y H:i');
+
+                          echo '<div class="multi-report-diligence">'
+                            ."<b>Diligência:</b>".$br
+                            ."Assunto : ".$subjects.$br
+                            .$diligence->description."<br/>"
+                            .'<small style="margin-top: 8px">'.$dateDiligence.'</small>'
                           .'</div>';
-                        }else{
-                           
-                            echo '<div style="width: 80%; border: 1px solid #c3c3c3; float: right">'
+                        }else{                           
+                            echo '<div class="multi-report-answer">'
                             ."<b>Resposta</b>".$br
-                            ."ID :".$diligence->answer."<br/>"
+                            .$diligence->answer."<br/>"
                           .'</div>';
                         }
-                        
-
-                        
-                        // if(isset($diligence->description))
-                        // {
-                        //     echo $diligence->description;
-                        // }
                         echo $br;
                     }else{
-                        echo '<div style="width: 80%; border: 1px solid #c3c3c3; float: right">'
+                        echo '<div class="multi-report-answer">'
                             ."<b>Resposta</b>".$br
                             ."Não enviada.<br/>"
                           .'</div>';
