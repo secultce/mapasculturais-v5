@@ -229,7 +229,6 @@ class Module extends \MapasCulturais\Module {
                 ];
             }
         });
-
     }
 
     function register () {
@@ -282,7 +281,6 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-        
         $app->registerFileGroup(
             'diligence',
             new Definitions\FileGroup(
@@ -291,7 +289,6 @@ class Module extends \MapasCulturais\Module {
                 'O arquivo não e valido'
             )
         );
-
     }
 
     /**
