@@ -3,6 +3,7 @@ namespace Diligence\Repositories;
 
 use MapasCulturais\App;
 use Diligence\Entities\Diligence as DiligenceEntity;
+use MapasCulturais\Entities\Registration;
 
 class Diligence{
 
@@ -124,5 +125,38 @@ class Diligence{
         return $lastDiligence;
     }
 
+    //Verifica se tem acesso ao relatório financeiro da PC
+    public function verifyAcessReport(Registration $registration): bool
+    {
+        $app = App::i();
+        
+        $user = $app->user;
+        $hasAccess = false;
+        //Se o usuário logado tem permissão de avaliador da inscrição
+        if($registration->canUser('evaluate', $user)){
+            $hasAccess = true;
+        //se o usuario logado é o mesmo dono da inscrição
+        }elseif( $user->id == $registration->owner->user->id ){          
+            $hasAccess = true;
+        //Verifica se faz parte do grupo de admin e se é o usuário logado
+        }else{
+            foreach ($registration->opportunity->agentRelations as $managers) {
+                if(
+                    $managers->group == "group-admin" && 
+                    isset($managers->agent->id) && 
+                    $managers->agent->id == $user->profile->id
+                ){
+                    $hasAccess = true;
+                }
+            }
+        }
+        // Se o usuário não tem permissão, redireciona com mensagem de erro
+        if(!$hasAccess){
+            $_SESSION['error'] = "Ops! Você não tem permissão para acessar esse relatório financeiro";
+            $app->redirect($app->baseUrl.'panel', 403);
+        }
+        
+        return $hasAccess;
+    }
 
 }
