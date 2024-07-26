@@ -22,10 +22,12 @@ $mpdf = new \Mpdf\Mpdf([
     'nbpgSuffix' => ''
 ]);
 ob_start();
+
 $content = $app->view->fetch('tado/html-gerar');
-$footerPage = $app->view->fetch('tado/footer-pdf');
 $mpdf->SetTitle('Secult/CE - Relatório TADO');
 $stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
+
+$footerPage = $app->view->fetch('tado/footer-pdf');
 // Adicione o CSS ao mPDF
 $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
 
