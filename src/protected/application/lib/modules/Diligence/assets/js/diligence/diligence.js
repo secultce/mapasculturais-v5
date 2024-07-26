@@ -1,3 +1,35 @@
+const refo = {
+    activeEventDeleteFinancialReport() {
+        $('[delete-financial-report]').on('click', (event) => {
+            Swal.fire({
+                title: "Excluir Relatório Financeiro?",
+                text: "Essa ação não poderá ser desfeita.",
+                showCancelButton: true,
+                cancelButtonText: "Cancelar",
+                confirmButtonText: "Confirmar",
+                reverseButtons: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: MapasCulturais.createUrl('refo', 'deleteFinancialReport'),
+                        data: {
+                            fileId: event.currentTarget.dataset.fileId
+                        },
+                        dataType: "json",
+                        success() {
+                            $(event.currentTarget).parents('#financial-report-wrapper').remove()
+                            MapasCulturais.Messages.success('O relatório financeiro foi removido da prestação de contas');
+                        },
+                        error() {
+                            MapasCulturais.Messages.error('Ocorreu algum erro. Verifique e tente novamente.');
+                        }
+                    })
+                }
+            })
+        })
+    }
+}
 
 //URL global para salvar a diligencia
 var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
@@ -45,7 +77,7 @@ $(document).ready(function () {
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
 
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
-                
+
             }
             if (res.message == 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -87,6 +119,13 @@ $(document).ready(function () {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
 
+    $('#import-financial-report .mc-submit').on('click', () => {
+        setTimeout(() => {
+            refo.activeEventDeleteFinancialReport()
+        }, 1000)
+    })
+
+    refo.activeEventDeleteFinancialReport()
 });
 
 //Clico do botão de abrir a diligência

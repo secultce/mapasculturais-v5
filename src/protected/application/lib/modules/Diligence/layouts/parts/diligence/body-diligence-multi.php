@@ -20,13 +20,13 @@ if ($diligenceAndAnswers) :
                 if ($financialReportAccountability) {
                     $file_id = $financialReportAccountability["id"];
                     echo '
-                        <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-bottom: 20px; position: relative;">
+                        <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-bottom: 20px; position: relative;" id="financial-report-wrapper">
                             <i class="fas fa-download" style="margin-right: 10px;"></i>
                             <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
                                 relatorio_financeiro.pdf
                             </a>
                             <div style="position: absolute; top: 4px; right: 5px; background-color: #E0E0E0; border-radius: 3px;">
-                                <a class="icon icon-close hltip" title="Excluir arquivo">
+                                <a delete-financial-report data-file-id="'.$file_id.'" class="icon icon-close hltip" title="Excluir arquivo">
                                 </a>
                             </div>
                         </div>
