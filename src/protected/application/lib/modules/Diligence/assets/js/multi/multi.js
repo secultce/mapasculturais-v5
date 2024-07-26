@@ -1,30 +1,15 @@
 $(document).ready(function () {
-    console.log('multi,js')
-    // $("#multi-div-btn-status").hide();
+    $("#p-btn-tado").hide();
+    $(".multi-itens-select").hide();
+
     $( "#situacion-refo-multi" ).on( "change", function(e) {
-        console.log(e.target.value)
-        $("#multi-div-btn-status").show();
-        // if(e.target.value == 'disapproved')
-        // {
-        //     Swal.fire({
-        //         title: "Confirmar gerar o relatório?",
-        //         text: "Essa ação não pode ser desfeita. Irá gerar um pdf para ser enviado ao financeiro.",
-        //         showConfirmButton: true,
-        //         showCloseButton: false,
-        //         showCancelButton: true,
-        //         reverseButtons: true,
-        //         cancelButtonText: `Não, desistir`,
-        //         confirmButtonText: "Gerar Relatório",
-        //         customClass: {
-        //             confirmButton: "btn-success-rec",
-        //             cancelButton: "btn-warning-rec"
-        //         },
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {            
-        //             console.log(result)
-        //             $( "#situacion-refo-multi" ).prop('disabled', true);
-        //         }
-        //     });
-        // }
+        if(e.target.value == 'approved')
+        {
+            $(".multi-itens-select").hide();
+            $("#p-btn-tado").show();
+        }else{
+            $(".multi-itens-select").show();
+            $("#p-btn-tado").hide();
+        }
     });
 });

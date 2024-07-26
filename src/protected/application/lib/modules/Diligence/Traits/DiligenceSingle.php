@@ -36,7 +36,7 @@ trait DiligenceSingle{
     static public function mpdfConfig()
     {
         return new \Mpdf\Mpdf([
-            'tempDir' => APPLICATION_PATH . 'tmp',
+            'tempDir' => '/tmp',
             'mode' => 'utf-8', 
             'format' => 'A4',
             'pagenumPrefix' => 'Página ',
