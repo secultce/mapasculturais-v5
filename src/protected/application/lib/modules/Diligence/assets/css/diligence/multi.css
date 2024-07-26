@@ -1,4 +1,8 @@
 div { font-family: Open Sans, sans-serif !important;}
+@page {
+    margin: 0mm;
+    margin-footer: 0mm;
+}
 
 .input-group {
     position: relative;
