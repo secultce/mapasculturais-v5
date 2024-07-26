@@ -235,6 +235,13 @@ class Module extends \MapasCulturais\Module {
             }
         });
 
+        $app->hook('template(panel.index.content.registration):before', function() {
+            $this->part('multi/session');
+        });
+
+        $app->hook('template(panel.index.content.registration):after', function() {
+           unset($_SESSION['error']);
+        });
     }
 
     function register () {
