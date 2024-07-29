@@ -1,6 +1,7 @@
 $(document).ready(function () {
-    //Plugin jquery CKEDITOR
-    var editor = CKEDITOR.replace('conclusionTado');
+    //Plugin jquery Froala Editor
+    var editor = new FroalaEditor('#conclusionTado');
+   
     //Mascara de data
     $(".dateTado").mask('00/00/0000');
     $("#cpfTado").mask('000.000.000-00');
@@ -16,20 +17,24 @@ $(document).ready(function () {
         e.preventDefault();
         saveTado(editor, 0);
     });
+
 });
+
 
 function saveTado(editor, status)
 {
-    //Dados para requisição
+    // Dados para requisição
     const postDataTado = {
+        numbertec: $("#numbertec").val(),
         dateDay: $("#dateTado").val(),
         datePeriodInitial: $("#periodInitial").val(),
         datePeriodEnd: $("#periodEnd").val(),
         object : $("#object").val(),
-        conclusion: editor.getData(),
+        conclusion: editor.html.get(),//Captura o html do textarea
         idTado: $("#idTado").val(),
         status : status
     };
+
     if($("#idTado").val() !== '') {
         postDataTado['idTado'] = $("#idTado").val();
     }
@@ -123,7 +128,6 @@ function save(postDataTado)
             }
         },
         error: function(err) {
-            console.log({err})
             Swal.fire({
                 title: res.title,
                 text: res.message,
