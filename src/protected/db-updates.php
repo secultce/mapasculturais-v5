@@ -2017,4 +2017,8 @@ $$
             ADD CONSTRAINT fk_agent_ranking
                 FOREIGN KEY(agent_id) REFERENCES agent(id)");
     },
+
+    'add column subject to table diligence' => function() {
+        __exec("ALTER TABLE diligence ADD subject varchar(50)");
+    },
 ] + $updates ;

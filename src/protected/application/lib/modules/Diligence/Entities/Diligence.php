@@ -130,6 +130,13 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $files;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="subject", type="text", nullable=false)
+     */
+    protected $subject;
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination
@@ -227,7 +234,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         return false;
     }
 
-    public function create($class)
+    public function createOrUpdate($class)
     {
         App::i()->applyHook('entity(diligence).createDiligence:before');
         //Buscando informações do agente e da inscrição
@@ -237,7 +244,6 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             $class->data['agent']
         );
 
-       
         if(isset($class->data['idDiligence']) && $class->data['idDiligence'] > 0){
              //Se tiver registro de diligência
             $diligenceRepository = App::i()->repo('Diligence\Entities\Diligence')->find($class->data['idDiligence']);
@@ -245,7 +251,8 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 $diligenceRepository,
                 $class->data['description'], 
                 $newDiligenceData['reg'],
-                $class->data['status']
+                $class->data['status'],
+                json_encode($class->data['subject'])
             );
         }
       
@@ -258,6 +265,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         $diligence->createTimestamp = new DateTime();
         $diligence->description     = $class->data['description'];
         $diligence->status          = $class->data['status'];
+        $diligence->subject         = json_encode($class->data['subject']);
         //Considerando que será um envio
         if($class->data['status'] == "3"){
             $diligence->sendDiligence = new DateTime();
@@ -275,13 +283,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      * @param [int] $status
      * @return void
      */
-    protected function updateContent($diligences, $description, $registration, $status = 0)
+    protected function updateContent($diligences, $description, $registration, $status = 0, $subject)
     {
         $save = null;
         $diligences->description     = $description;
         $diligences->registration    = $registration;
         $diligences->createTimestamp =  new DateTime();
         $diligences->status          = $status;
+        $diligences->subject         = $subject;
         //Se for para enviar a diligência, então salva o momento do envio
         if($status == 3){
            $diligences->sendDiligence =  new DateTime();
@@ -354,5 +363,65 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             'status' => $preSerialized['answer']->status,
         ] : null;
         return  $serialized;
+    }
+
+    /**
+     * Função para retornar o dado do campo de assunto
+     * @return mixed
+     */
+    public function getSubject()
+    {
+        //Se string para array
+        $subject = json_decode($this->subject, true);
+    
+        if(!is_null($subject))
+        {
+            $retSubject = [];
+            //Tratando os termos para o usuário
+            foreach ($subject as $item) {
+                if($item == "subject_exec_physical")
+                {
+                    array_push($retSubject, "Execução Física do Objeto");
+                }
+                if($item == "subject_report_finance")
+                {
+                    array_push($retSubject, "Relatório Financeiro");
+                }
+            }
+            //Tratando a forma de escrita
+            echo  implode(', ', $retSubject). '.';
+        }
+       
+    }
+
+    /**
+     * Retornando o assunto para usar como array
+     * @return mixed
+     */
+    public function subjectToArray()
+    {
+        return json_decode($this->subject);
+    }
+
+    /**
+     * Metodo que retorna a confirmação do assunto marcado
+     * @param $subjectReplace
+     * @return string[]
+     */
+    public function getCheckSubject($subjectReplace)
+    {
+        $checkPhysical = '';
+        $checkFinance = '';
+        if($subjectReplace[0] == 'subject_exec_physical'){
+            $checkPhysical = 'checked';
+        }
+        if($subjectReplace[0] == 'subject_report_finance')
+        {
+            $checkFinance = 'checked';
+        }elseif (isset($subjectReplace[1]) && $subjectReplace[1] == 'subject_report_finance')
+        {
+            $checkFinance = 'checked';
+        }
+        return ['checkPhysical' => $checkPhysical, 'checkFinance' => $checkFinance];
     }
 }

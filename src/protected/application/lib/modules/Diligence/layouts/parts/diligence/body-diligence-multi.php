@@ -8,9 +8,6 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $descriptionDraft = true;
 
-?>
-
-<?php
 if ($diligenceAndAnswers) :
 ?>
     <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
@@ -23,7 +20,13 @@ if ($diligenceAndAnswers) :
             <div style="margin-top: 25px;">
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
-                        <b>Diligência (atual):</b>
+                        <b>
+                            Diligência (atual):
+                        </b>
+                    </label>
+                    <label for="">
+                        <strong>Assunto(s): </strong>
+                        <?php  $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                     </label>
                     <p style="margin: 10px 0px;">
                         <?php
@@ -116,6 +119,12 @@ if ($diligenceAndAnswers) :
                     </div>
                     <div class="content">
                         <p>
+                            <label for="">
+                                <strong>Assunto(s): </strong>
+                                <?php echo $resultsDiligence->getSubject(); ?>
+                            </label>
+                        </p>
+                        <p>
                             <?php
                             echo $resultsDiligence->description;
                             ?>
@@ -171,6 +180,27 @@ if ($diligenceAndAnswers) :
     
 <?php endif; ?>
 
-<div class="div-diligence" id="div-diligence">
-    <p id="paragraph_info_status_diligence"></p>
-</div>
+    <div class="div-diligence" id="div-diligence">
+        <p id="paragraph_info_status_diligence"></p>
+        <?php
+        //Array para marcar como confirmado a opção
+        isset($diligenceAndAnswers[0]) ?  $subjectReplace = $diligenceAndAnswers[0]->subjectToArray() : $subjectReplace = [];
+        isset($diligenceAndAnswers[0]) ? $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace) : $checked = ['checkPhysical' => "checked", 'checkFinance' => ""];
+        //Se não tiver resposta não mostra o assunto
+       if(!is_null($diligenceAndAnswers[1]) || isset($diligenceAndAnswers[1]->status))
+       {
+            $this->part('diligence/body-diligence-subject',
+            [
+                'checkPhysical' => $checked['checkPhysical'] ,
+                'checkFinance' => $checked['checkFinance'] ,
+            ]);
+       }else {
+           //Mostrará assunto quando não tiver diligencia ou quando editar rascunho
+           $this->part('diligence/body-diligence-subject',
+               [
+                   'checkPhysical' => $checked['checkPhysical'],
+                   'checkFinance' => $checked['checkFinance'],
+               ]);
+       }
+       ?>
+    </div>

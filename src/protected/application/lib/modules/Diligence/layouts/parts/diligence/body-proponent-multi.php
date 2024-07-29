@@ -38,6 +38,10 @@ if (isset($diligencesSentReindexed)) :
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência (atual):</b>
+                </label> <br>
+                <strong><?= i::_e('Assunto(s)'); ?></strong>
+                <label for="">
+                    <?php $diligenceAndAnswers ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php
@@ -62,7 +66,8 @@ if (isset($diligencesSentReindexed)) :
                     ?>
                 </p>
                 <?php
-                    $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
+
+                    $files = DiligenceRepo::getFilesDiligence($diligencesSentReindexed[1]->diligence->id);
 
                     foreach ($files as $file) {
                         echo '
@@ -73,6 +78,7 @@ if (isset($diligencesSentReindexed)) :
                             </p>
                         ';
                     }
+
                 ?>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php
@@ -122,6 +128,12 @@ if (isset($diligencesSentReindexed)) :
                     </div>
                     <div class="content">
                         <p>
+                            <label for="">
+                                <?php echo $resultsDiligence->getSubject(); ?>
+                            </label>
+                        </p>
+                        <p>
+
                             <?php
                             echo $resultsDiligence->description;
                             ?>
