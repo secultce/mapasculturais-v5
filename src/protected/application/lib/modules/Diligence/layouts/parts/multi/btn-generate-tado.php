@@ -25,6 +25,7 @@ if($enableBtn) {
 </p>
 <?php
   }
+
     $this->part('multi/multi-select', ['reg' => $reg]);
 ?>
 

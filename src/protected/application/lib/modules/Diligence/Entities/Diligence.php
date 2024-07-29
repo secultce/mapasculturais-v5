@@ -1,22 +1,24 @@
 <?php
 namespace Diligence\Entities;
 
-use Doctrine\ORM\Mapping as ORM;
-use \MapasCulturais\App;
-use \MapasCulturais\i;
 use DateTime;
-use Diligence\Controllers\Controller;
+use \MapasCulturais\i;
+use \MapasCulturais\App;
 use MapasCulturais\Entity;
-//Para uso do RabbitMQ
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Exchange\AMQPExchangeType;
-
-use Diligence\Repositories\Diligence as DiligenceRepo;
-use Diligence\Entities\Diligence as EntityDiligence;
-use Diligence\Service\DiligenceInterface;
+use Doctrine\ORM\Mapping as ORM;
 use MapasCulturais\ApiOutputs\Json;
+//Para uso do RabbitMQ
+use PhpAmqpLib\Message\AMQPMessage;
 use PhpParser\Node\Expr\Cast\Bool_;
+use Diligence\Controllers\Controller;
+
+use Diligence\Service\DiligenceInterface;
+use MapasCulturais\Entities\Registration;
+use PhpAmqpLib\Exchange\AMQPExchangeType;
+use MapasCulturais\Entities\RegistrationMeta;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 /**
  * Diligence 
@@ -424,4 +426,15 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
         }
         return ['checkPhysical' => $checkPhysical, 'checkFinance' => $checkFinance];
     }
+    //Cria um objeto Matadata para salvar na inscrição
+    static public function createSituacionMetadata($request, Registration $registration) : RegistrationMeta
+    {
+        $metaData = new RegistrationMeta();
+        $metaData->key = 'situacion_diligence';
+        $metaData->value = $request->data['situacion'];
+        $metaData->owner = $registration;
+        return $metaData;
+    }
+
+
 }

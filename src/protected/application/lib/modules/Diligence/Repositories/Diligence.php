@@ -159,4 +159,11 @@ class Diligence{
         return $hasAccess;
     }
 
+    public function getSituacionPC(Registration $registration) : string
+    {
+        $app = App::i();
+        $entity = $app->repo('Registration')->find($registration->id);
+        return $entity->getMetadata('situacion_diligence');        
+    }
+
 }
