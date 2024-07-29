@@ -3,7 +3,7 @@
     margin-top: 10px;" class="form-group-multi">
     <label style="font-weight: 500">Selecione o status da prestação de contas</label>
     <select name="" id="situacion-refo-multi" class="form-control-multi">
-        <option value="all">-- Selecione --</option>
+        <option value="all" disabled selected>-- Selecione --</option>
         <option value="approved">Aprovada</option>
         <option value="partially">Parcialmente aprovada</option>
         <option value="disapproved">Reprovada</option>
