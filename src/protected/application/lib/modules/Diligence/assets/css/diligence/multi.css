@@ -112,6 +112,45 @@ input[type="text"] {
     margin: 0 0 1.3rem 1.3rem;
     color: #cd0a0a;
 }
+.container-multi-description {
+    padding: 3px;
+}
+
+.multi-title-h2 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 1px;
+    text-align: left;
+}
+
+.box {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 15px;
+    background-color: #fff;
+}
+.multi-title-label {
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+.radio-group {
+    display: flex;
+    /*justify-content: space-between;*/
+    margin-top: 10px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: teal; /* Cor da bolinha do radio button */
+}
 /* Para relatorio REFO */
 .form-group-multi {
     margin-bottom: 15px;
