@@ -190,11 +190,4 @@ $tado = $td->getTado($reg);
             </div>
         </article>
     </section>
-    <script>
-       
-        $(function () {
-            
-        });
-    </script>
-
 </div>

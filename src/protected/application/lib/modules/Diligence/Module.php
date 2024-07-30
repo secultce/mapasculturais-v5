@@ -306,7 +306,6 @@ class Module extends \MapasCulturais\Module {
 
         $this->registerRegistrationMetadata('situacion_diligence', [
             'label' =>  i::__('Situação do REFO'),
-            'description' => i::__('Configura se deve usar diligência múltipla'),
             'type' => 'select',
             'options' => ['approved', 'partially', 'disapproved']
         ]);
