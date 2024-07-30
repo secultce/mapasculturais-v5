@@ -1,11 +1,10 @@
 <?php
+
 namespace Diligence\Controllers;
 
-use DateTime;
-use Carbon\Carbon;
+use Diligence\Entities\Tado;
 use \MapasCulturais\App;
-use MapasCulturais\Entity;
-use Diligence\Repositories\Diligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class Refo extends \MapasCulturais\Controller
 {
@@ -14,7 +13,7 @@ class Refo extends \MapasCulturais\Controller
     function GET_report()
     {
         $app = App::i();
-        $dili = Diligence::getDiligenceAnswer($this->data['id']);
+        $dili = DiligenceRepo::getDiligenceAnswer($this->data['id']);
         // dump($dili); die;
         $reg = [];
         if(!is_null($dili[0])){
@@ -40,13 +39,18 @@ class Refo extends \MapasCulturais\Controller
         $conn = $app->em->getConnection();
 
         $file = $app->repo('File')->findBy(['id' => (int) $this->data['fileId']])[0];
+        $generatedTado = DiligenceRepo::getTado($file->owner);
 
-        $stmt = $conn->prepare('DELETE FROM file WHERE id = :id');
-        $stmt->bindParam('id', $this->data['fileId']);
-        $stmt->executeStatement();
+        if (!$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED) {
+            $stmt = $conn->prepare('DELETE FROM file WHERE id = :id');
+            $stmt->bindParam('id', $this->data['fileId']);
+            $stmt->executeStatement();
 
-        unlink($file->path);
+            unlink($file->path);
 
-        $this->json($file);
+            $this->json($file);
+        }
+
+        $this->json($file, 400);
     }
 }

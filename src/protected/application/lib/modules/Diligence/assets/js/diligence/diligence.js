@@ -19,10 +19,14 @@ const refo = {
                         dataType: "json",
                         success() {
                             $(event.currentTarget).parents('#financial-report-wrapper').remove()
-                            MapasCulturais.Messages.success('O relatório financeiro foi removido da prestação de contas');
+                            MapasCulturais.Messages.success('O relatório financeiro foi removido da prestação de contas')
                         },
-                        error() {
-                            MapasCulturais.Messages.error('Ocorreu algum erro. Verifique e tente novamente.');
+                        error(err) {
+                            if (err.status === 400) {
+                                MapasCulturais.Messages.alert('O arquivo não pode ser removido, pois o TADO já foi gerado')
+                                return
+                            }
+                            MapasCulturais.Messages.error('Ocorreu algum erro. Verifique e tente novamente.')
                         }
                     })
                 }
@@ -122,7 +126,7 @@ $(document).ready(function () {
     $('#import-financial-report .mc-submit').on('click', () => {
         setTimeout(() => {
             refo.activeEventDeleteFinancialReport()
-        }, 1000)
+        }, 1500)
     })
 
     refo.activeEventDeleteFinancialReport()

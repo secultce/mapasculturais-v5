@@ -168,7 +168,7 @@ class Registration extends \MapasCulturais\Repository {
             $where";
     }
 
-    public static function getFinancialReportAccountability($registration_id)
+    public static function getFinancialReportsAccountability($registration_id)
     {
         $app = App::i();
 
@@ -180,6 +180,6 @@ class Registration extends \MapasCulturais\Repository {
         $conn = $app->em->getConnection();
         $result = $conn->fetchAllAssociative($query, $params);
 
-        return array_shift($result);
+        return $result;
     }
 }

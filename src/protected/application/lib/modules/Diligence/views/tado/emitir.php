@@ -10,8 +10,7 @@ $app = App::i();
 $this->jsObject['idEntity'] = $reg->id;
 
 //Buscando o tado gerado
-$td = new RepoDiligence();
-$tado = $td->getTado($reg);
+$tado = RepoDiligence::getTado($reg);
 ?>
 
 <div>

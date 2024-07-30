@@ -101,7 +101,7 @@ class Diligence{
         return $result;
     }
 
-    public function getTado($registratrion)
+    public static function getTado($registratrion)
     {
         $app = App::i();  
         //Buscando o tado gerado

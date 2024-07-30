@@ -4,6 +4,7 @@ use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
+use Diligence\Entities\Tado;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use MapasCulturais\Repositories\Registration as RegistrationRepo;
 
@@ -15,22 +16,30 @@ if ($diligenceAndAnswers) :
         <div>
             <div class="import-financial-report">
                 <?php
-                $financialReportAccountability = RegistrationRepo::getFinancialReportAccountability($entity->id);
+                $financialReportsAccountability = RegistrationRepo::getFinancialReportsAccountability($entity->id);
+                $generatedTado = DiligenceRepo::getTado($entity);
 
-                if ($financialReportAccountability) {
-                    $file_id = $financialReportAccountability["id"];
-                    echo '
-                        <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-bottom: 20px; position: relative;" id="financial-report-wrapper">
-                            <i class="fas fa-download" style="margin-right: 10px;"></i>
-                            <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
-                                relatorio_financeiro.pdf
-                            </a>
-                            <div style="position: absolute; top: 4px; right: 5px; background-color: #E0E0E0; border-radius: 3px;">
-                                <a delete-financial-report data-file-id="'.$file_id.'" class="icon icon-close hltip" title="Excluir arquivo">
+                $delBtn = '
+                    <div style="position: absolute; top: 4px; right: 5px; background-color: #E0E0E0; border-radius: 3px;">
+                        <a delete-financial-report data-file-id="%s" class="icon icon-close hltip" title="Excluir arquivo">
+                        </a>
+                    </div>
+                ';
+                $showDelBtn = !$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED ? $delBtn : '';
+
+                if ($financialReportsAccountability) {
+                    foreach ($financialReportsAccountability as $financialReportAccountability) {
+                        $file_id = $financialReportAccountability["id"];
+                        echo '
+                            <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-bottom: 20px; position: relative;" id="financial-report-wrapper">
+                                <i class="fas fa-download" style="margin-right: 10px;"></i>
+                                <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
+                                    relatorio_financeiro.pdf
                                 </a>
+                                ' . sprintf($showDelBtn, $file_id) . '
                             </div>
-                        </div>
-                    ';
+                        ';
+                    }
                 }
                 ?>
             </div>

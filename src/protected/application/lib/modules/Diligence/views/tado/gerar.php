@@ -5,8 +5,7 @@ use Diligence\Repositories\Diligence as RepoDiligence;
 
 $app = App::i();
 //Buscando o tado gerado
-$td = new RepoDiligence();
-$tado = $td->getTado($reg);
+$tado = RepoDiligence::getTado($reg);
 
 //INSTANCIA DO TIPO ARRAY OBJETO
 $app->view->regObject = new \ArrayObject;
@@ -14,8 +13,10 @@ $app->view->regObject['reg'] = $reg;
 $app->view->regObject['tado'] = $tado;
 
 $mpdf = new \Mpdf\Mpdf([
-    'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
-    'utf-8', 'format' => 'A4',
+    'tempDir' => '/tmp',
+    'mode' =>
+    'utf-8',
+    'format' => 'A4',
     'pagenumPrefix' => 'Página ',
     'pagenumSuffix' => '  ',
     'nbpgPrefix' => ' de ',
