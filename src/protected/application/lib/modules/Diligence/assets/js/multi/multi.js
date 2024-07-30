@@ -5,16 +5,10 @@ $(document).ready(function () {
     getSituacion();
     $( "#situacion-refo-multi" ).on( "change", function(e) {
 
-        sendSituacion(e.target.value)
+        sendSituacion(e.target.value);
+        $(".multi-itens-select").show();
+        $("#p-btn-tado").show();
         
-        if(e.target.value == 'approved')
-        {
-            $(".multi-itens-select").hide();
-            $("#p-btn-tado").show();
-        }else{            
-            $(".multi-itens-select").show();
-            $("#p-btn-tado").hide();
-        }
     });
 });
 
