@@ -36,12 +36,14 @@ trait DiligenceSingle{
     static public function mpdfConfig()
     {
         return new \Mpdf\Mpdf([
-            'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
-            'utf-8', 'format' => 'A4',
+            'tempDir' => '/tmp',
+            'mode' => 'utf-8', 
+            'format' => 'A4',
             'pagenumPrefix' => 'Página ',
             'pagenumSuffix' => '  ',
             'nbpgPrefix' => ' de ',
-            'nbpgSuffix' => ''
+            'nbpgSuffix' => '',
+            'margin' => 0
         ]);
         
     }

@@ -2,8 +2,9 @@
 
 namespace Diligence\Controllers;
 
-use Diligence\Entities\Tado;
 use \MapasCulturais\App;
+use Diligence\Entities\Diligence as EntitiesDiligence;
+use Diligence\Entities\Tado;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class Refo extends \MapasCulturais\Controller
@@ -14,11 +15,10 @@ class Refo extends \MapasCulturais\Controller
     {
         $app = App::i();
         $dili = DiligenceRepo::getDiligenceAnswer($this->data['id']);
-        // dump($dili); die;
         $reg = [];
-        if(!is_null($dili[0])){
+        if (!is_null($dili[0])) {
             $reg = $dili[0]->registration;
-        }else{
+        } else {
             $reg = $app->repo('Registration')->find($this->data['id']);
         }
 
@@ -27,10 +27,12 @@ class Refo extends \MapasCulturais\Controller
         $app->view->regObject['diligence'] = $dili;
         $app->view->regObject['registration'] = $reg;
         $mpdf = self::mpdfConfig();
-        self::mdfBodyMulti($mpdf,
-        'refo/report-finance', 
-        'Secult/CE - Relatório Financeiro',
-        'Diligence/assets/css/diligence/multi.css');
+        self::mdfBodyMulti(
+            $mpdf,
+            'refo/report-finance',
+            'Secult/CE - Relatório Financeiro',
+            'Diligence/assets/css/diligence/multi.css'
+        );
     }
 
     public function POST_deleteFinancialReport()
@@ -52,5 +54,34 @@ class Refo extends \MapasCulturais\Controller
         }
 
         $this->json($file, 400);
+    }
+
+    function POST_situacion()
+    {
+        $app = App::i();
+        $entity = $app->repo('Registration')->find($this->data['entity']);
+
+        if (is_null($entity->getMetadata('situacion_diligence'))) {
+            $metaData = EntitiesDiligence::createSituacionMetadata($this, $entity);
+            self::saveEntity($metaData);
+            self::returnJson(null, $this);
+        } else {
+            $meta = $app->repo('RegistrationMeta')->findOneBy([
+                'owner' => $entity,
+                'key' => 'situacion_diligence'
+            ]);
+            $meta->value = $this->data['situacion'];
+            self::saveEntity($meta);
+            self::returnJson(null, $this);
+        }
+    }
+
+    // Retorna a situação da pc de conta para selecionar a opção na view
+    function GET_getSituacionPC(): void
+    {
+        $app = App::i();
+        $entity = $app->repo('Registration')->find($this->data['id']);
+        $repoDiligence = new DiligenceRepo();
+        $this->json(['situacion' => $repoDiligence->getSituacionPC($entity)]);
     }
 }

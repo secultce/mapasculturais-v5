@@ -1,30 +1,54 @@
 $(document).ready(function () {
-    console.log('multi,js')
-    // $("#multi-div-btn-status").hide();
+    $("#p-btn-tado").hide();
+    $(".multi-itens-select").hide();
+    //Retornando o valor da situação
+    getSituacion();
     $( "#situacion-refo-multi" ).on( "change", function(e) {
-        console.log(e.target.value)
-        $("#multi-div-btn-status").show();
-        // if(e.target.value == 'disapproved')
-        // {
-        //     Swal.fire({
-        //         title: "Confirmar gerar o relatório?",
-        //         text: "Essa ação não pode ser desfeita. Irá gerar um pdf para ser enviado ao financeiro.",
-        //         showConfirmButton: true,
-        //         showCloseButton: false,
-        //         showCancelButton: true,
-        //         reverseButtons: true,
-        //         cancelButtonText: `Não, desistir`,
-        //         confirmButtonText: "Gerar Relatório",
-        //         customClass: {
-        //             confirmButton: "btn-success-rec",
-        //             cancelButton: "btn-warning-rec"
-        //         },
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {            
-        //             console.log(result)
-        //             $( "#situacion-refo-multi" ).prop('disabled', true);
-        //         }
-        //     });
-        // }
+
+        sendSituacion(e.target.value);
+        $(".multi-itens-select").show();
+        $("#p-btn-tado").show();
+        
     });
 });
+
+/**
+ * Envia o situação para salvar ou alterar o valor
+ * @param {string} valueSituacion 
+ */
+function sendSituacion(valueSituacion)
+{
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('refo', 'situacion'),
+        data: {situacion: valueSituacion, entity: MapasCulturais.entity.id},
+        dataType: "json",
+        success: function (res) {
+            if (res.status == 200) {
+                MapasCulturais.Messages.success('Salvo');
+            }
+        },
+        error: function (err) {
+            MapasCulturais.Messages.error(err.responseJSON);
+        }
+    });
+}
+
+//Setando o valor cadastrado no banco
+function getSituacion()
+{
+    $.ajax({
+        type: "GET",
+        url: MapasCulturais.createUrl('refo', 'getSituacionPC/'+MapasCulturais.entity.id),
+        dataType: "json",
+        success: function (response) {
+            if(response.situacion == 'all'){
+                $(".multi-itens-select").hide();
+                $("#p-btn-tado").hide();
+            }else{
+                $("#situacion-refo-multi").val(response.situacion).change();
+            }
+            
+        }
+    });
+}

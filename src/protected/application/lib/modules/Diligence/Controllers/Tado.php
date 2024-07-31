@@ -22,8 +22,11 @@ class Tado extends \MapasCulturais\Controller
         $reg = $app->repo('Registration')->find($this->data['id']);
         $isEvaluator = $app->isEvaluator($reg->opportunity, $reg);
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
+
         $app->view->enqueueScript('app', 'tado', 'js/multi/tado.js');
-        $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js');
+
+        $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/js/froala_editor.pkgd.min.js');
+        $app->view->enqueueStyle('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/css/froala_editor.pkgd.min.css');
         //Acesso ao avaliador, superAdmin+ ou admin da oportunidade
         if($isEvaluator || $app->user->is('superAdmin') || $reg->opportunity->canUser('@control'))
         {
@@ -64,7 +67,7 @@ class Tado extends \MapasCulturais\Controller
         }else{
             $reg = $app->repo('Registration')->find($this->data['id']);
             $tado = new EntityTado();
-            $tado->number           = rand(0, 100);
+            $tado->number           = $this->data['numbertec'];
             $tado->createTimestamp  = $dateDay;
             $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
             $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
@@ -86,7 +89,8 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->find($request->data['idTado']);
-        $reg = $app->repo('Registration')->find($request->data['id']);
+        $app->repo('Registration')->find($request->data['id']);
+        $tado->number           = $request->data['numbertec'];
         $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
         $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
         $tado->object           = $request->data['object'];

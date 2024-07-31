@@ -12,7 +12,6 @@ $this->jsObject['idEntity'] = $reg->id;
 //Buscando o tado gerado
 $tado = RepoDiligence::getTado($reg);
 ?>
-
 <div>
     <section class="clearfix">
         <article class="main-content">
@@ -23,7 +22,7 @@ $tado = RepoDiligence::getTado($reg);
             <header class="main-content-header">
                 <div class="header-content">
                     <div class="avatar">
-                        <img class="js-avatar-img" src="http://0.0.0.0:8088/assets/img/avatar--project-636617000-1709737773.png">
+                        <img class="js-avatar-img" src="<?= $app->getAssetUrl(); ?>/img/avatar--project-636617000-1709737773.png">
                     </div>
                     <!--.avatar-->
                     <div class="entity-type registration-type">
@@ -71,7 +70,7 @@ $tado = RepoDiligence::getTado($reg);
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
                         <label class="title-info">Número do TEC</label>
-                        <input name="numbertec" />
+                        <input name="numbertec"  id="numbertec" value="<?= $tado->number; ?>"/>
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
@@ -190,8 +189,4 @@ $tado = RepoDiligence::getTado($reg);
             </div>
         </article>
     </section>
-    <script>
-
-    </script>
-
 </div>

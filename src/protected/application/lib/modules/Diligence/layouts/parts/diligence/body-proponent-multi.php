@@ -52,6 +52,10 @@ if ($diligenceAndAnswers) {
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência (atual):</b>
+                </label> <br>
+                <strong><?= i::_e('Assunto(s)'); ?></strong>
+                <label for="">
+                    <?php $diligenceAndAnswers ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php echo $diligencesSentReindexed[0]->description; ?>
@@ -107,12 +111,12 @@ if ($diligenceAndAnswers) {
                 $dtSend = "";
 
                 if ($resultsDiligence !== null) {
-                    $dt = Carbon::parse($resultsDiligence->sendDiligence);
-                    $dtSend = $dt->isoFormat('LLL');
+                    $dt             = Carbon::parse($resultsDiligence->sendDiligence);
+                    $dtSend         = $dt->isoFormat('LLL');
                 }
 
                 if ($key > 1) :
-                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
+                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
                         <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                             <label style="font-size: 14px">
                                 <b>Diligência:</b>
@@ -121,47 +125,75 @@ if ($diligenceAndAnswers) {
                         </div>
                         <div class="content">
                             <p>
-                                <?php echo $resultsDiligence->description; ?>
+                                <label for="">
+                                    <?php echo $resultsDiligence->getSubject(); ?>
+                                </label>
+                            </p>
+                            <p>
+
+                                <?php
+                                echo $resultsDiligence->description;
+                                ?>
                             </p>
                             <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
                                 <?php echo $dtSend; ?>
                             </p>
                         </div>
-                    <?php
-                    endif;
+                        <?php
+                    }
 
-                    if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
-                        $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
-                        $dtSendAnswer = $dtAnswer->isoFormat('LLL');
+                    if ($key > 1) :
+                        if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
+                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                                <label style="font-size: 14px">
+                                    <b>Diligência:</b>
+                                </label>
+                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                            </div>
+                            <div class="content">
+                                <p>
+                                    <?php echo $resultsDiligence->description; ?>
+                                </p>
+                                <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
+                                    <?php echo $dtSend; ?>
+                                </p>
+                            </div>
+                        <?php
+                        endif;
 
-                    ?>
-                        <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                            <label style="font-size: 14px">
-                                <b>Resposta:</b>
-                            </label>
-                            <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                        </div>
-                        <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
-                            <p style="margin: 10px 0px;">
-                                <?php echo $resultsDiligence->answer; ?>
-                            </p>
-                            <?php
-                            $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
+                        if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
+                            $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
+                            $dtSendAnswer = $dtAnswer->isoFormat('LLL');
 
-                            foreach ($files as $file) {
-                                echo '
+                        ?>
+                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                                <label style="font-size: 14px">
+                                    <b>Resposta:</b>
+                                </label>
+                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                            </div>
+                            <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
+                                <p style="margin: 10px 0px;">
+                                    <?php echo $resultsDiligence->answer; ?>
+                                </p>
+                                <?php
+                                $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
+
+                                foreach ($files as $file) {
+                                    echo '
                                     <p style="margin-bottom: 10px;">
                                         <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
                                             ' . $file["name"] . '
                                         </a>
                                     </p>
                                 ';
-                            }
-                            ?>
-                            <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                                <?php echo $dtSendAnswer;   ?>
-                            </span>
-                        </div>
+                                }
+                                ?>
+                                <span style="font-size: 12px; font-weight: 700; color: #404040;">
+                                    <?php echo $dtSendAnswer;   ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 <?php endif; ?>
             <?php endforeach; ?>
