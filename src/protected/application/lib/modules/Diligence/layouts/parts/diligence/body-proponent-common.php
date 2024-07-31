@@ -6,8 +6,6 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
-$descriptionDraft = true;
-
 ?>
 
 <p id="paragraph_loading_content">
@@ -18,13 +16,9 @@ $descriptionDraft = true;
     <br />
 </p>
 
-<?php
-if ($diligenceAndAnswers) :
-?>
+<?php if ($diligenceAndAnswers) : ?>
     <h5>
-        <?php
-            i::_e('Diligência enviada a você');
-        ?>
+        <?php i::_e('Diligência enviada a você'); ?>
     </h5>
     <div style="margin-top: 25px;">
         <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
@@ -33,14 +27,10 @@ if ($diligenceAndAnswers) :
                     <b>Diligência:</b>
                 </label>
                 <p style="margin: 10px 0px;">
-                    <?php
-                        echo $diligenceAndAnswers[0]->description;
-                    ?>
+                    <?php echo $diligenceAndAnswers[0]->description; ?>
                 </p>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                    <?php
-                        echo Carbon::parse($diligenceAndAnswers[0]->sendDiligence)->isoFormat('LLL');
-                    ?>
+                    <?php echo Carbon::parse($diligenceAndAnswers[0]->sendDiligence)->isoFormat('LLL'); ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -50,32 +40,27 @@ if ($diligenceAndAnswers) :
                     <b>Minha resposta:</b>
                 </label>
                 <p style="margin: 10px 0px;">
-                    <?php
-                        echo $diligenceAndAnswers[1]->answer;
-                    ?>
+                    <?php echo $diligenceAndAnswers[1]->answer; ?>
                 </p>
                 <?php
-                    $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
+                $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
 
-                    foreach ($files as $file) {
-                        echo '
-                            <p style="margin-bottom: 10px;">
-                                <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
-                                    ' . $file["name"] . '
-                                </a>
-                            </p>
-                        ';
-                    }
+                foreach ($files as $file) {
+                    echo '
+                        <p style="margin-bottom: 10px;">
+                            <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
+                                ' . $file["name"] . '
+                            </a>
+                        </p>
+                    ';
+                }
                 ?>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                    <?php
-                        echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL');
-                    ?>
+                    <?php echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL'); ?>
                 </span>
             </div>
         <?php endif; ?>
     </div>
-    
 <?php endif; ?>
 
 <div class="div-diligence" id="div-diligence">

@@ -112,6 +112,7 @@ input[type="text"] {
     margin: 0 0 1.3rem 1.3rem;
     color: #cd0a0a;
 }
+
 .container-multi-description {
     padding: 3px;
 }
@@ -228,4 +229,20 @@ input[type="checkbox"] {
     padding: 8px; 
     border-radius: 3px; 
     margin-bottom: 10px
+ }
+
+ .financial-report-wrapper {
+    background-color: #F5F5F5;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    position: relative;
+ }
+
+ .delete-financial-report-btn {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    background-color: #E0E0E0;
+    border-radius: 3px;
  }

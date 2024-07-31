@@ -1,4 +1,3 @@
-
 //URL global para salvar a diligencia
 var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
 //Objecto com itens primário para salavar a diligência
@@ -47,7 +46,7 @@ $(document).ready(function () {
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
                 $("#subject_info_status_diligence").hide();//Oculta o assunto da diligencia
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
-                
+
             }
             if (res.message == 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -89,7 +88,6 @@ $(document).ready(function () {
     $("#input-value-project-diligence").on("blur", function (e) {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
-
 });
 
 //Clico do botão de abrir a diligência

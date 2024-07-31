@@ -102,7 +102,7 @@ class Diligence{
         return $result;
     }
 
-    public function getTado($registratrion)
+    public static function getTado($registratrion)
     {
         $app = App::i();  
         //Buscando o tado gerado
@@ -166,4 +166,15 @@ class Diligence{
         return $entity->getMetadata('situacion_diligence');        
     }
 
+    public static function getFinancialReportsAccountability($registration_id)
+    {
+        $app = App::i();
+
+        $result = $app->repo('RegistrationFile')->findBy([
+            'owner' => $registration_id,
+            'group' => 'financial-report-accountability'
+        ]);
+
+        return $result;
+    }
 }

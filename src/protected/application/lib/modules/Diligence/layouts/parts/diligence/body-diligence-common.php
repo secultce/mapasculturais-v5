@@ -6,19 +6,11 @@ use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
-$descriptionDraft = true;
-
-?>
-
-<?php
-if ($diligenceAndAnswers) :
-?>
+if ($diligenceAndAnswers) : ?>
     <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
         <div>
             <h5>
-                <?php
-                    i::_e('Diligência ao proponente');
-                ?>
+                <?php i::_e('Diligência ao proponente'); ?>
             </h5>
             <div style="margin-top: 25px;">
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
@@ -26,14 +18,10 @@ if ($diligenceAndAnswers) :
                         <b>Diligência:</b>
                     </label>
                     <p style="margin: 10px 0px;">
-                        <?php
-                            echo $diligenceAndAnswers[0]->description;
-                        ?>
+                        <?php echo $diligenceAndAnswers[0]->description; ?>
                     </p>
                     <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                        <?php
-                            echo Carbon::parse($diligenceAndAnswers[0]->sendDiligence)->isoFormat('LLL');
-                        ?>
+                        <?php echo Carbon::parse($diligenceAndAnswers[0]->sendDiligence)->isoFormat('LLL'); ?>
                     </span>
                 </div>
                 <?php if (!is_null($diligenceAndAnswers[1]) && $diligenceAndAnswers[1]->status == AnswerDiligence::STATUS_SEND) : ?>
@@ -42,27 +30,23 @@ if ($diligenceAndAnswers) :
                             <b>Resposta recebida:</b>
                         </label>
                         <p style="margin: 10px 0px;">
-                            <?php
-                                echo $diligenceAndAnswers[1]->answer;
-                            ?>
+                            <?php echo $diligenceAndAnswers[1]->answer; ?>
                         </p>
                         <?php
-                            $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
+                        $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
 
-                            foreach ($files as $file) {
-                                echo '
+                        foreach ($files as $file) {
+                            echo '
                                     <p style="margin-bottom: 10px;">
                                         <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
                                             ' . $file["name"] . '
                                         </a>
                                     </p>
                                 ';
-                            }
+                        }
                         ?>
                         <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                            <?php
-                                echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL');
-                            ?>
+                            <?php echo Carbon::parse($diligenceAndAnswers[1]->createTimestamp)->isoFormat('LLL'); ?>
                         </span>
                     </div>
                 <?php else : ?>
@@ -76,7 +60,6 @@ if ($diligenceAndAnswers) :
             </div>
         </div>
     <?php endif; ?>
-    
 <?php endif; ?>
 
 <div class="div-diligence" id="div-diligence">

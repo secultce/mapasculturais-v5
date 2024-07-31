@@ -1,14 +1,11 @@
 <?php
+
 namespace Diligence\Controllers;
 
-use DateTime;
-use Carbon\Carbon;
 use \MapasCulturais\App;
-use MapasCulturais\Entity;
-use Diligence\Repositories\Diligence;
-use MapasCulturais\Entities\Registration;
-use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntitiesDiligence;
+use Diligence\Entities\Tado;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class Refo extends \MapasCulturais\Controller
 {
@@ -17,11 +14,11 @@ class Refo extends \MapasCulturais\Controller
     function GET_report()
     {
         $app = App::i();
-        $dili = Diligence::getDiligenceAnswer($this->data['id']);
+        $dili = DiligenceRepo::getDiligenceAnswer($this->data['id']);
         $reg = [];
-        if(!is_null($dili[0])){
+        if (!is_null($dili[0])) {
             $reg = $dili[0]->registration;
-        }else{
+        } else {
             $reg = $app->repo('Registration')->find($this->data['id']);
         }
 
@@ -30,39 +27,61 @@ class Refo extends \MapasCulturais\Controller
         $app->view->regObject['diligence'] = $dili;
         $app->view->regObject['registration'] = $reg;
         $mpdf = self::mpdfConfig();
-        self::mdfBodyMulti($mpdf,
-        'refo/report-finance', 
-        'Secult/CE - Relatório Financeiro',
-        'Diligence/assets/css/diligence/multi.css');
+        self::mdfBodyMulti(
+            $mpdf,
+            'refo/report-finance',
+            'Secult/CE - Relatório Financeiro',
+            'Diligence/assets/css/diligence/multi.css'
+        );
+    }
+
+    public function POST_deleteFinancialReport()
+    {
+        $app = App::i();
+        $conn = $app->em->getConnection();
+
+        $file = $app->repo('File')->find((int) $this->data['fileId']);
+        $generatedTado = DiligenceRepo::getTado($file->owner);
+
+        if (!$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED) {
+            $stmt = $conn->prepare('DELETE FROM file WHERE id = :id');
+            $stmt->bindParam('id', $this->data['fileId']);
+            $stmt->executeStatement();
+
+            unlink($file->path);
+
+            $this->json($file);
+        }
+
+        $this->json($file, 400);
     }
 
     function POST_situacion()
     {
         $app = App::i();
         $entity = $app->repo('Registration')->find($this->data['entity']);
-      
-        if(is_null($entity->getMetadata('situacion_diligence'))) 
-        {
+
+        if (is_null($entity->getMetadata('situacion_diligence'))) {
             $metaData = EntitiesDiligence::createSituacionMetadata($this, $entity);
             self::saveEntity($metaData);
             self::returnJson(null, $this);
-        }else{
+        } else {
             $meta = $app->repo('RegistrationMeta')->findOneBy([
                 'owner' => $entity,
                 'key' => 'situacion_diligence'
             ]);
-            $meta->value = $this->data['situacion'];         
+            $meta->value = $this->data['situacion'];
             self::saveEntity($meta);
             self::returnJson(null, $this);
-        }       
+        }
     }
 
-    //Retorna a situação da pc de conta para selecionar a opção na view
-    function GET_getSituacionPC() : void
+    // Retorna a situação da pc de conta para selecionar a opção na view
+    function GET_getSituacionPC(): void
     {
         $app = App::i();
         $entity = $app->repo('Registration')->find($this->data['id']);
-        $repoDiligence = new Diligence();
+        $repoDiligence = new DiligenceRepo();
         $this->json(['situacion' => $repoDiligence->getSituacionPC($entity)]);
     }
 }

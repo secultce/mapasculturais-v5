@@ -10,8 +10,7 @@ $app = App::i();
 $this->jsObject['idEntity'] = $reg->id;
 
 //Buscando o tado gerado
-$td = new RepoDiligence();
-$tado = $td->getTado($reg);
+$tado = RepoDiligence::getTado($reg);
 ?>
 <div>
     <section class="clearfix">
@@ -71,7 +70,7 @@ $tado = $td->getTado($reg);
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
                         <label class="title-info">Número do TEC</label>
-                        <input name="numbertec"  id="numbertec" value="<?= $tado->number; ?>"/>
+                        <input name="numbertec"  id="numbertec" value="<?= $tado->number ?? ''; ?>"/>
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
