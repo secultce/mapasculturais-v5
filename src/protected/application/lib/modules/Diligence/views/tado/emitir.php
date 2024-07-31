@@ -22,7 +22,7 @@ $tado = RepoDiligence::getTado($reg);
             <header class="main-content-header">
                 <div class="header-content">
                     <div class="avatar">
-                        <img class="js-avatar-img" src="<?= $app->getAssetUrl(); ?>/img/avatar--project-636617000-1709737773.png">
+                        <img class="js-avatar-img" src="<?php $this->asset('img/avatar--project.png'); ?>">
                     </div>
                     <!--.avatar-->
                     <div class="entity-type registration-type">

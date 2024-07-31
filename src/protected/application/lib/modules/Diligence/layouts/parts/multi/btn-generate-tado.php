@@ -28,21 +28,11 @@ $response_template = '
         <hr>
     </p>
 </div>
+
 <?php
 if ($enableBtn) {
-?>
-    <p style="text-align: center">
-        <!-- <a href="<?= $app->createUrl('tado', 'emitir/' . $reg->id); ?>"
-        class="btn btn-primary"
-        title="Gera o relatório TADO"
-    >
-        Emitir TADO
-    </a> -->
-    </p>
-<?php
+    $this->part('multi/multi-select', ['reg' => $reg]);
 }
-
-$this->part('multi/multi-select', ['reg' => $reg]);
 ?>
 
 <div id="import-financial-report" class="js-editbox mc-bottom" title="Importar Relatório Financeiro" data-submit-label="Importar">
