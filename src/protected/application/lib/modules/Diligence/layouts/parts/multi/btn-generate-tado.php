@@ -13,16 +13,6 @@ foreach ($reg->opportunity->getMetadata() as $key => $value) {
     </p>
 </div>
 <?php
-if($enableBtn) {
+    $this->part('multi/multi-select', ['reg' => $reg]);
 ?>
-<p style="text-align: center">
-    <a href="<?= $app->createUrl('tado', 'emitir/' . $reg->id); ?>"
-        class="btn btn-primary"
-        title="Gera o relatório TADO"
-    >
-        Emitir TADO
-    </a>
-</p>
-<?php
-  }
-?>
+
