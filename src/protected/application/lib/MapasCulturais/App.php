@@ -900,7 +900,6 @@ class App extends \Slim\Slim{
             'institute'  => new Definitions\FileGroup('institute', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
             'favicon'  => new Definitions\FileGroup('favicon', ['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
             'zipArchive'  => new Definitions\FileGroup('zipArchive', ['^application/zip$'], \MapasCulturais\i::__('O arquivo não é um ZIP.'), true, null, true),
-            'financial-report-accountability' => new Definitions\FileGroup('financial-report-accountability', ['application/pdf'], 'O arquivo não é válido', false, null, true),
         ];
 
         // register file groups
@@ -937,7 +936,6 @@ class App extends \Slim\Slim{
 
         $this->registerFileGroup('registrationFileConfiguration', $file_groups['registrationFileConfiguration']);
         $this->registerFileGroup('registration', $file_groups['zipArchive']);
-        $this->registerFileGroup('registration', $file_groups['financial-report-accountability']);
 
         $this->registerFileGroup('subsite',$file_groups['header']);
         $this->registerFileGroup('subsite',$file_groups['avatar']);

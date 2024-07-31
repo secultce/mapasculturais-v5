@@ -175,7 +175,7 @@ class Module extends \MapasCulturais\Module {
             {
                 $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
                 $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
-                $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
+                $this->part('multi/accountability-actions', ['reg' => $entity, 'app' => $app]);
             };
 
         });
@@ -302,6 +302,11 @@ class Module extends \MapasCulturais\Module {
                 ['application/pdf', 'image/(gif|jpeg|pjpeg|png)'],
                 'O arquivo não e valido'
             )
+        );
+
+        $app->registerFileGroup(
+            'registration',
+            new Definitions\FileGroup('financial-report-accountability', ['application/pdf'], 'O arquivo não é válido', false, null, true)
         );
 
         $this->registerRegistrationMetadata('situacion_diligence', [

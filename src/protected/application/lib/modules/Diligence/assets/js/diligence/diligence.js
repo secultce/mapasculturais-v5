@@ -1,40 +1,3 @@
-const refo = {
-    activeEventDeleteFinancialReport() {
-        $('[delete-financial-report]').on('click', (event) => {
-            Swal.fire({
-                title: "Excluir Relatório Financeiro?",
-                text: "Essa ação não poderá ser desfeita.",
-                showCancelButton: true,
-                cancelButtonText: "Cancelar",
-                confirmButtonText: "Confirmar",
-                reverseButtons: true
-            }).then(res => {
-                if (res.isConfirmed) {
-                    $.ajax({
-                        type: "POST",
-                        url: MapasCulturais.createUrl('refo', 'deleteFinancialReport'),
-                        data: {
-                            fileId: event.currentTarget.dataset.fileId
-                        },
-                        dataType: "json",
-                        success() {
-                            $(event.currentTarget).parents('#financial-report-wrapper').remove()
-                            MapasCulturais.Messages.success('O relatório financeiro foi removido da prestação de contas')
-                        },
-                        error(err) {
-                            if (err.status === 400) {
-                                MapasCulturais.Messages.alert('O arquivo não pode ser removido, pois o TADO já foi gerado')
-                                return
-                            }
-                            MapasCulturais.Messages.error('Ocorreu algum erro. Verifique e tente novamente.')
-                        }
-                    })
-                }
-            })
-        })
-    }
-}
-
 //URL global para salvar a diligencia
 var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
 //Objecto com itens primário para salavar a diligência
@@ -125,14 +88,6 @@ $(document).ready(function () {
     $("#input-value-project-diligence").on("blur", function (e) {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
-
-    $('#import-financial-report .mc-submit').on('click', () => {
-        setTimeout(() => {
-            refo.activeEventDeleteFinancialReport()
-        }, 1500)
-    })
-
-    refo.activeEventDeleteFinancialReport()
 });
 
 //Clico do botão de abrir a diligência

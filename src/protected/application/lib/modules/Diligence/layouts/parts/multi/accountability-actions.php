@@ -9,12 +9,12 @@ foreach ($reg->opportunity->getMetadata() as $key => $value) {
 }
 
 $response_template = '
-    <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-bottom: 20px; position: relative;" id="financial-report-wrapper">
+    <div class="financial-report-wrapper" id="financial-report-wrapper">
         <i class="fas fa-download" style="margin-right: 10px;"></i>
         <a href="{{url}}" target="_blank" rel="noopener noreferrer">
             relatorio_financeiro.pdf
         </a>
-        <div style="position: absolute; top: 4px; right: 5px; background-color: #E0E0E0; border-radius: 3px;">
+        <div class="delete-financial-report-btn">
             <a delete-financial-report data-file-id="{{id}}" class="icon icon-close hltip" title="Excluir arquivo">
             </a>
         </div>
