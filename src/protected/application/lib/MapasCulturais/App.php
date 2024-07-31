@@ -894,12 +894,12 @@ class App extends \Slim\Slim{
             'gallery' => new Definitions\FileGroup('gallery', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), false),
             'registrationFileConfiguration' => new Definitions\FileGroup('registrationFileTemplate', ['^application/.*'], \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true),
             'rules' => new Definitions\FileGroup('rules', ['^application/.*'], \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true),
-            'logo'  => new Definitions\FileGroup('logo',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'background' => new Definitions\FileGroup('background',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'),true),
-            'share' => new Definitions\FileGroup('share',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'),true),
-            'institute'  => new Definitions\FileGroup('institute',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'favicon'  => new Definitions\FileGroup('favicon',['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'zipArchive'  => new Definitions\FileGroup('zipArchive',['^application/zip$'], \MapasCulturais\i::__('O arquivo não é um ZIP.'), true, null, true),
+            'logo'  => new Definitions\FileGroup('logo', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'background' => new Definitions\FileGroup('background', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'share' => new Definitions\FileGroup('share', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'institute'  => new Definitions\FileGroup('institute', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'favicon'  => new Definitions\FileGroup('favicon', ['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'zipArchive'  => new Definitions\FileGroup('zipArchive', ['^application/zip$'], \MapasCulturais\i::__('O arquivo não é um ZIP.'), true, null, true),
         ];
 
         // register file groups

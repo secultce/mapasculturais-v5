@@ -1,4 +1,3 @@
-
 //URL global para salvar a diligencia
 var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
 //Objecto com itens primário para salavar a diligência
@@ -11,6 +10,7 @@ var objSendDiligence = {
 
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
+
     hideBtnActionsDiligence();
     //Inciando o acoordioin Jquery
     EntityDiligence.showAccordion('#accordion');
@@ -35,6 +35,7 @@ $(document).ready(function () {
     })
     //Ocutando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
+
     //Formatando o layout
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
@@ -43,9 +44,9 @@ $(document).ready(function () {
             if (res.message == 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
-
+                $("#subject_info_status_diligence").hide();//Oculta o assunto da diligencia
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
-                
+
             }
             if (res.message == 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -55,6 +56,7 @@ $(document).ready(function () {
                         $("#paragraph_loading_content").hide();
                     }
                 });
+                $("#subject_info_status_diligence").hide();
             }
             if (res.message !== 'sem_diligencia') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -62,7 +64,7 @@ $(document).ready(function () {
                     if (element == null) {
                         actions = false;
                     }
-                })
+                });
                 if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim') {
                     showBtnActionsDiligence();
                 }
@@ -71,7 +73,7 @@ $(document).ready(function () {
         })
         .catch((error) => {
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
-        })
+        });
 
     $("#select-value-project-diligence").on("change", function (e) {
         e.preventDefault();
@@ -86,19 +88,15 @@ $(document).ready(function () {
     $("#input-value-project-diligence").on("blur", function (e) {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
-
 });
 
 //Clico do botão de abrir a diligência
 function openDiligence(status) {
     objSendDiligence['description'] = '';
-    objSendDiligence['status'] = status
-    const imgLoad = MapasCulturais.spinnerUrl;
-    Swal.fire({
-        title: "Abrindo a sua diligência",
-        html: '<img src="' + imgLoad + '" style="height: 24px" />',
-        showConfirmButton: false,
-    });
+    objSendDiligence['status'] = status;
+    //Load
+    diligenceMessage.loadSimple();
+
     setTimeout(() => {
         Swal.close();
     }, 1000);
@@ -114,11 +112,13 @@ function openDiligence(status) {
 function editDescription(description, id) {
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
+    //Mostrando itens de assunto
+    $("#subject_info_status_diligence").show();
 }
 
 //Mostrar os botões de ação da diligência
 function showBtnActionsDiligence() {
-    $('#btn-actions-diligence').removeClass('d-none')
+    $('#btn-actions-diligence').removeClass('d-none');
     $("#btn-save-diligence").show();
     $("#btn-send-diligence").show();
 }
@@ -127,8 +127,8 @@ function showBtnActionsDiligence() {
 function saveAuthorizedProject(keyAuth, valueAuth) {
     const dataAuthorized = {
         entity: MapasCulturais.entity.id
-    }
-    dataAuthorized[keyAuth] = valueAuth
+    };
+    dataAuthorized[keyAuth] = valueAuth;
     $.ajax({
         type: "POST",
         url: MapasCulturais.createUrl('diligence', 'valueProject'),
@@ -249,16 +249,12 @@ function cancelSend() {
     });
 }
 function saveDiligence(status, st, idDiligence) {
-    if ($("#descriptionDiligence").val() == '') {
-        Swal.fire({
-            title: "Ops! A descrição precisa ser preenchida",
-            timer: 2000,
-            showConfirmButton: true,
-            reverseButtons: false,
-        });
-        return false;
+     if ($("#descriptionDiligence").val() == '') {
+         diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
+         return false;
     }
     if (status == 3) {
+        //Mensagem de confirmação
         Swal.fire({
             title: "Confirmar o envio da diligência?",
             text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
@@ -273,18 +269,19 @@ function saveDiligence(status, st, idDiligence) {
                 cancelButton: "btn-warning-rec"
             },
         }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                sendAjaxDiligence(status, idDiligence)
+                sendAjaxDiligence(status, idDiligence);
             }
         });
     } else {
-        sendAjaxDiligence(status, idDiligence)
+        sendAjaxDiligence(status, idDiligence);
     }
 
 }
 
 function sendAjaxDiligence(status, idDiligence) {
+    //Enviando o assunto com formato de array
+    objSendDiligence['subject'] = verifySubject("subject_exec_physical", "subject_report_finance");
     objSendDiligence['description'] = $("#descriptionDiligence").val();
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;
@@ -303,6 +300,33 @@ function sendAjaxDiligence(status, idDiligence) {
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
+}
+
+/**
+ * Metodo que verifica se o assunto está confirmado
+ * @param subject_exec_physical string
+ * @param subject_report_finance string
+ * @returns {array}
+ */
+function verifySubject(subject_exec_physical, subject_report_finance)
+{
+    objSendDiligence['subject'] = [];
+    //se a escolha for execusão do objeto
+    if($("#"+subject_exec_physical+":checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_exec_physical');
+    }
+    //se a escolha for relatorio financeiro
+    if($("#"+subject_report_finance+":checked").val() == 'on')
+    {
+        objSendDiligence['subject'].push('subject_report_finance');
+    }
+    if( $("#"+subject_exec_physical+":checked").val() == undefined && $("#"+subject_report_finance+":checked").val() == undefined )
+    {
+        diligenceMessage.messageSimple("Ops!", "Escolha um ou as duas opções", 2000);
+        return false;
+    }
+    return objSendDiligence['subject'];
 }
 
 //Oculta o botão de Finalizar avaliação

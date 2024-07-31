@@ -45,7 +45,11 @@ class Module extends \MapasCulturais\Module {
             $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
             //Verifica a data limite para resposta contando com dias úteis
             if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
-                $diligence_days = AnswerDiligence::vertifyWorkingDays($diligenceRepository[0]->sendDiligence, $entity->opportunity->getMetadata('diligence_days'));
+                $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
+                    $diligenceRepository[0]->sendDiligence,
+                    $entity->opportunity->getMetadata('diligence_days'),
+                    $entity->opportunity->getMetadata('type_day_response_diligence')
+                );
             }else{
                 $diligence_days = null;
             }
@@ -83,7 +87,8 @@ class Module extends \MapasCulturais\Module {
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
             if($isEvaluator) {
-                $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+                //Todos os assetos para multi diligencia
+                self::multiPublishAssets();
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }
         });
@@ -151,6 +156,8 @@ class Module extends \MapasCulturais\Module {
                     ->getQuery()
                     ->getResult();
 
+                $app->view->enqueueScript('app','opp-diligence','js/diligence/opportunity-diligence.js');
+
                 $this->part('opportunity/diligence-content', ['registrationsWithDiligences' => $registrationsWithDiligences, 'evaluators' => $evaluators]);
             }
         });
@@ -166,7 +173,9 @@ class Module extends \MapasCulturais\Module {
             $entity = $this->controller->requestedEntity;
             if ( $module->isEvaluator($entity->opportunity, $entity) )
             {
-                $this->part('multi/btn-generate-tado', ['reg' => $entity, 'app' => $app]);
+                $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
+                $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
+                $this->part('multi/accountability-actions', ['reg' => $entity, 'app' => $app]);
             };
 
         });
@@ -226,12 +235,20 @@ class Module extends \MapasCulturais\Module {
             }
         });
 
+        $app->hook('template(panel.index.content.registration):before', function() {
+            $this->part('multi/session');
+        });
+
+        $app->hook('template(panel.index.content.registration):after', function() {
+           unset($_SESSION['error']);
+        });
     }
 
     function register () {
         $app = App::i();
         $app->registerController('diligence', Controllers\Controller::class);
         $app->registerController('tado', Controllers\Tado::class);
+        $app->registerController('refo', Controllers\Refo::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias corridos para resposta da diligência'),
@@ -256,6 +273,12 @@ class Module extends \MapasCulturais\Module {
             'type' => 'select',
             'options' => ['Sim', 'Não'],
         ]);
+        $this->registerOpportunityMetadata('type_day_response_diligence', [
+            'label' =>  i::__('Tipo de dia para resposta da diligência:'),
+            'description' => i::__('Configura o tipo de dia que será usado para a resposta da diligência'),
+            'type' => 'select',
+            'options' => ['Úteis', 'Corridos'],
+        ]);
 
         $this->registerRegistrationMetadata('value_project_diligence', [
             'label' =>  i::__('Valor estimado do projeto'),
@@ -272,7 +295,6 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
-        
         $app->registerFileGroup(
             'diligence',
             new Definitions\FileGroup(
@@ -282,6 +304,16 @@ class Module extends \MapasCulturais\Module {
             )
         );
 
+        $app->registerFileGroup(
+            'registration',
+            new Definitions\FileGroup('financial-report-accountability', ['application/pdf'], 'O arquivo não é válido', false, null, true)
+        );
+
+        $this->registerRegistrationMetadata('situacion_diligence', [
+            'label' =>  i::__('Situação do REFO'),
+            'type' => 'select',
+            'options' => ['approved', 'partially', 'disapproved']
+        ]);
     }
 
     /**
@@ -295,6 +327,19 @@ class Module extends \MapasCulturais\Module {
         $app->view->enqueueStyle('app', 'secultalert', 'https://raw.githubusercontent.com/secultce/plugin-Recourse/main/assets/css/recourse/secultce.min.css');
         $app->view->enqueueScript('app','sweetalert2','https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js');
 
+    }
+
+    /**
+     * Todos os assets que serão usados na multi diligencia
+     * @return void
+     */
+    static protected function multiPublishAssets()
+    {
+        $app = App::i();
+        $app->view->enqueueScript('app', 'diligence-message', 'js/diligence/diligenceMessage.js');
+        $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
+        $app->view->enqueueScript('app', 'multi-diligence', 'js/diligence/multi-diligence.js');
+        $app->view->enqueueStyle('app', 'multi-diligence', 'css/diligence/multi.css');
     }
 
     private function isEvaluator(Entities\Opportunity $opportunity, Entities\Registration $registration): bool

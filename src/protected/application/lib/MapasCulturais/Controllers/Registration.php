@@ -79,6 +79,13 @@ class Registration extends EntityController {
 
             ];
             $registration = $this->requestedEntity;
+            $evaluators = $registration->opportunity->getEvaluationCommittee(false);
+            $authUserIsEvaluator = array_filter($evaluators, function ($evaluator) use ($app) {
+                return $evaluator->user->id === $app->auth->authenticatedUser->id;
+            });
+
+            if ($authUserIsEvaluator) $app->disableAccessControl();
+
             foreach($registration->opportunity->registrationFileConfigurations as $rfc){
 
                 $fileGroup = new Definitions\FileGroup($rfc->fileGroupName, $mime_types, \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true, null, true);
@@ -109,16 +116,23 @@ class Registration extends EntityController {
             $this->tmpFile = $tmpFile;
         });
 
-        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function() {
+        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function () use ($app) {
             $registration = $this->getRequestedEntity();
-           
-            if(!$registration || !$registration->id){
+
+            if (!$registration || !$registration->id) {
+                $opportunity = $app->repo('Opportunity')->find((int) $this->data["opportunityId"]);
+                $registration_limit = (int) $opportunity->registrationLimit;
+
+                if ($registration_limit && count($opportunity->getSentRegistrations()) >= $registration_limit) {
+                    $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+                }
+
                 return;
             }
 
             $registration->registerFieldsMetadata();
-            
         });
+
         //Dados recebido vindo da criação do formulário quando seleciona opção do espaço
         $app->hook('POST(registration.spaceRel)' , function() {
            $this->createSpaceRelation();

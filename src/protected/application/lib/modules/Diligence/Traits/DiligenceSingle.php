@@ -32,4 +32,34 @@ trait DiligenceSingle{
             $class->json(['message' => 'Error: ', 'status' => 400], 400);
         }    
     }
+
+    static public function mpdfConfig()
+    {
+        return new \Mpdf\Mpdf([
+            'tempDir' => '/tmp',
+            'mode' => 'utf-8', 
+            'format' => 'A4',
+            'pagenumPrefix' => 'Página ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+            'nbpgSuffix' => '',
+            'margin' => 0
+        ]);
+        
+    }
+
+    static public function mdfBodyMulti(\Mpdf\Mpdf $mpdf, $fileHtmlBody, $titleReport, $pathCss)
+    {
+        $app        = App::i();
+        $content = $app->view->fetch($fileHtmlBody);
+        $mpdf->SetTitle($titleReport);
+        $stylesheet = file_get_contents(MODULES_PATH . $pathCss);
+        $footerPage = $app->view->fetch('pdf/footer-pdf');
+        // Adicione o CSS ao mPDF
+        $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+        $mpdf->WriteHTML(ob_get_clean());
+        $mpdf->WriteHTML($content);
+        $mpdf->SetHTMLFooter($footerPage);
+        $mpdf->Output();
+    }
 }

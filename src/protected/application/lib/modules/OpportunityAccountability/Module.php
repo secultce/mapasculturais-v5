@@ -466,17 +466,6 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        // Adidiona o checkbox haverá última fase
-        $app->hook('template(opportunity.edit.new-phase-form-step2):end', function () use ($app) {
-            $this->part('widget-opportunity-accountability');
-        });
-
-        // Adicionar radio button para criar apenas fase de prestação de contas
-        $app->hook('template(opportunity.edit.new-phase-form-step1):end', function () use ($app, $self) {
-            $this->part('widget-opportunity-phase-only');
-        });
-
-        //
         $app->hook('template(opportunity.edit.new-phase-form):end', function () use ($app, $self) {
             $this->part('accountability-phase-confirmation');
 

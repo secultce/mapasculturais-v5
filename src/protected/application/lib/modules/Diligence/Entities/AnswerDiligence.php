@@ -83,7 +83,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
      * @param [object] $class
      * @return void
      */
-    public function create($class): string
+    public function createOrUpdate($class): string
     {
         $app = App::i();
         App::i()->applyHook('entity(diligence).createAnswer:before');
@@ -142,30 +142,33 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         return $this->json(['message' => 'error', 'status' => 400], 400);
     }
 
-    static public function vertifyWorkingDays($date, $dias) {
-        $currentDate = Carbon::parse($date);
+    public static function setNumberDaysAnswerDiligence($diligence_receipt_date, $days_to_respond, $type_of_day)
+    {
+        $date = Carbon::parse($diligence_receipt_date);
         $daysAdds = 0;
-        //Consultando no banco os feriados nacionais cadastrados
+
+        // Consultando no banco os feriados nacionais cadastrados
         $app = App::i();
         $termsHolidays = $app->repo('Term')->findBy(['taxonomy' => 'holiday']);
-        $holidays = array_map(function($term) { return $term->term; }, $termsHolidays);
+        $holidays = array_map(function ($term) {
+            return $term->term;
+        }, $termsHolidays);
 
-        // Loop até que todos os dias úteis sejam adicionados
-        while ($daysAdds < $dias) {
+        // Loop até que todos os dias sejam adicionados
+        while ($daysAdds < $days_to_respond) {
             // Adiciona 1 dia à data atual
-            $currentDate->addDay();
-    
-            // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira)
-            if ($currentDate->isWeekday()) {
-                //verificando se a data está no array dos feriados, se tiver nao realiza o incremento
-                $holiday = $currentDate->format('m-d');
-                if (!in_array($holiday, $holidays)) {
-                    $daysAdds++;
-                }
-            }
-        }
-    
-        return $currentDate;
-    }
+            $date->addDay();
 
+            if ($type_of_day === 'Úteis') {
+                // Verifica se o dia adicionado é um dia útil (segunda a sexta-feira) e se não é um feriado
+                if ($date->isWeekday() && !in_array($date->format('m-d'), $holidays)) $daysAdds++;
+
+                continue;
+            }
+
+            $daysAdds++;
+        }
+
+        return $date;
+    }
 }
