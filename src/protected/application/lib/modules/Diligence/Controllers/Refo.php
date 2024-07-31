@@ -40,7 +40,7 @@ class Refo extends \MapasCulturais\Controller
         $app = App::i();
         $conn = $app->em->getConnection();
 
-        $file = $app->repo('File')->findBy(['id' => (int) $this->data['fileId']])[0];
+        $file = $app->repo('File')->find((int) $this->data['fileId']);
         $generatedTado = DiligenceRepo::getTado($file->owner);
 
         if (!$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED) {

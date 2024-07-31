@@ -25,7 +25,7 @@ if ($diligenceAndAnswers) :
 
                 if ($financialReportsAccountability) {
                     foreach ($financialReportsAccountability as $financialReportAccountability) {
-                        $file_id = $financialReportAccountability["id"];
+                        $file_id = $financialReportAccountability->id;
                         echo '
                             <div class="financial-report-wrapper" id="financial-report-wrapper">
                                 <i class="fas fa-download" style="margin-right: 10px;"></i>

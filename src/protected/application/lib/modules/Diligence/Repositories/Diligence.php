@@ -170,13 +170,10 @@ class Diligence{
     {
         $app = App::i();
 
-        $query = "SELECT * FROM file WHERE object_id = :object_id AND grp = :grp";
-        $params = [
-            "object_id" => $registration_id,
-            "grp" => "financial-report-accountability",
-        ];
-        $conn = $app->em->getConnection();
-        $result = $conn->fetchAllAssociative($query, $params);
+        $result = $app->repo('RegistrationFile')->findBy([
+            'owner' => $registration_id,
+            'group' => 'financial-report-accountability'
+        ]);
 
         return $result;
     }
