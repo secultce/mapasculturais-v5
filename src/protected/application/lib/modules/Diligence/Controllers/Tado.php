@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Diligence\Entities\Tado as EntityTado;
+use Diligence\Repositories\Diligence as RepoDiligence;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -40,8 +41,24 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
-        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
-        $this->render('gerar', ['reg' => $reg]);
+//        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
+//        $this->render('gerar', ['reg' => $reg]);
+        //Buscando o tado gerado
+        $td = new RepoDiligence();
+        $tado = $td->getTado($reg);
+
+        //INSTANCIA DO TIPO ARRAY OBJETO
+        $app->view->regObject = new \ArrayObject;
+        $app->view->regObject['reg'] = $reg;
+        $app->view->regObject['tado'] = $tado;
+        $mpdf = self::mpdfConfig();
+        self::mdfBodyMulti($mpdf,
+            'tado/gerar',
+            'Secult/CE - Relatório Financeiro',
+            'Diligence/assets/css/diligence/multi.css');
+
+//        ob_end_clean();
+
     }
 
     function POST_saveTado()

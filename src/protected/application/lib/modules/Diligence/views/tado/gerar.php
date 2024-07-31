@@ -1,38 +1,18 @@
 <?php
 
 use MapasCulturais\App;
-use Diligence\Repositories\Diligence as RepoDiligence;
+use Carbon\Carbon;
 
-$app = App::i();
-//Buscando o tado gerado
-$td = new RepoDiligence();
-$tado = $td->getTado($reg);
+$reg = $app->view->regObject['reg'];
+$urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
+$tado = $app->view->regObject['tado'];
 
-//INSTANCIA DO TIPO ARRAY OBJETO
-$app->view->regObject = new \ArrayObject;
-$app->view->regObject['reg'] = $reg;
-$app->view->regObject['tado'] = $tado;
+require THEMES_PATH . 'BaseV1/layouts/headpdf.php';
 
-$mpdf = new \Mpdf\Mpdf([
-    'tempDir' => dirname(__DIR__) . '/vendor/mpdf/mpdf/tmp', 'mode' =>
-    'utf-8', 'format' => 'A4',
-    'pagenumPrefix' => 'Página ',
-    'pagenumSuffix' => '  ',
-    'nbpgPrefix' => ' de ',
-    'nbpgSuffix' => ''
+$this->part('multi/report-tado',[
+    'reg'=>$reg,
+    'urlOpp'=>$urlOpp,
+    'tado'=>$tado,
+    'carbon' => new Carbon()
 ]);
-ob_start();
-
-$content = $app->view->fetch('tado/html-gerar');
-$mpdf->SetTitle('Secult/CE - Relatório TADO');
-$stylesheet = file_get_contents(MODULES_PATH . 'Diligence/assets/css/diligence/multi.css');
-
-$footerPage = $app->view->fetch('tado/footer-pdf');
-// Adicione o CSS ao mPDF
-$mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-
-$mpdf->WriteHTML(ob_get_clean());
-$mpdf->WriteHTML($content);
-$mpdf->SetHTMLFooter($footerPage);
-$pdf = $mpdf->Output('Tado.pdf', \Mpdf\Output\Destination::DOWNLOAD);
 

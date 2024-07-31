@@ -51,15 +51,18 @@ trait DiligenceSingle{
     static public function mdfBodyMulti(\Mpdf\Mpdf $mpdf, $fileHtmlBody, $titleReport, $pathCss)
     {
         $app        = App::i();
+//        ob_start();
         $content = $app->view->fetch($fileHtmlBody);
         $mpdf->SetTitle($titleReport);
         $stylesheet = file_get_contents(MODULES_PATH . $pathCss);
         $footerPage = $app->view->fetch('pdf/footer-pdf');
         // Adicione o CSS ao mPDF
+
         $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
         $mpdf->WriteHTML(ob_get_clean());
         $mpdf->WriteHTML($content);
         $mpdf->SetHTMLFooter($footerPage);
         $mpdf->Output();
+        ob_end_clean();
     }
 }
