@@ -63,6 +63,6 @@ trait DiligenceSingle{
         $mpdf->WriteHTML($content);
         $mpdf->SetHTMLFooter($footerPage);
         $mpdf->Output();
-        ob_end_clean();
+//        ob_end_clean();
     }
 }
