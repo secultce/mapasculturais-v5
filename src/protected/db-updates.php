@@ -1,6 +1,8 @@
 <?php
 namespace MapasCulturais;
 
+use Doctrine\DBAL\Exception;
+
 $app = App::i();
 $em = $app->em;
 $conn = $em->getConnection();
@@ -1991,34 +1993,58 @@ $$
         __exec("ALTER TABLE answer_diligence ADD registration_id INT");
     },
 
-    'create table registrations_ranking' => function () {
-        __exec('CREATE TABLE registrations_ranking(
-            id INT NOT NULL GENERATED ALWAYS AS IDENTITY,
-            registration_id INT NOT NULL,
-            opportunity_id INT NOT NULL,
-            category TEXT NOT NULL,
-            rank INT NOT NULL,
-            PRIMARY KEY(id),
-            CONSTRAINT fk_registration
-                FOREIGN KEY(registration_id)
-                    REFERENCES registration(id)
-                    ON DELETE CASCADE,
-            CONSTRAINT fk_opportunity
-                FOREIGN KEY(opportunity_id)
-                    REFERENCES opportunity(id)
-                    ON DELETE CASCADE,
-            UNIQUE (opportunity_id, category, rank));');
-    },
-
-    'add columns user_id and crete_timestamp to registrations_ranking' => function () {
-        __exec("ALTER TABLE registrations_ranking
-            ADD COLUMN agent_id INT NOT NULL,
-            ADD COLUMN create_timestamp TIMESTAMP DEFAULT NOW(),
-            ADD CONSTRAINT fk_agent_ranking
-                FOREIGN KEY(agent_id) REFERENCES agent(id)");
-    },
-
     'add column subject to table diligence' => function() {
         __exec("ALTER TABLE diligence ADD subject varchar(50)");
     },
-] + $updates ;
+
+    'refactoring registrations draw' => function () use ($conn) {
+        try {
+            $conn->beginTransaction();
+            // Criando nova tabela draw
+            $conn->executeQuery("CREATE TABLE draw (
+                id SERIAL PRIMARY KEY,
+                opportunity_id INTEGER NOT NULL REFERENCES opportunity(id),
+                category TEXT NOT NULL,
+                create_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                user_id INTEGER NOT NULL REFERENCES usr(id),
+                published BOOLEAN NOT NULL DEFAULT FALSE
+            );");
+
+            // Criando nova tabela draw_registrations
+            $conn->executeQuery("CREATE TABLE draw_registrations (
+                id SERIAL PRIMARY KEY,
+                draw_id INTEGER NOT NULL REFERENCES draw(id),
+                registration_id INTEGER NOT NULL REFERENCES registration(id),
+                rank INTEGER NOT NULL
+            );");
+
+            $oldTableExists = $conn
+                ->executeQuery("SELECT * FROM information_schema.tables WHERE table_name = 'registrations_ranking'")
+                ->fetch();
+            if ($oldTableExists) {
+                // Migrando dados de registrations_ranking para draw e draw_registrations
+                $conn->executeQuery("INSERT INTO draw (opportunity_id, category, create_timestamp, user_id, published)
+                    SELECT DISTINCT
+                        rr.opportunity_id,
+                        rr.category,
+                        rr.create_timestamp,
+                        (SELECT user_id FROM agent a WHERE a.id = rr.agent_id), FALSE
+                    FROM registrations_ranking rr;");
+
+                $conn->executeQuery("INSERT INTO draw_registrations (draw_id, registration_id, rank)
+                    SELECT d.id, rr.registration_id, rr.rank
+                    FROM registrations_ranking rr
+                    JOIN draw d ON d.opportunity_id = rr.opportunity_id AND d.category = rr.category;");
+
+                $conn->executeQuery("DROP TABLE registrations_ranking CASCADE;");
+            }
+
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            $conn->executeQuery("DELETE FROM db_update WHERE name = 'refactoring registrantions draw'");
+        }
+    },
+
+] + $updates;
+
