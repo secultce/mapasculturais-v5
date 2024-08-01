@@ -41,8 +41,6 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
-//        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
-//        $this->render('gerar', ['reg' => $reg]);
         //Buscando o tado gerado
         $td = new RepoDiligence();
         $tado = $td->getTado($reg);
@@ -54,10 +52,8 @@ class Tado extends \MapasCulturais\Controller
         $mpdf = self::mpdfConfig();
         self::mdfBodyMulti($mpdf,
             'tado/gerar',
-            'Secult/CE - Relatório Financeiro',
-            'Diligence/assets/css/diligence/multi.css');
-
-//        ob_end_clean();
+            'Secult/CE - TADO',
+            '');
 
     }
 

@@ -72,7 +72,7 @@ input[type="text"] {
 
 .title-bold {
     font-weight: bold;
-    font-size: 18px;
+    font-size: 12px;
     line-height: 14px;
 }
 
@@ -229,3 +229,12 @@ input[type="checkbox"] {
     border-radius: 3px; 
     margin-bottom: 10px
  }
+ .multi-report-text-left {
+     text-align: left
+ }
+ .multi-report-title-left-width {
+     width: 30%
+ }
+.multi-report-title-right-width {
+    width: 70%
+}
