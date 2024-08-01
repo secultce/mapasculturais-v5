@@ -14,5 +14,6 @@ return [
         'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
         'PublicConsultation' => ['namespace' => 'PublicConsultation'],
         'PDFReport' => ['namespace' => 'PDFReport'],
+        'BigSheetImporter' => ['namespace' => 'BigSheetImporter'],
     ]
 ];
