@@ -1,3 +1,6 @@
+<?php 
+$this->layout = 'nolayout-pdf';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

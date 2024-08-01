@@ -12,6 +12,7 @@ $this->jsObject['idEntity'] = $reg->id;
 //Buscando o tado gerado
 $td = new RepoDiligence();
 $tado = $td->getTado($reg);
+
 ?>
 <div>
     <section class="clearfix">
@@ -31,9 +32,7 @@ $tado = $td->getTado($reg);
                         <a rel="noopener noreferrer">Edital</a>
                     </div>
                     <h4 class="entity-parent-title">
-                        <a href="#">
-
-                        </a>
+                        <a href="#"></a>
                     </h4>
                     <h2>
                         <a href="<?= $urlOpp; ?>">
@@ -71,7 +70,7 @@ $tado = $td->getTado($reg);
                 <div style=" display: flex; justify-content: space-between;">
                     <div class="form-group">
                         <label class="title-info">Número do TEC</label>
-                        <input name="numbertec"  id="numbertec" value="<?= $tado->number; ?>"/>
+                        <input name="numbertec"  id="numbertec" value="<?= !is_null($tado) ? $tado->number : null ?>"/>
                     </div>
                     <div class="form-group">
                         <label class="title-info">Data</label>
@@ -172,6 +171,19 @@ $tado = $td->getTado($reg);
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF do Fiscal</label>
+                            <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                        </div>
+                    </div>
+                    <p class="title-label" style="font-size: 18px;">
+                        Gestor responsável pela emissão
+                    </p>
+                    <div style=" display: flex; justify-content: space-between;">
+                        <div class="form-group">
+                            <label class="title-info">Nome do gestor</label>
+                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label class="title-info">CPF do Gestor</label>
                             <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 div { font-family: Open Sans, sans-serif !important;}
 @page {
-    margin: 0mm;
-    margin-footer: 0mm;
+    /* margin: 0mm;*/
+    margin-footer: 0mm; 
 }
 
 .input-group {

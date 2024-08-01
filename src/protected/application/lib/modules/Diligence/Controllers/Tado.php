@@ -53,7 +53,7 @@ class Tado extends \MapasCulturais\Controller
         self::mdfBodyMulti($mpdf,
             'tado/gerar',
             'Secult/CE - TADO',
-            '');
+            'Diligence/assets/css/diligence/multi.css');
 
     }
 

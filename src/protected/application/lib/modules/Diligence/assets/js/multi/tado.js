@@ -98,11 +98,11 @@ function save(postDataTado)
                         const urlRedirect = MapasCulturais.createUrl('tado', 'gerar/'+MapasCulturais.idEntity);
                         window.location.href=urlRedirect;
                     }, 2000);
-    
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
                 }
+
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
                
             }
 

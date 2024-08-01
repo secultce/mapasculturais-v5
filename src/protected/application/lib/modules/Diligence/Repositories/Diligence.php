@@ -1,6 +1,7 @@
 <?php
 namespace Diligence\Repositories;
 
+use Diligence\Entities\Tado;
 use MapasCulturais\App;
 use Diligence\Entities\Diligence as DiligenceEntity;
 use MapasCulturais\Entities\Registration;
@@ -102,13 +103,14 @@ class Diligence{
         return $result;
     }
 
+    //Buscando o tado gerado
     public function getTado($registratrion)
     {
-        $app = App::i();  
-        //Buscando o tado gerado
+        $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->findOneBy([
             'registration' => $registratrion
         ]);
+       
         return $tado;
     }
 
