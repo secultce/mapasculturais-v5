@@ -30,17 +30,15 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $opportunity = $app->repo(OpportunityEntity::class)->find($this->data['id']);
         $category = $this->data['category'];
 
-        try {
-            $ranking = $this->drawRanking($opportunity, $category);
-        } catch (\Exception $e) {
-            $this->json(['message' => $e->getMessage()], 500);
+        $reorderedList = $this->reorderRegistrations($opportunity, $category);
+
+        if ($reorderedList === null) {
+            $this->json(['message' => 'Not exists approved registrations in category'], 400);
             return;
         }
 
-        if ($ranking === null) {
-            $this->json(['message' => 'Not exists approved registrations in category'], 400);
-        }
-
+        /** Continue a lógica para gerar o sorteio */
+        $ranking = [];
         $this->json($ranking, 201);
     }
 
@@ -94,9 +92,10 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     }
 
     /**
-     * @throws \Exception
+     * Essa função recebe uma opporunidade e uma categoria, lista todas as inscrições referentes, as reordena
+     * numa nova lista e retorna essa nova lista.
      */
-    private function drawRanking(OpportunityEntity $opportunity, string $category = ''): ?array
+    private function randomSortRegistrations(OpportunityEntity $opportunity, string $category = ''): ?array
     {
         $app = App::i();
 
@@ -110,6 +109,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             return null;
         }
 
+        // Nesse bloco cada inscrição é atribuída a uma chave de um array. Cheve essa que é gerada aleatoriamente.
         $randomMax = count($registrations) * 10;
         $randomizedArray = [];
         foreach ($registrations as $registration) {
@@ -119,7 +119,10 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
             $randomizedArray[$random] = $registration;
         }
+        // Após atribuir uma chave a cada inscrição, ordena-se o array pela chave em ordem crescente
         ksort($randomizedArray);
+
+        return $randomizedArray;
 
         $ranking = [];
         $i = 1;
