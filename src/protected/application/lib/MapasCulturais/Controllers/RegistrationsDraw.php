@@ -1,14 +1,19 @@
-<?php /** @noinspection PhpDynamicAsStaticMethodCallInspection */
+<?php
+
+/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 
 namespace MapasCulturais\Controllers;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use MapasCulturais\App;
+use MapasCulturais\Exceptions\PermissionDenied;
+use MapasCulturais\Exceptions\WorkflowRequest;
+use Mpdf\MpdfException;
 use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
     Registration as RegistrationEntity,
     RegistrationsRanking};
 use Shuchkin\SimpleXLSXGen;
-use \Mpdf\Mpdf as PDF;
+use Mpdf\Mpdf as PDF;
 
 class RegistrationsDraw extends \MapasCulturais\Controller
 {
@@ -17,24 +22,24 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         /**
          * @var OpportunityEntity $opportunity
          */
-       
+
         $app = App::i();
 
         $this->requireAuthentication();
 
-        $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+        $opportunity = $app->repo(OpportunityEntity::class)->find($this->data['id']);
         $category = $this->data['category'];
-        if (in_array($category, $opportunity->drawedRegistrationsCategories))
-            $this->json(['message' => 'Ranking previously generated'], 400);
 
         try {
             $ranking = $this->drawRanking($opportunity, $category);
         } catch (\Exception $e) {
             $this->json(['message' => $e->getMessage()], 500);
+            return;
         }
 
-        if (is_null($ranking))
+        if ($ranking === null) {
             $this->json(['message' => 'Not exists approved registrations in category'], 400);
+        }
 
         $this->json($ranking, 201);
     }
@@ -44,12 +49,15 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $app = App::i();
 
         $criteria = ['opportunity' => $this->data['id']];
-        if(isset($this->data['category']) && !empty($this->data['category']))
+        if (isset($this->data['category']) && !empty($this->data['category'])) {
             $criteria['category'] = $this->data['category'];
+        }
 
         $rankingList = $app->repo('RegistrationsRanking')->findBy($criteria, ['category' => 'asc','rank' => 'asc']);
 
-        $output = [['Inscrição','','Oportunidade','','Posição', 'Categoria', 'Data do sorteio','Responsável pelo sorteio','']];
+        $output = [
+            ['Inscrição','','Oportunidade','','Posição', 'Categoria', 'Data do sorteio','Responsável pelo sorteio','']
+        ];
         foreach ($rankingList as $rankingPosition) {
             $outputLine[0] = $rankingPosition->registration->number;
             $outputLine[1] = $rankingPosition->registration->singleUrl;
@@ -71,6 +79,10 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             ->downloadAs('planilha.xlsx');
     }
 
+    /**
+     * @throws WorkflowRequest
+     * @throws PermissionDenied
+     */
     public function POST_publish(): void
     {
         $app = App::i();
@@ -88,20 +100,21 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     {
         $app = App::i();
 
-        $registrations = $app->repo('Registration')->findBy([
+        $registrations = $app->repo(RegistrationEntity::class)->findBy([
             'opportunity' => $opportunity,
             'status' => RegistrationEntity::STATUS_APPROVED,
             'category' => $category,
         ]);
         // Caso não existam inscrições que obdeçam aos critérios, para a execução e retorna 'null'
-        if(empty($registrations))
+        if (empty($registrations)) {
             return null;
+        }
 
         $randomMax = count($registrations) * 10;
         $randomizedArray = [];
         foreach ($registrations as $registration) {
             do {
-                $random = rand(1,$randomMax);
+                $random = rand(1, $randomMax);
             } while (array_key_exists($random, $randomizedArray));
 
             $randomizedArray[$random] = $registration;
@@ -111,12 +124,19 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $ranking = [];
         $i = 1;
         foreach ($randomizedArray as $registration) {
-            $ranking[] = new RegistrationsRanking($registration, $registration->opportunity, $i, $category, $app->user->profile);
+            $ranking[] = new RegistrationsRanking(
+                $registration,
+                $registration->opportunity,
+                $i,
+                $category,
+                $app->user->profile
+            );
+
             $i++;
         }
 
         try {
-            $app->repo('RegistrationsRanking')->saveRanking($ranking);
+            $app->repo(RegistrationsRanking::class)::saveRanking($ranking);
         } catch (UniqueConstraintViolationException $e) {
             throw new \Exception('Ranking previously generated');
         } catch (\Exception $e) {
@@ -131,18 +151,19 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     }
 
     /**
-     * Metodo que devolve uma pdf com os dados do sorteio
+     * Endpoint que devolve um pdf com os dados do sorteio
      *
-     * @return void
+     * @throws MpdfException
      */
-    public function GET_pdf() {
+    public function GET_pdf(): void
+    {
         $this->requireAuthentication();
         $app = App::i();
         $draw = $app->repo('RegistrationsRanking')->findBy(['opportunity' => $this->data['id']]);
         $opp = $app->repo('Opportunity')->find($this->data['id']);
-       
-        $pdf = new PDF( [
-            'tempDir' => dirname(__DIR__) . '/tmp', 
+
+        $pdf = new PDF([
+            'tempDir' => dirname(__DIR__) . '/tmp',
             'mode' => 'utf-8',
             'default_font' => 'dejavusans',
             'format' => 'A4',
@@ -153,7 +174,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         ]);
 
         //INSTANCIA DO TIPO ARRAY OBJETO
-        $app->view->regObject = new \ArrayObject;
+        $app->view->regObject = new \ArrayObject();
         $app->view->regObject['draw'] = $draw;
         $app->view->regObject['opp'] = $opp;
 
