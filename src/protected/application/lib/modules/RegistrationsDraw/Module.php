@@ -109,18 +109,6 @@ class Module extends \MapasCulturais\Module
         $app = App::getInstance();
         $app->registerController('sorteio-inscricoes', RegistrationsDraw::class);
 
-        $this->registerOpportunityMetadata('drawedRegistrationsCategories', [
-            'type' => 'string',
-            'label' => 'Categorias com ranking sorteados',
-            'default' => json_encode([]),
-            'serialize' => function ($value) {
-                return json_encode($value);
-            },
-            'unserialize' => function ($value) {
-                return json_decode($value);
-            },
-        ]);
-
         $this->registerOpportunityMetadata('useRegistrationsDraw', [
             'type' => 'select',
             'label' => 'Usar sorteio de para ranking de inscrições',
