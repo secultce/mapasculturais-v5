@@ -17,7 +17,16 @@ $(document).ready(function () {
         e.preventDefault();
         saveTado(editor, 0);
     });
+    // Obtém o valor do cookie "message"
+    var message = $.cookie("message");
 
+    if (message) {
+        // Se o cookie existir, exiba a mensagem (pode ser num alerta ou no DOM)
+
+        diligenceMessage.messageError("Ops!", message, 4000);
+        // Opcional: remover o cookie após a leitura
+        $.removeCookie("message", { path: '/' });
+    }
 });
 
 
@@ -32,7 +41,9 @@ function saveTado(editor, status)
         object : $("#object").val(),
         conclusion: editor.html.get(),//Captura o html do textarea
         idTado: $("#idTado").val(),
-        status : status
+        status : status,
+        nameManager :  $("#nameManager").val(),
+        cpfManager  : $("#cpfManager").val()
     };
 
     if($("#idTado").val() !== '') {
