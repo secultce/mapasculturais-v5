@@ -5,13 +5,10 @@ use DateTime;
 use \MapasCulturais\i;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
-use Doctrine\ORM\Mapping as ORM;
 use MapasCulturais\ApiOutputs\Json;
 //Para uso do RabbitMQ
 use PhpAmqpLib\Message\AMQPMessage;
-use PhpParser\Node\Expr\Cast\Bool_;
 use Diligence\Controllers\Controller;
-
 use Diligence\Service\DiligenceInterface;
 use MapasCulturais\Entities\Registration;
 use PhpAmqpLib\Exchange\AMQPExchangeType;

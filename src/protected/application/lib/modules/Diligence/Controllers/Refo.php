@@ -1,13 +1,8 @@
 <?php
 namespace Diligence\Controllers;
 
-use DateTime;
-use Carbon\Carbon;
 use \MapasCulturais\App;
-use MapasCulturais\Entity;
 use Diligence\Repositories\Diligence;
-use MapasCulturais\Entities\Registration;
-use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntitiesDiligence;
 
 class Refo extends \MapasCulturais\Controller
@@ -18,7 +13,6 @@ class Refo extends \MapasCulturais\Controller
     {
         $app = App::i();
         $dili = Diligence::getDiligenceAnswer($this->data['id']);
-        $reg = [];
         if(!is_null($dili[0])){
             $reg = $dili[0]->registration;
         }else{

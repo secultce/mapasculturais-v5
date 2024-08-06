@@ -3,6 +3,7 @@
 namespace Diligence\Traits;
 
 use \MapasCulturais\App;
+use Mpdf\Mpdf;
 
 trait DiligenceSingle{
 
@@ -33,7 +34,7 @@ trait DiligenceSingle{
         }    
     }
 
-    static public function mpdfConfig()
+    static public function mpdfConfig() : \Mpdf\Mpdf
     {
         return new \Mpdf\Mpdf([
             'tempDir' => '/tmp',
