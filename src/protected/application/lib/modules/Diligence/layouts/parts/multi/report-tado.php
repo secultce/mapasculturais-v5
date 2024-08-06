@@ -135,11 +135,11 @@
 <table  style="width: 100%">
     <tbody>
     <tr style="width: 100%">
-        <td class="title-bold">RESPONSÁVEL PELA EMISSÃO - GESTOR</td>
+        <td class="title-bold">RESPONSÁVEL PELA EMISSÃO - GESTOR(A)</td>
     </tr>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        NOME DO GESTOR :
+        NOME DO(A) GESTOR(A) :
       </td>
       <td  class="title-bold" style="width: 50%">
         CPF :
