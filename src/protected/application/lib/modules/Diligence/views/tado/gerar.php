@@ -16,3 +16,4 @@ $this->part('multi/report-tado',[
     'carbon' => new Carbon()
 ]);
 
+require THEMES_PATH. 'BaseV1/views/pdf/footer-pdf.php';

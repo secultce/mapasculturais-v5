@@ -1,8 +1,4 @@
-<div>
-    <p style="text-align: center">
-        <img src="<?= MODULES_PATH . 'Diligence/assets/img/logo_secult.jpg' ?>" width="128" alt="">
-    </p>
-</div>
+
 <div>
     <p class="title-bold" style="text-align: center">
         <label class="title-bold">
@@ -110,7 +106,7 @@
     </tr>
     <tr style="width: 100%">
         <td class="" style="width: 50%">
-            <?= $app->view->regObject['tado']->agentSignature; ?>
+            <?= $app->view->regObject['tado']->agentSignature->name; ?>
         </td>
         <td style="width: 50%">
             <?= $app->view->regObject['tado']->agentSignature->getMetadata('cpf'); ?>
@@ -172,4 +168,3 @@
     </tbody>
 </table>
 <?php endif; ?>
-
