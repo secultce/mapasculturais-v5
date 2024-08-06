@@ -1,7 +1,18 @@
 div { font-family: Open Sans, sans-serif !important;}
 @page {
     /* margin: 0mm;*/
-    margin-footer: 0mm; 
+    margin-footer: 0mm;
+    odd-header-name: html_MyHeader1;
+    odd-footer-name: html_MyFooter1;
+}
+
+
+table,
+div {
+    font-family: Open Sans, sans-serif !important;
+}
+main {
+    margin: 25px;
 }
 
 .input-group {

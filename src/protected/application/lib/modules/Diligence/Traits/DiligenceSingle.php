@@ -43,8 +43,8 @@ trait DiligenceSingle{
             'pagenumSuffix' => '  ',
             'nbpgPrefix' => ' de ',
             'nbpgSuffix' => '',
-            'margin_top' => 10,
-            'margin_bottom' => 10,
+            'margin_top' => 45,
+            'margin_bottom' => 20,
             'margin_left' => 0,
             'margin_right' => 0,
         ]);
@@ -54,15 +54,16 @@ trait DiligenceSingle{
     static public function mdfBodyMulti(\Mpdf\Mpdf $mpdf, $fileHtmlBody, $titleReport, $pathCss)
     {
         $app        = App::i();
-        $content = $app->view->fetch($fileHtmlBody);        
+        $content = $app->view->fetch($fileHtmlBody);
         $stylesheet = file_get_contents(MODULES_PATH . $pathCss);
         $footerPage = $app->view->fetch('pdf/footer-pdf');
         // Adicione o CSS ao mPDF
         $mpdf->SetTitle($titleReport);
         $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-        $mpdf->WriteHTML(ob_get_clean());
-        $mpdf->WriteHTML($content);
+
         $mpdf->SetHTMLFooter($footerPage);
+        $mpdf->WriteHTML($content);
+        $mpdf->WriteHTML(ob_get_clean());
         $mpdf->Output();
     }
 }
