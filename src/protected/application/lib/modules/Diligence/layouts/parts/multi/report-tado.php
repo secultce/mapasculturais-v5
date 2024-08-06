@@ -73,15 +73,11 @@
         </p>
         <p>
             Segundo a Lei no 18.012, de 01 de abril de 2022, o Art. 73:
-
         </p>
-
         <p>
             § 3o. O agente público responsável pela análise do Relatório de Execução do Objeto
             deverá elaborar parecer técnico em que se manifestará:
-
         </p>
-
         <p>
             I - pela conclusão de que houve o cumprimento integral do objeto ou pela suficiência
             do cumprimento parcial, devidamente justificada, e providenciará imediato
@@ -106,18 +102,18 @@
     <tbody>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        NOME DO FISCAL : 
+        NOME DO FISCAL :
       </td>
       <td  class="title-bold" style="width: 50%">
-        CPF : 
+        CPF :
       </td>
     </tr>
     <tr style="width: 100%">
         <td class="" style="width: 50%">
-            <?= $app->view->regObject['tado']->agentSignature->name; ?> 
+            <?= $app->view->regObject['tado']->agentSignature; ?>
         </td>
         <td style="width: 50%">
-            <?= $app->view->regObject['tado']->agentSignature->getMetadata('cpf'); ?> 
+            <?= $app->view->regObject['tado']->agentSignature->getMetadata('cpf'); ?>
         </td>
     </tr>
     <tr>
@@ -132,12 +128,9 @@
             </p>
         </td>
     </tr>
-
-   
-
-   
     </tbody>
 </table>
+<?php if($app->view->regObject['tado']->nameManager !== null || $app->view->regObject['tado']->nameManager !== ''): ?>
 <div>
     <p>
         <br>
@@ -150,18 +143,18 @@
     </tr>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        NOME DO GESTOR : 
+        NOME DO GESTOR :
       </td>
       <td  class="title-bold" style="width: 50%">
-        CPF : 
+        CPF :
       </td>
     </tr>
     <tr style="width: 100%">
         <td class="" style="width: 50%">
-            Vinicios Nascimento de Sousa
+            <?= $app->view->regObject['tado']->nameManager; ?>
         </td>
         <td style="width: 50%">
-        868.711.625-00
+            <?= $app->view->regObject['tado']->cpfManager; ?>
         </td>
     </tr>
     <tr>
@@ -178,5 +171,5 @@
     </tr>
     </tbody>
 </table>
-
+<?php endif; ?>
 
