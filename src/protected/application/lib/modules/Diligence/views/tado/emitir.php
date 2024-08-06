@@ -180,11 +180,11 @@ $tado = $td->getTado($reg);
                     <div style=" display: flex; justify-content: space-between;">
                         <div class="form-group">
                             <label class="title-info">Nome do gestor</label>
-                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                            <input name="nameManager" id="nameManager" value="<?= isset($tado) ? $tado->nameManager : null ?>" />
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF do Gestor</label>
-                            <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                            <input name="cpfManager" id="cpfManager" value="<?= isset($tado) ? $tado->cpfManager : null ?>" />
                         </div>
                     </div>
                 </div>
