@@ -41,11 +41,11 @@ $(document).ready(() => {
                 return response.json();
             })
             .then(data => {
-                renderRanking(data.ranking, category);
+                renderRanking(data.drawRegistrations, category);
             })
             .catch(error => {
                 if(error.status === 400) {
-                    MapasCulturais.Messages.alert('Essa categoria já foi sorteada.');
+                    MapasCulturais.Messages.alert('Não existem novos inscritos aprovados nessa categoria');
                     return;
                 }
                 console.error(error);
