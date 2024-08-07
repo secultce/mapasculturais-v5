@@ -41,7 +41,10 @@ class DrawRegistrations extends Entity
         $serialized['registration'] = [
             'singleUrl' => $this->registration->singleUrl,
             'number' => $this->registration->number,
-            'ownerName' => $this->registration->owner->name,
+            'owner' => [
+                'name' => $this->registration->owner->name,
+                'id' => $this->registration->owner->id
+            ],
         ];
         return $serialized;
     }
