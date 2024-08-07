@@ -4,55 +4,63 @@ namespace MapasCulturais\Entities;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use MapasCulturais\Entity;
+use MapasCulturais\Repositories\Draw as DrawRepository;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=DrawRepository::class)
  * @ORM\Table(name="draw")
  */
 class Draw extends Entity
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="id")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=\MapasCulturais\Entities\Opportunity::class)
      * @ORM\JoinColumn(name="opportunity_id", referencedColumnName="id", nullable=false)
      */
-    private $opportunity;
+    protected $opportunity;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $category;
+    protected $category;
 
     /**
-     * @ORM\Column(type="timestamp")
+     * @ORM\Column(type="datetime", name="create_timestamp")
      */
-    private $createTimestamp;
+    protected $createTimestamp;
 
     /**
      * @ORM\ManyToOne(targetEntity=\MapasCulturais\Entities\User::class)
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      */
-    private $user;
+    protected $user;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $published;
+    protected $published;
 
     /**
-     * @ORM\OneToMany(targetEntity="DrawRegistrations", mappedBy="draw")
+     * @ORM\OneToMany(targetEntity="DrawRegistrations", mappedBy="draw", cascade="persist")
      */
-    private $drawRegistrations;
+    protected $drawRegistrations;
 
-    public function __construct()
+    public function jsonSerialize(): array
     {
-        $this->drawRegistrations = new ArrayCollection();
-        parent::__construct();
+        $serialized = parent::jsonSerialize();
+        $serialized['opportunity'] = [
+            'id' => $this->opportunity->id,
+            'name' => $this->opportunity->name,
+            'singleUrl' => $this->opportunity->singleUrl,
+        ];
+        $serialized['drawRegistrations'] = $this->drawRegistrations->toArray();
+        $serialized['user'] = $this->user->profile->name;
+        return $serialized;
     }
 }
