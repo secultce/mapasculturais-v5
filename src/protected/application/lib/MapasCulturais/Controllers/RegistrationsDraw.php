@@ -4,14 +4,14 @@
 
 namespace MapasCulturais\Controllers;
 
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use MapasCulturais\App;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
 use Mpdf\MpdfException;
-use MapasCulturais\Entities\{Opportunity as OpportunityEntity,
-    Registration as RegistrationEntity,
-    RegistrationsRanking};
+use MapasCulturais\Entities\{
+    Opportunity as OpportunityEntity,
+    Registration as RegistrationEntity
+};
 use Shuchkin\SimpleXLSXGen;
 use Mpdf\Mpdf as PDF;
 
@@ -30,16 +30,23 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $opportunity = $app->repo(OpportunityEntity::class)->find($this->data['id']);
         $category = $this->data['category'];
 
-        $reorderedList = $this->reorderRegistrations($opportunity, $category);
+        $reorderedList = $this->randomSortRegistrations($opportunity, $category);
 
         if ($reorderedList === null) {
             $this->json(['message' => 'Not exists approved registrations in category'], 400);
             return;
         }
 
-        /** Continue a lógica para gerar o sorteio */
-        $ranking = [];
-        $this->json($ranking, 201);
+        try {
+            $draw = \MapasCulturais\Factories\Draw::createFromRegistrations($reorderedList);
+        } catch (\Exception $e) {
+            throw $e;
+            exit();
+            $this->json(['message' => 'An unexpected error occured'], 500);
+            return;
+        }
+
+        $this->json($draw, 201);
     }
 
     public function GET_downloadcsv(): void
@@ -122,35 +129,12 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         // Após atribuir uma chave a cada inscrição, ordena-se o array pela chave em ordem crescente
         ksort($randomizedArray);
 
-        return $randomizedArray;
-
-        $ranking = [];
-        $i = 1;
+        $reorderedList = [];
         foreach ($randomizedArray as $registration) {
-            $ranking[] = new RegistrationsRanking(
-                $registration,
-                $registration->opportunity,
-                $i,
-                $category,
-                $app->user->profile
-            );
-
-            $i++;
+            $reorderedList[] = $registration;
         }
 
-        try {
-            $app->repo(RegistrationsRanking::class)::saveRanking($ranking);
-        } catch (UniqueConstraintViolationException $e) {
-            throw new \Exception('Ranking previously generated');
-        } catch (\Exception $e) {
-            throw new \Exception('Unexpected exception');
-        }
-
-        return [
-            'owner' => $app->user->profile,
-            'createTimestamp' => $ranking[0]->createTimestamp,
-            'ranking' => $ranking,
-        ];
+        return $reorderedList;
     }
 
     /**
