@@ -15,22 +15,34 @@ class DrawRegistrations extends Entity
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Draw", inversedBy="drawRegistrations")
-     * @ORM\JoinColumn(name="ranking_id", referencedColumnName="id", nullable=false)
+     * @ORM\ManyToOne(targetEntity="Draw", inversedBy="drawRegistrations", cascade="persist")
+     * @ORM\JoinColumn(name="draw_id", referencedColumnName="id", nullable=false)
      */
-    private $draw;
+    protected $draw;
 
     /**
      * @ORM\ManyToOne(targetEntity=\MapasCulturais\Entities\Registration::class)
      * @ORM\JoinColumn(name="registration_id", referencedColumnName="id", nullable=false)
      */
-    private $registration;
+    protected $registration;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $rank;
+    protected $rank;
+
+    public function jsonSerialize(): array
+    {
+        $serialized = parent::jsonSerialize();
+        unset($serialized['draw']);
+        $serialized['registration'] = [
+            'singleUrl' => $this->registration->singleUrl,
+            'number' => $this->registration->number,
+            'ownerName' => $this->registration->owner->name,
+        ];
+        return $serialized;
+    }
 }
