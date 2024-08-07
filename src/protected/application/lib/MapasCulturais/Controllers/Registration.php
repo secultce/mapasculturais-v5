@@ -79,6 +79,13 @@ class Registration extends EntityController {
 
             ];
             $registration = $this->requestedEntity;
+            $evaluators = $registration->opportunity->getEvaluationCommittee(false);
+            $authUserIsEvaluator = array_filter($evaluators, function ($evaluator) use ($app) {
+                return $evaluator->user->id === $app->auth->authenticatedUser->id;
+            });
+
+            if ($authUserIsEvaluator) $app->disableAccessControl();
+
             foreach($registration->opportunity->registrationFileConfigurations as $rfc){
 
                 $fileGroup = new Definitions\FileGroup($rfc->fileGroupName, $mime_types, \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true, null, true);

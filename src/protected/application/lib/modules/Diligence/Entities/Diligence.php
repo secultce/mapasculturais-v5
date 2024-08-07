@@ -1,4 +1,5 @@
 <?php
+
 namespace Diligence\Entities;
 
 use DateTime;

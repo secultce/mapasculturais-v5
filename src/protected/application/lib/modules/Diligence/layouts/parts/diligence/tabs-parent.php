@@ -13,8 +13,7 @@ $showText = false;
 $placeHolder = "Digite aqui a sua diligência";
 
 //Tado
-$td = new DiligenceRepo();
-$tado = $td->getTado($context['entity']);
+$tado = DiligenceRepo::getTado($context['entity']);
 
 ?>
 <?php

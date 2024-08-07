@@ -1,6 +1,9 @@
 <?php
+
 $_ENV['APP_MODE'] = 'development';
 $__process_assets = false;
+
+date_default_timezone_set('America/Fortaleza');
 
 return [
     /* MAIN */

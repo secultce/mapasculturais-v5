@@ -14,8 +14,7 @@ Carbon::setLocale('pt_BR');
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
 //Tado
-$td = new RepoDiligence();
-$tado = $td->getTado($context['entity']);
+$tado = RepoDiligence::getTado($context['entity']);
 ?>
 
 <?php $this->applyTemplateHook('tabs', 'after'); ?>

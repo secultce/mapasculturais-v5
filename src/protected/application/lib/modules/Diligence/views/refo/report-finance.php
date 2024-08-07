@@ -47,7 +47,6 @@ require THEMES_PATH. 'BaseV1/layouts/headpdf.php';
                 </div>
                 <div class="col-md-6  title-ins-sublabel-right" style="width: 50%;float: left;">
                     <label class="title-ins-sublabel">
-
                     </label> <br>
                 </div>
             </div>
