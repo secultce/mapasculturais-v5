@@ -39,6 +39,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
         try {
             $draw = \MapasCulturais\Factories\Draw::createFromRegistrations($reorderedList);
+            $draw->save(true);
         } catch (\Exception $e) {
             throw $e;
             exit();

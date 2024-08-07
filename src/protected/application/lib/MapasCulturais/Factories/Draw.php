@@ -24,7 +24,6 @@ class Draw
             $draw->published = false;
             $draw->createTimestamp = new \DateTime();
             $draw->user = $app->user;
-            $draw->save(true);
         } catch (\Exception $e) {
             throw new \Exception('Erro ao criar sorteio');
         }
@@ -38,7 +37,6 @@ class Draw
         }, array_values($registrations), array_keys($registrations));
 
         $draw->drawRegistrations = $registrations;
-        $draw->save(true);
         return $draw;
     }
 }
