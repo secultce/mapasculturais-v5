@@ -17,15 +17,14 @@ $(document).ready(function () {
         e.preventDefault();
         saveTado(editor, 0);
     });
-    // Obtém o valor do cookie "message"
-    var message = $.cookie("message");
+    // Obtém o valor do cookie ""erro-tado"
+    var message = $.cookie("erro-tado");
 
     if (message) {
-        // Se o cookie existir, exiba a mensagem (pode ser num alerta ou no DOM)
-
+        // Se o cookie existir, exiba um alerta
         diligenceMessage.messageError("Ops!", message, 4000);
-        // Opcional: remover o cookie após a leitura
-        $.removeCookie("message", { path: '/' });
+        //Removendo o cookie
+        $.removeCookie("erro-tado", { path: '/' });
     }
 });
 
