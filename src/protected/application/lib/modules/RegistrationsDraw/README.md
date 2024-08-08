@@ -24,21 +24,3 @@ erDiagram
         boolean           published
     }
 ```
-
-
-```mermaid
-erDiagram
-    rr }o..|| registration : references
-    rr }o..|| opportunity : belongs
-    rr }o..|| usr : "created by"
-
-    rr[registrations_ranking] {
-        integer           id                            PK
-        integer           registration_id               FK
-        integer           opportunity_id                FK
-        text              category
-        integer           rank
-        integer           agent_id                      FK
-        timestamp         create_timestamp
-    }
-```
