@@ -10,12 +10,14 @@
 }
 
 #categories-draw, #drawed-categories-filter {
-    width: 35em;
     height: fit-content;
     border-radius: 2px;
     color: #000;
     padding: 10px;
-    font-size: 1.1em;
+    font-size: 1em;
+    box-sizing: border-box;
+    max-width: 100%;
+    position: relative;
 }
 
 .categories-draw-label {
@@ -24,9 +26,8 @@
 
 #prize-draw .btn {
     height: auto;
-    margin-left: 16px;
     /*aspect-ratio: 4/1;*/
-    font-size: 1em;
+    /*font-size: 1em;*/
     padding-inline: 16px;
 }
 
@@ -60,3 +61,57 @@
     cursor: text;
     box-shadow: none;
 }
+
+.draw-table-title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #dedede;
+}
+
+.draw-history {
+    background: #eeeeee;
+    border-radius: 6px;
+    padding: 14px;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 26px;
+}
+.category-list label {
+    padding: 11px 56px 11px 6px;
+    background: #fff;
+    border-radius: 3px;
+    border: 1px solid #d1d1d1;
+    width: max-content;
+    position: relative;
+    cursor: pointer;
+}
+.category-list label.active {
+    background: #085e55;
+    color: #fff;
+}
+.category-list label:not(.active)::after {
+    content: url('data:image/svg+xml,<svg width="9" height="14" viewBox="0 0 9 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12L7 7L2 2" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    font-size: 1.8em;
+    font-weight: bold;
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.category-list label span {
+    font-weight: bold;
+    display: block;
+}
+
+.history-category {
+    font-weight: bold;
+}
+
+

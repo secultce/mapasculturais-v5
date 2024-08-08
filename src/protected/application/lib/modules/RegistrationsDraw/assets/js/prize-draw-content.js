@@ -54,14 +54,7 @@ $(document).ready(() => {
             });
     });
 
-    $('#drawed-categories-filter').on('change', e => {
-        const tableBodyElement = $('table#ranking-table tbody');
-        tableBodyElement.children()
-            .each((key, elem) =>
-                elem.getAttribute('data-category') !== e.target.value && e.target.value !== ''
-                ? elem.style.display = 'none'
-                : elem.style.display = 'table-row');
-    });
+    $('#drawed-categories-filter').on('change', );
 
     $('#download-ranking').on('click', e => {
         e.preventDefault();
@@ -145,3 +138,14 @@ $(document).ready(() => {
         }, 200)
     });
 });
+
+const filterTableRows = e => {
+    const tableBodyElement = $('table#ranking-table tbody');
+    const drawId = e.target.getAttribute('data-draw-id');
+
+    tableBodyElement.children()
+        .each((key, elem) =>
+            elem.getAttribute('data-draw-id') !== drawId && drawId !== ''
+                ? elem.style.display = 'none'
+                : elem.style.display = 'table-row');
+}
