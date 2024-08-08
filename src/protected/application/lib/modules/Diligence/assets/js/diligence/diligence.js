@@ -103,8 +103,6 @@ function openDiligence(status) {
         Swal.close();
     }, 1000);
     $("#descriptionDiligence").show();
-    // $("tab-diligence-principal").removeClass('active');
-    // $("li-tab-diligence-diligence").addClass('active');
     showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
     $('#btn-actions-diligence').removeClass('d-none');

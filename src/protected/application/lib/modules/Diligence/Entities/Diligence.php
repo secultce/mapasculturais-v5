@@ -6,7 +6,6 @@ use DateTime;
 use \MapasCulturais\i;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
-use Doctrine\ORM\Mapping as ORM;
 use MapasCulturais\ApiOutputs\Json;
 //Para uso do RabbitMQ
 use PhpAmqpLib\Message\AMQPMessage;
@@ -19,7 +18,6 @@ use MapasCulturais\Entities\RegistrationMeta;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
-use function var_dump;
 
 /**
  * Diligence 
@@ -374,13 +372,10 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      */
     public function getSubject()
     {
-
         //Se string para array
         $subject  = json_decode($this->subject, true);
-
         if(!is_null($subject))
         {
-
             $retSubject = [];
             //Tratando os termos para o usuário
             foreach ($subject as $item) {
@@ -396,8 +391,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
             }
             //Tratando a forma de escrita
             return implode(', ', $retSubject). '.';
-        }
-       
+        };
     }
 
     /**

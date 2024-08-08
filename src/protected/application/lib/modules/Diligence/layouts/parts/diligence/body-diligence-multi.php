@@ -6,9 +6,9 @@ use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 use Diligence\Entities\Tado;
 use Diligence\Repositories\Diligence as DiligenceRepo;
-//Tado
 
-
+$this->applyTemplateHook('body-diligence-multi', 'before');
+$this->applyTemplateHook('body-diligence-multi-div', 'begin');
 if ($diligenceAndAnswers) :
     if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
         <div>
@@ -241,3 +241,7 @@ if ($diligenceAndAnswers) :
     }
     ?>
 </div>
+
+<?php
+$this->applyTemplateHook('body-diligence-multi-div', 'end');
+$this->applyTemplateHook('body-diligence-multi', 'after'); ?>
