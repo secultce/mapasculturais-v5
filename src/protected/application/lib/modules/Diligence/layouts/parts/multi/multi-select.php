@@ -1,3 +1,5 @@
+<?php
+if( ($tado->status == 0) || is_null($tado) ) : ?>
 <div style="width: 100%;
     text-align: center;
     margin-top: 10px;" class="form-group-multi">
@@ -9,6 +11,7 @@
         <option value="disapproved">Reprovada</option>
     </select>
 </div>
+
 <div style="text-align: center;width: 100%;" id="multi-div-btn-status">
     <p style="text-align: center;width: 100%; margin-bottom: 15px" class="multi-itens-select">
         <a href="<?= $app->createUrl('refo', 'report/' . $reg->id); ?>" target="_blank" class="btn btn-default" title="Gera o relatório para o financeiro analisar" style="display: block;">
@@ -29,3 +32,17 @@
         </a>
     </p>
 </div>
+<?php endif;
+if( ($tado->status == 1 && !is_null($tado)) ) : ?>
+    <p style="text-align: center;width: 100%; margin-bottom: 15px" id="">
+        <a href="<?= $app->createUrl('tado', 'gerar/' . $reg->id); ?>"
+           target="_blank"
+           class="btn btn-primary"
+           title="Visualizar o TADO"
+           style="display: block;"
+        >
+            Visualizar TADO
+        </a>
+    </p>
+
+<?php endif; ?>
