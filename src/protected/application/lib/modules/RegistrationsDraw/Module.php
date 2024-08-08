@@ -4,6 +4,7 @@ namespace RegistrationsDraw;
 
 use MapasCulturais\App;
 use MapasCulturais\Controllers\RegistrationsDraw;
+use MapasCulturais\Entities\Draw;
 use MapasCulturais\Repositories\RegistrationsRanking;
 
 /**
@@ -75,29 +76,23 @@ class Module extends \MapasCulturais\Module
 
             $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
             $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
-            $drawedCategories = $opportunity->drawedRegistrationsCategories ?? [];
+            $drawedCategories = $opportunity->drawedRegistrationsCategories ?? []; // @todo: remover metadado
             $rankings = [];
-            $categories = array_map(function ($category) use ($drawedCategories, &$app, $opportunity, &$rankings) {
-                $isDrawed = in_array($category, $drawedCategories, true);
-                if ($isDrawed) {
-                    $registrationsRanking = $app->repo(RegistrationsRanking::class)
-                        ->findRanking($opportunity, $category);
-                    $rankings[$category]['registrations'] = $registrationsRanking;
-                    $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
-                    $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
-                }
+            $categories = $opportunity->registrationCategories ?: [""];
 
-                return (object)[
-                    'name' => $category,
-                    'isDrawed' => $isDrawed,
-                ];
-            }, $opportunity->registrationCategories ?: [""]);
+            foreach ($categories as $category) {
+                $rankings[$category] = $app->repo(Draw::class)
+                    ->findBy([
+                        'category' => $category,
+                        'opportunity' => $opportunity->id,
+                    ]);
+            }
 
 
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
                 'rankings' => $rankings,
-                'entity' => $opportunity,
+                'opportunity' => $opportunity,
                 'isAdmin' => $opportunity->canUser('@control'),
                 'isPublished' => $opportunity->isPublishedDraw,
             ]);
