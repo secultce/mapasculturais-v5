@@ -6,6 +6,8 @@ use Diligence\Entities\AnswerDiligence;
 use Carbon\Carbon;
 use Diligence\Entities\Tado;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+//Tado
+
 
 if ($diligenceAndAnswers) :
     if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
@@ -213,14 +215,20 @@ if ($diligenceAndAnswers) :
     isset($diligenceAndAnswers[0]) ?  $subjectReplace = $diligenceAndAnswers[0]->subjectToArray() : $subjectReplace = [];
     isset($diligenceAndAnswers[0]) ? $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace) : $checked = ['checkPhysical' => "checked", 'checkFinance' => ""];
     //Se não tiver resposta não mostra o assunto
+    $generatedTado = DiligenceRepo::getTado($entity);
+
     if (!is_null($diligenceAndAnswers[1]) || isset($diligenceAndAnswers[1]->status)) {
-        $this->part(
-            'diligence/body-diligence-subject',
-            [
-                'checkPhysical' => $checked['checkPhysical'],
-                'checkFinance' => $checked['checkFinance'],
-            ]
-        );
+        if($generatedTado->status == EntityDiligence::STATUS_DRAFT)
+        {
+            $this->part(
+                'diligence/body-diligence-subject',
+                [
+                    'checkPhysical' => $checked['checkPhysical'],
+                    'checkFinance' => $checked['checkFinance'],
+                ]
+            );
+        }
+
     } else {
         //Mostrará assunto quando não tiver diligencia ou quando editar rascunho
         $this->part(
