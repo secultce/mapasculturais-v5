@@ -139,13 +139,23 @@ $(document).ready(() => {
     });
 });
 
-const filterTableRows = e => {
+const filterTableRows = target => {
     const tableBodyElement = $('table#ranking-table tbody');
-    const drawId = e.target.getAttribute('data-draw-id');
+    const drawId = target.getAttribute('data-draw-id');
 
+    // Remove active class from all labels
+    $('label[data-draw-id]').each((_,elem) => {
+        elem.classList.remove('active');
+    });
+    target.classList.add('active');
+
+    // Filter table rows from draw-id in the active label
     tableBodyElement.children()
         .each((key, elem) =>
             elem.getAttribute('data-draw-id') !== drawId && drawId !== ''
                 ? elem.style.display = 'none'
                 : elem.style.display = 'table-row');
+
+    const currentCategoryName = document.getElementById('current-category-name');
+    currentCategoryName.innerText = target.getAttribute('data-category-name');
 }

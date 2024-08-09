@@ -81,7 +81,12 @@
                         <div class="category-list" data-category="<?= $category ?>">
                             <span class="history-category"><?= $category ?></span>
                             <?php foreach ($draws as $draw) : ?>
-                                <label data-draw-id="draw-<?= $draw->id ?>" onclick="filterTableRows">
+                                <label
+                                    for="draw-content"
+                                    data-draw-id="<?= $draw->id ?>"
+                                    data-category-name="<?= $category ?>"
+                                    onclick="filterTableRows(this)"
+                                >
                                     Sorteio realizado em:
                                     <span><?= $draw->createTimestamp->format('d/m/Y \à\s H:i:s') ?><span>
                                 </label>
@@ -91,7 +96,7 @@
                 </div>
             </div>
 
-            <div class="draw-content">
+            <div class="draw-content" id="draw-content">
                 <h5>Lista sorteada para a categoria
                     <strong id="current-category-name"><?= $categories[0] ?></strong>
                 </h5>
