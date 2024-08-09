@@ -51,8 +51,10 @@
                 <label class="new-ui-label" style="">Baixar todos os sorteios</label>
                 <div style="display:flex; justify-content: space-between; margin-top: 8px">
                     <!-- @todo: Mandar para '/sorteio-inscricoes/pdf/{id}' -->
-                    <button class="btn btn-default" id="download-ranking">Em PDF</button>
-                    <button class="btn btn-default" id="download-ranking">Em .XLSX</button>
+                    <button class="btn btn-default" id="download-pdf-ranking">Em PDF</button>
+                    <?php if ($isAdmin) : ?>
+                        <button class="btn btn-default" id="download-xlsx-ranking">Em .XLSX</button>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php if ($isAdmin && !$isPublished) : ?>
@@ -103,8 +105,10 @@
                 <div>
                     <span>Baixar sorteio da categoria: </span>
                     <!-- @todo: Mandar para '/sorteio-inscricoes/pdf/{id}' -->
-                    <button class="btn btn-default" id="download-ranking">Em PDF</button>
-                    <button class="btn btn-default" id="download-ranking">Em .XLSX</button>
+                    <button class="btn btn-default" id="download-pdf-category-ranking">Em PDF</button>
+                    <?php if ($isAdmin) : ?>
+                        <button class="btn btn-default" id="download-xlsx-category-ranking">Em .XLSX</button>
+                    <?php endif; ?>
                 </div>
                 <table class="js-registration-list registrations-table" id="ranking-table">
                     <?php $this->applyTemplateHook('ranking-table', 'begin'); ?>
