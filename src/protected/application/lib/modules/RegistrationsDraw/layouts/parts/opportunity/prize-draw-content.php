@@ -48,8 +48,8 @@
 
         <div class="draw-table-title">
             <div>
-                <label class="new-ui-label">Baixar todos os sorteios</label>
-                <div style="display:flex; justify-content: space-between;">
+                <label class="new-ui-label" style="">Baixar todos os sorteios</label>
+                <div style="display:flex; justify-content: space-between; margin-top: 8px">
                     <!-- @todo: Mandar para '/sorteio-inscricoes/pdf/{id}' -->
                     <button class="btn btn-default" id="download-ranking">Em PDF</button>
                     <button class="btn btn-default" id="download-ranking">Em .XLSX</button>
@@ -64,10 +64,10 @@
 
         <div style="margin-top: 24px; display:flex; gap: 1em;">
             <div class="draw-history">
-                <label class="new-ui-label categories-draw-label" for="drawed-categories-filter">
+                <label class="new-ui-label categories-draw-label" for="history-categories-filter">
                     Filtrar por categoria
                 </label>
-                <select id="drawed-categories-filter" class="new-ui-select">
+                <select id="history-categories-filter" class="new-ui-select">
                     <option value="">Selecionar categoria</option>
                     <?php foreach ($categories as $category) :
                         if ($category != '') : ?>

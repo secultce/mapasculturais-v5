@@ -41,7 +41,7 @@ $(document).ready(() => {
                 return response.json();
             })
             .then(data => {
-                renderRanking(data.drawRegistrations, category);
+                renderRanking(data, category);
             })
             .catch(error => {
                 if(error.status === 400) {
@@ -54,7 +54,22 @@ $(document).ready(() => {
             });
     });
 
-    $('#drawed-categories-filter').on('change', );
+    $('#history-categories-filter').on('change', e => {
+        const category = e.target.value;
+        const categoryLists = $('.category-list');
+
+        if (category === '') {
+            categoryLists.each((_, elem) => {
+                elem.style.display = 'flex';
+            });
+            return;
+        }
+
+        categoryLists.each((_, elem) => {
+            elem.style.display = 'none';
+        });
+        document.querySelector(`.category-list[data-category="${category}"]`).style.display = 'flex';
+    });
 
     $('#download-ranking').on('click', e => {
         e.preventDefault();
@@ -98,22 +113,42 @@ $(document).ready(() => {
             .catch(err => console.error(err))
     });
 
-    const renderRanking = ((arrayRanking, category) => {
+    const renderRanking = ((draw, category) => {
+        const { drawRegistrations } = draw;
         const tableBodyElement = $('table#ranking-table tbody');
-        tableBodyElement.children().each((key, elem) => elem.style.display = 'none');
+        tableBodyElement.children()
+            .each((_, elem) =>
+                elem.style.display = 'none');
         $('#categories-draw').children()
-            .each((key, elem) =>
+            .each((_, elem) =>
                 elem.innerText === category ? elem.setAttribute('disabled', '') : '');
 
         if(category !== '') {
             $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
         }
 
-        arrayRanking.sort((current, next) => {
+        // Add new item on history and set as .active
+        const lastItemOnHistory = document.querySelector(`label[data-category-name="${category}"]`);
+        const newItemOnHistory = document.createElement('label');
+        newItemOnHistory.classList.add('active');
+        newItemOnHistory.setAttribute('data-draw-id', draw.id);
+        newItemOnHistory.setAttribute('data-category-name', category);
+        newItemOnHistory.setAttribute('onclick', 'filterTableRows(this)');
+        lastItemOnHistory.before(newItemOnHistory);
+        newItemOnHistory.innerHTML = `Sorteio realizado em: <br>
+            <strong>${formatDateTime(draw.createTimestamp.date)}<strong>`;
+        // Remove active class from all labels
+        $('label[data-draw-id]').each((_, elem) => {
+            elem.classList.remove('active');
+        });
+        // Set current categoy name to table title
+        document.getElementById('current-category-name').innerText = category;
+
+        drawRegistrations.sort((current, next) => {
             return current.rank - next.rank;
         })
         let i = 0;
-        const arrayRankingCount = arrayRanking.length;
+        const arrayRankingCount = drawRegistrations.length;
 
         const intervalId = setInterval(() => {
             // Verifica se o índice iguala ou excede o tamanho do array e para de executar a função
@@ -125,18 +160,24 @@ $(document).ready(() => {
                 return;
             }
 
-            const rank = arrayRanking[i];
+            const rank = drawRegistrations[i];
             i++;
             const tr = $(`<tr data-category="${category}" class="approved"></tr>`)
-                .append($(`<td><a href="/inscricao/${rank.registration.id}">${rank.registration.number}</a></td>` +
-                    `<td>${rank.registration.category}</td>` +
+                .append($(`<td>#${rank.rank}</td>` +
+                    `<td><a href="${rank.registration.singleUrl}">${rank.registration.number}</a></td>` +
                     `<td><a href="/agente/${rank.registration.owner.id}">${rank.registration.owner.name}</a></td>` +
-                    `<td>#${rank.rank}</td>`));
+                    `<td>Selecionado</td>`));
 
             tableBodyElement.append(tr);
             document.getElementById('ranking-table').scrollIntoView();
         }, 200)
     });
+
+    const formatDateTime = datetime => {
+        let [ date, time ] = datetime.split('.')[0].split(' ');
+        date = date.split('-').reverse().join('/');
+        return `${date} às ${time}`;
+    }
 });
 
 const filterTableRows = target => {
@@ -144,14 +185,14 @@ const filterTableRows = target => {
     const drawId = target.getAttribute('data-draw-id');
 
     // Remove active class from all labels
-    $('label[data-draw-id]').each((_,elem) => {
+    $('label[data-draw-id]').each((_, elem) => {
         elem.classList.remove('active');
     });
     target.classList.add('active');
 
     // Filter table rows from draw-id in the active label
     tableBodyElement.children()
-        .each((key, elem) =>
+        .each((_, elem) =>
             elem.getAttribute('data-draw-id') !== drawId && drawId !== ''
                 ? elem.style.display = 'none'
                 : elem.style.display = 'table-row');
