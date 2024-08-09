@@ -71,23 +71,15 @@ $(document).ready(() => {
         document.querySelector(`.category-list[data-category="${category}"]`).style.display = 'flex';
     });
 
-    $('#download-ranking').on('click', e => {
+    $('#download-xlsx-ranking').on('click', e => {
         e.preventDefault();
+        downloadXLSX('download-xlsx-ranking');
+    });
 
-        const category = $('#drawed-categories-filter').val();
-
-        window.location = MapasCulturais.createUrl('sorteio-inscricoes', 'downloadcsv', {
-            id: MapasCulturais.entity.id,
-            category,
-        });
-
-        console.log(e.target)
-
-        $('#download-ranking').addClass('loading-button');
-
-        setTimeout(() => {
-            $('#download-ranking').removeClass('loading-button');
-        }, 4000)
+    $('#download-xlsx-category-ranking').on('click', e => {
+        e.preventDefault();
+        const category = document.getElementById('current-category-name').innerText;
+        downloadXLSX('download-xlsx-category-ranking', category);
     });
 
     $('#pusblish-ranking').on('click', e => {
@@ -113,7 +105,7 @@ $(document).ready(() => {
             .catch(err => console.error(err))
     });
 
-    const renderRanking = ((draw, category) => {
+    const renderRanking = (draw, category) => {
         const { drawRegistrations } = draw;
         const tableBodyElement = $('table#ranking-table tbody');
         tableBodyElement.children()
@@ -171,7 +163,7 @@ $(document).ready(() => {
             tableBodyElement.append(tr);
             document.getElementById('ranking-table').scrollIntoView();
         }, 200)
-    });
+    };
 
     const formatDateTime = datetime => {
         let [ date, time ] = datetime.split('.')[0].split(' ');
@@ -199,4 +191,36 @@ const filterTableRows = target => {
 
     const currentCategoryName = document.getElementById('current-category-name');
     currentCategoryName.innerText = target.getAttribute('data-category-name');
+}
+
+const downloadXLSX = (buttonId, category = null) => {
+    let args = { id: MapasCulturais.entity.id };
+    if (category) {
+        args.category = category;
+    }
+    const url = '/' + MapasCulturais.createUrl('sorteio-inscricoes', 'downloadcsv', args)
+        .split(MapasCulturais.baseURL)[1];
+
+    fetch(url)
+        .then(response => {
+            if(response.status !== 200) {
+                throw new Error(response.message);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            window.location = window.URL.createObjectURL(blob);
+        })
+        .catch(() => {
+            MapasCulturais.Messages.alert('Ocorreu um erro ao baixar o arquivo');
+            setTimeout(() => {
+                MapasCulturais.Messages.help('Atualize a página e tente novamente');
+            }, 1000);
+        });
+
+    $('#'+buttonId).addClass('loading-button');
+
+    setTimeout(() => {
+        $('#'+buttonId).removeClass('loading-button');
+    }, 4000)
 }

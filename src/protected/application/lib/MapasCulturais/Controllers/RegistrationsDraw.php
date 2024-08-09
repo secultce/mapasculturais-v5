@@ -8,10 +8,7 @@ use MapasCulturais\App;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
 use Mpdf\MpdfException;
-use MapasCulturais\Entities\{
-    Opportunity as OpportunityEntity,
-    Registration as RegistrationEntity
-};
+use MapasCulturais\Entities\{Draw, Opportunity as OpportunityEntity, Registration as RegistrationEntity};
 use Shuchkin\SimpleXLSXGen;
 use Mpdf\Mpdf as PDF;
 
@@ -59,30 +56,63 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $criteria['category'] = $this->data['category'];
         }
 
-        $rankingList = $app->repo('RegistrationsRanking')->findBy($criteria, ['category' => 'asc','rank' => 'asc']);
+        /** @var Draw[] $draws */
+        $draws = $app->repo(Draw::class)->findBy($criteria, ['category' => 'asc', 'createTimestamp' => 'desc']);
 
-        $output = [
-            ['Inscrição','','Oportunidade','','Posição', 'Categoria', 'Data do sorteio','Responsável pelo sorteio','']
-        ];
-        foreach ($rankingList as $rankingPosition) {
-            $outputLine[0] = $rankingPosition->registration->number;
-            $outputLine[1] = $rankingPosition->registration->singleUrl;
-            $outputLine[2] = $rankingPosition->opportunity->name;
-            $outputLine[3] = $rankingPosition->opportunity->singleUrl;
-            $outputLine[4] = $rankingPosition->rank;
-            $outputLine[5] = $rankingPosition->category;
-            $outputLine[6] = $rankingPosition->createTimestamp;
-            $outputLine[7] = $rankingPosition->owner->name;
-            $outputLine[8] = $rankingPosition->owner->singleUrl;
-
-            $output[] = $outputLine;
+        // Em caso de usuário não autorizado, retornar 403
+        if (!$draws[0]->opportunity->isUserAdmin($app->user)) {
+            $this->json(['message' => 'Not authorized'], 403);
+            return;
         }
 
-        SimpleXLSXGen::fromArray($output)
-            ->mergeCells('A1:B1')
-            ->mergeCells('C1:D1')
-            ->mergeCells('H1:I1')
-            ->downloadAs('planilha.xlsx');
+        $output = [];
+        $footerLinesIndexes = [];
+        foreach ($draws as $draw) {
+            $output[] = [
+                '<style bgcolor="#555555" color="#ffffff">Inscrição</style>', '',
+                '<style bgcolor="#555555" color="#ffffff">Oportunidade</style>', '',
+                '<style bgcolor="#555555" color="#ffffff">Posição</style>',
+                '<style bgcolor="#555555" color="#ffffff">Categoria</style>'
+            ];
+            foreach ($draw->drawRegistrations->toArray() as $rankingPosition) {
+                $outputLine[0] = $rankingPosition->registration->number;
+                $outputLine[1] = $rankingPosition->registration->singleUrl;
+                $outputLine[2] = $draw->opportunity->name;
+                $outputLine[3] = $draw->opportunity->singleUrl;
+                $outputLine[4] = $rankingPosition->rank;
+                $outputLine[5] = $draw->category;
+
+                $output[] = $outputLine;
+            }
+
+            $footerLine = [
+                '<style bgcolor="#dddddd" color="#222222">' .
+                'Sorteio realizado em ' .
+                $draw->createTimestamp->format('d/m/Y \à\s h:i:s') .
+                ' por ' . $draw->user->profile->name .
+                '</style>'
+            ];
+            $output[] = $footerLine;
+            $footerLinesIndexes[] = count($output);
+
+            $output[] = [];
+        }
+
+        try {
+            $spreadsheet = SimpleXLSXGen::fromArray($output)
+                ->mergeCells('A1:B1')
+                ->mergeCells('C1:D1');
+            foreach ($footerLinesIndexes as $index) {
+                $spreadsheet->mergeCells('A' . ($index + 2) . ':B' . ($index + 2))
+                    ->mergeCells('C' . ($index + 2) . ':D' . ($index + 2))
+                    ->mergeCells("A{$index}:F{$index}");
+            }
+
+            $spreadsheet->downloadAs('sorteios.xlsx');
+        } catch (\Exception $e) {
+            $this->json(['message' => 'An unexpected error occured'], 500);
+            return;
+        }
     }
 
     /**
@@ -92,7 +122,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     public function POST_publish(): void
     {
         $app = App::i();
-        $opportunity = $app->repo('Opportunity')->find($this->data['id']);
+        $opportunity = $app->repo(OpportunityEntity::class)->find($this->data['id']);
         $opportunity->isPublishedDraw = true;
         $opportunity->save();
 
