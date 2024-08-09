@@ -5,6 +5,7 @@ namespace RegistrationsDraw;
 use MapasCulturais\App;
 use MapasCulturais\Controllers\RegistrationsDraw;
 use MapasCulturais\Entities\Draw;
+use MapasCulturais\GuestUser;
 use MapasCulturais\Repositories\RegistrationsRanking;
 
 /**
@@ -16,7 +17,10 @@ class Module extends \MapasCulturais\Module
     {
         $app = App::getInstance();
 
-        $app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () {
+        $app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () use ($app) {
+            if (is_a($app->user, GuestUser::class)) {
+                return;
+            }
             $opportunity = $this->controller->requestedEntity;
             if ($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary') {
                 return;
@@ -25,7 +29,10 @@ class Module extends \MapasCulturais\Module
             $this->part('opportunity/config-fieldset', ['opportunity' => $opportunity]);
         });
 
-        $app->hook('template(opportunity.single.tab-main-content):after', function () {
+        $app->hook('template(opportunity.single.tab-main-content):after', function () use ($app) {
+            if (is_a($app->user, GuestUser::class)) {
+                return;
+            }
             $opportunity = $this->controller->requestedEntity;
             if ($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary') {
                 return;
@@ -36,7 +43,10 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        $app->hook('template(opportunity.single.opportunity-support--tab):after', function () {
+        $app->hook('template(opportunity.single.opportunity-support--tab):after', function () use ($app) {
+            if (is_a($app->user, GuestUser::class)) {
+                return;
+            }
             /**
              * @var \MapasCulturais\Entities\Opportunity $opportunity
              * @var bool $drawSetted
@@ -55,6 +65,9 @@ class Module extends \MapasCulturais\Module
         });
 
         $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
+            if (is_a($app->user, GuestUser::class)) {
+                return;
+            }
             /**
              * @var \MapasCulturais\Controllers\Opportunity $this
              * @var \MapasCulturais\Entities\Opportunity $opportunity
