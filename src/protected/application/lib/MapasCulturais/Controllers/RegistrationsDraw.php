@@ -38,8 +38,6 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $draw = \MapasCulturais\Factories\Draw::createFromRegistrations($reorderedList);
             $draw->save(true);
         } catch (\Exception $e) {
-            throw $e;
-            exit();
             $this->json(['message' => 'An unexpected error occured'], 500);
             return;
         }
