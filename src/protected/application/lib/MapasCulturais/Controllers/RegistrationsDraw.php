@@ -64,14 +64,15 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         }
 
         $output = [];
-        $footerLinesIndexes = [];
+        $output[] = [
+            '<style bgcolor="#555555" color="#ffffff">Inscrição</style>', '',
+            '<style bgcolor="#555555" color="#ffffff">Oportunidade</style>', '',
+            '<style bgcolor="#555555" color="#ffffff">Posição</style>',
+            '<style bgcolor="#555555" color="#ffffff">Categoria</style>',
+            '<style bgcolor="#555555" color="#ffffff">Data do sorteio</style>',
+            '<style bgcolor="#555555" color="#ffffff">Reponsável pelo sorteio</style>', '',
+        ];
         foreach ($draws as $draw) {
-            $output[] = [
-                '<style bgcolor="#555555" color="#ffffff">Inscrição</style>', '',
-                '<style bgcolor="#555555" color="#ffffff">Oportunidade</style>', '',
-                '<style bgcolor="#555555" color="#ffffff">Posição</style>',
-                '<style bgcolor="#555555" color="#ffffff">Categoria</style>'
-            ];
             foreach ($draw->drawRegistrations->toArray() as $rankingPosition) {
                 $outputLine[0] = $rankingPosition->registration->number;
                 $outputLine[1] = $rankingPosition->registration->singleUrl;
@@ -79,32 +80,19 @@ class RegistrationsDraw extends \MapasCulturais\Controller
                 $outputLine[3] = $draw->opportunity->singleUrl;
                 $outputLine[4] = $rankingPosition->rank;
                 $outputLine[5] = $draw->category;
+                $outputLine[6] = $draw->createTimestamp->format('d/m/Y \à\s h:i:s');
+                $outputLine[7] = $draw->user->profile->name;
+                $outputLine[8] = $draw->user->profile->singleUrl;
 
                 $output[] = $outputLine;
             }
-
-            $footerLine = [
-                '<style bgcolor="#dddddd" color="#222222">' .
-                'Sorteio realizado em ' .
-                $draw->createTimestamp->format('d/m/Y \à\s h:i:s') .
-                ' por ' . $draw->user->profile->name .
-                '</style>'
-            ];
-            $output[] = $footerLine;
-            $footerLinesIndexes[] = count($output);
-
-            $output[] = [];
         }
 
         try {
             $spreadsheet = SimpleXLSXGen::fromArray($output)
                 ->mergeCells('A1:B1')
-                ->mergeCells('C1:D1');
-            foreach ($footerLinesIndexes as $index) {
-                $spreadsheet->mergeCells('A' . ($index + 2) . ':B' . ($index + 2))
-                    ->mergeCells('C' . ($index + 2) . ':D' . ($index + 2))
-                    ->mergeCells("A{$index}:F{$index}");
-            }
+                ->mergeCells('C1:D1')
+                ->mergeCells('H1:I1');
 
             $spreadsheet->downloadAs('sorteios.xlsx');
         } catch (\Exception $e) {
