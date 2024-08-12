@@ -45,7 +45,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $this->json($draw, 201);
     }
 
-    public function GET_downloadcsv(): void
+    public function GET_downloadxlsx(): void
     {
         $app = App::i();
 
@@ -99,6 +99,48 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $this->json(['message' => 'An unexpected error occured'], 500);
             return;
         }
+    }
+
+    /**
+     * Endpoint que devolve um pdf com os dados do sorteio
+     *
+     * @throws MpdfException
+     */
+    public function GET_downloadpdf(): void
+    {
+        $app = App::i();
+
+        $criteria = ['opportunity' => $this->data['id']];
+        if (isset($this->data['category']) && !empty($this->data['category'])) {
+            $criteria['category'] = $this->data['category'];
+        }
+
+        /** @var Draw[] $draws */
+        $draws = $app->repo(Draw::class)->findBy($criteria, ['category' => 'asc', 'createTimestamp' => 'desc']);
+
+        // Em caso de usuário não autorizado, retornar 403
+        if (!$draws[0]->opportunity->isUserAdmin($app->user)) {
+            $this->json(['message' => 'Not authorized'], 403);
+            return;
+        }
+
+        $pdf = new PDF([
+            'tempDir' => '/tmp',
+            'mode' => 'utf-8',
+            'default_font' => 'dejavusans',
+            'format' => 'A4',
+            'pagenumPrefix' => 'Página ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+        ]);
+
+        $content = $app->view->fetch('draw/pdf', [
+            'draws' => $draws,
+            'opportunity' => $draws[0]->opportunity,
+        ]);
+        $pdf->WriteHTML($content);
+
+        $pdf->OutputHttpDownload('sorteios.pdf');
     }
 
     /**
@@ -159,7 +201,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
      *
      * @throws MpdfException
      */
-    public function GET_pdf(): void
+    public function GET_pdf1(): void
     {
         $this->requireAuthentication();
         $app = App::i();
@@ -168,13 +210,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
         $pdf = new PDF([
             'tempDir' => dirname(__DIR__) . '/tmp',
-            'mode' => 'utf-8',
-            'default_font' => 'dejavusans',
-            'format' => 'A4',
-            'pagenumPrefix' => 'Pagina ',
-            'pagenumSuffix' => '  ',
-            'nbpgPrefix' => ' de ',
-            'nbpgSuffix' => ''
+
         ]);
 
         //INSTANCIA DO TIPO ARRAY OBJETO

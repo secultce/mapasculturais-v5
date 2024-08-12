@@ -71,15 +71,24 @@ $(document).ready(() => {
         document.querySelector(`.category-list[data-category="${category}"]`).style.display = 'flex';
     });
 
+    $('#download-pdf-ranking').on('click', e => {
+        e.preventDefault();
+        downloadFile('download-pdf-ranking', 'pdf');
+    });
     $('#download-xlsx-ranking').on('click', e => {
         e.preventDefault();
-        downloadXLSX('download-xlsx-ranking');
+        downloadFile('download-xlsx-ranking', 'xlsx');
     });
 
+    $('#download-pdf-category-ranking').on('click', e => {
+        e.preventDefault();
+        const category = document.getElementById('current-category-name').innerText;
+        downloadFile('download-pdf-category-ranking', 'pdf', category);
+    });
     $('#download-xlsx-category-ranking').on('click', e => {
         e.preventDefault();
         const category = document.getElementById('current-category-name').innerText;
-        downloadXLSX('download-xlsx-category-ranking', category);
+        downloadFile('download-xlsx-category-ranking', 'xlsx', category);
     });
 
     $('#pusblish-ranking').on('click', e => {
@@ -193,12 +202,13 @@ const filterTableRows = target => {
     currentCategoryName.innerText = target.getAttribute('data-category-name');
 }
 
-const downloadXLSX = (buttonId, category = null) => {
+const downloadFile = (buttonId, fileType = 'pdf', category = null) => {
     let args = { id: MapasCulturais.entity.id };
+    const action = 'download' + fileType;
     if (category) {
         args.category = category;
     }
-    const url = '/' + MapasCulturais.createUrl('sorteio-inscricoes', 'downloadcsv', args)
+    const url = '/' + MapasCulturais.createUrl('sorteio-inscricoes', action, args)
         .split(MapasCulturais.baseURL)[1];
 
     fetch(url)
