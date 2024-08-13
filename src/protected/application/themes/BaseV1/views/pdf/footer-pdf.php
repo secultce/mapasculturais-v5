@@ -1,5 +1,4 @@
-</main>
-<footer style="position: relative; width: 110%">
+<htmlpagefooter name="RodapeTimbrado" style="position: relative; width: 240mm; display: none">
     <div style="width: 100%; float: left; margin: 25px">
         <p style="text-align: center; padding-right: 30px; font-size: 10px;"><span> {PAGENO}{nbpg}</span></p>
         <p style="width: 100%; float: left;font-size: 9px;">
@@ -10,10 +9,9 @@
             <label for="">Fortaleza/CE. Fone: (85) 31016767</label>
         </p>
     </div>
-    <div style="width: 100%; text-align: center; position: absolute; left: -10px;">
-        <img src="<?php echo THEMES_PATH . 'BaseV1/assets/img/rodape_timbrado.png'; ?>" style="width: 100%; height: auto;" alt="">
-    </div>
-</footer>
-
-    </body>
-</html>
+    <img
+        src="<?php echo THEMES_PATH . 'BaseV1/assets/img/rodape_timbrado.png'; ?>"
+        style="width: 240mm; height: auto; position: absolute; bottom: 0; margin-left: -15mm; margin-right: -16mm;"
+        alt=""
+    >
+</htmlpagefooter>
