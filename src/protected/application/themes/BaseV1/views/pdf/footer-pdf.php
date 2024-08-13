@@ -12,9 +12,9 @@
             </p>
         </div>
         <img
-                src="<?php echo THEMES_PATH . 'BaseV1/assets/img/rodape_timbrado.png'; ?>"
-                style="width: 240mm; height: auto; position: absolute; bottom: 0; margin-left: -15mm; margin-right: -16mm;"
-                alt=""
+            src="<?php echo THEMES_PATH . 'BaseV1/assets/img/rodape_timbrado.png'; ?>"
+            style="width: 240mm; height: auto; position: absolute; bottom: 0; margin-left: -15mm; margin-right: -16mm;"
+            alt=""
         >
     </htmlpagefooter>
 </body>
