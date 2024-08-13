@@ -7,6 +7,7 @@ namespace MapasCulturais\Controllers;
 use MapasCulturais\App;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
+use Mpdf\HTMLParserMode;
 use Mpdf\MpdfException;
 use MapasCulturais\Entities\{Draw, Opportunity as OpportunityEntity, Registration as RegistrationEntity};
 use Shuchkin\SimpleXLSXGen;
@@ -38,14 +39,14 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             $draw = \MapasCulturais\Factories\Draw::createFromRegistrations($reorderedList);
             $draw->save(true);
         } catch (\Exception $e) {
-            $this->json(['message' => 'An unexpected error occured'], 500);
+            $this->json(['message' => 'An unexpected error occurred'], 500);
             return;
         }
 
         $this->json($draw, 201);
     }
 
-    public function GET_downloadcsv(): void
+    public function GET_downloadxlsx(): void
     {
         $app = App::i();
 
@@ -96,9 +97,59 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
             $spreadsheet->downloadAs('sorteios.xlsx');
         } catch (\Exception $e) {
-            $this->json(['message' => 'An unexpected error occured'], 500);
+            $this->json(['message' => 'An unexpected error occurred'], 500);
             return;
         }
+    }
+
+    /**
+     * Endpoint que devolve um pdf com os dados do sorteio
+     *
+     * @throws MpdfException
+     */
+    public function GET_downloadpdf(): void
+    {
+        $app = App::i();
+
+        $criteria = ['opportunity' => $this->data['id']];
+        if (isset($this->data['category']) && !empty($this->data['category'])) {
+            $criteria['category'] = $this->data['category'];
+        }
+
+        /** @var Draw[] $draws */
+        $draws = $app->repo(Draw::class)->findBy($criteria, ['category' => 'asc', 'createTimestamp' => 'desc']);
+
+        // Em caso de usuário não autorizado, retornar 403
+        if (!$draws[0]->opportunity->isUserAdmin($app->user)) {
+            $this->json(['message' => 'Not authorized'], 403);
+            return;
+        }
+
+        $pdf = new PDF([
+            'tempDir' => '/tmp',
+            'mode' => 'utf-8',
+            'default_font' => 'dejavusans',
+            'format' => 'A4',
+            'pagenumPrefix' => 'Página ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+        ]);
+        $pdf->SetTitle('Secult/CE - Relatório de sorteio');
+
+        $pdf->WriteHTML(
+            "@page { footer: html_RodapeTimbrado; margin-footer: 0cm; margin-bottom: 3cm; }",
+            HTMLParserMode::HEADER_CSS
+        );
+
+        $footerPageContent = $this->parseToHTML(THEMES_PATH . 'BaseV1/views/pdf/footer-pdf.php', [], '');
+
+        $content = $this->parseToHTML('draw/pdf.php', [
+            'draws' => $draws,
+            'opportunity' => $draws[0]->opportunity,
+        ]);
+        $pdf->WriteHTML($footerPageContent . $content);
+
+        $pdf->OutputHttpDownload('sorteios.pdf');
     }
 
     /**
@@ -116,7 +167,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     }
 
     /**
-     * Essa função recebe uma opporunidade e uma categoria, lista todas as inscrições referentes, as reordena
+     * Essa função recebe uma oportunidade e uma categoria, lista todas as inscrições referentes, as reordena
      * numa nova lista e retorna essa nova lista.
      */
     private function randomSortRegistrations(OpportunityEntity $opportunity, string $category = ''): ?array
@@ -128,12 +179,12 @@ class RegistrationsDraw extends \MapasCulturais\Controller
             'status' => RegistrationEntity::STATUS_APPROVED,
             'category' => $category,
         ]);
-        // Caso não existam inscrições que obdeçam aos critérios, para a execução e retorna 'null'
+        // Caso não existam inscrições que obedeçam aos critérios, para a execução e retorna 'null'
         if (empty($registrations)) {
             return null;
         }
 
-        // Nesse bloco cada inscrição é atribuída a uma chave de um array. Cheve essa que é gerada aleatoriamente.
+        // Nesse bloco cada inscrição é atribuída a uma chave de um array. Chave essa gerada aleatoriamente.
         $randomMax = count($registrations) * 10;
         $randomizedArray = [];
         foreach ($registrations as $registration) {
@@ -155,49 +206,21 @@ class RegistrationsDraw extends \MapasCulturais\Controller
     }
 
     /**
-     * Endpoint que devolve um pdf com os dados do sorteio
-     *
-     * @throws MpdfException
+     * @param string $template
+     * @param array<string, mixed> $data
+     * @param false|string $basePath
+     * @return string
      */
-    public function GET_pdf(): void
+    private function parseToHTML(string $template, array $data = [], $basePath = false): string
     {
-        $this->requireAuthentication();
-        $app = App::i();
-        $draw = $app->repo('RegistrationsRanking')->findBy(['opportunity' => $this->data['id']]);
-        $opp = $app->repo('Opportunity')->find($this->data['id']);
+        if ($basePath === false) {
+            $basePath = MODULES_PATH . 'RegistrationsDraw/views/';
+        }
 
-        $pdf = new PDF([
-            'tempDir' => dirname(__DIR__) . '/tmp',
-            'mode' => 'utf-8',
-            'default_font' => 'dejavusans',
-            'format' => 'A4',
-            'pagenumPrefix' => 'Pagina ',
-            'pagenumSuffix' => '  ',
-            'nbpgPrefix' => ' de ',
-            'nbpgSuffix' => ''
-        ]);
+        extract($data);
+        ob_start();
+        require $basePath . $template;
 
-        //INSTANCIA DO TIPO ARRAY OBJETO
-        $app->view->regObject = new \ArrayObject();
-        $app->view->regObject['draw'] = $draw;
-        $app->view->regObject['opp'] = $opp;
-
-        //Add estilo
-        $stylesheet = file_get_contents(MODULES_PATH . 'RegistrationsDraw/assets/css/prize-draw.css');
-        $pdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-
-        //Configuração para o footer
-        $footerPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-pdf.php');
-        $footerDocumentPage = file_get_contents(THEMES_PATH . 'BaseV1/views/pdf/footer-document.php');
-        $pdf->SetHTMLFooter($footerPage);
-        $pdf->SetHTMLFooter($footerPage, 'E');
-        $pdf->writingHTMLfooter = true;
-        //Gerando o pdf
-        $pdf->SetTitle('Secult/CE - Relatório de sorteio');
-        $content = $app->view->fetch('draw/pdf');
-        $pdf->WriteHTML($content);
-        $pdf->SetHTMLFooter($footerPage . $footerDocumentPage);
-        $pdf->Output();
-        exit;
+        return ob_get_clean();
     }
 }
