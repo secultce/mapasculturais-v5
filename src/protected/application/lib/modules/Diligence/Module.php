@@ -171,11 +171,17 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app, $module){
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
+
             if ( $module->isEvaluator($entity->opportunity, $entity) )
             {
+                $tado = DiligenceRepo::getTado($entity);
                 $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
                 $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
-                $this->part('multi/accountability-actions', ['reg' => $entity, 'app' => $app]);
+                $this->part('multi/accountability-actions', [
+                    'reg' => $entity,
+                    'app' => $app,
+                    'tado' => $tado
+                ]);
             };
 
         });
