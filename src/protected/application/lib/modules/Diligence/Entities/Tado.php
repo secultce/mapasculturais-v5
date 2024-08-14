@@ -115,7 +115,22 @@ class Tado extends \MapasCulturais\Entity
    */
   protected $status = self::STATUS_DRAFT;
 
-  public function validateForm(ControllerTado $request): array
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_manager", type="string", length=255, nullable=true)
+     */
+    protected $nameManager;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="cpf_manager", type="string", length=255, nullable=true)
+     */
+    protected $cpfManager;
+
+    public function validateForm(ControllerTado $request): array
   {
     $return = [];
     foreach ($request->data as $key => $value) {

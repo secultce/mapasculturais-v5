@@ -17,7 +17,15 @@ $(document).ready(function () {
         e.preventDefault();
         saveTado(editor, 0);
     });
+    // Obtém o valor do cookie ""erro-tado"
+    var message = $.cookie("erro-tado");
 
+    if (message) {
+        // Se o cookie existir, exiba um alerta
+        diligenceMessage.messageError("Ops!", message, 4000);
+        //Removendo o cookie
+        $.removeCookie("erro-tado", { path: '/' });
+    }
 });
 
 
@@ -32,7 +40,9 @@ function saveTado(editor, status)
         object : $("#object").val(),
         conclusion: editor.html.get(),//Captura o html do textarea
         idTado: $("#idTado").val(),
-        status : status
+        status : status,
+        nameManager :  $("#nameManager").val(),
+        cpfManager  : $("#cpfManager").val()
     };
 
     if($("#idTado").val() !== '') {
@@ -98,11 +108,11 @@ function save(postDataTado)
                         const urlRedirect = MapasCulturais.createUrl('tado', 'gerar/'+MapasCulturais.idEntity);
                         window.location.href=urlRedirect;
                     }, 2000);
-    
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
                 }
+
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
                
             }
 

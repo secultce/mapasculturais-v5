@@ -3,6 +3,7 @@
 namespace Diligence\Traits;
 
 use \MapasCulturais\App;
+use Mpdf\Mpdf;
 
 trait DiligenceSingle{
 
@@ -33,7 +34,7 @@ trait DiligenceSingle{
         }    
     }
 
-    static public function mpdfConfig()
+    static public function mpdfConfig() : \Mpdf\Mpdf
     {
         return new \Mpdf\Mpdf([
             'tempDir' => '/tmp',
@@ -43,7 +44,10 @@ trait DiligenceSingle{
             'pagenumSuffix' => '  ',
             'nbpgPrefix' => ' de ',
             'nbpgSuffix' => '',
-            'margin' => 0
+            'margin_top' => 45,
+            'margin_bottom' => 20,
+            'margin_left' => 0,
+            'margin_right' => 0,
         ]);
         
     }
@@ -52,14 +56,15 @@ trait DiligenceSingle{
     {
         $app        = App::i();
         $content = $app->view->fetch($fileHtmlBody);
-        $mpdf->SetTitle($titleReport);
         $stylesheet = file_get_contents(MODULES_PATH . $pathCss);
         $footerPage = $app->view->fetch('pdf/footer-pdf');
         // Adicione o CSS ao mPDF
+        $mpdf->SetTitle($titleReport);
         $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-        $mpdf->WriteHTML(ob_get_clean());
-        $mpdf->WriteHTML($content);
+
         $mpdf->SetHTMLFooter($footerPage);
+        $mpdf->WriteHTML($content);
+        $mpdf->WriteHTML(ob_get_clean());
         $mpdf->Output();
     }
 }

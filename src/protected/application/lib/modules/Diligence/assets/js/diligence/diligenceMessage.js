@@ -11,7 +11,7 @@ var diligenceMessage = (function(){
             reverseButtons: false,
         });
     }
-
+    //Mensagem de carregamento de ação
     function loadSimple()
     {
         Swal.fire({
@@ -20,9 +20,21 @@ var diligenceMessage = (function(){
             showConfirmButton: false,
         });
     }
+    //Mensagem de erro
+    function messageError(title, text, time)
+    {
+        Swal.fire({
+            icon: "error",
+            title: title,
+            text: text,
+            timer: time,
+            showConfirmButton: false,
+        });
+    }
 
     return {
         messageSimple: messageSimple,
-        loadSimple: loadSimple
+        loadSimple: loadSimple,
+        messageError: messageError
     };
 }());

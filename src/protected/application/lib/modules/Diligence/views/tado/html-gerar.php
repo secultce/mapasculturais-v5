@@ -1,15 +1,4 @@
-<?php
-use MapasCulturais\App;
-$reg = $app->view->regObject['reg'];
-$urlOpp = App::i()->createUrl('opportunity' . $reg->opportunity->id);
 
-$this->layout = 'nolayout-pdf';
-?>
-<head>
-    <style type="text/css">
-        section, table, div { font-family: Open Sans, sans-serif !important;}
-    </style>
-</head>
 <div>
     <section class="clearfix">
         <article class="main-content">
@@ -33,8 +22,12 @@ $this->layout = 'nolayout-pdf';
                 <table>
                     <tbody>
                         <tr>
-                            <td class="title-bold">Nº DO TEC : </td>
+                            <td class="title-bold">Nº DO TEC :</td>
+                            <td> <?= $tado->number; ?></td>
+                        </tr>
+                        <tr>
                             <td class="title-bold">DATA :</td>
+                            <td><?= Carbon::parse($tado->createTimestamp)->format('d/m/Y'); ?></td>
                         </tr>
                         <tr>
                             <td class="title-bold">PERÍODO DE VIGÊNCIA : </td>
