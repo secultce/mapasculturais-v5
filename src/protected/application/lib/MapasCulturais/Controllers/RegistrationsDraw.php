@@ -183,6 +183,13 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         if (empty($registrations)) {
             return null;
         }
+        $lastDraw = $app->repo(Draw::class)->findOneBy([
+            'opportunity' => $opportunity,
+            'category' => $category
+        ], ['createTimestamp' => 'desc']);
+        if ($lastDraw && count($lastDraw->drawRegistrations) === count($registrations)) {
+            return null;
+        }
 
         // Nesse bloco cada inscrição é atribuída a uma chave de um array. Chave essa gerada aleatoriamente.
         $randomMax = count($registrations) * 10;
