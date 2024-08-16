@@ -63,7 +63,7 @@ class Module extends \MapasCulturais\Module
                     ->findBy([
                         'category' => $category,
                         'opportunity' => $opportunity->id,
-                    ]);
+                    ], ['createTimestamp' => 'desc']);
             }
 
             $this->part('opportunity/prize-draw-content', [
