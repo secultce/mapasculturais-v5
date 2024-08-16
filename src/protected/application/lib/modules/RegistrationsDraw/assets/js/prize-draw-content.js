@@ -129,20 +129,21 @@ $(document).ready(() => {
         }
 
         // Add new item on history and set as .active
-        const lastItemOnHistory = document.querySelector(`label[data-category-name="${category}"]`);
+        const categoryContainerTitle = document.querySelector(`div[data-category="${category}"] > span.history-category`);
         const newItemOnHistory = document.createElement('label');
         newItemOnHistory.classList.add('active');
         newItemOnHistory.setAttribute('data-draw-id', draw.id);
         newItemOnHistory.setAttribute('data-category-name', category);
         newItemOnHistory.setAttribute('onclick', 'filterTableRows(this)');
-        lastItemOnHistory.before(newItemOnHistory);
+        categoryContainerTitle.after(newItemOnHistory);
+
         newItemOnHistory.innerHTML = `Sorteio realizado em: <br>
             <strong>${formatDateTime(draw.createTimestamp.date)}<strong>`;
         // Remove active class from all labels
         $('label[data-draw-id]').each((_, elem) => {
             elem.classList.remove('active');
         });
-        // Set current categoy name to table title
+        // Set current category name to table title
         document.getElementById('current-category-name').innerText = category;
 
         drawRegistrations.sort((current, next) => {
@@ -163,7 +164,7 @@ $(document).ready(() => {
 
             const rank = drawRegistrations[i];
             i++;
-            const tr = $(`<tr data-category="${category}" class="approved"></tr>`)
+            const tr = $(`<tr data-draw-id="${draw.id}" class="approved"></tr>`)
                 .append($(`<td>#${rank.rank}</td>` +
                     `<td><a href="${rank.registration.singleUrl}">${rank.registration.number}</a></td>` +
                     `<td><a href="/agente/${rank.registration.owner.id}">${rank.registration.owner.name}</a></td>` +
