@@ -1,13 +1,13 @@
 <?php
+
 namespace MapasCulturais\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use MapasCulturais\Entity;
-use MapasCulturais\Repositories\Draw as DrawRepository;
+use MapasCulturais\Repository;
 
 /**
- * @ORM\Entity(repositoryClass=DrawRepository::class)
+ * @ORM\Entity(repositoryClass=Repository::class)
  * @ORM\Table(name="draw")
  */
 class Draw extends Entity
