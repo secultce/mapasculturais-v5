@@ -65,7 +65,7 @@ foreach ($rankings as $category => $draws) {
                 </div>
             </div>
             <?php if ($isAdmin && !$isPublished) : ?>
-                <button class="btn btn-primary" id="pusblish-ranking">Publicar os sorteios</button>
+                <button class="btn btn-primary" id="publish-ranking">Publicar os sorteios</button>
             <?php elseif ($isPublished) : ?>
                 <button class="btn published-draw-label">&#9989; Sorteios publicados</button>
             <?php endif; ?>

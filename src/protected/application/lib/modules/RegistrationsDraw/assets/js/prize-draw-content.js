@@ -91,7 +91,7 @@ $(document).ready(() => {
         downloadFile('download-xlsx-category-ranking', 'xlsx', category);
     });
 
-    $('#pusblish-ranking').on('click', e => {
+    $('#publish-ranking').on('click', e => {
         e.preventDefault();
 
         const url = MapasCulturais.createUrl(
@@ -107,7 +107,7 @@ $(document).ready(() => {
                 if(response.status !== 204)
                     throw new Error(response.status);
 
-                const btnPublish = $('#pusblish-ranking');
+                const btnPublish = $('#publish-ranking');
                 btnPublish.after($('<button class="btn published-draw-label">&#9989; Sorteios publicados</button>'));
                 btnPublish.remove();
             })
