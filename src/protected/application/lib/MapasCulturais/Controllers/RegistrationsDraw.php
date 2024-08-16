@@ -118,9 +118,11 @@ class RegistrationsDraw extends \MapasCulturais\Controller
 
         /** @var Draw[] $draws */
         $draws = $app->repo(Draw::class)->findBy($criteria, ['category' => 'asc', 'createTimestamp' => 'desc']);
+        $userRegistrations = $app->repo(RegistrationEntity::class)
+            ->findByOpportunityAndUser($draws[0]->opportunity, $app->user);
 
         // Em caso de usuário não autorizado, retornar 403
-        if (!$draws[0]->opportunity->isUserAdmin($app->user)) {
+        if (!$draws[0]->opportunity->isUserAdmin($app->user) && empty($userRegistrations)) {
             $this->json(['message' => 'Not authorized'], 403);
             return;
         }
