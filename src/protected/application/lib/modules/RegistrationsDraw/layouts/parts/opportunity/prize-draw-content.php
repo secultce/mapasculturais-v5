@@ -6,6 +6,14 @@
  * @var \MapasCulturais\Controllers\Opportunity $opportunity
  * @var \MapasCulturais\App $app
  */
+
+$firstCategory = '';
+foreach ($rankings as $category => $draws) {
+    if (!empty($draws)) {
+        $firstCategory = $category;
+        break;
+    }
+}
 ?>
 <div id="prize-draw">
     <?php $this->applyTemplateHook('opportunity-draw', 'begin'); ?>
@@ -99,7 +107,7 @@
 
             <div class="draw-content" id="draw-content">
                 <h5>Lista sorteada para a categoria
-                    <strong id="current-category-name"><?= $categories[0] ?></strong>
+                    <strong id="current-category-name"><?= $firstCategory ?></strong>
                 </h5>
                 <div>
                     <span>Baixar sorteio da categoria: </span>

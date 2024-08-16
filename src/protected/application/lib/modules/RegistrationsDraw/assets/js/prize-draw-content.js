@@ -114,6 +114,8 @@ $(document).ready(() => {
             .catch(err => console.error(err))
     });
 
+    document.querySelector('label[data-draw-id]').click();
+
     const renderRanking = (draw, category) => {
         const { drawRegistrations } = draw;
         const tableBodyElement = $('table#ranking-table tbody');
