@@ -139,7 +139,7 @@ class RegistrationsDraw extends \MapasCulturais\Controller
         $pdf->SetTitle('Secult/CE - Relatório de sorteio');
 
         $pdf->WriteHTML(
-            "@page { footer: html_RodapeTimbrado; margin-footer: 0cm; margin-bottom: 3cm; }",
+            "@page { footer: html_MyFooter1; margin-footer: 0cm; margin-bottom: 3cm; }",
             HTMLParserMode::HEADER_CSS
         );
 
