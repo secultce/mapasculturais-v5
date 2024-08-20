@@ -9,7 +9,10 @@
         </li>
     <?php endif; ?>
     <li class="" style="float: right;">
-        <button type="button" class="btn btn-primary btn-diligence-open-active" id="btn-open-diligence" onclick="openDiligence(0)">
+        <button type="button"
+                class="btn btn-primary btn-diligence-open-active"
+                id="btn-open-diligence"
+                onclick="openDiligence(0)">
             Abrir Diligência
         </button>
     </li>

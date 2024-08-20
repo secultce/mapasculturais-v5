@@ -2021,4 +2021,10 @@ $$
     'add column subject to table diligence' => function() {
         __exec("ALTER TABLE diligence ADD subject varchar(50)");
     },
+
+    'add column manager to table tado' => function() {
+        __exec("ALTER TABLE tado ADD name_manager varchar(255) DEFAULT NULL");
+        __exec("ALTER TABLE tado ADD cpf_manager varchar(255) DEFAULT NULL");
+    }
+
 ] + $updates ;
