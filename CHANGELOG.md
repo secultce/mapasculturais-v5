@@ -6,7 +6,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 ### Novas Funcionalidades
-- Adicionando módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental
+- Adicionado módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental
 
 ## [5.9.2-rc1] - 2024-07-09
 ### Melhorias
@@ -14,7 +14,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Adicionado plugin para realizar Consulta Pública
 - Adicionado Publicação do resultado dos sorteios
 - Geração do resultado do sorteio em PDF
-- Adicionado arquivos de configuração para robots
+- Adicionados arquivos de configuração para bots de indexação
 ### Correções
 - Adicionado arquivo cache
 
