@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Diligence\Entities\Tado as EntityTado;
+use Diligence\Repositories\Diligence as RepoDiligence;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -24,8 +25,9 @@ class Tado extends \MapasCulturais\Controller
         $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
 
         $app->view->enqueueScript('app', 'tado', 'js/multi/tado.js');
-
+        $app->view->enqueueScript('app', 'diligence-message', 'js/diligence/diligenceMessage.js');
         $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/js/froala_editor.pkgd.min.js');
+        $app->view->enqueueScript('app', 'jquery-cookies', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js');
         $app->view->enqueueStyle('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/css/froala_editor.pkgd.min.css');
         //Acesso ao avaliador, superAdmin+ ou admin da oportunidade
         if($isEvaluator || $app->user->is('superAdmin') || $reg->opportunity->canUser('@control'))
@@ -40,8 +42,26 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $reg = $app->repo('Registration')->find($this->data['id']);
-        $app->view->enqueueStyle('app', 'diligence', 'css/diligence/multi.css');
-        $this->render('gerar', ['reg' => $reg]);
+        //Buscando o tado gerado
+        $td = new RepoDiligence();
+        $tado = $td->getTado($reg);
+
+        //INSTANCIA DO TIPO ARRAY OBJETO
+        $app->view->regObject = new \ArrayObject;
+        $app->view->regObject['reg'] = $reg;
+        $app->view->regObject['tado'] = $tado;
+        //Se por acaso não tiver registrado o agente fiscal
+        if(is_null($app->view->regObject['tado']->agentSignature))
+        {
+            setcookie("erro-tado", "Devido a um erro não foi possivel gerar seu TADO.", time() + 3600, "/");
+            $app->redirect($app->createUrl('tado/emitir', $reg->id));
+        }
+        $mpdf = self::mpdfConfig();
+        self::mdfBodyMulti($mpdf,
+            'tado/gerar',
+            'Secult/CE - TADO',
+            'Diligence/assets/css/diligence/multi.css');
+
     }
 
     function POST_saveTado()
@@ -77,6 +97,8 @@ class Tado extends \MapasCulturais\Controller
             $tado->conclusion       = $this->data['conclusion'];
             $tado->status           = self::STATUS_DRAFT;
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
+            $tado->nameManager      = $this->data['nameManager'];
+            $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
             if($entity["entityId"]){
@@ -97,6 +119,8 @@ class Tado extends \MapasCulturais\Controller
         $tado->conclusion       = $request->data['conclusion'];
         $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
         $tado->status           = $request->data['status'];
+        $tado->nameManager      = $request->data['nameManager'];
+        $tado->cpfManager       = $request->data['cpfManager'];
         $entity = self::saveEntity($tado);
 
         if($entity["entityId"]){

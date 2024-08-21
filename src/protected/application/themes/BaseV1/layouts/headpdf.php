@@ -1,15 +1,14 @@
+<?php
+$this->layout = 'nolayout-pdf';
+?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <style type="text/css">
-        table,
-        div {
-            font-family: Open Sans, sans-serif !important;
-        }
-        main {
-            margin: 25px;
-        }
-    </style>
-</head>
+<head></head>
 <body>
-    <main>
+    <htmlpageheader name="MyHeader1">
+        <p style="text-align: center">
+            <img src="<?= MODULES_PATH .
+            'Diligence/assets/img/logo_secult.jpg' ?>" width="128" alt="">
+        </p>
+    </htmlpageheader>
+<main>

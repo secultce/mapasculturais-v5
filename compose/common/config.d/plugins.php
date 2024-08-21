@@ -6,7 +6,6 @@ return [
         'EvaluationMethodSimple' => ['namespace' => 'EvaluationMethodSimple'],
         'EvaluationMethodDocumentary' => ['namespace' => 'EvaluationMethodDocumentary'],
         'EvaluationMethodQualification' => ['namespace' => 'EvaluationMethodQualification'],
-        'ValuersManagement' => ['namespace' => 'ValuersManagement'],
         'OpinionManagement' => ['namespace' => 'OpinionManagement'],
         'Recourse' => ['namespace' => 'Recourse'],
         'EditOpportunityType' => ['namespace' => 'EditOpportunityType'],

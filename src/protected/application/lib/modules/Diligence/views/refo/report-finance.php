@@ -93,12 +93,11 @@ require THEMES_PATH. 'BaseV1/layouts/headpdf.php';
             if (!is_null($diligence)) {
                 if (!is_null($diligence->description)) {
                     $subjects = "Não informado";
-                    if (isset($diligence->subject)) {
+                    $dateDiligence = Carbon::parse($diligence->createTimestamp)->format('d/m/Y H:i');
+                    if($diligence->subject)
+                    {
                         $subjects = $diligence->getSubject();
                     }
-
-                    $dateDiligence = Carbon::parse($diligence->createTimestamp)->format('d/m/Y H:i');
-
                     echo '<div class="multi-report-diligence">'
                         . "<b>Diligência:</b>" . $br
                         . "Assunto : " . $subjects . $br

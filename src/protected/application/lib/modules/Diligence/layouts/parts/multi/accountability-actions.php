@@ -31,7 +31,7 @@ $response_template = '
 
 <?php
 if ($enableBtn) {
-    $this->part('multi/multi-select', ['reg' => $reg]);
+    $this->part('multi/multi-select', ['reg' => $reg, 'tado' => $tado]);
 }
 ?>
 

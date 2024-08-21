@@ -4,89 +4,72 @@ namespace RegistrationsDraw;
 
 use MapasCulturais\App;
 use MapasCulturais\Controllers\RegistrationsDraw;
+use MapasCulturais\Entities\Draw;
+use MapasCulturais\Entities\Opportunity;
+use MapasCulturais\Entities\Registration;
+use MapasCulturais\Entities\User;
+use MapasCulturais\GuestUser;
 
+/**
+ * @method part(string $string, ?array $params = null)
+ */
 class Module extends \MapasCulturais\Module
 {
+    private $app;
 
     public function _init()
     {
-        $app = App::i();
+        $this->app = App::getInstance();
+        $module = $this;
 
-        $app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () use ($app) {
+        $this->app->hook('template(opportunity.edit.opportunity-registrations--rules):after', function () {
             $opportunity = $this->controller->requestedEntity;
-            if($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary')
+            if ($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary') {
                 return;
+            }
 
             $this->part('opportunity/config-fieldset', ['opportunity' => $opportunity]);
         });
 
-        $app->hook('template(opportunity.single.tab-main-content):after', function () use ($app) {
-            $opportunity = $this->controller->requestedEntity;
-            if($opportunity->evaluationMethodConfiguration->getType()->id !== 'documentary')
-                return;
-
-            if($opportunity->useRegistrationsDraw && $opportunity->isPublishedDraw)
-                $this->part('opportunity/tab-draw', ['opportunity' => $opportunity]);
-        });
-
-        $app->hook('template(opportunity.single.opportunity-support--tab):after', function () {
+        $this->app->hook('template(opportunity.single.tabs):end', function () use ($module) {
             /**
-             * @var \MapasCulturais\Entities\Opportunity $opportunity
-             * @var bool $drawSetted
+             * @var Opportunity $opportunity
              */
             $opportunity = $this->controller->requestedEntity;
-            $drawSetted = $opportunity->useRegistrationsDraw;
-
-            /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
-             *  or registrations period is open.
-             */
-            if(!$drawSetted || !$opportunity->canUser('@control') || $opportunity->registrationTo > new \DateTime())
+            if (!$module->canUserAccessDraws($opportunity, $module->app->user)) {
                 return;
+            }
 
             $this->part('opportunity/tab-draw');
         });
 
-        $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
+        $this->app->hook('template(opportunity.single.tabs-content):end', function () use ($module) {
             /**
              * @var \MapasCulturais\Controllers\Opportunity $this
-             * @var \MapasCulturais\Entities\Opportunity $opportunity
-             * @var bool $drawSetted
+             * @var Opportunity $opportunity
              */
             $opportunity = $this->controller->requestedEntity;
-            $drawSetted = $opportunity->useRegistrationsDraw;
-
-            /** Skip the hook when opportunity not setted to prize draw, user can't control this opportunity,
-             *  or registrations period is open.
-             */
-            if(!$drawSetted
-                || (!$opportunity->canUser('@control') && !$opportunity->isPublishedDraw)
-                || $opportunity->registrationTo > new \DateTime())
+            if (!$module->canUserAccessDraws($opportunity, $module->app->user)) {
                 return;
+            }
 
-            $app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
-            $app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
-            $drawedCategories = $opportunity->drawedRegistrationsCategories ?? [];
+            $module->app->view->enqueueStyle('app', 'prize-draw', 'css/prize-draw.css');
+            $module->app->view->enqueueScript('app', 'prize-draw', 'js/prize-draw-content.js');
             $rankings = [];
-            $categories = array_map(function ($category) use ($drawedCategories, $opportunity, &$app, &$rankings) {
-                $isDrawed = in_array($category, $drawedCategories, true);
-                if($isDrawed) {
-                    $registrationsRanking = $app->repo('RegistrationsRanking')->findRanking($opportunity, $category);
-                    $rankings[$category]['registrations'] = $registrationsRanking;
-                    $rankings[$category]['owner'] = $registrationsRanking[0]->owner;
-                    $rankings[$category]['createTimestamp'] = $registrationsRanking[0]->createTimestamp;
-                }
+            $categories = $opportunity->registrationCategories ?: [""];
 
-                return (object)[
-                    'name' => $category,
-                    'isDrawed' => $isDrawed,
-                ];
-            }, $opportunity->registrationCategories ?: [""]);
-
+            foreach ($categories as $category) {
+                $rankings[$category] = $module->app->repo(Draw::class)
+                    ->findBy([
+                        'category' => $category,
+                        'opportunity' => $opportunity->id,
+                    ], ['createTimestamp' => 'desc']);
+            }
 
             $this->part('opportunity/prize-draw-content', [
                 'categories' => $categories,
                 'rankings' => $rankings,
-                'entity' => $opportunity,
+                'opportunity' => $opportunity,
                 'isAdmin' => $opportunity->canUser('@control'),
                 'isPublished' => $opportunity->isPublishedDraw,
             ]);
@@ -95,20 +78,7 @@ class Module extends \MapasCulturais\Module
 
     public function register()
     {
-        $app = App::i();
-        $app->registerController('sorteio-inscricoes', RegistrationsDraw::class);
-
-        $this->registerOpportunityMetadata('drawedRegistrationsCategories', [
-            'type' => 'string',
-            'label' => 'Categorias com ranking sorteados',
-            'default' => json_encode([]),
-            'serialize' => function($value) {
-                return json_encode($value);
-            },
-            'unserialize' => function($value) {
-                return json_decode($value);
-            },
-        ]);
+        $this->app->registerController('sorteio-inscricoes', RegistrationsDraw::class);
 
         $this->registerOpportunityMetadata('useRegistrationsDraw', [
             'type' => 'select',
@@ -118,7 +88,7 @@ class Module extends \MapasCulturais\Module
                 false => 'Não',
                 true => 'Sim',
             ],
-            'unserialize' => function($value) {
+            'unserialize' => static function ($value) {
                 return $value == 'Sim';
             },
         ]);
@@ -130,5 +100,34 @@ class Module extends \MapasCulturais\Module
             'default' => false,
             'options' => [false, true],
         ]);
+    }
+
+    /**
+     * @param int|Opportunity $opportunity
+     * @param User|GuestUser $user
+     * @return bool
+     */
+    private function isProponent($opportunity, $user): bool
+    {
+        return !empty($this->app->repo(Registration::class)
+            ->findByOpportunityAndUser($opportunity, $user));
+    }
+
+    /**
+     * Return true when opportunity setted to prize draw and user can control or is a proponent
+     * and draws published to proponents.
+     *
+     * @param Opportunity $opportunity
+     * @param User|GuestUser $user
+     * @return bool
+     */
+    public function canUserAccessDraws(Opportunity $opportunity, $user): bool
+    {
+        /** @var bool $drawSetted */
+        $drawSetted = $opportunity->useRegistrationsDraw;
+        $isProponent = $this->isProponent($opportunity, $user);
+        $userAllowed = $opportunity->canUser('@control', $user) || ($opportunity->isPublishedDraw && $isProponent);
+
+        return $drawSetted && $userAllowed;
     }
 }

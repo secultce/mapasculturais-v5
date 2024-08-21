@@ -15,8 +15,7 @@ class Refo extends \MapasCulturais\Controller
     {
         $app = App::i();
         $dili = DiligenceRepo::getDiligenceAnswer($this->data['id']);
-        $reg = [];
-        if (!is_null($dili[0])) {
+        if(!is_null($dili[0])){
             $reg = $dili[0]->registration;
         } else {
             $reg = $app->repo('Registration')->find($this->data['id']);
