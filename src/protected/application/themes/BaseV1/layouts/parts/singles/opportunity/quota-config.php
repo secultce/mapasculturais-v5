@@ -12,5 +12,16 @@
                 data-value="<?= $entity->getMetadata('hasVacanciesForQuotaHolders') ?>">
             </span>
         </p>
+        <p>
+            <span class="label">Número de vagas da oportunidade:</span>
+            <span
+                class="js-editable"
+                data-edit="numberVacancies"
+                data-value="<?= $entity->getMetadata('numberVacancies') ?>">
+            </span>
+        </p>
+        <p class="registration-help">
+            <?php \MapasCulturais\i::_e("Esse número será usado para calcular a quantidade de vagas para cotistas."); ?>
+        </p>
     </div>
 <?php endif; ?>
