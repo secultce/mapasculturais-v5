@@ -26,21 +26,21 @@ if ($diligenceAndAnswers) {
 <?php if (isset($diligencesSentReindexed)) : ?>
     <div class="import-financial-report">
         <?php
-        $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
+            $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
 
-        if ($financialReportsAccountability) {
-            foreach ($financialReportsAccountability as $financialReportAccountability) {
-                $file_id = $financialReportAccountability["id"];
-                echo '
-                    <div class="financial-report-wrapper" id="financial-report-wrapper">
-                        <i class="fas fa-download" style="margin-right: 10px;"></i>
-                        <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
-                            relatorio_financeiro.pdf
-                        </a>
-                    </div>
-                ';
+            if ($financialReportsAccountability) {
+                foreach ($financialReportsAccountability as $financialReportAccountability) {
+                    $file_id = $financialReportAccountability->id;
+                    echo '
+                        <div class="financial-report-wrapper" id="financial-report-wrapper">
+                            <i class="fas fa-download" style="margin-right: 10px;"></i>
+                            <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
+                                relatorio_financeiro.pdf
+                            </a>
+                        </div>
+                    ';
+                }
             }
-        }
         ?>
     </div>
     <h5>
@@ -73,17 +73,10 @@ if ($diligenceAndAnswers) {
                     <?php echo $diligencesSentReindexed[1]->answer; ?>
                 </p>
                 <?php
-                $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
-
-                foreach ($files as $file) {
-                    echo '
-                        <p style="margin-bottom: 10px;">
-                            <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
-                                ' . $file["name"] . '
-                            </a>
-                        </p>
-                    ';
-                }
+                    //Passando a diligencia da resposta para verificar retornar arquivo se houver
+                    $this->part('diligence/body-diligence-files',[
+                        'entityAnswer' => $diligencesSentReindexed[1]
+                    ])
                 ?>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php echo Carbon::parse($diligencesSentReindexed[1]->createTimestamp)->isoFormat('LLL'); ?>

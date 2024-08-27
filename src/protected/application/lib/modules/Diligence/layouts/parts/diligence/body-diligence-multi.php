@@ -9,26 +9,28 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $this->applyTemplateHook('body-diligence-multi', 'before');
 $this->applyTemplateHook('body-diligence-multi-div', 'begin');
-if ($diligenceAndAnswers) :
-    if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
-        <div>
-            <div class="import-financial-report">
-                <?php
-                $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
-                $generatedTado = DiligenceRepo::getTado($entity);
+?>
+    <div>
+        <hr>
+    </div>
+    <div class="import-financial-report" style="margin-top: 15px">
 
-                $delBtn = '
+        <?php
+        $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
+        $generatedTado = DiligenceRepo::getTado($entity);
+
+        $delBtn = '
                     <div class="delete-financial-report-btn">
                         <a delete-financial-report data-file-id="%s" class="icon icon-close hltip" title="Excluir arquivo">
                         </a>
                     </div>
                 ';
-                $showDelBtn = !$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED ? $delBtn : '';
+        $showDelBtn = !$generatedTado || $generatedTado->status !== Tado::STATUS_ENABLED ? $delBtn : '';
 
-                if ($financialReportsAccountability) {
-                    foreach ($financialReportsAccountability as $financialReportAccountability) {
-                        $file_id = $financialReportAccountability->id;
-                        echo '
+        if ($financialReportsAccountability) {
+            foreach ($financialReportsAccountability as $financialReportAccountability) {
+                $file_id = $financialReportAccountability->id;
+                echo '
                             <div class="financial-report-wrapper" id="financial-report-wrapper">
                                 <i class="fas fa-download" style="margin-right: 10px;"></i>
                                 <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
@@ -37,10 +39,16 @@ if ($diligenceAndAnswers) :
                                 ' . sprintf($showDelBtn, $file_id) . '
                             </div>
                         ';
-                    }
-                }
-                ?>
-            </div>
+            }
+        }
+        ?>
+    </div>
+
+<?php
+if ($diligenceAndAnswers) :
+    if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
+        <div>
+
             <h5>
                 <?php i::_e('Diligências enviadas'); ?>
             </h5>
@@ -53,7 +61,12 @@ if ($diligenceAndAnswers) :
                     </label>
                     <label for="">
                         <strong>Assunto(s): </strong>
-                        <?php $diligenceAndAnswers > 0 ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
+                        <?php
+                            //Condição para mostrar na página o assunto
+                            if($diligenceAndAnswers) {
+                                echo $diligenceAndAnswers[0]->getSubject();
+                            }
+                        ?>
                     </label>
                     <p style="margin: 10px 0px;">
                         <?php echo $diligenceAndAnswers[0]->description; ?>
@@ -122,7 +135,7 @@ if ($diligenceAndAnswers) :
                 }
 
                 if ($key > 1) :
-                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
+                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
                         <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                             <label style="font-size: 14px">
                                 <b>Diligência:</b>
@@ -137,70 +150,41 @@ if ($diligenceAndAnswers) :
                                 </label>
                             </p>
                             <p>
-                                <?php
-                                echo $resultsDiligence->description;
-                                ?>
+                                <?php echo $resultsDiligence->description; ?>
                             </p>
                             <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
                                 <?php echo $dtSend; ?>
                             </p>
                         </div>
-                        <?php
-                    }
+                    <?php
+                    endif;
 
-                    if ($key > 1) :
-                        if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
-                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                                <label style="font-size: 14px">
-                                    <b>Diligência:</b>
-                                </label>
-                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                            </div>
-                            <div class="content">
-                                <p>
-                                    <?php echo $resultsDiligence->description; ?>
-                                </p>
-                                <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
-                                    <?php echo $dtSend; ?>
-                                </p>
-                            </div>
-                        <?php
-                        endif;
-
-                        if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
-                            $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
-                            $dtSendAnswer = $dtAnswer->isoFormat('LLL');
-                        ?>
-                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                                <label style="font-size: 14px">
-                                    <b>Resposta recebida:</b>
-                                </label>
-                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">
-                                    Visualizar <i class="fas fa-angle-down arrow"></i>
-                                </label>
-                            </div>
-                            <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
-                                <p style="margin: 10px 0px;">
-                                    <?php echo $resultsDiligence->answer; ?>
-                                </p>
-                                <?php
-                                $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
-
-                                foreach ($files as $file) {
-                                    echo '
-                                    <p style="margin-bottom: 10px;">
-                                        <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
-                                            ' . $file["name"] . '
-                                        </a>
-                                    </p>
-                                ';
-                                }
-                                ?>
-                                <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                                    <?php echo $dtSendAnswer; ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
+                    if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
+                        $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
+                        $dtSendAnswer = $dtAnswer->isoFormat('LLL');
+                    ?>
+                        <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                            <label style="font-size: 14px">
+                                <b>Resposta recebida:</b>
+                            </label>
+                            <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">
+                                Visualizar <i class="fas fa-angle-down arrow"></i>
+                            </label>
+                        </div>
+                        <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
+                            <p style="margin: 10px 0px;">
+                                <?php echo $resultsDiligence->answer; ?>
+                            </p>
+                            <?php
+                                //Passando a diligencia da resposta para verificar retornar arquivo se houver
+                                $this->part('diligence/body-diligence-files',[
+                                        'entityAnswer' => $resultsDiligence
+                                ])
+                            ?>
+                            <span style="font-size: 12px; font-weight: 700; color: #404040;">
+                                <?php echo $dtSendAnswer; ?>
+                            </span>
+                        </div>
                     <?php endif; ?>
                 <?php endif; ?>
             <?php endforeach; ?>
@@ -214,12 +198,21 @@ if ($diligenceAndAnswers) :
     //Array para marcar como confirmado a opção
     isset($diligenceAndAnswers[0]) ?  $subjectReplace = $diligenceAndAnswers[0]->subjectToArray() : $subjectReplace = [];
     isset($diligenceAndAnswers[0]) ? $checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace) : $checked = ['checkPhysical' => "checked", 'checkFinance' => ""];
-    //Se não tiver resposta não mostra o assunto
+
     $generatedTado = DiligenceRepo::getTado($entity);
 
     if (!is_null($diligenceAndAnswers[1]) || isset($diligenceAndAnswers[1]->status)) {
-        if($generatedTado->status == EntityDiligence::STATUS_DRAFT)
+        if(!is_null($generatedTado) && $generatedTado->status == EntityDiligence::STATUS_DRAFT)
         {
+            $this->part(
+                'diligence/body-diligence-subject',
+                [
+                    'checkPhysical' => $checked['checkPhysical'],
+                    'checkFinance' => $checked['checkFinance'],
+                ]
+            );
+        }else{
+            //Se não tiver tado, mas se tiver resposta
             $this->part(
                 'diligence/body-diligence-subject',
                 [
