@@ -44,9 +44,13 @@ if ($diligenceAndAnswers) {
                 <label>
                     <b>Diligência (atual):</b>
                 </label> <br>
-                <strong><?= i::_e('Assunto(s)'); ?></strong>
                 <label for="">
-                    <?php $diligenceAndAnswers ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
+                    <p>
+                        <label for="">
+                            <strong><?= i::_e('Assunto(s)'); ?></strong>
+                            <?php echo $diligenceAndAnswers[0]->getSubject(); ?>
+                        </label>
+                    </p>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php echo $diligencesSentReindexed[0]->description; ?>
@@ -98,34 +102,6 @@ if ($diligenceAndAnswers) {
                     $dt             = Carbon::parse($resultsDiligence->sendDiligence);
                     $dtSend         = $dt->isoFormat('LLL');
                 }
-
-                if ($key > 1) :
-                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
-                        <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                            <label style="font-size: 14px">
-                                <b>Diligência:</b>
-                            </label>
-                            <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                        </div>
-                        <div class="content">
-                            <p>
-                                <label for="">
-                                    <?php echo $resultsDiligence->getSubject(); ?>
-                                </label>
-                            </p>
-                            <p>
-
-                                <?php
-                                echo $resultsDiligence->description;
-                                ?>
-                            </p>
-                            <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
-                                <?php echo $dtSend; ?>
-                            </p>
-                        </div>
-                        <?php
-                    }
-
                     if ($key > 1) :
                         if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
                             <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
@@ -135,6 +111,12 @@ if ($diligenceAndAnswers) {
                                 <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
                             </div>
                             <div class="content">
+                                <p>
+                                    <label for="">
+                                        <strong>Assunto(s): </strong>
+                                        <?php echo $resultsDiligence->getSubject(); ?>
+                                    </label>
+                                </p>
                                 <p>
                                     <?php echo $resultsDiligence->description; ?>
                                 </p>
@@ -179,7 +161,6 @@ if ($diligenceAndAnswers) {
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
-                <?php endif; ?>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
