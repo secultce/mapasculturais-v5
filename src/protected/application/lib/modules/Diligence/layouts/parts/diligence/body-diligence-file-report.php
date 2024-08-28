@@ -1,6 +1,7 @@
 <?php
+use Diligence\Repositories\Diligence as DiligenceRepo;
 //Mostra na view os arquivos importados e a quantidade
-
+$financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
 //Se showDelBtn tiver vazio não mostra icone para excluir o arquivo
 if ($financialReportsAccountability)
 {
