@@ -26,21 +26,13 @@ if ($diligenceAndAnswers) {
 <?php if (isset($diligencesSentReindexed)) : ?>
     <div class="import-financial-report">
         <?php
-            $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
-
-            if ($financialReportsAccountability) {
-                foreach ($financialReportsAccountability as $financialReportAccountability) {
-                    $file_id = $financialReportAccountability->id;
-                    echo '
-                        <div class="financial-report-wrapper" id="financial-report-wrapper">
-                            <i class="fas fa-download" style="margin-right: 10px;"></i>
-                            <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
-                                relatorio_financeiro.pdf
-                            </a>
-                        </div>
-                    ';
-                }
-            }
+        $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
+        //Componente para mostrar os importes dos relatórios financeiros
+        $this->part('diligence/body-diligence-file-report', [
+            'financialReportsAccountability' => $financialReportsAccountability,
+            'entity' => $entity,
+            'showDelBtn' => ''
+        ]);
         ?>
     </div>
     <h5>
