@@ -16,9 +16,6 @@ $this->applyTemplateHook("body-diligence-multi-div", "begin");
 <div class="import-financial-report" style="margin-top: 15px">
 
     <?php
-    $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability(
-        $entity->id
-    );
     //Para mostrar o botão de excluir para gestores da oportuniade
     $generatedTado = DiligenceRepo::getTado($entity);
     $delBtn = '
