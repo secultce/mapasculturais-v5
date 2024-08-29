@@ -257,7 +257,7 @@ class Module extends \MapasCulturais\Module {
         $app->registerController('refo', Controllers\Refo::class);
         //Registrar metadata na tabela opportunity
         $this->registerOpportunityMetadata('diligence_days', [
-            'label' => i::__('Dias corridos para resposta da diligência'),
+            'label' => i::__('Dias para resposta da diligência'),
             'type' => 'string',
             'default' => 3,           
             'validations' => [
