@@ -26,21 +26,12 @@ if ($diligenceAndAnswers) {
 <?php if (isset($diligencesSentReindexed)) : ?>
     <div class="import-financial-report">
         <?php
-        $financialReportsAccountability = DiligenceRepo::getFinancialReportsAccountability($entity->id);
-
-        if ($financialReportsAccountability) {
-            foreach ($financialReportsAccountability as $financialReportAccountability) {
-                $file_id = $financialReportAccountability["id"];
-                echo '
-                    <div class="financial-report-wrapper" id="financial-report-wrapper">
-                        <i class="fas fa-download" style="margin-right: 10px;"></i>
-                        <a href="/arquivos/privateFile/' . $file_id . '" target="_blank" rel="noopener noreferrer">
-                            relatorio_financeiro.pdf
-                        </a>
-                    </div>
-                ';
-            }
-        }
+        
+        //Componente para mostrar os importes dos relatórios financeiros
+        $this->part('diligence/body-diligence-file-report', [
+            'entity' => $entity,
+            'showDelBtn' => ''
+        ]);
         ?>
     </div>
     <h5>
@@ -52,9 +43,13 @@ if ($diligenceAndAnswers) {
                 <label>
                     <b>Diligência (atual):</b>
                 </label> <br>
-                <strong><?= i::_e('Assunto(s)'); ?></strong>
                 <label for="">
-                    <?php $diligenceAndAnswers ? $diligenceAndAnswers[0]->getSubject() : ""; ?>
+                    <p>
+                        <label for="">
+                            <strong><?= i::_e('Assunto(s)'); ?></strong>
+                            <?php echo $diligenceAndAnswers[0]->getSubject(); ?>
+                        </label>
+                    </p>
                 </label>
                 <p style="margin: 10px 0px;">
                     <?php echo $diligencesSentReindexed[0]->description; ?>
@@ -73,17 +68,10 @@ if ($diligenceAndAnswers) {
                     <?php echo $diligencesSentReindexed[1]->answer; ?>
                 </p>
                 <?php
-                $files = DiligenceRepo::getFilesDiligence($diligenceAndAnswers[1]->diligence->id);
-
-                foreach ($files as $file) {
-                    echo '
-                        <p style="margin-bottom: 10px;">
-                            <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
-                                ' . $file["name"] . '
-                            </a>
-                        </p>
-                    ';
-                }
+                //Passando a diligencia da resposta para verificar retornar arquivo se houver
+                $this->part('diligence/body-diligence-files', [
+                    'entityAnswer' => $diligencesSentReindexed[1]
+                ])
                 ?>
                 <span style="font-size: 12px; font-weight: 700; color: #404040;">
                     <?php echo Carbon::parse($diligencesSentReindexed[1]->createTimestamp)->isoFormat('LLL'); ?>
@@ -113,9 +101,8 @@ if ($diligenceAndAnswers) {
                     $dt             = Carbon::parse($resultsDiligence->sendDiligence);
                     $dtSend         = $dt->isoFormat('LLL');
                 }
-
                 if ($key > 1) :
-                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) { ?>
+                    if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
                         <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                             <label style="font-size: 14px">
                                 <b>Diligência:</b>
@@ -125,74 +112,52 @@ if ($diligenceAndAnswers) {
                         <div class="content">
                             <p>
                                 <label for="">
+                                    <strong>Assunto(s): </strong>
                                     <?php echo $resultsDiligence->getSubject(); ?>
                                 </label>
                             </p>
                             <p>
-
-                                <?php
-                                echo $resultsDiligence->description;
-                                ?>
+                                <?php echo $resultsDiligence->description; ?>
                             </p>
                             <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
                                 <?php echo $dtSend; ?>
                             </p>
                         </div>
-                        <?php
-                    }
+                    <?php
+                    endif;
 
-                    if ($key > 1) :
-                        if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
-                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                                <label style="font-size: 14px">
-                                    <b>Diligência:</b>
-                                </label>
-                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                            </div>
-                            <div class="content">
-                                <p>
-                                    <?php echo $resultsDiligence->description; ?>
-                                </p>
-                                <p class="paragraph-createTimestamp paragraph_createTimestamp_answer">
-                                    <?php echo $dtSend; ?>
-                                </p>
-                            </div>
-                        <?php
-                        endif;
+                    if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
+                        $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
+                        $dtSendAnswer = $dtAnswer->isoFormat('LLL');
 
-                        if ($resultsDiligence instanceof AnswerDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == AnswerDiligence::STATUS_SEND) :
-                            $dtAnswer = Carbon::parse($resultsDiligence->createTimestamp);
-                            $dtSendAnswer = $dtAnswer->isoFormat('LLL');
+                    ?>
+                        <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
+                            <label style="font-size: 14px">
+                                <b>Resposta:</b>
+                            </label>
+                            <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
+                        </div>
+                        <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
+                            <p style="margin: 10px 0px;">
+                                <?php echo $resultsDiligence->answer; ?>
+                            </p>
+                            <?php
+                            $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
 
-                        ?>
-                            <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
-                                <label style="font-size: 14px">
-                                    <b>Resposta:</b>
-                                </label>
-                                <label style="color: #085E55; font-size: 14px" class="title-hide-show-accordion">Visualizar <i class="fas fa-angle-down arrow"></i></label>
-                            </div>
-                            <div class="content" style="font-size: 14px; background-color: #F5F5F5; padding: 10px;">
-                                <p style="margin: 10px 0px;">
-                                    <?php echo $resultsDiligence->answer; ?>
-                                </p>
-                                <?php
-                                $files = DiligenceRepo::getFilesDiligence($resultsDiligence->diligence->id);
-
-                                foreach ($files as $file) {
-                                    echo '
+                            foreach ($files as $file) {
+                                echo '
                                     <p style="margin-bottom: 10px;">
                                         <a href="/arquivos/privateFile/' . $file["id"] . '" target="_blank" rel="noopener noreferrer">
                                             ' . $file["name"] . '
                                         </a>
                                     </p>
                                 ';
-                                }
-                                ?>
-                                <span style="font-size: 12px; font-weight: 700; color: #404040;">
-                                    <?php echo $dtSendAnswer;   ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
+                            }
+                            ?>
+                            <span style="font-size: 12px; font-weight: 700; color: #404040;">
+                                <?php echo $dtSendAnswer;   ?>
+                            </span>
+                        </div>
                     <?php endif; ?>
                 <?php endif; ?>
             <?php endforeach; ?>

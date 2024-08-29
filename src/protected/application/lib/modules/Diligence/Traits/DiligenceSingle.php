@@ -45,7 +45,7 @@ trait DiligenceSingle{
             'nbpgPrefix' => ' de ',
             'nbpgSuffix' => '',
             'margin_top' => 45,
-            'margin_bottom' => 20,
+            'margin_bottom' => 30,
             'margin_left' => 0,
             'margin_right' => 0,
         ]);
