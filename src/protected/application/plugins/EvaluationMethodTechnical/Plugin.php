@@ -60,6 +60,30 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             }
         ]);
 
+        $this->registerOpportunityMetadata('hasBonusesForRegistrations', [
+            'label' => \MapasCulturais\i::__('Selecione uma opção'),
+            'type' => 'select',
+            'options' => ['Sim', 'Não'],
+            'default' => 'Sim',
+        ]);
+
+        $this->registerOpportunityMetadata('bonusAmount', [
+            'label' => \MapasCulturais\i::__('Digite um número'),
+            'type' => 'string',
+            'default' => 1,
+            'validations' => [
+                'v::intVal()->positive()' => 'O valor deve ser um número maior que zero'
+            ]
+        ]);
+
+        $this->registerEvaluationMethodConfigurationMetadata('enableConfigBonusFields', [
+            'label' => i::__('Controla se a configuração dos campos de bonificação estão ou não ativadas'),
+            'type' => 'boolean',
+            'serialize' => function ($val) {
+                return ($val == "true") ? true : false;
+            }
+        ]);
+
         $this->registerEvaluationMethodConfigurationMetadata('affirmativePolicies', [
             'label' => i::__('Políticas Afirmativas'),
             'type' => 'json',
@@ -194,17 +218,16 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
         });
 
-        // passa os dados de configuração das políticas afirmativas para JS
-        $app->hook('GET(opportunity.edit):before', function() use ($app, $plugin){
+        // passa os dados de configuração das bonificações e políticas afirmativas para o JS
+        $app->hook('GET(opportunity.edit):before', function () use ($app, $plugin) {
             $entity = $this->requestedEntity;
-
-            $app->view->jsObject['affirmativePoliciesFieldsList'] = $plugin->getFieldsAllPhases($entity);
-           
             $evaluationMethodConfiguration = $entity->evaluationMethodConfiguration;
 
+            $app->view->jsObject['affirmativePoliciesFieldsList'] = $plugin->getFieldsAllPhases($entity);
             $app->view->jsObject['isActiveAffirmativePolicies'] = $evaluationMethodConfiguration->isActiveAffirmativePolicies;
             $app->view->jsObject['affirmativePolicies'] = $evaluationMethodConfiguration->affirmativePolicies;
             $app->view->jsObject['affirmativePoliciesRoof'] = $evaluationMethodConfiguration->affirmativePoliciesRoof;
+            $app->view->jsObject['enableConfigBonusFields'] = $evaluationMethodConfiguration->enableConfigBonusFields;
         });
 
         $app->hook('evaluationsReport(technical).sections', function(Entities\Opportunity $opportunity, &$sections){

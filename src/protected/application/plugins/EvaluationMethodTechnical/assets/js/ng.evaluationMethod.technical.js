@@ -46,6 +46,7 @@
                 quotas: MapasCulturais.evaluationConfiguration.quotas || [],
                 enableViability: MapasCulturais.evaluationConfiguration.enableViability || false,
                 registrationFieldConfigurations: [],
+                enableConfigBonusFields: MapasCulturais.enableConfigBonusFields ? true : false,
                 criteriaAffirmativePolicies: MapasCulturais.affirmativePolicies || [],
                 fieldsAffiermativePolicie: {},
                 isActiveAffirmativePolicies: MapasCulturais.isActiveAffirmativePolicies ? true : false,
@@ -72,6 +73,7 @@
                     criteria: [],
                     quotas: $scope.data.quotas,
                     enableViability: $scope.data.enableViability,
+                    enableConfigBonusFields: $scope.data.enableConfigBonusFields,
                     affirmativePolicies: JSON.stringify($scope.data.criteriaAffirmativePolicies) == "[]" ? null : $scope.data.criteriaAffirmativePolicies,
                     isActiveAffirmativePolicies: $scope.data.isActiveAffirmativePolicies,
                     affirmativePoliciesRoof: $scope.data.affirmativePolicieRoof || 0.00
@@ -155,6 +157,11 @@
 
                 $scope.data.criteria.splice(index,1);
 
+                $scope.save();
+            }
+
+            $scope.configBonusFields = function(){
+                $scope.data.enableConfigBonusFields = !$scope.data.enableConfigBonusFields;
                 $scope.save();
             }
 
