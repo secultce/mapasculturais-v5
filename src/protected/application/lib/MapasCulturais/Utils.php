@@ -172,4 +172,16 @@ class Utils {
       
       return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "\$1.\$2.\$3/\$4-\$5", $cnpj_cpf);
     }
+
+    static function checkUserHasSeal($sealId)
+    {
+        $user = App::i()->getUser();
+        $sealRelations = $user->profile->sealRelations;
+
+        $hasSeal = array_filter($sealRelations, function ($sealRelation) use ($sealId) {
+            return $sealRelation->seal->id === (int)$sealId;
+        });
+
+        return $hasSeal;
+    }
 }

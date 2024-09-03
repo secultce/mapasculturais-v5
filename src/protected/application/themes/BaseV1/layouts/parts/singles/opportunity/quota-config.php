@@ -1,4 +1,12 @@
-<?php if ($entity->evaluationMethodConfiguration->type->id === 'technical' && $this->isEditable()): ?>
+<?php
+
+use MapasCulturais\Utils;
+
+$hasSecultSeal = Utils::checkUserHasSeal(env('SECULT_SEAL_ID'));
+
+?>
+
+<?php if ($hasSecultSeal && $entity->evaluationMethodConfiguration->type->id === 'technical' && $this->isEditable()): ?>
     <div ng-class="{'registration-fieldset': data.isEditable}">
         <h4>
             <?php \MapasCulturais\i::_e("Configuração de Cotas"); ?>

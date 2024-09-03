@@ -40,6 +40,7 @@ services:
       - GOOGLE_RECAPTCHA_SITEKEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
       - GOOGLE_RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
       - ACCESS_TOKEN_API_EMAIL= # Gerar token na api do email (https://github.com/secultce/api-email)
+      - SECULT_SEAL_ID=
     depends_on:
       - db
       - redis
