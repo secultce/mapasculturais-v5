@@ -4,6 +4,8 @@ namespace QuotasSet;
 
 use MapasCulturais\App;
 use MapasCulturais\Controller;
+use MapasCulturais\Entities\Agent;
+use MapasCulturais\Entities\AgentMeta;
 use MapasCulturais\Theme;
 
 class Module extends \MapasCulturais\Module
@@ -31,6 +33,31 @@ class Module extends \MapasCulturais\Module
             } else {
                 $module->app->redirect('/panel');
             }
+        });
+
+        $this->app->hook('API(agent.findByCpfOrName)', function () use ($module) {
+            /** @var Controller $this */
+            $this->requireAuthentication();
+            if (!$module->canUserAccess()) {
+                $this->json('', 403);
+            }
+
+            $qb = $module->app->repo(Agent::class)->createQueryBuilder('a');
+            $agents = $qb->leftJoin(AgentMeta::class, 'am',  'WITH', "a = am.owner and am.key = 'cpf'")
+                ->where("lower(a.name) like '%{$this->data['keyword']}%' or am.value = '{$this->data['keyword']}'")
+                ->orderBy('a.updateTimestamp', 'DESC')
+                ->getQuery()
+                ->getResult();
+
+            $agents = array_map(function (Agent $agent) {
+                return [
+                    'id' => $agent->id,
+                    'name' => $agent->name,
+                    'cpf' => $agent->cpf,
+                ];
+            }, $agents);
+
+            $this->json($agents);
         });
     }
 
