@@ -389,6 +389,11 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 {
                     array_push($retSubject, "Relatório Financeiro");
                 }
+                //Para diligência única
+                if($item == "single_diligence")
+                {
+                    array_push($retSubject, "Única Diligência");
+                }
             }
             //Tratando a forma de escrita
             return implode(', ', $retSubject). '.';
