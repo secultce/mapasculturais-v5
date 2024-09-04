@@ -176,7 +176,8 @@ class Utils {
     static function checkUserHasSeal($sealId)
     {
         $user = App::i()->getUser();
-        $sealRelations = $user->profile->sealRelations;
+        //Verificação de usuário
+        $sealRelations = $user->profile ? $user->profile->sealRelations : [];
 
         $hasSeal = array_filter($sealRelations, function ($sealRelation) use ($sealId) {
             return $sealRelation->seal->id === (int)$sealId;
