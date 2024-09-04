@@ -113,7 +113,7 @@ abstract class EvaluationMethod extends Plugin implements \JsonSerializable{
             ],
 
             'committee' => (object) [
-                'label' => i::__('Informações sobre o avaliador'),
+                'label' => i::__(Utils::getTermsByOpportunity('Informações sobre o avaliador', $opportunity)),
                 'color' => '#CCFFCC',
                 'columns' => $committee_columns
             ],

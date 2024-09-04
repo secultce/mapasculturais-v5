@@ -184,4 +184,17 @@ class Utils {
 
         return $hasSeal;
     }
+
+    static function getTermsByOpportunity($text, $opportunity)
+    {
+        $terminology = [
+            'avaliador' => 'fiscal'
+        ];
+
+        if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
+            $text = strtr($text, $terminology);
+        }
+
+        return $text;
+    }
 }
