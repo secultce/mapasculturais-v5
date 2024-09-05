@@ -30,10 +30,24 @@ $response_template = '
 </div>
 
 <?php
-if ($enableBtn) {
-    $this->part('multi/multi-select', ['reg' => $reg, 'tado' => $tado]);
-}
-?>
+    if ($enableBtn && $isEvaluation) {
+        $this->part('multi/multi-select', ['reg' => $reg, 'tado' => $tado]);
+
+    }
+    //Visualização para avaliador e o proponente
+    if( !is_null($tado) && ($tado->status == 1) ): ?>
+    <p style="text-align: center;width: 100%; margin-bottom: 15px" id="">
+        <a href="<?= $app->createUrl('tado', 'gerar/' . $reg->id); ?>"
+            target="_blank"
+            class="btn btn-primary"
+            title="Visualizar o TADO"
+            style="display: block;"
+        >
+            Visualizar TADO
+        </a>
+    </p>
+    
+<?php endif; ?>
 
 <div id="import-financial-report" class="js-editbox mc-bottom" title="Importar Relatório Financeiro" data-submit-label="Importar">
     <?php

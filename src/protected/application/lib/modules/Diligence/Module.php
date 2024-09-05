@@ -172,18 +172,18 @@ class Module extends \MapasCulturais\Module {
             $entity = $this->controller->requestedEntity;
             //A pessoa dona da inscrição tem acesso a visualizar o TADO    
             $ownerRegistration = $app->user->profile == $entity->owner ? true : false;
-            if ( 
-                $module->isEvaluator($entity->opportunity, $entity)
-                || $ownerRegistration
-            )
+            //Se é avaliador
+            $isEvaluation = $module->isEvaluator($entity->opportunity, $entity);
+            if ($isEvaluation || $ownerRegistration)
             {
                 $tado = DiligenceRepo::getTado($entity);
                 $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
                 $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
                 $this->part('multi/accountability-actions', [
-                    'reg' => $entity,
-                    'app' => $app,
-                    'tado' => $tado
+                    'reg'           => $entity,
+                    'app'           => $app,
+                    'tado'          => $tado,
+                    'isEvaluation'  => $isEvaluation
                 ]);
             };
 

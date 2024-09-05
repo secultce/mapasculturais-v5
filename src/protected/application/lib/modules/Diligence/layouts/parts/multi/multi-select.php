@@ -33,16 +33,3 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     </p>
 </div>
 <?php endif;
-if( !is_null($tado) && ($tado->status == 1) ): ?>
-    <p style="text-align: center;width: 100%; margin-bottom: 15px" id="">
-        <a href="<?= $app->createUrl('tado', 'gerar/' . $reg->id); ?>"
-           target="_blank"
-           class="btn btn-primary"
-           title="Visualizar o TADO"
-           style="display: block;"
-        >
-            Visualizar TADO
-        </a>
-    </p>
-
-<?php endif; ?>
