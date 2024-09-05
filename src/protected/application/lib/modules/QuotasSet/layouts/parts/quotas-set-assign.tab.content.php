@@ -49,6 +49,43 @@
         color: #0b0b0b;
         padding: .4rem;
     }
+
+    .agents-list {
+        display: flex;
+        flex-direction: column;
+        gap: .8rem;
+    }
+    .agents-list p {
+        text-align: center;
+    }
+
+    .agent-result {
+        background: #ededed;
+        font-weight: bold;
+    }
+    .agent-result td {
+        text-align: left;
+        width: fit-content;
+        text-wrap: nowrap;
+        padding: 1.33rem;
+        font-size: 1rem;
+        border-block: .85px solid #bbbbbb;
+    }
+    .agent-result td:not(:last-child):not(:first-child) {
+        width: 100%;
+    }
+    .agent-result td button {
+        font-size: 1rem;
+        padding: 0 1.33rem;
+    }
+
+    #agent-results-table:has(tr) ~ p,
+    #assigned-agents-table:has(tr) ~ p,
+    #agents-list-container:has(#agent-results-table tr) > h4,
+    #agents-list-container:not(:has(#agent-results-table tr)) > .search-list-header
+    {
+        display: none;
+    }
 </style>
 
 <div id="atribuir">
@@ -64,10 +101,20 @@
     </label>
     <input type="hidden" name="search-values" value="[]">
 
-    <div id="agent-results" style="display: block; margin-top: 2rem">
+    <div id="agents-list-container" style="display: block; margin-top: 2rem">
         <h4>Lista de agentes cotistas</h4>
+        <div class="search-list-header">
+            <h6 style="font-size: 2rem">Agentes encontrados</h6>
+            <div style="display: flex; align-items: stretch; max-width: 70%">
+                <strong>Utilize o botão para atribuir cotas a todos agentes na lista abaixo.</strong>
+                <button class="btn btn-primary">Atribuir cota racial em lote</button>
+            </div>
+        </div>
         <hr>
-        <div class="agentes-list">
+        <div class="agents-list">
+            <input type="hidden" name="result-ids" value="[]">
+            <table id="agent-results-table"></table>
+            <table id="assigned-agents-table"><tr><td>Um agente</td></tr></table>
             <p>Ainda não possuem agentes culturais com cotas atribuídas.</p>
             <p><strong>Utilize a busca para encontrar agentes culturais</strong></p>
         </div>
@@ -83,15 +130,36 @@
         push: (value) => {
             searchValues.values.push(value);
             searchValues.element.value = JSON.stringify(searchValues.values);
-            dispatchEvent(new Event('change'));
+            findByAllValues(searchValues.values);
         },
         clear: () => {
             searchValues.values = [];
-            searchValues.element.value = JSON.stringify(searchValues.values)
+            searchValues.element.value = JSON.stringify(searchValues.values);
+            clearRendered();
         },
         pop: () => {
             searchValues.values.pop();
             searchValues.element.value = JSON.stringify(searchValues.values);
+            clearRendered();
+            if (searchValues.values.length > 0) {
+                findByAllValues(searchValues.values);
+            }
+        },
+    };
+    const resultIds = {
+        element: document.querySelector('[name=result-ids]'),
+        values: JSON.parse(document.querySelector('[name=result-ids]').value),
+        push: (value) => {
+            resultIds.values.push(value);
+            resultIds.element.value = JSON.stringify(resultIds.values);
+        },
+        clear: () => {
+            resultIds.values = [];
+            resultIds.element.value = JSON.stringify(resultIds.values)
+        },
+        pop: () => {
+            resultIds.values.pop();
+            resultIds.element.value = JSON.stringify(resultIds.values);
         },
     };
 
@@ -127,4 +195,62 @@
             });
         }
     })
+
+    const findAgents = (value) => {
+        $.ajax({
+            url: `/api/agent/findByCpfOrName?keyword=${value}`,
+            success: (response) => {
+                let html = '';
+                renderResults(response)
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
+    }
+
+    const findByAllValues = values => {
+        $('#assigned-agents-table tr').remove();
+        for (const value of values) {
+            findAgents(value);
+        }
+    }
+
+    const clearRendered = () => {
+        $('#agent-results-table tr').remove();
+        resultIds.clear();
+    }
+
+    const renderResults = (agents) => {
+        let html = '';
+        for (const agent of agents) {
+            // Não inclui na listagem se o agente já foi adicionado
+            if (resultIds.values.includes(agent.id)) {
+                continue;
+            }
+            resultIds.push(agent.id)
+
+            html += `<tr class="agent-result">
+                        <td>${agent.cpf}</td>
+                        <td>${agent.name}</td>
+                        <td><button class="btn btn-primary">Atribuir cota racial</button></td>
+                    </tr>`;
+        }
+        $('#agent-results-table').append(html)
+
+        if (searchValues.values.length === 0) {
+            clearRendered();
+        }
+    }
+
+    const showAssignedAgents = (agents) => {
+        let html = '';
+        for (const agent of agents) {
+            html += `<tr>
+                <td>${agent.cpf}</td>
+                <td>${agent.name}</td>
+            </tr>`;
+        }
+        $('#assigned-agents-table').append(html)
+    }
 </script>
