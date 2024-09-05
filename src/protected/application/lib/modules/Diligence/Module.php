@@ -170,8 +170,12 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app, $module){
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
-
-            if ( $module->isEvaluator($entity->opportunity, $entity) )
+            //A pessoa dona da inscrição tem acesso a visualizar o TADO    
+            $ownerRegistration = $app->user->profile == $entity->owner ? true : false;
+            if ( 
+                $module->isEvaluator($entity->opportunity, $entity)
+                || $ownerRegistration
+            )
             {
                 $tado = DiligenceRepo::getTado($entity);
                 $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
