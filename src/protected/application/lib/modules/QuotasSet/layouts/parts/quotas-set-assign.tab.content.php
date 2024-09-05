@@ -70,8 +70,10 @@
         padding: 1.33rem;
         font-size: 1rem;
         border-block: .85px solid #bbbbbb;
+        vertical-align: middle;
     }
-    .agent-result td:not(:last-child):not(:first-child) {
+    #agent-results-table td:nth-child(2),
+    #assigned-agents-table td:nth-child(3) {
         width: 100%;
     }
     .agent-result td button {
@@ -85,6 +87,23 @@
     #agents-list-container:not(:has(#agent-results-table tr)) > .search-list-header
     {
         display: none;
+    }
+
+    #bulk-assign-button {
+        height: 3rem;
+        width: 100%;
+        display: inline-block;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .assigned-quotas-details {
+        display: flex;
+        gap: 1rem;
+        font-weight: normal;
+    }
+    .assigned-quotas-details>* {
+        display: inline-block;
     }
 </style>
 
@@ -106,15 +125,15 @@
         <div class="search-list-header">
             <h6 style="font-size: 2rem">Agentes encontrados</h6>
             <div style="display: flex; align-items: stretch; max-width: 70%">
-                <strong>Utilize o botão para atribuir cotas a todos agentes na lista abaixo.</strong>
-                <button class="btn btn-primary">Atribuir cota racial em lote</button>
+                <strong>Utilize o botão para atribuir cotas a todos os agentes na lista abaixo.</strong>
+                <button class="btn btn-primary" id="bulk-assign-button">Atribuir cota racial em lote</button>
             </div>
         </div>
         <hr>
         <div class="agents-list">
             <input type="hidden" name="result-ids" value="[]">
             <table id="agent-results-table"></table>
-            <table id="assigned-agents-table"><tr><td>Um agente</td></tr></table>
+            <table id="assigned-agents-table"></table>
             <p>Ainda não possuem agentes culturais com cotas atribuídas.</p>
             <p><strong>Utilize a busca para encontrar agentes culturais</strong></p>
         </div>
@@ -233,7 +252,9 @@
             html += `<tr class="agent-result">
                         <td>${agent.cpf}</td>
                         <td>${agent.name}</td>
-                        <td><button class="btn btn-primary">Atribuir cota racial</button></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="assignQuota(9, ${agent.id}, this)">Atribuir cota racial</button>
+                        </td>
                     </tr>`;
         }
         $('#agent-results-table').append(html)
@@ -243,14 +264,57 @@
         }
     }
 
-    const showAssignedAgents = (agents) => {
+    const findAssignedAgents = () => {
+        $.ajax({
+            url: `/api/agent/allWithQuotas`,
+            success: (response) => {
+                renderAssignedAgents(response)
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
+    }
+    const renderAssignedAgents = (agents) => {
         let html = '';
         for (const agent of agents) {
-            html += `<tr>
+            html += `<tr class="agent-result">
                 <td>${agent.cpf}</td>
                 <td>${agent.name}</td>
+                <td>
+                    <div class="assigned-quotas-details">
+                        <div>Cotas:</div>
+                        <div>${agent.quotas_policy.map(quota => {
+                            return `<div>
+                                <strong>${quota.quotas_policy.name.replace('Cota', '')} (</strong><span>até ${new Date(quota.end_date)
+                                    .toLocaleDateString('pt-br', {year: 'numeric', month: 'short', day: 'numeric'})
+                                }</span><strong>);</strong>
+                            </div>`;
+                        }).join('')}</div>
+                </td>
+                <td><button class="btn btn-primary">Editar</button></td>
             </tr>`;
         }
         $('#assigned-agents-table').append(html)
     }
+
+    const assignQuota = (quotaId, agentId, target) => {
+        $.ajax({
+            url: `/api/agent/assignQuota`,
+            method: 'POST',
+            data: JSON.stringify({
+                agent_id: agentId,
+                quota_id: quotaId,
+                start_date: new Date().toISOString().split('T')[0]
+            }),
+            contentType: "application/json",
+            success: (response) => {
+                response.
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
+    }
+    document.body.onload = findAssignedAgents;
 </script>
