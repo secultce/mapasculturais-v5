@@ -188,7 +188,8 @@ class Utils {
     static function getTermsByOpportunity($text, $opportunity)
     {
         $terminology = [
-            'avaliador' => 'fiscal'
+            'Avaliador' => 'Fiscal',
+            'avaliador' => 'fiscal',
         ];
 
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
