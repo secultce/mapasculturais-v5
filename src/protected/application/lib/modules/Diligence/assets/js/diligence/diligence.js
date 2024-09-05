@@ -323,7 +323,7 @@ function verifySubject(subject_exec_physical, subject_report_finance)
     }
     //Na situação de diligência única
     if( 
-        MapasCulturais.entity.object.opportunity.use_multiple_diligence !== null
+        MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'
         && MapasCulturais.entity.object.opportunity.use_diligence == "Sim"
         && $("#"+subject_exec_physical+":checked").val() == undefined 
         && $("#"+subject_report_finance+":checked").val() == undefined 
