@@ -192,6 +192,8 @@ class Utils {
             'avaliador' => 'fiscal',
             'Avaliadores' => 'Fiscais',
             'avaliadores' => 'fiscais',
+            'Avaliações' => 'Monitoramentos',
+            'avaliações' => 'monitoramentos',
         ];
 
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {

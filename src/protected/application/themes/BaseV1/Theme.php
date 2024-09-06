@@ -1961,8 +1961,8 @@ class Theme extends MapasCulturais\Theme {
             'notEvaluated' => i::__('Não Avaliada'),
             'all' => i::__('Todas'),
             'sent' => i::__('Enviada'),
-            'confirmEvaluationLabel' => i::__('Aplicar resultado das avaliações'),
-            'applyEvaluations' => i::__('Deseja aplicar o resultado de todas as avaliações como o status das respectivas inscrições?'),
+            'confirmEvaluationLabel' => i::__(Utils::getTermsByOpportunity('Aplicar resultado das avaliações', $entity)),
+            'applyEvaluations' => i::__(Utils::getTermsByOpportunity('Deseja aplicar o resultado de todas as avaliações como o status das respectivas inscrições?', $entity)),
 
             'Inscrição' => i::__('Inscrição'),
             'Categorias' => i::__('Categorias'),

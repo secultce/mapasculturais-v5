@@ -5,6 +5,7 @@ use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Utils;
 
 const STATUS_INVALID = 'invalid';
 const STATUS_VALID = 'valid';
@@ -171,7 +172,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             $type = $opp->evaluationMethodConfiguration->getDefinition()->slug;
     
             if($type != 'documentary') {
-                $this->errorJson(i::__('Somente para avaliações documentais'), 400);
+                $this->errorJson(i::__(Utils::getTermsByOpportunity('Somente para avaliações documentais', $opp)), 400);
                 die;
             }
 
@@ -253,7 +254,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
 
     
-            $this->finish(sprintf(i::__("Avaliações aplicadas à %s inscrições"), count($registrations)), 200);
+            $this->finish(sprintf(i::__(Utils::getTermsByOpportunity("Avaliações aplicadas(os) à %s inscrições", $opp)), count($registrations)), 200);
     
         });
 
