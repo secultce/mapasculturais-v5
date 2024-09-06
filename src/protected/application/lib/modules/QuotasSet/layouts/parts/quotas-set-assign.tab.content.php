@@ -126,7 +126,7 @@
             <h6 style="font-size: 2rem">Agentes encontrados</h6>
             <div style="display: flex; align-items: stretch; max-width: 70%">
                 <strong>Utilize o botão para atribuir cotas a todos os agentes na lista abaixo.</strong>
-                <button class="btn btn-primary" id="bulk-assign-button">Atribuir cota racial em lote</button>
+                <button class="btn btn-primary" id="bulk-assign-button" onclick="bulkAssignQuota(this)">Atribuir cota racial em lote</button>
             </div>
         </div>
         <hr>
@@ -141,6 +141,13 @@
 </div>
 
 <script>
+    Object.defineProperty(String.prototype, 'capitalize', {
+        value: function() {
+            return this.charAt(0).toUpperCase() + this.slice(1);
+        },
+        enumerable: false
+    });
+
     const searchInput = document.getElementById('search-input');
     const clearButton = document.querySelector('.clear-button');
     const searchValues = {
@@ -219,7 +226,6 @@
         $.ajax({
             url: `/api/agent/findByCpfOrName?keyword=${value}`,
             success: (response) => {
-                let html = '';
                 renderResults(response)
             },
             error: (error) => {
@@ -236,8 +242,9 @@
     }
 
     const clearRendered = () => {
-        $('#agent-results-table tr').remove();
+        $('.agents-list tr').remove();
         resultIds.clear();
+        findAssignedAgents();
     }
 
     const renderResults = (agents) => {
@@ -252,10 +259,14 @@
             html += `<tr class="agent-result">
                         <td>${agent.cpf}</td>
                         <td>${agent.name}</td>
-                        <td>
-                            <button class="btn btn-primary" onclick="assignQuota(9, ${agent.id}, this)">Atribuir cota racial</button>
-                        </td>
-                    </tr>`;
+                        <td>`;
+            if (agent.assigned) {
+                html += `<button class="btn btn-default" onclick="unassignQuota(${agent.assigned_id}, 9, ${agent.id}, this)">Remover cota</button>`;
+            } else {
+                html += `<button class="btn btn-primary" onclick="assignQuota(9, ${agent.id}, this)">Atribuir cota racial</button>`;
+            }
+            html += `</td>
+            </tr>`;
         }
         $('#agent-results-table').append(html)
 
@@ -278,6 +289,7 @@
     const renderAssignedAgents = (agents) => {
         let html = '';
         for (const agent of agents) {
+            let hasRacial = false;
             html += `<tr class="agent-result">
                 <td>${agent.cpf}</td>
                 <td>${agent.name}</td>
@@ -285,14 +297,17 @@
                     <div class="assigned-quotas-details">
                         <div>Cotas:</div>
                         <div>${agent.quotas_policy.map(quota => {
+                            hasRacial = quota.quotas_policy.name.includes('racial') || quota.quotas_policy.name.includes('Racial');
                             return `<div>
-                                <strong>${quota.quotas_policy.name.replace('Cota', '')} (</strong><span>até ${new Date(quota.end_date)
+                                <strong>${quota.quotas_policy.name.replace('Cota ', '').capitalize()} (</strong><span>até ${new Date(quota.end_date)
                                     .toLocaleDateString('pt-br', {year: 'numeric', month: 'short', day: 'numeric'})
                                 }</span><strong>);</strong>
                             </div>`;
                         }).join('')}</div>
                 </td>
-                <td><button class="btn btn-primary">Editar</button></td>
+                <td>`;
+            html += hasRacial ? `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 9, ${agent.id}, this)">Remover cota</button>` : '';
+            html += `</td>
             </tr>`;
         }
         $('#assigned-agents-table').append(html)
@@ -309,12 +324,41 @@
             }),
             contentType: "application/json",
             success: (response) => {
-                response.
+                target.classList.remove('btn-primary');
+                target.classList.add('btn-default');
+                target.innerText = 'Remover cota';
+                target.onclick = () => unassignQuota(response.id, quotaId, agentId, target);
             },
             error: (error) => {
                 console.error(error);
             }
         });
     }
+
+    const bulkAssignQuota = (target) => {
+        $('#agent-results-table .agent-result button[onclick^="assign"]').click();
+        target.parentNode.innerHTML = '<div class="alert success" style="font-size: 1rem">A cota foi atribuída aos agentes culturais!</div>';
+    }
+
+    const unassignQuota = (agentQuotaId, quotaId, agentId, target) => {
+        $.ajax({
+            url: `/api/agent/unassignQuota`,
+            method: 'POST',
+            data: JSON.stringify({
+                agent_quota_id: agentQuotaId
+            }),
+            contentType: "application/json",
+            success: (response) => {
+                target.classList.remove('btn-default');
+                target.classList.add('btn-primary');
+                target.innerText = 'Atribuir cota racial';
+                target.onclick = () => assignQuota(quotaId, agentId, target);
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
+    }
+
     document.body.onload = findAssignedAgents;
 </script>
