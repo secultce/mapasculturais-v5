@@ -39,7 +39,7 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        $this->app->hook('API(agent.findByCpfOrName)', function () use ($module) {
+        $this->app->hook('API(agent.findByCpfOrName)', function () use ($module, $baseUri, $headers) {
             /** @var Controller $this */
             $this->requireAuthentication();
             if (!$module->canUserAccess()) {
@@ -53,12 +53,32 @@ class Module extends \MapasCulturais\Module
                 ->getQuery()
                 ->getResult();
 
-            $agents = array_map(function (Agent $agent) {
+            $agentsIds = [];
+            $agents = array_map(function (Agent $agent) use (&$agentsIds){
+                $agentsIds[] = $agent->id;
                 return [
                     'id' => $agent->id,
                     'name' => $agent->name,
                     'cpf' => $agent->cpf,
                 ];
+            }, $agents);
+
+            $uri = $baseUri . '/agent?filter_agent_ids=' . implode(',', $agentsIds);
+            $client = new Client();
+            $response = $client->request('GET', $uri, [
+                'headers' => $headers,
+            ]);
+            $body = json_decode($response->getBody(), true);
+            $assignedAgentsIds = [];
+            foreach ($body as $agent) {
+                $assignedAgentsIds[$agent['quotas_policy'][0]['id']] = $agent['id'];
+            }
+            $agents = array_map(function ($agent) use ($assignedAgentsIds) {
+                if (in_array($agent['id'], $assignedAgentsIds)) {
+                    $agent['assigned'] = true;
+                    $agent['assigned_id'] = array_search($agent['id'], $assignedAgentsIds);
+                }
+                return $agent;
             }, $agents);
 
             $this->json($agents);
@@ -71,7 +91,7 @@ class Module extends \MapasCulturais\Module
                 $module->app->redirect('/panel');
                 return;
             }
-            $uri = $baseUri . '/agent/';
+            $uri = $baseUri . '/agent';
 
             $client = new Client();
             $response = $client->request('GET', $uri, [
@@ -106,11 +126,28 @@ class Module extends \MapasCulturais\Module
                 ],
             ]);
 
-            var_dump(json_decode($response->getBody()));
-            die;
+            $body = json_decode($response->getBody(), true);
+            $this->json($body, $response->getStatusCode());
+        });
 
-//            $body = json_decode($response->getBody(), true);
-            $this->json([], $response->getStatusCode());
+        $this->app->hook('API(agent.unassignQuota)', function () use ($module, $baseUri, $headers) {
+            /** @var Controller $this */
+            $this->requireAuthentication();
+            if (!$module->canUserAccess()) {
+                $module->app->redirect('/panel');
+                return;
+            }
+
+            $agent_quota_id = $this->data['agent_quota_id'];
+
+            $uri = $baseUri . '/agent-quotas/' . $agent_quota_id;
+            $client = new Client();
+            $response = $client->request('DELETE', $uri, [
+                'headers' => $headers,
+            ]);
+
+            $body = json_decode($response->getBody(), true);
+            $this->json($body, $response->getStatusCode());
         });
     }
 

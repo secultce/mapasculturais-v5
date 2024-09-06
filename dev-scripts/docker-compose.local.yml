@@ -41,6 +41,7 @@ services:
       - GOOGLE_RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
       - ACCESS_TOKEN_API_EMAIL= # Gerar token na api do email (https://github.com/secultce/api-email)
       - SECULT_SEAL_ID=
+      - QUOTA_SERVICE_BASE_URL=quota-service:9501/api/v1
     depends_on:
       - db
       - redis
