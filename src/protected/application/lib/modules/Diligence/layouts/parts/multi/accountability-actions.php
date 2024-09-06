@@ -30,6 +30,7 @@ $response_template = '
 </div>
 
 <?php
+    //Visualização para o avaliador
     if ($enableBtn && $isEvaluation) {
         $this->part('multi/multi-select', ['reg' => $reg, 'tado' => $tado]);
 

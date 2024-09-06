@@ -6,7 +6,9 @@ use Carbon\Carbon;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Diligence\Entities\Tado as EntityTado;
+use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as RepoDiligence;
+use Diligence\Entities\NotificationDiligence;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -123,6 +125,8 @@ class Tado extends \MapasCulturais\Controller
         $tado->cpfManager       = $request->data['cpfManager'];
         $entity = self::saveEntity($tado);
 
+        self::sendNotificationTagoGeneration($this);
+
         if($entity["entityId"]){
             if($request->data['status'] == 1){
                 self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
@@ -145,5 +149,30 @@ class Tado extends \MapasCulturais\Controller
             'message' => $message,
             'status' => $status
         ]);
+    }
+
+    public function sendNotificationTagoGeneration()
+    {
+        $msgTado = 'O TERMO DE ACEITAÇÃO DEFINITIVA DO OBJETO, foi gerado e você já pode verificar acessando o sua inscrição: Nº ';
+        $app = App::i();
+        $ag = $app->repo('Registration')->find($this->data['id']);
+       
+        $notifi = [
+            'registration' => $ag->id,
+            'openAgent' => $ag->owner->id,
+            'agent' => $app->user->profile->id
+        ];
+        
+        $notification = new NotificationDiligence();
+        $class = new class {
+            public $data = [];
+        };
+
+        $class->data = $notifi;
+        $notification->create($class, $msgTado);
+        
+        $userDestination = $notification->userDestination($class);
+        EntityDiligence::sendQueue($userDestination, 'generate_tado');
+
     }
 }
