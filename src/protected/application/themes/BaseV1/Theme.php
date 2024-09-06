@@ -1936,7 +1936,7 @@ class Theme extends MapasCulturais\Theme {
             'savedAsDraft' =>  i::__('Eventos transformados em rascunho.'),
             'confirmRemoveAttachment' =>  i::__('Deseja remover este anexo?'),
             'registrationOwnerDefault' =>  i::__('Agente responsável pela inscrição'),
-            'agentRelationIsAlreadyExists' =>  i::__('O Agente selecionado já foi adicionado na comissão de avaliadores'),
+            'agentRelationIsAlreadyExists' =>  i::__(Utils::getTermsByOpportunity('O Agente selecionado já foi adicionado na comissão de avaliadores', $entity)),
             'allStatus' =>  i::__('Todas'),
             'pending' =>  i::__('Pendente'),
             'invalid' =>  i::__('Inválida'),

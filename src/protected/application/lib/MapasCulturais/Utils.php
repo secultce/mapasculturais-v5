@@ -190,6 +190,8 @@ class Utils {
         $terminology = [
             'Avaliador' => 'Fiscal',
             'avaliador' => 'fiscal',
+            'Avaliadores' => 'Fiscais',
+            'avaliadores' => 'fiscais',
         ];
 
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
