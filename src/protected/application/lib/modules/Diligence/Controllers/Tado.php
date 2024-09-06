@@ -42,6 +42,7 @@ class Tado extends \MapasCulturais\Controller
 
     function GET_gerar()
     {
+        $this->requireAuthentication();
         $app = App::i();
         $td = new RepoDiligence();
         $reg = $app->repo('Registration')->find($this->data['id']);
