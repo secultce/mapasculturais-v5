@@ -71,7 +71,11 @@ class Module extends \MapasCulturais\Module
             $body = json_decode($response->getBody(), true);
             $assignedAgentsIds = [];
             foreach ($body as $agent) {
-                $assignedAgentsIds[$agent['quotas_policy'][0]['id']] = $agent['id'];
+                if (isset($agent['quotas_policy'][0])) {
+                    $assignedAgentsIds[$agent['quotas_policy'][0]['id']] = $agent['id'];
+                } else {
+                    $agent['quotas_policy'] = [];
+                }
             }
             $agents = array_map(function ($agent) use ($assignedAgentsIds) {
                 if (in_array($agent['id'], $assignedAgentsIds)) {
