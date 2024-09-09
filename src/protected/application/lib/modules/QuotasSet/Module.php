@@ -150,6 +150,37 @@ class Module extends \MapasCulturais\Module
             $this->json($body, $response->getStatusCode());
         });
 
+        // @todo: Alterar controller do endpoint
+        $this->app->hook('API(agent.createQuota)', function () use ($module, $baseUri, $headers) {
+            // @todo: Virá em alterações futuras;
+            return;
+            /** @var Controller $this */
+            $this->requireAuthentication();
+            if (!$module->canUserAccess()) {
+                $module->app->redirect('/panel');
+                return;
+            }
+
+            $user_id = $this->app->user->id;
+            $description = $this->data['description'] ?? '';
+
+            $uri = $baseUri . '/quotas';
+            $client = new Client();
+            $response = $client->request('POST', $uri, [
+                'headers' => $headers,
+                'json' => [
+                    'created_by' => $user_id,
+                    'validity_duration' => $this->data['validity_duration'],
+                    'name' => $this->data['name'],
+                    'status' => 1,
+                    'description' => $description,
+                ],
+            ]);
+
+            $body = json_decode($response->getBody(), true);
+            $this->json($body, $response->getStatusCode());
+        });
+
         $this->app->hook('template(registration.view.evaluationForm.technical):begin', function () use ($module, $baseUri, $headers) {
             /** @var Theme $this */
             $this->controller->requireAuthentication();
