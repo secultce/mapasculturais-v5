@@ -188,14 +188,20 @@ class Utils {
     static function getTermsByOpportunity($text, $opportunity)
     {
         $terminology = [
-            'Avaliador'   => 'Fiscal',
-            'avaliador'   => 'fiscal',
+            'Avaliador' => 'Fiscal',
+            'avaliador' => 'fiscal',
             'Avaliadores' => 'Fiscais',
             'avaliadores' => 'fiscais',
-            'Avaliação'   => 'Monitoramento',
-            'avaliação'   => 'monitoramento',
-            'Avaliações'  => 'Monitoramentos',
-            'avaliações'  => 'monitoramentos',
+            'Avaliação' => 'Monitoramento',
+            'avaliação' => 'monitoramento',
+            'a avaliação' => 'o monitoramento',
+            'da avaliação' => 'do monitoramento',
+            'avaliação encontrada' => 'monitoramento encontrado',
+            'Avaliações' => 'Monitoramentos',
+            'avaliações' => 'monitoramentos',
+            'as avaliações' => 'os monitoramentos',
+            'das avaliações' => 'dos monitoramentos',
+            'Suas avaliações' => 'Seus monitoramentos',
         ];
 
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
