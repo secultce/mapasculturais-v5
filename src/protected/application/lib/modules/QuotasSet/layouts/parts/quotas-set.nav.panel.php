@@ -2,6 +2,6 @@
 <li>
     <a href="<?= $app->createUrl('panel', 'cotas-e-politicas') ?>">
         <span class="icon icon-opportunity"></span>
-        Cotas e políticas afirmativas
+        Políticas de ações afirmativas
     </a>
 </li>

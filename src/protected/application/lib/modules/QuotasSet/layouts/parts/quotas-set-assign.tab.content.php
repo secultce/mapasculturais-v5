@@ -261,9 +261,9 @@
                         <td>${agent.name}</td>
                         <td>`;
             if (agent.assigned) {
-                html += `<button class="btn btn-default" onclick="unassignQuota(${agent.assigned_id}, 9, ${agent.id}, this)">Remover cota</button>`;
+                html += `<button class="btn btn-default" onclick="unassignQuota(${agent.assigned_id}, 1, ${agent.id}, this)">Remover cota</button>`;
             } else {
-                html += `<button class="btn btn-primary" onclick="assignQuota(9, ${agent.id}, this)">Atribuir cota racial</button>`;
+                html += `<button class="btn btn-primary" onclick="assignQuota(1, ${agent.id}, this)">Atribuir cota racial</button>`;
             }
             html += `</td>
             </tr>`;
@@ -306,7 +306,7 @@
                         }).join('')}</div>
                 </td>
                 <td>`;
-            html += hasRacial ? `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 9, ${agent.id}, this)">Remover cota</button>` : '';
+            html += hasRacial ? `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 1, ${agent.id}, this)">Remover cota</button>` : '';
             html += `</td>
             </tr>`;
         }
