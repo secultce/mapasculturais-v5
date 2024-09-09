@@ -119,7 +119,7 @@ abstract class EvaluationMethod extends Plugin implements \JsonSerializable{
             ],
 
             'evaluation' => (object) [
-                'label' => i::__('Avaliação'),
+                'label' => i::__(Utils::getTermsByOpportunity('Avaliação', $opportunity)),
                 'color' => '#00AA00',
                 'columns' => $evaluation_columns
             ]
