@@ -149,6 +149,36 @@ class Module extends \MapasCulturais\Module
             $body = json_decode($response->getBody(), true);
             $this->json($body, $response->getStatusCode());
         });
+
+        $this->app->hook('template(registration.view.evaluationForm.technical):begin', function () use ($module, $baseUri, $headers) {
+            /** @var Theme $this */
+            $this->controller->requireAuthentication();
+            if (!$module->canUserAccess()) {
+                return;
+            }
+            $agent = $this->controller->requestedEntity->owner;
+
+            $uri = $baseUri . '/agent?filter_agents_ids=' . $agent->id;
+            $client = new Client();
+            $response = $client->request('GET', $uri, [
+                'headers' => $headers,
+            ]);
+
+            $body = json_decode($response->getBody(), true);
+            $thisAgent = null;
+            foreach ($body as $agentResponse) {
+                if ($agentResponse['id'] === $this->controller->requestedEntity->owner->id) {
+                    $thisAgent = $agentResponse;
+                    break;
+                }
+            }
+            $thisAgent = $thisAgent ?? ['id' => $agent->id, 'quotas_policy' => []];
+
+            $response = $client->request('GET', $baseUri . '/quotas', [ 'headers' => $headers ]);
+            $quotas = json_decode($response->getBody(), true);
+
+            $this->part('registration/quotas-set.widget', ['agent' => $thisAgent, 'quotas' => $quotas]);
+        });
     }
 
     public function register(): void
