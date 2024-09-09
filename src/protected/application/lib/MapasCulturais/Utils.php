@@ -202,6 +202,11 @@ class Utils {
             'as avaliações' => 'os monitoramentos',
             'das avaliações' => 'dos monitoramentos',
             'Suas avaliações' => 'Seus monitoramentos',
+            'todas as <b>avaliações</b>' => 'todos os <b>monitoramentos</b>',
+            'Avaliado' => 'Monitorado',
+            'avaliado' => 'monitorado',
+            'Avaliada' => 'Monitorada',
+            'avaliada' => 'monitorada',
         ];
 
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
