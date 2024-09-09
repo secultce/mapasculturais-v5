@@ -45,10 +45,15 @@ class Module extends \MapasCulturais\Module
             if (!$module->canUserAccess()) {
                 $this->json('', 403);
             }
+            $keyword = strtolower($this->data['keyword']);
+            $cpf = preg_replace('/[^0-9]/', '', $keyword);
 
             $qb = $module->app->repo(Agent::class)->createQueryBuilder('a');
             $agents = $qb->leftJoin(AgentMeta::class, 'am',  'WITH', "a = am.owner and am.key = 'cpf'")
-                ->where("lower(a.name) like '%{$this->data['keyword']}%' or am.value = '{$this->data['keyword']}'")
+                ->where($qb->expr()->orX(
+                    $qb->expr()->like('LOWER(a.name)', $qb->expr()->literal('%' . $keyword . '%')),
+                    $qb->expr()->eq($qb->expr()->literal("regexp_replace(am.value, '[^0-9]', '', 'g')"), $qb->expr()->literal($cpf))
+                ))
                 ->orderBy('a.updateTimestamp', 'DESC')
                 ->getQuery()
                 ->getResult();
@@ -63,7 +68,7 @@ class Module extends \MapasCulturais\Module
                 ];
             }, $agents);
 
-            $uri = $baseUri . '/agent?filter_agent_ids=' . implode(',', $agentsIds);
+            $uri = $baseUri . '/agent?filter_agent_ids=' . implode(',', $agentsIds) . '&filter_term=racial,Racial,RACIAL';
             $client = new Client();
             $response = $client->request('GET', $uri, [
                 'headers' => $headers,

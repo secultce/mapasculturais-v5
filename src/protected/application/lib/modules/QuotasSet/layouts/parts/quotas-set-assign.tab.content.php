@@ -210,9 +210,9 @@
     });
 
     searchInput.addEventListener('paste', event => {
-        event.preventDefault();
         const values = (event.clipboardData || window.clipboardData).getData('text').split("\n");
         if (values.length > 1) {
+            event.preventDefault();
             values.forEach(value => {
                 if (value !== '') {
                     searchInput.parentNode.insertBefore($(`<span class="input-entry">${value}</span>`).each2(node => node)[0], searchInput);
