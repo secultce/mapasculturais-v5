@@ -197,6 +197,7 @@ class Utils {
             'a avaliação' => 'o monitoramento',
             'da avaliação' => 'do monitoramento',
             'avaliação encontrada' => 'monitoramento encontrado',
+            'Nenhuma avaliação enviada' => 'Nenhum monitoramento enviado',
             'Avaliações' => 'Monitoramentos',
             'avaliações' => 'monitoramentos',
             'as avaliações' => 'os monitoramentos',
