@@ -49,12 +49,12 @@ class Module extends \MapasCulturais\Module
             $cpf = preg_replace('/[^0-9]/', '', $keyword);
 
             $qb = $module->app->repo(Agent::class)->createQueryBuilder('a');
-            $agents = $qb->leftJoin(AgentMeta::class, 'am',  'WITH', "a = am.owner and am.key = 'cpf'")
-                ->where($qb->expr()->orX(
-                    $qb->expr()->like('LOWER(a.name)', $qb->expr()->literal('%' . $keyword . '%')),
-                    $qb->expr()->eq($qb->expr()->literal("regexp_replace(am.value, '[^0-9]', '', 'g')"), $qb->expr()->literal($cpf))
-                ))
+            $agents = $qb->leftJoin(AgentMeta::class, 'am', 'WITH', "a = am.owner and am.key = 'cpf'")
+                ->where('LOWER(a.name) LIKE :keyword')
+                ->orWhere("regexp_replace(am.value, '[^0-9]', '', 'g') = :cpf")
                 ->orderBy('a.updateTimestamp', 'DESC')
+                ->setParameter('keyword', '%' . $keyword . '%')
+                ->setParameter('cpf', $cpf)
                 ->getQuery()
                 ->getResult();
 
