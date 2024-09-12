@@ -6,7 +6,9 @@ use Carbon\Carbon;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Diligence\Entities\Tado as EntityTado;
+use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as RepoDiligence;
+use Diligence\Entities\NotificationDiligence;
 
 class Tado extends \MapasCulturais\Controller
 {
@@ -40,22 +42,15 @@ class Tado extends \MapasCulturais\Controller
 
     function GET_gerar()
     {
+        $this->requireAuthentication();
         $app = App::i();
-        $reg = $app->repo('Registration')->find($this->data['id']);
-        //Buscando o tado gerado
         $td = new RepoDiligence();
-        $tado = $td->getTado($reg);
-
+        $reg = $app->repo('Registration')->find($this->data['id']);
         //INSTANCIA DO TIPO ARRAY OBJETO
         $app->view->regObject = new \ArrayObject;
-        $app->view->regObject['reg'] = $reg;
-        $app->view->regObject['tado'] = $tado;
-        //Se por acaso não tiver registrado o agente fiscal
-        if(is_null($app->view->regObject['tado']->agentSignature))
-        {
-            setcookie("erro-tado", "Devido a um erro não foi possivel gerar seu TADO.", time() + 3600, "/");
-            $app->redirect($app->createUrl('tado/emitir', $reg->id));
-        }
+        //Buscando o tado gerado        
+        $app->view->regObject['tado'] = $td->getTado($reg);
+        $app->view->regObject['reg']  = $reg;
         $mpdf = self::mpdfConfig();
         self::mdfBodyMulti($mpdf,
             'tado/gerar',
@@ -123,6 +118,8 @@ class Tado extends \MapasCulturais\Controller
         $tado->cpfManager       = $request->data['cpfManager'];
         $entity = self::saveEntity($tado);
 
+        self::sendNotificationTagoGeneration();
+
         if($entity["entityId"]){
             if($request->data['status'] == 1){
                 self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
@@ -145,5 +142,28 @@ class Tado extends \MapasCulturais\Controller
             'message' => $message,
             'status' => $status
         ]);
+    }
+
+    //Notificação via plataforma do mapa cultural ao proponente
+    public function sendNotificationTagoGeneration()
+    {
+        $msgTado = 'O TERMO DE ACEITAÇÃO DEFINITIVA DO OBJETO, foi gerado e você já pode verificar acessando o sua inscrição: Nº ';
+       
+        $app = App::i();
+        $ag = $app->repo('Registration')->find($this->data['id']);
+        //Inscrição, agente fiscal e agente proponente
+        $notifi = [
+            'registration' => $ag->id,
+            'openAgent' => $app->user->profile->id,
+            'agent' => $ag->owner->id
+        ];
+        
+        $notification = new NotificationDiligence();
+        $class = new class {
+            public $data = [];
+        };
+
+        $class->data = $notifi;
+        $notification->create($class, $msgTado);
     }
 }
