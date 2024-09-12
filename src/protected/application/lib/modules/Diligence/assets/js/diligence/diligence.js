@@ -297,6 +297,7 @@ function sendAjaxDiligence(status, idDiligence) {
             }
         },
         error: function (err) {
+            console.log({err})
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
@@ -323,15 +324,14 @@ function verifySubject(subject_exec_physical, subject_report_finance)
     }
     //Na situação de diligência única
     if( 
-        MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'
-        && MapasCulturais.entity.object.opportunity.use_diligence == "Sim"
+        MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim'
         && $("#"+subject_exec_physical+":checked").val() == undefined 
         && $("#"+subject_report_finance+":checked").val() == undefined 
     )
     {
         diligenceMessage.messageSimple("Ops!", "Você precisa escolher um assunto ou mais assuntos", 2000);
         return false;
-    }else{
+    }else if(MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'){
         objSendDiligence['subject'].push('single_diligence');
     }
     
