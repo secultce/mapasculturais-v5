@@ -4,7 +4,8 @@ namespace Notifications;
 use MapasCulturais\App,
     MapasCulturais\i,
     MapasCulturais\Entities,
-    MapasCulturais\Entities\Notification;
+    MapasCulturais\Entities\Notification,
+    MapasCulturais\Utils;
 
 class Module extends \MapasCulturais\Module{
     
@@ -104,7 +105,7 @@ class Module extends \MapasCulturais\Module{
                         
                         $subject = i::__("Requisição para avaliar oportunidade");
                         $message = sprintf(i::__("%s te convida para avaliar a oportunidade %s vinculada ao %s %s. %s"), $profile_link, $opportunity_link, $owner_entity_label, $owner_entity_link, $urlDestinationPanel_link);
-                        $message_to_requester = sprintf(i::__("Seu convite para fazer do agente %s um avaliador foi enviada."), $destination_link);
+                        $message_to_requester = sprintf(i::__(Utils::getTermsByOpportunity("Seu convite para fazer do agente %s um avaliador foi enviada.", $opportunity)), $destination_link);
                         
                     } else if($origin->getClassName() === 'MapasCulturais\Entities\Registration'){
                         $project = $origin->project;

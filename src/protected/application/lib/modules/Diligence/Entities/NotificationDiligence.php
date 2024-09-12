@@ -7,17 +7,24 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class NotificationDiligence {
 
-    public function create($class)
+    public function create($class, $msgSend)
     {
+       
         $app = App::i();
         $notification = new Notification();
-        $agent = $app->repo('Agent')->find($class->data['agent']);
         
+        $agent = $app->repo('Agent')->find($class->data['agent']);
         $url = $app->createUrl('inscricao', $class->data['registration']);
         //Mensagem para notificação na plataforma
         $numberRegis = '<a href="'.$url.'">'.$class->data['registration'].'</a>';
-        $message = 'Um parecerista abriu uma diligência para você responder na inscrição de número: '.$numberRegis;
+        
+        if($msgSend == '' || $msgSend == null)
+        {
+            $msgSend = 'Um parecerista abriu uma diligência para você responder na inscrição de número: ';
+        }
 
+        $message = $msgSend . $numberRegis ;
+       
         $notification->message  = $message;
         $notification->user     = $agent->user;
         

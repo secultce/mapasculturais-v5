@@ -16,6 +16,7 @@ use MapasCulturais\Entities\Project;
 use MapasCulturais\Entities\MetaList;
 use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Utils;
 
 class Controller extends \MapasCulturais\Controller
 {
@@ -1035,7 +1036,7 @@ class Controller extends \MapasCulturais\Controller
             $fields[] = $this->fieldDefinition(i::__("Categoria"), "category", "r");
         }
         $fields[] = $this->fieldDefinition(i::__("Status"), "status", "r", 'status');
-        $fields[] = $this->fieldDefinition(i::__("Avaliação"), "consolidated_result", "r", "valueToString");
+        $fields[] = $this->fieldDefinition(i::__(Utils::getTermsByOpportunity("Avaliação", $opportunity)), "consolidated_result", "r", "valueToString");
         
         $opportunities[] = $opportunity;
         $previous = $opportunity->previousPhases;
