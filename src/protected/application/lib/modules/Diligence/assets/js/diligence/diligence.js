@@ -297,7 +297,6 @@ function sendAjaxDiligence(status, idDiligence) {
             }
         },
         error: function (err) {
-            console.log({err})
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
