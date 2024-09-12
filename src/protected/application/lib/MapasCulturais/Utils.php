@@ -185,4 +185,36 @@ class Utils {
 
         return $hasSeal;
     }
+
+    static function getTermsByOpportunity($text, $opportunity)
+    {
+        $terminology = [
+            'Avaliador' => 'Fiscal',
+            'avaliador' => 'fiscal',
+            'Avaliadores' => 'Fiscais',
+            'avaliadores' => 'fiscais',
+            'Avaliação' => 'Monitoramento',
+            'avaliação' => 'monitoramento',
+            'a avaliação' => 'o monitoramento',
+            'da avaliação' => 'do monitoramento',
+            'avaliação encontrada' => 'monitoramento encontrado',
+            'Nenhuma avaliação enviada' => 'Nenhum monitoramento enviado',
+            'Avaliações' => 'Monitoramentos',
+            'avaliações' => 'monitoramentos',
+            'as avaliações' => 'os monitoramentos',
+            'das avaliações' => 'dos monitoramentos',
+            'Suas avaliações' => 'Seus monitoramentos',
+            'todas as <b>avaliações</b>' => 'todos os <b>monitoramentos</b>',
+            'Avaliado' => 'Monitorado',
+            'avaliado' => 'monitorado',
+            'Avaliada' => 'Monitorada',
+            'avaliada' => 'monitorada',
+        ];
+
+        if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
+            $text = strtr($text, $terminology);
+        }
+
+        return $text;
+    }
 }
