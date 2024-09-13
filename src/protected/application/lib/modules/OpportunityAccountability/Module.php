@@ -345,11 +345,6 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        // Insere novo painel para mostrar as prestações de contas
-        $app->hook('panel.menu:after', function() use ($app) {
-            $this->part('accountability/accountability-nav-panel');
-        });
-
         //Cria painel de prestação de contas
         $app->hook('GET(panel.accountability)', function() use($app) {
             $this->requireAuthentication();
