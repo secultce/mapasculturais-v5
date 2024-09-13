@@ -255,7 +255,7 @@ function saveDiligence(status, st, idDiligence) {
     }
     if (status == 3) {
         //Mensagem de confirmação
-        Swal.fire({
+        const swatF = Swal.fire({
             title: "Confirmar o envio da diligência?",
             text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
             showConfirmButton: true,
@@ -268,11 +268,13 @@ function saveDiligence(status, st, idDiligence) {
                 confirmButton: "btn-success-rec",
                 cancelButton: "btn-warning-rec"
             },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                sendAjaxDiligence(status, idDiligence);
-            }
-        });
+        })
+        return swatF;
+        // .then((result) => {
+        //     if (result.isConfirmed) {
+        //         sendAjaxDiligence(status, idDiligence);
+        //     }
+        // });
     } else {
         sendAjaxDiligence(status, idDiligence);
     }
@@ -361,6 +363,25 @@ function hideAfterSend() {
     $("#div-diligence").hide();
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
+}
+
+function trashDraftDiligence(idDiligence, titleQuestion,textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
+    const trashDraft = diligenceMessage.messageConfirm(
+        titleQuestion, textTrash, titleCancel, titleConfirm, classBtnCancel ,classBtnConfirm
+    );
+    trashDraft.then(res => {
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('diligence', 'trashDraftDiligence'),
+            data: {id : idDiligence},
+            dataType: 'json',
+            success: function (response) {
+                console.log({response})
+                diligenceMessage.messageSimple('Excluído','Rascunho excluído com sucesso', 1500);
+               window.location.reload();
+            }
+        });
+    })
 }
 
 
