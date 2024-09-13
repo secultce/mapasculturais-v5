@@ -4,7 +4,7 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.9.2-rc4]
+## [5.9.2-rc4] - 2024-09-13
 ### Novas Funcionalidades
 - Adicionado módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental.
 - Adicionada configuração de cotas a oportunidade.
