@@ -45,6 +45,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                 $this->part('diligence/edit-description', [
                     'titleDraft' => 'Diligência em rascunho.',
                     'titleButton' => 'Editar Diligência',
+                    'titleTrash' => 'Excluir Rascunho',
                     'resultsDraft' => $diligenceAndAnswerLast[0]->description,
                     'id' => $diligenceAndAnswerLast[0]->id,
                     'type' => "proponent",
