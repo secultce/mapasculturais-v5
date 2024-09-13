@@ -44,6 +44,13 @@ class Module extends \MapasCulturais\Module
                 $self->registrationStart($this);
             }
         });
+
+        $app->hook('GET(agent.testes)', function () use ($app) {
+            $dataValue = [
+                'name' => 'Ronny John',
+            ];
+            echo $app->renderMailerTemplate('welcome', $dataValue)['body'];
+        });
     }
 
     public function register()
