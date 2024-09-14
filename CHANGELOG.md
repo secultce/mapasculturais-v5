@@ -1,17 +1,44 @@
 # Changelog
 Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 
-O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
+O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.9.2-rc4] - 2024-09-13
-### Novas Funcionalidades
+## [5.9.2] - 2024-09-13
+### Adicionado
+- Atribuição de cotas via api
+- Integrando com API de HeteroIdentificação
+- Adicionado Terminologia para prestação de contas
 - Adicionado módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental.
 - Adicionada configuração de cotas a oportunidade.
 - Adicionado módulo de heteroidentificação.
 ### Melhorias
 - Adicionado logs às oportunidades.
 - Modificação de algumas terminologias.
+- Na busca de agente para heteroidentificação
+
+
+## [5.9.2-rc3] - 2024-09-04
+### Adicionado
+- Ocutando itens da diligência
+- Configuração de vagas para cotistas na oportunidade 
+- Habilitar config de cotas somente para agentes com selo
+### Modificado
+- Atualizando referência dos plugins
+- Refatorando módulo de sorteio
+### Corrigido
+- Corrigido Bugs
+
+## [5.9.2-rc2] - 2024-09-02
+### Novas Funcionalidades
+- Limitar inscrições pelo número configurado no projeto
+- Remover opção de prestação de contas ao criar uma nova fase na oportunidade
+- Tipo de dia para resposta da diligência
+- Adicionado assunto por diligência
+- Relatório Financeiro
+- Importar relatório financeiro na prestação de contas
+- Adicionando plugin BigSheetImporte
+
 
 ## [5.9.2-rc1] - 2024-07-09
 ### Melhorias
