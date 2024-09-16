@@ -223,10 +223,12 @@ endif; ?>
         ? ($checked = $diligenceAndAnswers[0]->getCheckSubject($subjectReplace))
         : ($checked = ["checkPhysical" => "checked", "checkFinance" => ""]);
     $generatedTado = DiligenceRepo::getTado($entity);
+   
     if (
         !is_null($diligenceAndAnswers[1]) ||
         isset($diligenceAndAnswers[1]->status)
     ) {
+       
         if (
             !is_null($generatedTado) &&
             $generatedTado->status == EntityDiligence::STATUS_DRAFT

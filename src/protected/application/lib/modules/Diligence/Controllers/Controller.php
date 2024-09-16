@@ -270,7 +270,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
 
-    function addingBusinessDays($date, $dias)
+    function addingBusinessDays($date, $dias): Carbon
     {
         // Obtém a data e hora atual em objeto tyipo date
         $currentDate = Carbon::parse($date);
@@ -300,7 +300,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         return $currentDate;
     }
 
-    function POST_upload()
+    function POST_upload(): void
     {
         $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
         $savedFiles = DiligenceRepo::getFilesDiligence($this->data["id"]);
@@ -437,7 +437,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $app = App::i();
         $diligence = $app->repo(EntityDiligence::class)->find($this->data['id']);
-        $diligence->status = EntityDiligence::STATUS_TRASH;
+        $diligence->situation = EntityDiligence::STATUS_TRASH;
         self::saveEntity($diligence);
         return $this->json(['message' => 'success']);
     }

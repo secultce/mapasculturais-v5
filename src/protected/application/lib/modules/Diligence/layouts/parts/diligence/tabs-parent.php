@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use Diligence\Entities\Diligence;
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
@@ -40,7 +41,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                     array_push($diligenceAndAnswerLast, $resultsDraft);
                 }
             };
-            if ($diligenceAndAnswerLast[0]->status == 0) {
+            if ($diligenceAndAnswerLast[0]->status == 0 && $diligenceAndAnswerLast[0]->situation !== EntityDiligence::STATUS_TRASH) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
                 $this->part('diligence/edit-description', [
                     'titleDraft' => 'Diligência em rascunho.',
@@ -79,12 +80,25 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         </div>
         <div class="div-btn-send-diligence flex-container">
             <?php
+            dump($diligenceAndAnswers[0]);
+            dump(!is_null($diligenceAndAnswers[0]->situation));
+            dump(Diligence::STATUS_TRASH);    
+            dump($diligenceAndAnswers[0]->situation !== Diligence::STATUS_TRASH);
+            dump((isset($diligenceAndAnswers[0]->situation) && $diligenceAndAnswers[0]->situation !== Diligence::STATUS_TRASH));
                 //Se tiver TADO finalizado não tem mais interação
-                if(is_null($tado) || !is_null($tado) && $tado->status == 0) :
+                if(
+                    is_null($tado) 
+                    || !is_null($tado) && $tado->status == 0
+                    || (!is_null($diligenceAndAnswers[0]->situation) && $diligenceAndAnswers[0]->situation !== Diligence::STATUS_TRASH)
+                ) :
             ?>
             <div class="d-none" id="btn-actions-diligence">
                 <?php
-                if ($showText || is_null($diligenceAndAnswers)) {
+                dump((isset($diligenceAndAnswers[0]->situation) && $diligenceAndAnswers[0]->situation !== Diligence::STATUS_TRASH));
+                if ( 
+                    $showText 
+                    || is_null($diligenceAndAnswers)
+                ) {
                     $this->part('diligence/description', ['placeHolder' => $placeHolder]);
                     $this->part('diligence/message-success-draft');
                     $this->part('diligence/btn-actions-diligence', [
