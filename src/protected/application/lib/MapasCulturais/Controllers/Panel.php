@@ -1,16 +1,13 @@
 <?php
+
 namespace MapasCulturais\Controllers;
 
+use Diligence\Entities\Tado;
 use MapasCulturais\ApiQuery;
 use MapasCulturais\App;
-
-use MapasCulturais\Entities\Agent;
 use MapasCulturais\Entities\Space;
-use MapasCulturais\Entities\Event;
-use MapasCulturais\Entities\Project;
-use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Entities\Seal;
-use MapasCulturais\Entities\Subsite;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 /**
  * User Panel Controller
@@ -370,5 +367,33 @@ class Panel extends \MapasCulturais\Controller {
             $roles = $app->repo('User')->getRoles($this->getData['userId']);
             $this->render('user-management', ['user' => $user, 'roles' => $roles]);
         }
+    }
+
+    function GET_accountability()
+    {
+        $this->requireAuthentication();
+
+        $user = $this->_getUser();
+        $registrations = App::i()->repo('Registration')->findBy(['owner' => (int)$user->profile->id]);
+
+        // Retorna as inscrições em oportunidades de prestação de contas (proponente)
+        $regAsProp = array_filter($registrations, function ($reg) {
+            return $reg->opportunity->getMetadata('use_multiple_diligence') === 'Sim';
+        });
+
+        // Retorna as inscrições de prestação de contas finalizadas (TADO gerado)
+        $regAsPropFinished = array_filter($regAsProp, function ($reg) {
+            $tado = DiligenceRepo::getTado($reg);
+
+            return isset($tado) && $tado->status === Tado::STATUS_ENABLED;
+        });
+
+        // Retorna as inscrições em processo de prestação de contas
+        $regAsPropInProcess = array_diff($regAsProp, $regAsPropFinished);
+
+        $this->render('accountability', [
+            'regAsPropInProcess' => $regAsPropInProcess,
+            'regAsPropFinished' => $regAsPropFinished,
+        ]);
     }
 }
