@@ -373,8 +373,12 @@ class Panel extends \MapasCulturais\Controller {
     {
         $this->requireAuthentication();
 
+        $app = App::i();
+        $theme = $app->view;
+
         $user = $this->_getUser();
-        $registrations = App::i()->repo('Registration')->findBy(['owner' => (int)$user->profile->id]);
+        $registrations = $app->repo('Registration')->findBy(['owner' => (int)$user->profile->id]);
+        $opportunities = $theme->getOpportunitiesCanBeEvaluated();
 
         // Retorna as inscrições em oportunidades de prestação de contas (proponente)
         $regAsProp = array_filter($registrations, function ($reg) {
@@ -391,9 +395,40 @@ class Panel extends \MapasCulturais\Controller {
         // Retorna as inscrições em processo de prestação de contas
         $regAsPropInProcess = array_diff($regAsProp, $regAsPropFinished);
 
+        // Retorna as oportunidades de prestação de contas (fiscal)
+        $oppAsFiscal = array_filter($opportunities, function ($opp) {
+            return $opp->getMetadata('use_multiple_diligence') === 'Sim';
+        });
+
+        /**
+         * Retorna as oportunidades que estão em processo de monitoramento
+         * Se em alguma inscrição o TADO ainda não tiver sido gerado, a oportunidade estará em processo de monitoramento
+         */
+        $oppInMonitoringProcess = array_filter($oppAsFiscal, function ($opp) {
+            $inMonitoring = false;
+
+            $registrations = $opp->getSentRegistrations();
+            foreach ($registrations as $reg) {
+                $tado = DiligenceRepo::getTado($reg);
+                if (empty($tado) || $tado->status !== Tado::STATUS_ENABLED) {
+                    $inMonitoring = true;
+                    break;
+                }
+            }
+
+            return $inMonitoring;
+        });
+
+        // Oportunidades com processo de monitoramento finalizado (Todos os TADO's gerados)
+        $oppMonitoringFinished = array_diff($oppAsFiscal, $oppInMonitoringProcess);
+
         $this->render('accountability', [
             'regAsPropInProcess' => $regAsPropInProcess,
             'regAsPropFinished' => $regAsPropFinished,
+            'oppInMonitoringProcess' => $oppInMonitoringProcess,
+            'oppMonitoringFinished' => $oppMonitoringFinished,
+            'isProponent' => $regAsProp ? true : false,
+            'isFiscal' => $oppAsFiscal ? true : false,
         ]);
     }
 }
