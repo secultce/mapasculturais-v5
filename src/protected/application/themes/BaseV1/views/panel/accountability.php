@@ -12,16 +12,16 @@ $this->layout = 'panel';
     </header>
 
     <ul class="abas clearfix clear">
-        <?php if (!$isFiscal) : ?>
-            <?php $this->part('tab', ['id' => 'emProcesso', 'label' => i::__("Em processo"), 'active' => true]) ?>
+        <?php if ($isProponent || !$isFiscal) : ?>
+            <?php $this->part('tab', ['id' => 'emProcesso', 'label' => i::__("Em processo")]) ?>
             <?php $this->part('tab', ['id' => 'finalizadas', 'label' => i::__("Finalizadas")]) ?>
         <?php endif; ?>
         <?php if ($isFiscal) : ?>
-            <?php $this->part('tab', ['id' => 'emMonitoramento', 'label' => i::__("Em monitoramento"), 'active' => true]) ?>
+            <?php $this->part('tab', ['id' => 'emMonitoramento', 'label' => i::__("Em monitoramento")]) ?>
             <?php $this->part('tab', ['id' => 'monitoramentoFinalizado', 'label' => i::__("Monitoramento finalizado")]) ?>
         <?php endif; ?>
     </ul>
-    <?php if (!$isFiscal) : ?>
+    <?php if ($isProponent || !$isFiscal) : ?>
         <div id="emProcesso">
             <?php
             if ($regAsPropInProcess) {

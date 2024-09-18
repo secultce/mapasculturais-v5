@@ -3,7 +3,7 @@
 use MapasCulturais\App;
 
 $opportunity = $registration->opportunity;
-$url = $registration->singleUrl . '#/tab=diligence-diligence';
+$url = $registration->singleUrl . '#/tab=diligence-principal';
 
 ?>
 
