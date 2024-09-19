@@ -126,7 +126,11 @@
     </tr>
     </tbody>
 </table>
-<?php if($app->view->regObject['tado']->nameManager !== null || $app->view->regObject['tado']->nameManager !== ''): ?>
+<?php 
+    if( ($app->view->regObject['tado']->nameManager !== null)):
+        //Em ocasioes que o gestor é adicionado e depois removido
+        if($app->view->regObject['tado']->nameManager !== '') :
+?>
 <div>
     <p>
         <br>
@@ -167,4 +171,7 @@
     </tr>
     </tbody>
 </table>
-<?php endif; ?>
+<?php 
+    endif;
+        endif; 
+?>

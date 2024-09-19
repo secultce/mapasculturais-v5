@@ -7,7 +7,7 @@
     <?php if($this->isEditable()): ?>
         <?php $this->part('tab', ['id' => 'form-config', 'label' => i::__("Configuração do Formulário")]) ?>
         <?php if(!$entity->isNew()): ?>
-            <?php $this->part('tab', ['id' => 'evaluations-config', 'label' => i::__("Configuração da Avaliação")]) ?>
+            <?php $this->part('tab', ['id' => 'evaluations-config', 'label' => i::__("Configuração de Avaliação")]) ?>
         <?php endif; ?>
     <?php else: ?>
         <?php if($entity->publishedRegistrations): ?>
