@@ -928,6 +928,15 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
         }
     }
 
+    public function getOpportunitiesNotAccountability()
+    {
+        $opportunities = array_filter($this->opportunitiesCanBeEvaluated, function ($opp) {
+            return $opp->getMetadata('use_multiple_diligence') !== 'Sim';
+        });
+
+        return $opportunities;
+    }
+
     protected function canUserDeleteAccount(User $user){
         return $user->is('admin') || $user->equals($this);
     }
