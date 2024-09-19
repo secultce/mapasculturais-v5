@@ -937,6 +937,16 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
         return $opportunities;
     }
 
+    public function getRegistrationsNotAccountability($status, $limit = null)
+    {
+        $registrationsSent = App::i()->repo('Registration')->findByUser($this, $status, $limit);
+        $registrations = array_filter($registrationsSent, function ($reg) {
+            return $reg->opportunity->getMetadata('use_multiple_diligence') !== 'Sim';
+        });
+
+        return $registrations;
+    }
+
     protected function canUserDeleteAccount(User $user){
         return $user->is('admin') || $user->equals($this);
     }

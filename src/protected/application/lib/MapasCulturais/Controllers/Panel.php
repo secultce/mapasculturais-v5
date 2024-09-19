@@ -374,7 +374,7 @@ class Panel extends \MapasCulturais\Controller {
         $this->requireAuthentication();
 
         $user = $this->_getUser();
-        $registrations = App::i()->repo('Registration')->findBy(['owner' => (int)$user->profile->id]);
+        $registrations = App::i()->repo('Registration')->findByUser($user, 'sent');
         $opportunities = $user->opportunitiesCanBeEvaluated;
 
         // Retorna as inscrições em oportunidades de prestação de contas (proponente)
