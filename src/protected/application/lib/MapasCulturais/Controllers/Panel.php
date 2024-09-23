@@ -1,16 +1,13 @@
 <?php
+
 namespace MapasCulturais\Controllers;
 
+use Diligence\Entities\Tado;
 use MapasCulturais\ApiQuery;
 use MapasCulturais\App;
-
-use MapasCulturais\Entities\Agent;
 use MapasCulturais\Entities\Space;
-use MapasCulturais\Entities\Event;
-use MapasCulturais\Entities\Project;
-use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Entities\Seal;
-use MapasCulturais\Entities\Subsite;
+use Diligence\Repositories\Diligence as DiligenceRepo;
 
 /**
  * User Panel Controller
@@ -370,5 +367,65 @@ class Panel extends \MapasCulturais\Controller {
             $roles = $app->repo('User')->getRoles($this->getData['userId']);
             $this->render('user-management', ['user' => $user, 'roles' => $roles]);
         }
+    }
+
+    function GET_accountability()
+    {
+        $this->requireAuthentication();
+
+        $user = $this->_getUser();
+        $registrations = App::i()->repo('Registration')->findByUser($user, 'sent');
+        $opportunities = $user->opportunitiesCanBeEvaluated;
+
+        // Retorna as inscrições em oportunidades de prestação de contas (proponente)
+        $regAsProp = array_filter($registrations, function ($reg) {
+            return $reg->opportunity->getMetadata('use_multiple_diligence') === 'Sim';
+        });
+
+        // Retorna as inscrições de prestação de contas finalizadas (TADO gerado)
+        $regAsPropFinished = array_filter($regAsProp, function ($reg) {
+            $tado = DiligenceRepo::getTado($reg);
+
+            return isset($tado) && $tado->status === Tado::STATUS_ENABLED;
+        });
+
+        // Retorna as inscrições em processo de prestação de contas
+        $regAsPropInProcess = array_diff($regAsProp, $regAsPropFinished);
+
+        // Retorna as oportunidades de prestação de contas (fiscal)
+        $oppAsFiscal = array_filter($opportunities, function ($opp) {
+            return $opp->getMetadata('use_multiple_diligence') === 'Sim';
+        });
+
+        /**
+         * Retorna as oportunidades que estão em processo de monitoramento
+         * Se em alguma inscrição o TADO ainda não tiver sido gerado, a oportunidade estará em processo de monitoramento
+         */
+        $oppInMonitoringProcess = array_filter($oppAsFiscal, function ($opp) {
+            $inMonitoring = false;
+
+            $registrations = $opp->getSentRegistrations();
+            foreach ($registrations as $reg) {
+                $tado = DiligenceRepo::getTado($reg);
+                if (empty($tado) || $tado->status !== Tado::STATUS_ENABLED) {
+                    $inMonitoring = true;
+                    break;
+                }
+            }
+
+            return $inMonitoring;
+        });
+
+        // Oportunidades com processo de monitoramento finalizado (Todos os TADO's gerados)
+        $oppMonitoringFinished = array_diff($oppAsFiscal, $oppInMonitoringProcess);
+
+        $this->render('accountability', [
+            'regAsPropInProcess' => $regAsPropInProcess,
+            'regAsPropFinished' => $regAsPropFinished,
+            'oppInMonitoringProcess' => $oppInMonitoringProcess,
+            'oppMonitoringFinished' => $oppMonitoringFinished,
+            'isProponent' => $regAsProp ? true : false,
+            'isFiscal' => $oppAsFiscal ? true : false,
+        ]);
     }
 }
