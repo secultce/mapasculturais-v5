@@ -50,7 +50,7 @@ use MapasCulturais\Entities\User;
  * @property-read \MapasCulturais\Module[] $modules active modules
  * @property-read \MapasCulturais\Plugin[] $plugins active plugins
  *
- * @method \MapasCulturais\App i() Returns the application object
+ * @method static \MapasCulturais\App i() Returns the application object
  */
 class App extends \Slim\Slim{
     use \MapasCulturais\Traits\MagicGetter,
