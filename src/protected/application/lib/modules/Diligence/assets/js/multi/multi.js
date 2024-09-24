@@ -93,7 +93,6 @@ function getSituacion()
             }else{
                 $("#situacion-refo-multi").val(response.situacion).change();
             }
-            
         }
     });
 }

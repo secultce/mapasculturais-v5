@@ -166,7 +166,7 @@ class Diligence{
      */
     public function getSituacionPC(Registration $registration) : string
     {
-        $app = App::i();       
+        $app = App::i();
         $entity = $app->repo('Registration')->find($registration->id);
         //Se não tiver metadata retorna falso
         return !is_null($entity->getMetadata('situacion_diligence')) ? $entity->getMetadata('situacion_diligence') : 'all';
