@@ -87,7 +87,7 @@ function getSituacion()
         url: MapasCulturais.createUrl('refo', 'getSituacionPC/'+MapasCulturais.entity.id),
         dataType: "json",
         success: function (response) {
-            if(response.situacion == 'all'){
+            if(response.situacion === 'all'){
                 $(".multi-itens-select").hide();
                 $("#p-btn-tado").hide();
             }else{
