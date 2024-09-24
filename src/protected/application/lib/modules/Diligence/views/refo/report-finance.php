@@ -10,15 +10,11 @@ $repoDiligence = new RepoDiligence();
 $repoDiligence->verifyAcessReport($reg);
 
 $this->layout = 'nolayout-pdf';
-require THEMES_PATH. 'BaseV1/layouts/headpdf.php';
+require THEMES_PATH . 'BaseV1/layouts/headpdf.php';
 ?>
 
 <section class="clearfix">
-    <div style="margin-top: 25px">
-        <p style="text-align: center">
-            <img src="<?= MODULES_PATH . 'Diligence/assets/img/logo_secult.jpg' ?>" width="128" alt="">
-        </p>
-    </div>
+
     <div>
         <p class="title-bold" style="text-align: center">
             <label class="title-bold">
@@ -122,3 +118,9 @@ require THEMES_PATH. 'BaseV1/layouts/headpdf.php';
         ?>
     </div>
 </section>
+<?php
+
+require THEMES_PATH. 'BaseV1/views/pdf/footer-pdf.php';
+
+?>
+

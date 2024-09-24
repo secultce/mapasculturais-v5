@@ -82,13 +82,12 @@ class Module extends \MapasCulturais\Module {
             $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
             $app->view->enqueueScript('app', 'jquery-ui', 'js/diligence/jquery-ui.min.js');
             $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
-
+            //Todos os assets para multi diligencia
+            self::multiPublishAssets();
             if($isProponent){
                 return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
             }
             if($isEvaluator) {
-                //Todos os assetos para multi diligencia
-                self::multiPublishAssets();
                 $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
             }
         });
@@ -171,16 +170,20 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app, $module){
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
-
-            if ( $module->isEvaluator($entity->opportunity, $entity) )
+            //A pessoa dona da inscrição tem acesso a visualizar o TADO    
+            $ownerRegistration = $app->user->profile == $entity->owner ? true : false;
+            //Se é avaliador
+            $isEvaluation = $module->isEvaluator($entity->opportunity, $entity);
+            if ($isEvaluation || $ownerRegistration)
             {
                 $tado = DiligenceRepo::getTado($entity);
                 $app->view->enqueueStyle('app', 'multi-css', 'css/diligence/multi.css');
                 $app->view->enqueueScript('app', 'multi-js', 'js/multi/multi.js');
                 $this->part('multi/accountability-actions', [
-                    'reg' => $entity,
-                    'app' => $app,
-                    'tado' => $tado
+                    'reg'           => $entity,
+                    'app'           => $app,
+                    'tado'          => $tado,
+                    'isEvaluation'  => $isEvaluation
                 ]);
             };
 

@@ -70,6 +70,10 @@ $method = $entity->getEvaluationMethod();
                 <div class="close"></div>
             </div>
         <?php endif; ?>
+            <div class="alert info">
+                <p><b>Atenção!</b></p>
+                Ao excluir um avaliador, todas as <b>avaliações</b> dessa oportunidade realizadas por esse avaliador também <b>serão excluídas</b>.
+            </div>
             <div class="committee" ng-repeat="admin in data.committee">
                 <div ng-if="admin.status === -5" class="alert warning"><?php i::_e('Aguardando confirmação do avaliador')?></div>
                 <div class="committee--info ">

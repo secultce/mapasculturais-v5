@@ -1,5 +1,5 @@
 <?php
-if( ($tado->status == 0) || is_null($tado) ) : ?>
+if( is_null($tado) || ($tado->status == 0) ) : ?>
 <div style="width: 100%;
     text-align: center;
     margin-top: 10px;" class="form-group-multi">
@@ -33,16 +33,3 @@ if( ($tado->status == 0) || is_null($tado) ) : ?>
     </p>
 </div>
 <?php endif;
-if( ($tado->status == 1 && !is_null($tado)) ) : ?>
-    <p style="text-align: center;width: 100%; margin-bottom: 15px" id="">
-        <a href="<?= $app->createUrl('tado', 'gerar/' . $reg->id); ?>"
-           target="_blank"
-           class="btn btn-primary"
-           title="Visualizar o TADO"
-           style="display: block;"
-        >
-            Visualizar TADO
-        </a>
-    </p>
-
-<?php endif; ?>

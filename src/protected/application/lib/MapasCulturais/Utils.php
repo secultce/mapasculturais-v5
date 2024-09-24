@@ -172,4 +172,49 @@ class Utils {
       
       return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "\$1.\$2.\$3/\$4-\$5", $cnpj_cpf);
     }
+
+    static function checkUserHasSeal($sealId)
+    {
+        $user = App::i()->getUser();
+        //Verificação de usuário
+        $sealRelations = $user->profile ? $user->profile->sealRelations : [];
+
+        $hasSeal = array_filter($sealRelations, function ($sealRelation) use ($sealId) {
+            return $sealRelation->seal->id === (int)$sealId;
+        });
+
+        return $hasSeal;
+    }
+
+    static function getTermsByOpportunity($text, $opportunity)
+    {
+        $terminology = [
+            'Avaliador' => 'Fiscal',
+            'avaliador' => 'fiscal',
+            'Avaliadores' => 'Fiscais',
+            'avaliadores' => 'fiscais',
+            'Avaliação' => 'Monitoramento',
+            'avaliação' => 'monitoramento',
+            'a avaliação' => 'o monitoramento',
+            'da avaliação' => 'do monitoramento',
+            'avaliação encontrada' => 'monitoramento encontrado',
+            'Nenhuma avaliação enviada' => 'Nenhum monitoramento enviado',
+            'Avaliações' => 'Monitoramentos',
+            'avaliações' => 'monitoramentos',
+            'as avaliações' => 'os monitoramentos',
+            'das avaliações' => 'dos monitoramentos',
+            'Suas avaliações' => 'Seus monitoramentos',
+            'todas as <b>avaliações</b>' => 'todos os <b>monitoramentos</b>',
+            'Avaliado' => 'Monitorado',
+            'avaliado' => 'monitorado',
+            'Avaliada' => 'Monitorada',
+            'avaliada' => 'monitorada',
+        ];
+
+        if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
+            $text = strtr($text, $terminology);
+        }
+
+        return $text;
+    }
 }

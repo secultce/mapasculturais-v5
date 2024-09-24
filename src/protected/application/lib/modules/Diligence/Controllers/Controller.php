@@ -113,7 +113,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         App::i()->applyHook('controller(diligence).notification:before');
         //Notificação no Mapa Cultural
         $notification = new NotificationDiligence();
-        $notification->create($this);
+        $notification->create($this, '');
 
         $userDestination = $notification->userDestination($this);
         App::i()->applyHook('controller(diligence).notification:after');

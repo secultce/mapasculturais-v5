@@ -206,6 +206,14 @@ class Module extends \MapasCulturais\Module{
 
     function _init () {
         $app = App::i();
+
+        $app->_config['mailer.templates'] = array_merge($app->_config['mailer.templates'],[
+            'opportunityphases_selected-communication' => [
+                'title' => 'Aviso de inscrição selecionada',
+                'template' => 'opportunityphases/selected-communication.html'
+            ],
+        ]);
+
         $self = $this;
         $registration_repository = $app->repo('Registration');
 
@@ -919,7 +927,7 @@ class Module extends \MapasCulturais\Module{
             "status" => Entities\Registration::STATUS_APPROVED
         ]);
         foreach ($registrations as $registration) {
-            $template = "opportunityphases/selected-communication.html";
+            $template = "opportunityphases_selected-communication";
             $params = [
                 "siteName" => $app->view->dict("site: name", false),
                 "user" => $registration->owner->name,
@@ -934,7 +942,7 @@ class Module extends \MapasCulturais\Module{
                 "subject" => sprintf(i::__("Aviso sobre a sua inscrição na " .
                                            "oportunidade %s"),
                                      $opportunity->name),
-                "body" => $app->renderMustacheTemplate($template, $params)
+                "body" => $app->renderMailerTemplate($template, $params)['body']
             ];
             if (!isset($email_params["to"])) {
                 return;

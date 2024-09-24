@@ -321,11 +321,19 @@ function verifySubject(subject_exec_physical, subject_report_finance)
     {
         objSendDiligence['subject'].push('subject_report_finance');
     }
-    if( $("#"+subject_exec_physical+":checked").val() == undefined && $("#"+subject_report_finance+":checked").val() == undefined )
+    //Na situação de diligência única
+    if( 
+        MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim'
+        && $("#"+subject_exec_physical+":checked").val() == undefined 
+        && $("#"+subject_report_finance+":checked").val() == undefined 
+    )
     {
-        diligenceMessage.messageSimple("Ops!", "Escolha um ou as duas opções", 2000);
+        diligenceMessage.messageSimple("Ops!", "Você precisa escolher um assunto ou mais assuntos", 2000);
         return false;
+    }else if(MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'){
+        objSendDiligence['subject'].push('single_diligence');
     }
+    
     return objSendDiligence['subject'];
 }
 

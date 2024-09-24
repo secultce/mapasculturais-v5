@@ -27,7 +27,7 @@ $opportunity = $registration->opportunity;
     <div class="objeto-meta">
         <?php $this->applyTemplateHook('panel-registration-meta', 'begin', [$registration]); ?>
 
-        <div><span class="label"<?php \MapasCulturais\i::esc_attr_e("Responsável:");?>></span> <?php echo $registration->owner->name ?></div>
+        <div><span class="label"><?php \MapasCulturais\i::esc_attr_e("Responsável:");?></span> <?php echo $registration->owner->name ?></div>
         <?php
         foreach($app->getRegisteredRegistrationAgentRelations() as $def):
             if(isset($registration->relatedAgents[$def->agentRelationGroupName])):

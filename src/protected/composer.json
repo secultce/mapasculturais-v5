@@ -36,7 +36,8 @@
         "shuchkin/simplexlsxgen": "^1.4",
         "php-amqplib/php-amqplib": "^3.2",
         "nesbot/carbon": "^2.72",
-        "mpdf/mpdf": "^8.2"
+        "mpdf/mpdf": "^8.2",
+        "guzzlehttp/guzzle": "^7.9.2"
     },
     "repositories": [
         {
