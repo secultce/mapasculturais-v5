@@ -67,6 +67,18 @@
     margin-right: 5px;
 }
 
+.bonus-config table {
+    width: 100%;
+}
+
+.bonus-config .bonus-field {
+    width: 30%;
+}
+
+.bonus-config .bonus-value {
+    width: 60%;
+}
+
 .technical-evaluation-configuration .policy-field,
 .technical-evaluation-configuration .policy-percent {
     width: 20%;
@@ -76,7 +88,8 @@
     width: 50%;
 }
 
-.technical-evaluation-configuration .policy-value select {
+.technical-evaluation-configuration .policy-value select,
+.bonus-config .bonus-field select {
     width: 100%;
 }
 .technical-evaluation-configuration .policy-value .check {

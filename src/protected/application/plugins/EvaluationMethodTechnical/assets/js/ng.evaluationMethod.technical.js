@@ -46,6 +46,8 @@
                 quotas: MapasCulturais.evaluationConfiguration.quotas || [],
                 enableViability: MapasCulturais.evaluationConfiguration.enableViability || false,
                 registrationFieldConfigurations: [],
+                bonusFieldsConfig: MapasCulturais.bonusFieldsConfig || [],
+                bonusFields: {},
                 enableConfigBonusFields: MapasCulturais.enableConfigBonusFields ? true : false,
                 criteriaAffirmativePolicies: MapasCulturais.affirmativePolicies || [],
                 fieldsAffiermativePolicie: {},
@@ -66,6 +68,32 @@
                 return exists;
             }
 
+            $scope.saveConfigBonusFields = function () {
+                $scope.pendingConfig = false;
+                const data = {
+                    enableConfigBonusFields: $scope.data.enableConfigBonusFields,
+                    bonusFieldsConfig: JSON.stringify($scope.data.bonusFieldsConfig) == "[]" ? null : $scope.data.bonusFieldsConfig,
+                }
+
+                if (data?.bonusFieldsConfig) {
+                    data.bonusFieldsConfig.forEach((obj) => {
+                        Object.keys(obj).forEach((key) => {
+                            if (!obj[key]) {
+                                $scope.pendingConfig = true;
+                                MapasCulturais.Messages.alert(labels['alertPendingBonusFieldConfig']);
+                                return;
+                            }
+                        })
+                    })
+                }
+
+                if (!$scope.pendingConfig) {
+                    TechnicalEvaluationMethodService.patchEvaluationMethodConfiguration(data).success(function () {
+                        MapasCulturais.Messages.success(labels.changesSaved);
+                    });
+                }
+            };
+
             $scope.save = function(){
                 $scope.alert = false;
                 var data = {
@@ -73,7 +101,6 @@
                     criteria: [],
                     quotas: $scope.data.quotas,
                     enableViability: $scope.data.enableViability,
-                    enableConfigBonusFields: $scope.data.enableConfigBonusFields,
                     affirmativePolicies: JSON.stringify($scope.data.criteriaAffirmativePolicies) == "[]" ? null : $scope.data.criteriaAffirmativePolicies,
                     isActiveAffirmativePolicies: $scope.data.isActiveAffirmativePolicies,
                     affirmativePoliciesRoof: $scope.data.affirmativePolicieRoof || 0.00
@@ -162,12 +189,18 @@
 
             $scope.configBonusFields = function(){
                 $scope.data.enableConfigBonusFields = !$scope.data.enableConfigBonusFields;
-                $scope.save();
+                $scope.saveConfigBonusFields();
             }
 
             $scope.activeAffirmativePolicies = function(){
                 $scope.data.isActiveAffirmativePolicies = !$scope.data.isActiveAffirmativePolicies;
                 $scope.save();
+            }
+
+            $scope.addBonusField = function () {
+                const date = new Date;
+                const new_id = 'p-' + date.getTime();
+                $scope.data.bonusFieldsConfig.push({ id: new_id, field: '', value: ''});
             }
 
             $scope.addSessionAffirmativePolice = function(){
@@ -185,6 +218,17 @@
                 delete $scope.data.fieldsAffiermativePolicie[policy.id]
             }
 
+            $scope.$watch('data.bonusFields', function (new_val, old_val) {
+                if (new_val != old_val) {
+                    Object.keys(new_val).forEach(function (id, index) {
+                        $scope.data.bonusFieldsConfig[index].value = $scope.data.bonusFields[id].value;
+                        $scope.data.bonusFieldsConfig[index].field = $scope.data.bonusFields[id].field;
+                    })
+
+                    $scope.saveConfigBonusFields();
+                }
+            }, true);
+
             $scope.$watch('data.fieldsAffiermativePolicie', function(new_val,old_val){
                 if(new_val != old_val){
                     Object.keys(new_val).forEach(function(id, index){
@@ -196,6 +240,20 @@
                     $scope.save();
                 }
             },true);    
+
+            $scope.changeBonusField = function (bonusFieldConfig) {
+                $scope.data.bonusFields[bonusFieldConfig.id].value = null;
+
+                const field = parseInt($scope.data.bonusFields[bonusFieldConfig.id].field);
+
+                $scope.data.registrationFieldConfigurations.forEach(function (item) {
+                    if (item.id == field) {
+                        const index = $scope.data.bonusFieldsConfig.indexOf(bonusFieldConfig);
+                        $scope.data.bonusFieldsConfig[index].viewDataValues = item.viewDataValues;
+                        $scope.data.bonusFieldsConfig[index].valuesList = item.valuesList;
+                    }
+                })
+            }
 
             $scope.changeField = function(policy){
                 
@@ -219,6 +277,16 @@
                 $scope.data.fieldsAffiermativePolicie[item.id].fieldPercent = parseFloat(item.fieldPercent);
                 if((typeof item.value === 'object')){
                     Object.keys(item.value).forEach(function(v,i){
+                        item.value[v] = (item.value[v] == "true") ? true : false;
+                    });
+                }
+            });
+
+            $scope.data.bonusFieldsConfig.forEach(function (item) {
+                $scope.data.bonusFields[item.id] = item
+
+                if ((typeof item.value === 'object')) {
+                    Object.keys(item.value).forEach(function (v, i) {
                         item.value[v] = (item.value[v] == "true") ? true : false;
                     });
                 }

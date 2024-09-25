@@ -53,5 +53,9 @@ use MapasCulturais\i;
     <label for="enableViability">
         <input type="radio" ng-model="data.enableViability" value="false" ng-change="save({enableViability: false})" name="enableViability" /> <?php i::_e('Não habilitar'); ?>
     </label>
+
+    <br><br><hr>
+
+    <?php $this->part('singles/opportunity/bonus-config', ['entity' => $entity]); ?>
 </div>
 

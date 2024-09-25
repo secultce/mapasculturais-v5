@@ -25,8 +25,6 @@ $quant_registrations_send = count($entity->getSentRegistrations());
 
     <?php $this->part('singles/opportunity/quota-config', ['entity' => $entity]); ?>
 
-    <?php $this->part('singles/opportunity/bonus-config', ['entity' => $entity]); ?>
-
     <?php $this->part('singles/opportunity-registrations--rules', ['entity' => $entity]); ?>
 
     <div class="registration-fieldset">

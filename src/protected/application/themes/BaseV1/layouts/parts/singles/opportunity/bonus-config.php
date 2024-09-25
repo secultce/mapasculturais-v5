@@ -5,7 +5,7 @@ use MapasCulturais\i;
 ?>
 
 <?php if ($entity->evaluationMethodConfiguration->type->id === 'technical' && $this->isEditable()): ?>
-    <div ng-controller="TechnicalEvaluationMethodConfigurationController" class="registration-fieldset">
+    <div class="bonus-config">
         <h4>
             <?php \MapasCulturais\i::_e("Configuração de Bonificação"); ?>
         </h4>
@@ -41,12 +41,43 @@ use MapasCulturais\i;
                                 <button ng-click="addBonusField()" class="btn btn-default add" title="<?php i::_e('Adicionar Campo de Bonificação') ?>"></button>
                             </th>
                         </tr>
+                        <tr ng-repeat="(key,bonusFieldConfig) in data.bonusFieldsConfig track by $index" id="{{bonusFieldConfig.id}}">
+                            <td class="bonus-field">
+                                <select ng-model="data.bonusFields[bonusFieldConfig.id].field" ng-change="changeBonusField(bonusFieldConfig); ">
+                                    <option ng-repeat="field in data.registrationFieldConfigurations" value="{{field.id}}">#{{field.id}} - {{field.title}} </option>
+                                </select>
+                            </td>
+                            <td class="bonus-value">
+                                <div ng-if="bonusFieldConfig.viewDataValues == 'bool' || bonusFieldConfig.viewDataValues == null">
+                                    <select ng-model="data.bonusFields[bonusFieldConfig.id].value">
+                                        <option value=""> Selecione </option>
+                                        <option value="true"> Sim </option>
+                                        <option value="false"> Não </option>
+                                    </select>
+                                </div>
+
+                                <div class="check" ng-if="bonusFieldConfig.viewDataValues == 'checkbox'">
+                                    <span ng-repeat="(key, v) in bonusFieldConfig.valuesList">
+                                        <label>
+                                            <input type="checkbox" ng-model="data.bonusFields[bonusFieldConfig.id].value[v]">
+                                            {{v}}
+                                        </label>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <button ng-click="removeSessionAffirmativePolice(bonusFieldConfig)" class="btn btn-danger delete" title="<?php i::_e('Remover') ?>"></button>
+                            </td>
+                        </tr>
                     </thead>
                 </table>
             </section>
 
-            <button ng-click="configBonusFields()" ng-if="!data.enableConfigBonusFields" id="configBonusFieldsBtn" class="btn btn-default add">
-                <?php i::_e('Configurar Campos de Bonificação') ?>
+            <button ng-click="configBonusFields()" ng-if="!data.enableConfigBonusFields" id="enableConfigBonusFieldsBtn" class="btn btn-default add">
+                <?php i::_e('Configurar campos de bonificação') ?>
+            </button>
+            <button ng-click="configBonusFields()" ng-if="data.enableConfigBonusFields" id="disableConfigBonusFieldsBtn" class="btn btn-danger delete">
+                <?php i::_e('Cancelar configuração de bonificação') ?>
             </button>
         </div>
     </div>

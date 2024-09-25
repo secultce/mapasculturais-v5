@@ -10,8 +10,6 @@ $definition = $configuration->definition;
 <div id="evaluations-config" class="aba-content" ng-controller="EvaluationMethodConfigurationController">
     <?php $this->applyTemplateHook('evaluations-config', 'begin') ?>
 
-    <?php $this->part('singles/opportunity/bonus-config', ['entity' => $entity]); ?>
-
     <?php
     if (is_object($definition) && property_exists($definition, 'evaluationMethod')) :
         $evaluationMethod = $definition->evaluationMethod;
