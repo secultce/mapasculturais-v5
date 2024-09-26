@@ -218,6 +218,15 @@
                 delete $scope.data.fieldsAffiermativePolicie[policy.id]
             }
 
+            $scope.removeBonusFieldConfig = function (bonusFieldConfig) {
+                if (!confirm(labels.confirmDeleteBonusFieldConfig)) return;
+
+                const index = $scope.data.bonusFieldsConfig.indexOf(bonusFieldConfig);
+                
+                $scope.data.bonusFieldsConfig.splice(index,1);
+                delete $scope.data.bonusFields[bonusFieldConfig.id]
+            }
+
             $scope.$watch('data.bonusFields', function (new_val, old_val) {
                 if (new_val != old_val) {
                     Object.keys(new_val).forEach(function (id, index) {

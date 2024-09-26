@@ -66,7 +66,7 @@ use MapasCulturais\i;
                                 </div>
                             </td>
                             <td>
-                                <button ng-click="removeSessionAffirmativePolice(bonusFieldConfig)" class="btn btn-danger delete" title="<?php i::_e('Remover') ?>"></button>
+                                <button ng-click="removeBonusFieldConfig(bonusFieldConfig)" class="btn btn-danger delete" title="<?php i::_e('Remover') ?>"></button>
                             </td>
                         </tr>
                     </thead>

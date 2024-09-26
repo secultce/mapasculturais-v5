@@ -166,7 +166,8 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             'alertPendingBonusFieldConfig' => i::__('Complete a configuração do campo de bonificação para que ele seja salvo'),
             'deleteSectionConfirmation' => i::__('Deseja remover a seção? Esta ação não poderá ser desfeita e também removerá todas os critérios desta seção.'),
             'deleteCriterionConfirmation' => i::__('Deseja remover este critério de avaliação? Esta ação não poderá ser desfeita.'),
-            'deleteAffirmativePolicy' => i::__('Deseja remover esta política afirmativa? Esta ação não poderá ser desfeita.')
+            'deleteAffirmativePolicy' => i::__('Deseja remover esta política afirmativa? Esta ação não poderá ser desfeita.'),
+            'confirmDeleteBonusFieldConfig' => i::__('Deseja remover esta configuração de bonificação? Esta ação não poderá ser desfeita.')
         ]);
         $app->view->jsObject['angularAppDependencies'][] = 'ng.evaluationMethod.technical';
     }
