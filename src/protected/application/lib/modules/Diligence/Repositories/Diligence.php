@@ -160,11 +160,16 @@ class Diligence{
         return $hasAccess;
     }
 
+    /**
+     * Função que busca se tem registro do status do PC e retorna o valor para preenchimento
+     * do select na view
+     */
     public function getSituacionPC(Registration $registration) : string
     {
         $app = App::i();
         $entity = $app->repo('Registration')->find($registration->id);
-        return $entity->getMetadata('situacion_diligence');        
+        //Se não tiver metadata retorna falso
+        return !is_null($entity->getMetadata('situacion_diligence')) ? $entity->getMetadata('situacion_diligence') : 'all';
     }
 
     public static function getFinancialReportsAccountability($registration_id)
