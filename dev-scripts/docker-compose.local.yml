@@ -30,7 +30,9 @@ services:
       - MAILER_SERVER=mailhog
       - MAILER_PORT=1025
       - MAILER_FROM=sysadmin@localhost
-      - MAILER_PROTOCOL= #precisa ficar vazio para o mailhog funcionar
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailpit
+      - MAILER_PROTOCOL= #precisa ficar vazio para o mailpit funcionar
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=mqadmin
@@ -55,8 +57,10 @@ services:
   mailhog: 
     image: mailhog/mailhog
     ports:
-      - "8026:8025"
-
+      # - "1025:1025"
+      - "8025:8025"
+    networks:
+      - lab
   redis:
     image: redis:6
     command: --maxmemory 256Mb --maxmemory-policy allkeys-lru  

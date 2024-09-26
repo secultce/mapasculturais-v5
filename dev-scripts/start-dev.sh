@@ -39,6 +39,8 @@ case $i in
 esac
 done
 
+sudo chown -R www-data:www-data docker-data/
+
 if [ $BUILD = "1" ]; then
    docker-compose -f docker-compose.local.yml build
 fi
