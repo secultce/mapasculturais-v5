@@ -49,6 +49,7 @@
                 bonusFieldsConfig: MapasCulturais.bonusFieldsConfig || [],
                 bonusFields: {},
                 enableConfigBonusFields: MapasCulturais.enableConfigBonusFields ? true : false,
+                bonusAmount: parseFloat(MapasCulturais.bonusAmount) || 1,
                 criteriaAffirmativePolicies: MapasCulturais.affirmativePolicies || [],
                 fieldsAffiermativePolicie: {},
                 isActiveAffirmativePolicies: MapasCulturais.isActiveAffirmativePolicies ? true : false,
@@ -73,6 +74,7 @@
                 const data = {
                     enableConfigBonusFields: $scope.data.enableConfigBonusFields,
                     bonusFieldsConfig: JSON.stringify($scope.data.bonusFieldsConfig) == "[]" ? null : $scope.data.bonusFieldsConfig,
+                    bonusAmount: $scope.data.bonusAmount || 1
                 }
 
                 if (data?.bonusFieldsConfig) {

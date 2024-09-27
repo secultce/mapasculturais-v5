@@ -2,10 +2,16 @@
     margin-left:10px;
 }
 
-.technical-evaluation-configuration input {
+.technical-evaluation-configuration .affirmative_policies-roof {
     border:1px solid transparent;
     cursor: pointer;
 }
+
+.bonus-config .bonus-amount {
+    width: 4rem;
+    margin-bottom: 5px;
+}
+
 .technical-evaluation-configuration .criteria-fields{
     width: 100%;
 }
@@ -71,12 +77,20 @@
     width: 100%;
 }
 
+.bonus-config table th {
+    text-align: center;
+}
+
 .bonus-config .bonus-field {
     width: 30%;
 }
 
 .bonus-config .bonus-value {
     width: 60%;
+}
+
+#enableConfigBonusFieldsBtn, #disableConfigBonusFieldsBtn {
+    margin-left: 0;
 }
 
 .technical-evaluation-configuration .policy-field,
