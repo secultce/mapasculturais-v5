@@ -74,7 +74,8 @@ class Registration extends \MapasCulturais\Repository {
                 (
                     r.owner IN (:agents) OR
                     rar.agent IN (:agents)
-                )";
+                )
+            ORDER BY r.sentTimestamp DESC";
 
         $q = $this->_em->createQuery($dql);
         $q->setParameter('agents', $user->agents ? $user->agents->toArray() : [-1]);
