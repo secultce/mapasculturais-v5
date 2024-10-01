@@ -179,6 +179,27 @@
                 return fields;
             },
 
+            getBonusFields: function () {
+                const fields = this.getFields();
+                const bonusFieldsConfig = MapasCulturais.entity.object.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig;
+
+                const bonusFieldsIds = bonusFieldsConfig?.map(bonusField => {
+                    return parseInt(bonusField.field);
+                });
+                const bonusFields = fields.filter(field => {
+                    let fieldId = field.id;
+
+                    // Obtém o campo condicional pelo ID do campo a que foi condicionado
+                    if (field.conditional) {
+                        fieldId = parseInt(field.conditionalField.split('_').pop());
+                    }
+
+                    return bonusFieldsIds?.includes(fieldId);
+                });
+
+                return bonusFields;
+            },
+
             getSelectedCategory: function(){
                 
                 return $q(function(resolve){
@@ -1163,6 +1184,7 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     });
     
     $scope.data.fields = RegistrationService.getFields();
+    $scope.data.bonusFields = RegistrationService.getBonusFields();
     $scope.data.fieldsRequiredLabel = labels['requiredLabel'];
     $scope.data.fieldsOptionalLabel = labels['optionalLabel'];
 
