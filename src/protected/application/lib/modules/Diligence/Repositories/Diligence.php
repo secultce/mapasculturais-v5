@@ -38,26 +38,21 @@ class Diligence{
      *
      * @param [int] $registration
      */
-    static public function getDiligenceAnswer($registration)
+    static public function getDiligenceAnswer($registration): ?array
     {
         $registrationAnswer = $registration;
         $app = App::i();
         //Verificando se tem resposta para se relacionar a diligencia
         $dql = "SELECT ad, d
         FROM  Diligence\Entities\Diligence d 
-        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d AND ad.registration = :regAnswer
-        WHERE d.registration = :reg ORDER BY d.sendDiligence DESC , ad.createTimestamp DESC" ;
+            LEFT JOIN  Diligence\Entities\AnswerDiligence ad
+                WITH ad.diligence = d AND ad.registration = :regAnswer AND ad.status >= 0
+        WHERE
+            d.registration = :reg
+            AND d.status >= 0
+        ORDER BY d.sendDiligence DESC , ad.createTimestamp DESC" ;
 
-        $registrations = self::queryDiligente($app, $dql, $registration, $registrationAnswer);
-        //Se não tiver resposta de alguma diligencia então envia somente a diligencia
-        if(!empty($registrations)){
-            return $registrations;
-        }else{
-            $dql = "SELECT d
-            FROM  Diligence\Entities\Diligence d
-            WHERE d.registration = :reg";
-            return self::queryDiligente($app, $dql, $registration, $registrationAnswer);            
-        }
+        return self::queryDiligente($app, $dql, $registration, $registrationAnswer);
     }
     /**
      * Função que gera a execulta o resultado Doctrine DQL
@@ -66,10 +61,13 @@ class Diligence{
      * @param [string] $dql
      * @param [int] $registration
      */
-    protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
+    protected static function queryDiligente($app, $dql, $registration, $registrationAnswer): ?array
     {
         try {
-            $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
+            $query = $app->em->createQuery($dql)->setParameters([
+                'reg' => $registration,
+                'regAnswer' =>  $registrationAnswer,
+            ]);
             return $query->getResult();
         } catch (\Throwable $th) {
            return null;

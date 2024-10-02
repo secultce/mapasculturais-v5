@@ -6,8 +6,7 @@ use Doctrine\ORM\Query\Expr;
 use MapasCulturais\App,
     MapasCulturais\i,
     MapasCulturais\Entities,
-    MapasCulturais\Definitions,
-    MapasCulturais\Exceptions;
+    MapasCulturais\Definitions;
     
 require __DIR__.'/Traits/DiligenceSingle.php';
 require __DIR__.'/Service/DiligenceInterface.php';
@@ -35,25 +34,25 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
-            $entity = $this->controller->requestedEntity;
+            $registration = $this->controller->requestedEntity;
 
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
-            $sendEvaluation = EntityDiligence::evaluationSend($entity);
-            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($entity->id);
-            //Repositório de Diligencia, busca Diligencia pela id da inscrição
-            $diligenceRepository = DiligenceRepo::findBy('Diligence\Entities\Diligence',['registration' => $entity->id]);
+            $sendEvaluation = EntityDiligence::evaluationSend($registration);
+            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($registration->id);
+            //Repositório de diligência, busca Diligencia pelo id da inscrição
+            $diligencesByRegistration = DiligenceRepo::findBy(EntityDiligence::class, ['registration' => $registration]);
             //Verifica a data limite para resposta contando com dias úteis
-            if(isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
+            if(isset($diligencesByRegistration[0]) && count($diligencesByRegistration) > 0) {
                 $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
-                    $diligenceRepository[0]->sendDiligence,
-                    $entity->opportunity->getMetadata('diligence_days'),
-                    $entity->opportunity->getMetadata('type_day_response_diligence')
+                    $diligencesByRegistration[0]->sendDiligence,
+                    $registration->opportunity->getMetadata('diligence_days'),
+                    $registration->opportunity->getMetadata('type_day_response_diligence')
                 );
             }else{
                 $diligence_days = null;
             }
-            //Prazo registrado de dias uteis para responder a diligencia
+            //Prazo registrado de dias uteis para responder à diligência
             $this->jsObject['diligence_days'] = $diligence_days;
 
             /**
@@ -63,11 +62,11 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
-            $isProponent = $entityDiligence->isProponent($diligenceRepository, $entity);
+            $isProponent = $entityDiligence->isProponent($diligencesByRegistration, $registration);
             $isEvaluator = $module->isEvaluator($opportunity, $this->data['entity']);
             $context = [
-                'entity' => $entity,
-                'diligenceRepository' => $diligenceRepository,
+                'entity' => $registration,
+                'diligenceRepository' => $diligencesByRegistration,
                 'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder,
                 'isProponent' => $isProponent,

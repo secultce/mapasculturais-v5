@@ -10,7 +10,7 @@ use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
-use PHPUnit\Exception;
+use MapasCulturais\Entity;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface
 {
@@ -76,10 +76,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             if (count($diligences) > 0) {
                 $lastDiligence = $diligences[0];
 
-                if (in_array(
-                    $lastDiligence->status,
-                    [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
-                )) {
+                if (in_array($lastDiligence->status, [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND])) {
                     $message = self::DILIGENCE_OPEN;
                 }
 
@@ -96,7 +93,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $this->json(['message' => $message, 'data' => $diligences]);
         }
 
-        //Passando para o hook o conteúdo da instancia diligencia
+        //Passando para o hook o conteúdo da instância diligencia
         $app->applyHook('controller(diligence).getContent', [&$diligences]);
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
@@ -144,7 +141,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     }
 
     /**
-     * Altera o status da diligencia, retornando para rascunho
+     * Altera o status da diligência, retornando para rascunho
      *
      * @return void
      */
@@ -437,8 +434,17 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $app = App::i();
         $diligence = $app->repo(EntityDiligence::class)->find($this->data['id']);
-        $diligence->situation = EntityDiligence::STATUS_TRASH;
+        $diligence->status = Entity::STATUS_TRASH;
         self::saveEntity($diligence);
-        return $this->json(['message' => 'success']);
+        $this->json(['message' => 'success']);
+    }
+
+    public function POST_trashDraftAnswerDiligence(): void
+    {
+        $app = App::i();
+        $diligence = $app->repo(AnswerDiligence::class)->find($this->data['id']);
+        $diligence->status = Entity::STATUS_TRASH;
+        self::saveEntity($diligence);
+        $this->json(['message' => 'success']);
     }
 }
