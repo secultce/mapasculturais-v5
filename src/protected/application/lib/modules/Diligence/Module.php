@@ -29,8 +29,10 @@ class Module extends \MapasCulturais\Module {
         $module = $this;
 
         $app->hook('template(registration.view.content-diligence):begin', function () use ($app, $module) {
-            if($this->data['entity']->opportunity->use_diligence == 'Não')
-                return;
+            /** @var \MapasCulturais\Theme $this */
+            if ($this->data['entity']->opportunity->use_diligence == 'Não') {
+                return null;
+            }
 
             $app->view->enqueueStyle('app', 'diligence', 'css/diligence/style.css');
             $this->jsObject['idDiligence'] = 0;
@@ -39,17 +41,16 @@ class Module extends \MapasCulturais\Module {
             $entityDiligence = new EntityDiligence();
             //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($registration);
-            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($registration->id);
             //Repositório de diligência, busca Diligencia pelo id da inscrição
-            $diligencesByRegistration = DiligenceRepo::findBy(EntityDiligence::class, ['registration' => $registration]);
+            $diligenceRepository = DiligenceRepo::findBy(EntityDiligence::class, ['registration' => $registration]);
             //Verifica a data limite para resposta contando com dias úteis
-            if(isset($diligencesByRegistration[0]) && count($diligencesByRegistration) > 0) {
+            if (isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
                 $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
-                    $diligencesByRegistration[0]->sendDiligence,
+                    $diligenceRepository[0]->sendDiligence,
                     $registration->opportunity->getMetadata('diligence_days'),
                     $registration->opportunity->getMetadata('type_day_response_diligence')
                 );
-            }else{
+            } else {
                 $diligence_days = null;
             }
             //Prazo registrado de dias uteis para responder à diligência
@@ -62,20 +63,20 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
-            $isProponent = $entityDiligence->isProponent($diligencesByRegistration, $registration);
+            $isProponent = $entityDiligence->isProponent($diligenceRepository, $registration);
             $isEvaluator = $module->isEvaluator($opportunity, $this->data['entity']);
             $context = [
                 'entity' => $registration,
-                'diligenceRepository' => $diligencesByRegistration,
+                'diligenceRepository' => $diligenceRepository,
                 'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder,
                 'isProponent' => $isProponent,
                 'isEvaluator' => $isEvaluator,
             ];
 
-            //Glabalizando se é um proponente
+            // Globalizando se é um proponente
             $this->jsObject['isProponent']  = $isProponent;
-            //Verificando e globalizando se é um avaliador
+            // Verificando e globalizando se é um avaliador
             $this->jsObject['isEvaluator'] = $isEvaluator;
 
             $app->view->enqueueStyle('app', 'jquery-ui', 'css/diligence/jquery-ui.css');
@@ -83,11 +84,23 @@ class Module extends \MapasCulturais\Module {
             $app->view->enqueueScript('app', 'diligence', 'js/diligence/diligence.js');
             //Todos os assets para multi diligencia
             self::multiPublishAssets();
-            if($isProponent){
-                return $this->part('diligence/proponent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers]);
+
+
+            $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($registration->id, $isProponent, $isEvaluator);
+            if ($isProponent) {
+                $this->part('diligence/proponent', [
+                    'context' => $context,
+                    'sendEvaluation' => $sendEvaluation,
+                    'diligenceAndAnswers' => $diligenceAndAnswers,
+                ]);
+                return null;
             }
-            if($isEvaluator) {
-                $this->part('diligence/tabs-parent',['context' => $context, 'sendEvaluation' => $sendEvaluation, 'diligenceAndAnswers' => $diligenceAndAnswers] );
+            if ($isEvaluator) {
+                $this->part('diligence/tabs-parent', [
+                    'context' => $context,
+                    'sendEvaluation' => $sendEvaluation,
+                    'diligenceAndAnswers' => $diligenceAndAnswers,
+                ]);
             }
         });
 
