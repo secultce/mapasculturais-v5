@@ -9,6 +9,7 @@
                 <?= $titleButton; ?>
             </a>
         <?php endif; ?>
+        <?php if ($type !== 'proponent') : ?>
             <a class='btn btn-danger' 
                 onclick='trashDraftDiligence(
                 <?= $id; ?>,
@@ -19,8 +20,9 @@
                 "btn-warning-rec",
                 "btn-warning-danger"
                 )'>
-                <?= $titleTrash .' - '.$id ?>
+                <?= $titleTrash . ' - ' . $id ?>
             </a>
+        <?php endif; ?>
         </div>
         
     </div>
