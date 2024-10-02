@@ -438,13 +438,4 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         self::saveEntity($diligence);
         $this->json(['message' => 'success']);
     }
-
-    public function POST_trashDraftAnswerDiligence(): void
-    {
-        $app = App::i();
-        $diligence = $app->repo(AnswerDiligence::class)->find($this->data['id']);
-        $diligence->status = Entity::STATUS_TRASH;
-        self::saveEntity($diligence);
-        $this->json(['message' => 'success']);
-    }
 }
