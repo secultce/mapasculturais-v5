@@ -51,14 +51,18 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             };
             if ($diligenceAndAnswerLast[0]->status === 0) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
+                // @todo: Talvez essa não seja a melhor lógica, alterar depois
+                if ($tado !== null && $tado->status !== 0) {
+                    $titleButton = 'expirou';
+                }
                 $this->part('diligence/edit-description', [
                     'titleDraft' => 'Diligência em rascunho.',
-                    'titleButton' => 'Editar Diligência',
+                    'titleButton' => $titleButton ?? 'Editar Diligência',
                     'titleTrash' => 'Excluir Rascunho',
                     'resultsDraft' => $diligenceAndAnswerLast[0]->description,
                     'id' => $diligenceAndAnswerLast[0]->id,
-                    'type' => "proponent",
-                    'dateDraft' => ucfirst($dateDraft)
+                    'type' => "diligence",
+                    'dateDraft' => ucfirst($dateDraft),
                 ]);
                 $showText = true;
             }
