@@ -14,7 +14,7 @@ class Refo extends \MapasCulturais\Controller
     function GET_report()
     {
         $app = App::i();
-        $dili = DiligenceRepo::getDiligenceAnswer($this->data['id']);
+        $dili = DiligenceRepo::getDiligenceAnswer($this->data['id'], true, true);
         if(!is_null($dili[0])){
             $reg = $dili[0]->registration;
         } else {

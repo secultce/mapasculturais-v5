@@ -71,15 +71,14 @@ class Tado extends \MapasCulturais\Controller
         }
         //Validando para o Frontend
         $validateBack = $tado->validateForm($request);
-        //Se tiver campos obrigatório vazio então dispara mensagem
+        //Se tiver campo obrigatório vazio então dispara mensagem
         !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;
      
         $app = App::i();
        
-        if(intval($request->data['idTado']) > 0)
-        {
+        if (intval($request->data['idTado']) > 0) {
             self::update($request);           
-        }else{
+        } else {
             $reg = $app->repo('Registration')->find($this->data['id']);
             $tado = new EntityTado();
             $tado->number           = $this->data['numbertec'];
@@ -96,12 +95,13 @@ class Tado extends \MapasCulturais\Controller
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
-            if($entity["entityId"]){
+            if ($entity["entityId"]) {
                 self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
             }
         }
     }
-    //Atualizando a instancia
+
+    //Atualizando a instância
     function update($request)
     {
         $app = App::i();
