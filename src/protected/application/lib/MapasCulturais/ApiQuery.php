@@ -529,32 +529,30 @@ class ApiQuery {
         $dql = $this->getFindDQL($select);
 
         $q = $this->em->createQuery($dql);
-
+        
         if ($offset = $this->getOffset()) {
             $q->setFirstResult($offset);
         }
-
+       
         if ($limit = $this->getLimit()) {
             $q->setMaxResults($limit);
         }
-
-        $params = $this->getDqlParams();
-
-        $q->setParameters($params);
         
+        $params = $this->getDqlParams();
+       
+        $q->setParameters($params);
+
         $this->logDql($dql, __FUNCTION__, $params);
         
         $result = [];
         $ids = [];
-        
-        // removes duplicated values
         foreach($q->getResult(Query::HYDRATE_ARRAY) as $r){
             if(!isset($ids[$r['id']])){
                 $ids[$r['id']] = true;
                 $result[] = $r;
             }
         }
-        
+       
         $this->processEntities($result);
 
         return $result;
@@ -866,6 +864,7 @@ class ApiQuery {
             return null;
         }
     }
+
     
     protected function processEntities(array &$entities) {
         $this->appendMetadata($entities);
@@ -2148,6 +2147,62 @@ class ApiQuery {
                 $this->_selectingFilesProperties = explode(',', str_replace(' ', '', $imatch[3]));
             }
         }
+    }
+
+    /**
+     * Cria uma string de sql
+     *
+     * @param string|null $select
+     * @return string
+     */
+    public function getFindDQLListRegistration(string $select = null) {
+        $select = $select ?: $this->generateSelect();
+        $where = $this->generateWhere();
+        $joins = $this->generateJoins();
+       
+        $dql = "SELECT\n\t{$select}\nFROM \n\t{$this->entityClassName} e {$joins}";
+        if ($where) {
+            $dql .= "\nWHERE\n\t{$where}";
+        }
+
+        return $dql;
+    }
+
+    // Chamad de metodo do controller
+    public function listRegistration(){
+        return $this->getFindResultListRegistration();
+    }
+    
+    /**
+     * Resultado final com todos os inscritos e nota ordenada
+     *
+     * @param string|null $select
+     * @return void
+     */
+    public function getFindResultListRegistration(string $select = null) {
+        $dql = $this->getFindDQLListRegistration($select);
+
+        $q = $this->em->createQuery($dql);
+       
+        $params = $this->getDqlParams();
+       
+        $q->setParameters($params);
+
+        $this->logDql($dql, __FUNCTION__, $params);
+        
+        $result = [];
+        $ids = [];
+        foreach($q->getResult(Query::HYDRATE_ARRAY) as $r){
+           
+            if(!isset($ids[$r['id']])){
+                $ids[$r['id']] = true;
+                $result[] = $r;
+            }
+        }
+      
+        $this->processEntities($result);
+
+        return $result;
     }
 
 }
