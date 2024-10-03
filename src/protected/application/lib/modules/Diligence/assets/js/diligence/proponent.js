@@ -18,13 +18,12 @@ $(document).ready(function () {
     let entityDiligence = EntityDiligence.showContentDiligence();
     entityDiligence
     .then((res) => {
-        console.log(res)
         const draftStatus = 0;
         const diligences = res.data;
         const diligenceSent = diligences?.filter(diligence => {
             return diligence?.status > draftStatus;
         });
-       
+
         if (res.message === 'sem_diligencia' && MapasCulturais.isEvaluator === false) {
             //Se tiver diligencia
             if (res.data?.length && diligenceSent.length) {
@@ -59,7 +58,7 @@ $(document).ready(function () {
                     $("#descriptionDiligence").hide();
                 }
             })
-    
+
             MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
             const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
@@ -145,7 +144,7 @@ $(document).ready(function () {
     .catch((error) => {
         MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
-   
+
 });
 
 function hideAnswerDraft()
@@ -219,12 +218,12 @@ function saveAnswerProponente(status) {
                         sendNofificationAnswer();
                         location.reload();
                     }
-                    
+
                     if (result.isDismissed && result.dismiss === 'cancel') {
                         showViewActions();
                         cancelAnswer();                  
                     }
-                  
+
                     if (
                         result.dismiss === Swal.DismissReason.timer
                       ) {
