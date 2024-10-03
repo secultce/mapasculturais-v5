@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @var App $app
+ * @var array<string,mixed> $context
+ * @var (Diligence|AnswerDiligence)[] $diligenceAndAnswers
+ * @var bool $sendEvaluation
+ */
+
 use Carbon\Carbon;
 use MapasCulturais\App;
 use Diligence\Entities\AnswerDiligence;
@@ -40,7 +47,7 @@ $tado = RepoDiligence::getTado($context['entity']);
             $diligenceAndAnswerLast = [];
             foreach ($diligenceAndAnswers as $key => $resultsDraft) {
                 if ($key < 2) {
-                    array_push($diligenceAndAnswerLast, $resultsDraft);
+                    $diligenceAndAnswerLast[] = $resultsDraft;
                 }
             };
             $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
@@ -51,13 +58,16 @@ $tado = RepoDiligence::getTado($context['entity']);
 
             if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == AnswerDiligence::STATUS_DRAFT) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[1]->createTimestamp)->diffForHumans();
-                if(new DateTime() <= $diligence_days){
+
+                if (($tado === null || $tado->status === 0) && new DateTime() <= $diligence_days) {
                     $titleButton = 'Editar Resposta';
-                }else{
-                    $titleButton = 'expirou';                    
+                } else {
+                    $titleButton = 'expirou';
                 }
+
                 $this->part('diligence/edit-description', [
                     'titleDraft' => 'Resposta em rascunho.',
+                    'titleTrash' => '',
                     'titleButton' => $titleButton,
                     'resultsDraft' => $diligenceAndAnswerLast[1]->answer,
                     'id' => $diligenceAndAnswerLast[1]->id,
@@ -67,23 +77,25 @@ $tado = RepoDiligence::getTado($context['entity']);
                 $showText = true;
             }
             
-            //Quando tem diligencia mas ainda não tem resposta
+            //Quando tem diligencia, mas ainda não tem resposta
             if (is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                 $showText = true;
-                new DateTime() <= $diligence_days ? $showText = true : $showText = false;
-                if(is_null($tado) || !is_null($tado) && $tado->status == 0):
+                if (new DateTime() > $diligence_days) {
+                    $showText = false;
+                }
+                if (is_null($tado) || $tado->status == 0) :
                     $this->part('diligence/info-term',[
                         'entity' => $context['entity'],
                         'diligenceRepository' => $context['diligenceRepository'],
-                        'diligenceDays' => $diligence_days
+                        'diligenceDays' => $diligence_days,
                     ]);
                 endif;
             }
             if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[0]->status == Diligence::STATUS_SEND) {
                
                 new DateTime() <= $diligence_days ? $showText = true : $showText = false;
-                if(is_null($tado) || !is_null($tado) && $tado->status == 0):
-                    $this->part('diligence/info-term',[
+                if (is_null($tado) || $tado->status == 0) :
+                    $this->part('diligence/info-term', [
                         'entity' => $context['entity'],
                         'diligenceRepository' => $context['diligenceRepository'],
                         'diligenceDays' => $diligence_days
@@ -92,8 +104,7 @@ $tado = RepoDiligence::getTado($context['entity']);
             }
         }
         //Se tiver TADO finalizado não tem mais interação
-        if(is_null($tado) || !is_null($tado) && $tado->status == 0):
-        ?>
+        if (is_null($tado) || $tado->status == 0) : ?>
         <div class="flex-container" id="btn-actions-proponent">
             <?php
             if ($showText || is_null($diligenceAndAnswers)) {

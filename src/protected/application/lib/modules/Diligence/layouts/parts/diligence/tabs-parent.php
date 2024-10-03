@@ -1,9 +1,18 @@
 <?php
 
 use Carbon\Carbon;
+use Diligence\Entities\AnswerDiligence;
+use Diligence\Entities\Diligence;
+use MapasCulturais\Entity;
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+
+/**
+ * @var array<string, mixed> $context
+ * @var bool $sendEvaluation
+ * @var (Diligence|AnswerDiligence)[]|null $diligenceAndAnswers
+ */
 
 $files = DiligenceRepo::getFilesDiligence($context['entity']->id);
 Carbon::setLocale('pt_BR');
@@ -40,15 +49,20 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                     array_push($diligenceAndAnswerLast, $resultsDraft);
                 }
             };
-            if ($diligenceAndAnswerLast[0]->status == 0) {
+            if ($diligenceAndAnswerLast[0]->status === 0) {
                 $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
+                // @todo: Talvez essa não seja a melhor lógica, alterar depois
+                if ($tado !== null && $tado->status !== 0) {
+                    $titleButton = 'expirou';
+                }
                 $this->part('diligence/edit-description', [
                     'titleDraft' => 'Diligência em rascunho.',
-                    'titleButton' => 'Editar Diligência',
+                    'titleButton' => $titleButton ?? 'Editar Diligência',
+                    'titleTrash' => 'Excluir Rascunho',
                     'resultsDraft' => $diligenceAndAnswerLast[0]->description,
                     'id' => $diligenceAndAnswerLast[0]->id,
-                    'type' => "proponent",
-                    'dateDraft' => ucfirst($dateDraft)
+                    'type' => "diligence",
+                    'dateDraft' => ucfirst($dateDraft),
                 ]);
                 $showText = true;
             }
@@ -65,10 +79,9 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                 'diligenceRepository' => $context['diligenceRepository'],
                 'diligenceDays' => $context['diligenceDays'],
                 'placeHolder' => $context['placeHolder'],
-                'diligenceAndAnswers' => $diligenceAndAnswers,
                 'sendEvaluation' => $sendEvaluation,
                 'isProponent' => $context['isProponent'],
-                'diligenceAndAnswers' => $diligenceAndAnswers
+                'diligenceAndAnswers' => $diligenceAndAnswers,
             ]);
         ?>
         <div id="div-info-send" class="div-info-send">
@@ -79,7 +92,11 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         <div class="div-btn-send-diligence flex-container">
             <?php
                 //Se tiver TADO finalizado não tem mais interação
-                if(is_null($tado) || !is_null($tado) && $tado->status == 0) :
+                if(
+                    is_null($tado) 
+                    || $tado->status == 0
+                    || $diligenceAndAnswers[0]->status !== Entity::STATUS_TRASH
+                ) :
             ?>
             <div class="d-none" id="btn-actions-diligence">
                 <?php

@@ -10,7 +10,7 @@ use MapasCulturais\Entities\RegistrationMeta;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
-use PHPUnit\Exception;
+use MapasCulturais\Entity;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface
 {
@@ -76,10 +76,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             if (count($diligences) > 0) {
                 $lastDiligence = $diligences[0];
 
-                if (in_array(
-                    $lastDiligence->status,
-                    [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
-                )) {
+                if (in_array($lastDiligence->status, [EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND])) {
                     $message = self::DILIGENCE_OPEN;
                 }
 
@@ -96,7 +93,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $this->json(['message' => $message, 'data' => $diligences]);
         }
 
-        //Passando para o hook o conteúdo da instancia diligencia
+        //Passando para o hook o conteúdo da instância diligencia
         $app->applyHook('controller(diligence).getContent', [&$diligences]);
         //Validação caso nao tenha a inscrição na URL
         $this->json(['message' => 'Falta a inscrição', 'status' => 'error'], 400);
@@ -144,7 +141,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     }
 
     /**
-     * Altera o status da diligencia, retornando para rascunho
+     * Altera o status da diligência, retornando para rascunho
      *
      * @return void
      */
@@ -270,7 +267,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $this->errorJson(['message' => 'Erro Inexperado', 'status' => 400], 400);
     }
 
-    function addingBusinessDays($date, $dias)
+    function addingBusinessDays($date, $dias): Carbon
     {
         // Obtém a data e hora atual em objeto tyipo date
         $currentDate = Carbon::parse($date);
@@ -300,7 +297,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         return $currentDate;
     }
 
-    function POST_upload()
+    function POST_upload(): void
     {
         $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
         $savedFiles = DiligenceRepo::getFilesDiligence($this->data["id"]);
@@ -431,5 +428,14 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $app->em->flush();
         $this->json($result);
         return;
+    }
+
+    function POST_trashDraftDiligence()
+    {
+        $app = App::i();
+        $diligence = $app->repo(EntityDiligence::class)->find($this->data['id']);
+        $diligence->status = Entity::STATUS_TRASH;
+        self::saveEntity($diligence);
+        $this->json(['message' => 'success']);
     }
 }
