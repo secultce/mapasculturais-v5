@@ -35,45 +35,35 @@ class Diligence{
 
     /**
      * Retorna resposta e diligencia
-     *
-     * @param [int] $registration
      */
-    static public function getDiligenceAnswer($registration)
+    public static function getDiligenceAnswer(int $registration, bool $sentDiligence = false, bool $sentAnswer = false): ?array
     {
         $registrationAnswer = $registration;
         $app = App::i();
+
         //Verificando se tem resposta para se relacionar a diligencia
         $dql = "SELECT ad, d
-        FROM  Diligence\Entities\Diligence d 
-        LEFT JOIN  Diligence\Entities\AnswerDiligence ad WITH ad.diligence = d AND ad.registration = :regAnswer
-        WHERE d.registration = :reg ORDER BY d.sendDiligence DESC , ad.createTimestamp DESC" ;
+        FROM Diligence\Entities\Diligence d
+            LEFT JOIN Diligence\Entities\AnswerDiligence ad
+                WITH ad.diligence = d AND ad.registration = :regAnswer AND ad.status >= :statusAnswer
+        WHERE d.registration = :reg
+            AND d.status >= :statusDiligence
+        ORDER BY d.sendDiligence DESC, ad.createTimestamp DESC";
 
-        $registrations = self::queryDiligente($app, $dql, $registration, $registrationAnswer);
-        //Se não tiver resposta de alguma diligencia então envia somente a diligencia
-        if(!empty($registrations)){
-            return $registrations;
-        }else{
-            $dql = "SELECT d
-            FROM  Diligence\Entities\Diligence d
-            WHERE d.registration = :reg";
-            return self::queryDiligente($app, $dql, $registration, $registrationAnswer);            
+
+        $query = $app->em->createQuery($dql)
+            ->setParameters([
+                'reg' => $registration,
+                'regAnswer' =>  $registrationAnswer,
+                'statusAnswer' => $sentAnswer ? 1 : 0,
+                'statusDiligence' => $sentDiligence ? 1 : 0,
+            ]);
+        $diligenceAndAnswers = $query->getResult();
+
+        if (empty($diligenceAndAnswers)) {
+            return null;
         }
-    }
-    /**
-     * Função que gera a execulta o resultado Doctrine DQL
-     *
-     * @param [object] $app
-     * @param [string] $dql
-     * @param [int] $registration
-     */
-    protected static function queryDiligente($app, $dql, $registration, $registrationAnswer)
-    {
-        try {
-            $query = $app->em->createQuery($dql)->setParameters(['reg' => $registration, 'regAnswer' =>  $registrationAnswer]);
-            return $query->getResult();
-        } catch (\Throwable $th) {
-           return null;
-        }
+        return $diligenceAndAnswers;
     }
 
     static function getAuthorizedProject($registration): array
@@ -103,7 +93,7 @@ class Diligence{
         return $result;
     }
 
-    public static function getTado($registratrion)
+    public static function getTado($registratrion): ?Tado
     {
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->findOneBy([

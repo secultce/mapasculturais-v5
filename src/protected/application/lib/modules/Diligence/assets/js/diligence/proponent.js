@@ -20,30 +20,23 @@ $(document).ready(function () {
     .then((res) => {
         const draftStatus = 0;
         const diligences = res.data;
-        const diligenceSent = diligences?.filter( diligence => {
-            return diligence?.status != draftStatus;
+        const diligenceSent = diligences?.filter(diligence => {
+            return diligence?.status > draftStatus;
         });
-       
-        if (
-            (res.message == 'sem_diligencia') &&
-            MapasCulturais.isEvaluator == false)
-        {
+
+        if (res.message === 'sem_diligencia' && MapasCulturais.isEvaluator === false) {
             //Se tiver diligencia
             if (res.data?.length && diligenceSent.length) {
                 const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
-                
+
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
 
                 res.data.forEach((element, index) => {
-                    const dateLimitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
-                    if (dateLimitDate) {
-                        $("#descriptionDiligence").hide();
-                        $("#div-btn-actions-proponent").hide();
-                    }else{
-                        $("#div-btn-actions-proponent").show();
-                    }
+                    $("#descriptionDiligence").hide();
+                    $("#div-btn-actions-proponent").hide();
+                    $("#attachment-info").hide();
                     //Id da diligencia
                     MapasCulturais.idDiligence = element?.id;
                     $("#paragraph_loading_content").hide();
@@ -53,20 +46,19 @@ $(document).ready(function () {
 
         if(res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
             hideAnswerDraft();
-            idsDiligences = [];
+            let idsDiligences = [];
             res.data.forEach((answer, index) => {
-                if(answer?.id === undefined)
-                {
+                if (answer?.id === undefined) {
                     EntityDiligence.showAnswerDraft(null);
                     $("#descriptionDiligence").show();
-                }else{
+                } else {
                     idsDiligences.push(answer?.id);
                 }
-                if(answer?.status == 0) {
+                if (answer?.status === 0) {
                     $("#descriptionDiligence").hide();
                 }
             })
-    
+
             MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
             const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
@@ -75,11 +67,11 @@ $(document).ready(function () {
             res.data.forEach((answer, index) => {
                 const limitDate = EntityDiligence.validateLimiteDate(MapasCulturais.diligence_days);
 
-                if(limitDate){
+                if (limitDate) {
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").hide();
                     $("#div-btn-actions-proponent").hide();
-                }else{
+                } else {
                     MapasCulturais.idDiligence = answer?.diligence?.id;
                     EntityDiligence.showAnswerDraft(answer);
                     $("#descriptionDiligence").show();
@@ -152,7 +144,7 @@ $(document).ready(function () {
     .catch((error) => {
         MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
-   
+
 });
 
 function hideAnswerDraft()
@@ -226,12 +218,12 @@ function saveAnswerProponente(status) {
                         sendNofificationAnswer();
                         location.reload();
                     }
-                    
+
                     if (result.isDismissed && result.dismiss === 'cancel') {
                         showViewActions();
                         cancelAnswer();                  
                     }
-                  
+
                     if (
                         result.dismiss === Swal.DismissReason.timer
                       ) {

@@ -32,9 +32,29 @@ var diligenceMessage = (function(){
         });
     }
 
+    function messageConfirm(titleQuestion, textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
+        const swatF = Swal.fire({
+            title: titleQuestion,
+            text: textTrash,
+            showConfirmButton: true,
+            showCloseButton: false,
+            showCancelButton: true,
+            reverseButtons: true,
+            cancelButtonText: titleCancel,
+            confirmButtonText: titleConfirm,
+            customClass: {
+                confirmButton: classBtnConfirm,
+                cancelButton: classBtnCancel
+            },
+        })
+        return swatF;
+    }
+
+
     return {
         messageSimple: messageSimple,
         loadSimple: loadSimple,
-        messageError: messageError
+        messageError: messageError,
+        messageConfirm: messageConfirm
     };
 }());

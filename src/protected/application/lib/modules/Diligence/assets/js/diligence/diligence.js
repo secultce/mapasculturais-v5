@@ -1,7 +1,7 @@
 //URL global para salvar a diligencia
-var urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
-//Objecto com itens primário para salavar a diligência
-var objSendDiligence = {
+const urlSaveDiligence = MapasCulturais.createUrl('diligence', 'save');
+//Objeto com item primário para salvar a diligência
+let objSendDiligence = {
     registration: MapasCulturais.entity.id,
     openAgent: MapasCulturais.userProfile.id,
     agent: MapasCulturais.entity.ownerId,
@@ -12,7 +12,7 @@ $(document).ready(function () {
     $("#paragraph_value_project").hide();
 
     hideBtnActionsDiligence();
-    //Inciando o acoordioin Jquery
+    //Iniciando o accordion Jquery
     EntityDiligence.showAccordion('#accordion');
 
     //id da diligencia
@@ -30,25 +30,24 @@ $(document).ready(function () {
             $("#input-value-project-diligence").val(res.valueAuthorized);
         }
 
-    }).catch((err) => {
+    }).catch(() => {
         MapasCulturais.Messages.error('Ocorreu um erro na autorização do projeto');
     })
-    //Ocutando itens em comum do parecerista e do proponente
+    // Ocultando itens em comum do parecerista e do proponente
     EntityDiligence.hideCommon();
 
     //Formatando o layout
-    let entityDiligence = EntityDiligence.showContentDiligence();
-    entityDiligence
+    EntityDiligence.showContentDiligence()
         .then((res) => {
             let actions = true;
-            if (res.message == 'sem_diligencia') {
+            if (res.message === 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
                 $("#subject_info_status_diligence").hide();//Oculta o assunto da diligencia
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
 
             }
-            if (res.message == 'diligencia_aberta') {
+            if (res.message === 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
                 res.data.forEach((element, index) => {
                     if (element?.status == 0) {
@@ -65,20 +64,20 @@ $(document).ready(function () {
                         actions = false;
                     }
                 });
-                if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim') {
+                if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence === 'Sim') {
                     showBtnActionsDiligence();
                 }
             }
             $("#paragraph_loading_content").hide();
         })
-        .catch((error) => {
+        .catch(() => {
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
         });
 
     $("#select-value-project-diligence").on("change", function (e) {
         e.preventDefault();
         saveAuthorizedProject('option_authorized', e.target.value)
-        if (e.target.value == 'Sim') {
+        if (e.target.value === 'Sim') {
             $("#paragraph_value_project").show();
         } else {
             $("#paragraph_value_project").hide();
@@ -145,7 +144,7 @@ function saveAuthorizedProject(keyAuth, valueAuth) {
     });
 }
 
-//Sempre implementar esses metodos
+//Sempre implementar esses métodos
 function hideRegistration() {
     EntityDiligence.hideRegistration();
 }
@@ -168,9 +167,6 @@ function showSaveContent(status) {
               A sua diligência foi enviada!
             `,
             focusConfirm: false,
-            confirmButtonText: `
-              <i class="fa fa-thumbs-up"></i> OK!
-            `,
             timer: 10000,
             timerProgressBar: true,
             didOpen: () => {
@@ -249,7 +245,7 @@ function cancelSend() {
     });
 }
 function saveDiligence(status, st, idDiligence) {
-     if ($("#descriptionDiligence").val() == '') {
+     if ($("#descriptionDiligence").val() === '') {
          diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
          return false;
     }
@@ -268,15 +264,15 @@ function saveDiligence(status, st, idDiligence) {
                 confirmButton: "btn-success-rec",
                 cancelButton: "btn-warning-rec"
             },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                sendAjaxDiligence(status, idDiligence);
-            }
-        });
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    sendAjaxDiligence(status, idDiligence);
+                }
+            })
     } else {
         sendAjaxDiligence(status, idDiligence);
     }
-
 }
 
 function sendAjaxDiligence(status, idDiligence) {
@@ -296,14 +292,14 @@ function sendAjaxDiligence(status, idDiligence) {
                 $("#id-input-diligence").val(res.entityId);
             }
         },
-        error: function (err) {
+        error: function () {
             MapasCulturais.Messages.error('Ocorreu um erro ao enviar a diligência');
         }
     });
 }
 
 /**
- * Metodo que verifica se o assunto está confirmado
+ * Método que verifica se o assunto está confirmado
  * @param subject_exec_physical string
  * @param subject_report_finance string
  * @returns {array}
@@ -311,26 +307,26 @@ function sendAjaxDiligence(status, idDiligence) {
 function verifySubject(subject_exec_physical, subject_report_finance)
 {
     objSendDiligence['subject'] = [];
-    //se a escolha for execusão do objeto
-    if($("#"+subject_exec_physical+":checked").val() == 'on')
-    {
+    const physicalChecked = $(`#${subject_exec_physical}:checked`).val();
+    const financialReportChecked = $(`#${subject_report_finance}:checked`).val();
+
+    //se a escolha for execução do objeto
+    if (physicalChecked === 'on') {
         objSendDiligence['subject'].push('subject_exec_physical');
     }
-    //se a escolha for relatorio financeiro
-    if($("#"+subject_report_finance+":checked").val() == 'on')
-    {
+    //se a escolha for relatório financeiro
+    if (financialReportChecked === 'on') {
         objSendDiligence['subject'].push('subject_report_finance');
     }
     //Na situação de diligência única
-    if( 
-        MapasCulturais.entity.object.opportunity.use_multiple_diligence == 'Sim'
-        && $("#"+subject_exec_physical+":checked").val() == undefined 
-        && $("#"+subject_report_finance+":checked").val() == undefined 
-    )
-    {
+    if (
+        MapasCulturais.entity.object.opportunity.use_multiple_diligence === 'Sim'
+        && physicalChecked === undefined
+        && financialReportChecked === undefined
+    ) {
         diligenceMessage.messageSimple("Ops!", "Você precisa escolher um assunto ou mais assuntos", 2000);
         return false;
-    }else if(MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'){
+    } else if(MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'){
         objSendDiligence['subject'].push('single_diligence');
     }
     
@@ -361,6 +357,24 @@ function hideAfterSend() {
     $("#div-diligence").hide();
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
+}
+
+function trashDraftDiligence(idDiligence, titleQuestion,textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
+    const trashDraft = diligenceMessage.messageConfirm(
+        titleQuestion, textTrash, titleCancel, titleConfirm, classBtnCancel ,classBtnConfirm
+    );
+    trashDraft.then(() => {
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('diligence', 'trashDraftDiligence'),
+            data: {id : idDiligence},
+            dataType: 'json',
+            success: function (response) {
+                diligenceMessage.messageSimple('Excluído','Rascunho excluído com sucesso', 1500);
+               window.location.reload();
+            }
+        });
+    })
 }
 
 

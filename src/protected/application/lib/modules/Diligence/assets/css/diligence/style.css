@@ -199,6 +199,19 @@
     border: 1px solid #a37a29;
 }
 
+.btn-warning-danger {
+    color: #fff !important;
+    background-color: #cc3333 !important;
+    border: 1px solid #b82e2e !important;
+}
+
+.btn-warning-danger:hover {
+    color: #fff;
+    background-color: #d1a347;
+    border: 1px solid #a37a29;
+}
+
+
 .title-send-file {
     color: #767676;
     font-weight: 700;
