@@ -355,18 +355,19 @@ class Opportunity extends EntityController {
 
         $_opportunity = $opportunity;
         $opportunity_tree = [];
+        
         while($_opportunity && ($parent = $app->modules['OpportunityPhases']->getPreviousPhase($_opportunity))){
             $opportunity_tree[] = $parent;
-            $_opportunity = $parent;
+            $_opportunity = $parent;           
         }
-
         $opportunity_tree = array_reverse($opportunity_tree);
-
+      
         $last_query_ids = null;
 
-        $select_values = [];
+        $select_values = [];       
 
         foreach($opportunity_tree as $current){
+          
             $app->controller('registration')->registerRegistrationMetadata($current);
             $cdata = ['opportunity' => "EQ({$current->id})", '@select' => 'id,previousPhaseRegistrationId'];
 
@@ -433,9 +434,10 @@ class Opportunity extends EntityController {
                 $data['status'] = 'IN(10,8)';
             }
         }
+        
         $query = new ApiQuery('MapasCulturais\Entities\Registration', $data, false, false, $opportunity->publishedRegistrations);
-
-        $registrations = $query->find();
+        // Lista das inscrições
+        $registrations = $query->listRegistration();
 
         $em = $opportunity->getEvaluationMethod();
         foreach($registrations as &$reg) {
@@ -448,17 +450,24 @@ class Opportunity extends EntityController {
                 foreach($reg as $key => $val){
                     if(is_null($val) && isset($values[$key])){
                         $reg[$key] = $values[$key];
-                    }
+                    }                   
                 }
             }
         }
-
+       
         if(in_array('consolidatedResult', $query->selecting)){
             /* @TODO: considerar parâmetro @order da api */
-
+            
             usort($registrations, function($e1, $e2) use($em){
                 return $em->cmpValues($e1['consolidatedResult'], $e2['consolidatedResult']) * -1;
             });
+        }
+
+        foreach($registrations as &$reg) {
+            // Atribuindo o resultado a tipo float
+            if(array_key_exists("consolidatedResult", $reg) && $reg['consolidatedResult'] !== '') {
+                $reg['consolidatedResult'] = floatval($reg['consolidatedResult']);
+            }
         }
 
         $this->apiAddHeaderMetadata($this->data, $registrations, $query->count());
