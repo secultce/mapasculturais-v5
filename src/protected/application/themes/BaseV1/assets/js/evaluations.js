@@ -62,4 +62,42 @@ $(function(){
 
     });
 
+    $('body').on('click', '.assign-bonus-btn', function (event) {
+        const assignBonusBtn = event.currentTarget;
+        const disabledBtn = $(assignBonusBtn).hasClass('disabled');
+
+        if (!disabledBtn) {
+            const bonusAmount = MapasCulturais.evaluationConfiguration.bonusAmount;
+
+            Swal.fire({
+                title: "Você confirma a atribuição?",
+                text: `A bonificação aumentará em ${bonusAmount} ponto(s) a nota do proponente.`,
+                showCancelButton: true,
+                cancelButtonText: "Não, fazer depois",
+                confirmButtonText: "Confirmar",
+                reverseButtons: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const fieldId = assignBonusBtn.dataset.fieldId;
+
+                    $.ajax({
+                        type: "PATCH",
+                        url: MapasCulturais.createUrl('registration', 'assignBonus'),
+                        data: {
+                            registration_id: MapasCulturais.entity.id,
+                            bonus_amount: bonusAmount,
+                            field_id: fieldId
+                        },
+                        success() {
+                            MapasCulturais.Messages.success('A bonificação foi atribuída ao proponente');
+                            $(assignBonusBtn).addClass('disabled')
+                        },
+                        error() {
+                            MapasCulturais.Messages.error('Erro ao atribuir bonificação. Verifique, e tente novamente.');
+                        }
+                    })
+                }
+            })
+        }
+    });
 });

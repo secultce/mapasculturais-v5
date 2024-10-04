@@ -1182,8 +1182,9 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     $scope.data.fileConfigurations.forEach(function(item){
         item.file = MapasCulturais.entity.registrationFiles[item.groupName];
     });
-    
+
     $scope.data.fields = RegistrationService.getFields();
+    $scope.data.enableBonusFields = MapasCulturais.entity.object.opportunity.evaluationMethodConfiguration.enableConfigBonusFields;
     $scope.data.bonusFields = RegistrationService.getBonusFields();
     $scope.data.fieldsRequiredLabel = labels['requiredLabel'];
     $scope.data.fieldsOptionalLabel = labels['optionalLabel'];
@@ -1724,6 +1725,16 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
 
         return result;
     };
+
+    $scope.alreadyBonusedField = function (field) {
+        const alreadyBonusFieldsIds = MapasCulturais.registration.alreadyBonusFields.map(field => {
+            return parseInt(field.split('_').pop())
+        })
+
+        if (alreadyBonusFieldsIds.includes(field.id)) return true
+
+        return false
+    }
 
     $scope.isAvaliableEvaluationFields = function(field){
         if($scope.data.avaliableEvaluationFields[$scope.getFieldNameString(field)]){
