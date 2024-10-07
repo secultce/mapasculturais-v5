@@ -145,8 +145,9 @@ class Module extends \MapasCulturais\Module {
                 foreach ($registrations as $registration) {
                     $diligences = $app->em->createQueryBuilder()
                         ->select('d')
-                        ->from('\Diligence\Entities\Diligence', 'd')
+                        ->from(EntityDiligence::class, 'd')
                         ->where('d.registration = :registration')
+                        ->andWhere('d.status >= 0')
                         ->setParameter('registration', $registration->id)
                         ->getQuery()
                         ->getResult();

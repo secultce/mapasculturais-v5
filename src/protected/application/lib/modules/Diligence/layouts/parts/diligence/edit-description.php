@@ -20,7 +20,7 @@
                 "btn-warning-rec",
                 "btn-warning-danger"
                 )'>
-                <?= $titleTrash . ' - ' . $id ?>
+                <?= $titleTrash ?>
             </a>
         <?php endif; ?>
         </div>

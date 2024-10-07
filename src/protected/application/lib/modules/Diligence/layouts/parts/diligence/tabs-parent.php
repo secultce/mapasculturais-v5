@@ -95,6 +95,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                 if(
                     is_null($tado) 
                     || $tado->status == 0
+                    || $diligenceAndAnswers[0] === null
                     || $diligenceAndAnswers[0]->status !== Entity::STATUS_TRASH
                 ) :
             ?>
