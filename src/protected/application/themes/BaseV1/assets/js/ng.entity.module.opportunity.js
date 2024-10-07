@@ -1184,7 +1184,7 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     });
 
     $scope.data.fields = RegistrationService.getFields();
-    $scope.data.enableBonusFields = MapasCulturais.entity.object.opportunity.evaluationMethodConfiguration.enableConfigBonusFields;
+    $scope.data.enableBonusFields = MapasCulturais.evaluationConfiguration?.enableConfigBonusFields;
     $scope.data.bonusFields = RegistrationService.getBonusFields();
     $scope.data.fieldsRequiredLabel = labels['requiredLabel'];
     $scope.data.fieldsOptionalLabel = labels['optionalLabel'];
