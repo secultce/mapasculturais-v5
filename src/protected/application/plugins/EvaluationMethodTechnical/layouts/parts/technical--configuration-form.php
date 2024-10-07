@@ -1,6 +1,9 @@
 <?php
+
 use MapasCulturais\i;
+
 ?>
+
 <div ng-controller="TechnicalEvaluationMethodConfigurationController" class="technical-evaluation-configuration registration-fieldset">
     <h4><?php i::_e('Critérios') ?></h4>
     <p><?php i::_e('Configure abaixo os critérios de avaliação técnica') ?>
@@ -36,9 +39,14 @@ use MapasCulturais\i;
     </section>
     <button ng-click="addSection()" class="btn btn-default add"><?php i::_e('Adicionar seção de avaliação técnica') ?></button>
 
-    <?php $this->part('technical--affirmative-polices-configuration')?>
+    <?php $this->part('technical--affirmative-polices-configuration') ?>
 
-    <br><br><hr>
+    <br><br>
+    <hr>
+
+    <?php $this->part('singles/opportunity/bonus-config', ['entity' => $entity]); ?><br>
+
+    <hr>
 
     <h4><?php i::_e('Habilitar avaliação da exequibilidade da inscrição?'); ?></h4>
     <p>
@@ -54,4 +62,3 @@ use MapasCulturais\i;
         <input type="radio" ng-model="data.enableViability" value="false" ng-change="save({enableViability: false})" name="enableViability" /> <?php i::_e('Não habilitar'); ?>
     </label>
 </div>
-

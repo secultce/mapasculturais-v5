@@ -72,7 +72,11 @@ $_params = [
         <?php $this->part('singles/registration-single--spaces', $_params) ?>
         
         <?php endif ?>
-        
+
+        <?php if ($entity->opportunity->canUser("@control")) {
+            $this->part('singles/registration/fields-for-bonus');
+        } ?>
+
         <?php $this->part('singles/registration-single--fields', $_params) ?>
 
         <?php $this->applyTemplateHook('form','end'); ?>

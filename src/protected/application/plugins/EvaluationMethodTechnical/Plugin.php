@@ -60,6 +60,30 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             }
         ]);
 
+        $this->registerEvaluationMethodConfigurationMetadata('enableConfigBonusFields', [
+            'label' => i::__('Controla se a configuração dos campos de bonificação estão ou não ativadas'),
+            'type' => 'boolean',
+            'serialize' => function ($val) {
+                return ($val == "true") ? true : false;
+            }
+        ]);
+
+        $this->registerEvaluationMethodConfigurationMetadata('bonusAmount', [
+            'label' => i::__('Define a quantidade de pontos que será adicionado nas bonificações'),
+            'type' => 'string',
+        ]);
+
+        $this->registerEvaluationMethodConfigurationMetadata('bonusFieldsConfig', [
+            'label' => i::__('Configuração campos de bonificação'),
+            'type' => 'json',
+            'serialize' => function ($val){
+                return (!empty($val)) ? json_encode($val) : "[]";
+            },
+            'unserialize' => function($val){
+                return json_decode($val);
+            }
+        ]);
+
         $this->registerEvaluationMethodConfigurationMetadata('affirmativePolicies', [
             'label' => i::__('Políticas Afirmativas'),
             'type' => 'json',
@@ -128,9 +152,11 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             'sectionNameAlreadyExists' => i::__('Já existe uma seção com o mesmo nome'),
             'changesSaved' => i::__('Alteraçṍes salvas'),
             'alertPendingAffirmativePolicies' => i::__('A configuração não foi salva; todos os campos são obrigatórios e ainda há alguns que não foram preenchidos.'),
+            'alertPendingBonusFieldConfig' => i::__('Complete a configuração do campo de bonificação para que ele seja salvo'),
             'deleteSectionConfirmation' => i::__('Deseja remover a seção? Esta ação não poderá ser desfeita e também removerá todas os critérios desta seção.'),
             'deleteCriterionConfirmation' => i::__('Deseja remover este critério de avaliação? Esta ação não poderá ser desfeita.'),
-            'deleteAffirmativePolicy' => i::__('Deseja remover esta política afirmativa? Esta ação não poderá ser desfeita.')
+            'deleteAffirmativePolicy' => i::__('Deseja remover esta política afirmativa? Esta ação não poderá ser desfeita.'),
+            'confirmDeleteBonusFieldConfig' => i::__('Deseja remover esta configuração de bonificação? Esta ação não poderá ser desfeita.')
         ]);
         $app->view->jsObject['angularAppDependencies'][] = 'ng.evaluationMethod.technical';
     }
@@ -194,17 +220,18 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
 
         });
 
-        // passa os dados de configuração das políticas afirmativas para JS
-        $app->hook('GET(opportunity.edit):before', function() use ($app, $plugin){
+        // passa os dados de configuração das bonificações e políticas afirmativas para o JS
+        $app->hook('GET(opportunity.edit):before', function () use ($app, $plugin) {
             $entity = $this->requestedEntity;
-
-            $app->view->jsObject['affirmativePoliciesFieldsList'] = $plugin->getFieldsAllPhases($entity);
-           
             $evaluationMethodConfiguration = $entity->evaluationMethodConfiguration;
 
+            $app->view->jsObject['affirmativePoliciesFieldsList'] = $plugin->getFieldsAllPhases($entity);
             $app->view->jsObject['isActiveAffirmativePolicies'] = $evaluationMethodConfiguration->isActiveAffirmativePolicies;
             $app->view->jsObject['affirmativePolicies'] = $evaluationMethodConfiguration->affirmativePolicies;
             $app->view->jsObject['affirmativePoliciesRoof'] = $evaluationMethodConfiguration->affirmativePoliciesRoof;
+            $app->view->jsObject['enableConfigBonusFields'] = $evaluationMethodConfiguration->enableConfigBonusFields;
+            $app->view->jsObject['bonusFieldsConfig'] = $evaluationMethodConfiguration->bonusFieldsConfig;
+            $app->view->jsObject['bonusAmount'] = $evaluationMethodConfiguration->bonusAmount;
         });
 
         $app->hook('evaluationsReport(technical).sections', function(Entities\Opportunity $opportunity, &$sections){

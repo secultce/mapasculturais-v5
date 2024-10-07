@@ -7,6 +7,7 @@ use MapasCulturais\Definitions;
 use MapasCulturais\Entities;
 use MapasCulturais\Entities\RegistrationSpaceRelation as RegistrationSpaceRelationEntity;
 use MapasCulturais\Entities\OpportunityMeta;
+use MapasCulturais\Entities\RegistrationMeta;
 
 /**
  * Registration Controller
@@ -120,11 +121,13 @@ class Registration extends EntityController {
             $registration = $this->getRequestedEntity();
 
             if (!$registration || !$registration->id) {
-                $opportunity = $app->repo('Opportunity')->find((int) $this->data["opportunityId"]);
-                $registration_limit = (int) $opportunity->registrationLimit;
+                if (isset($this->data["opportunityId"])) {
+                    $opportunity = $app->repo('Opportunity')->find((int)$this->data["opportunityId"]);
+                    $registration_limit = (int)$opportunity->registrationLimit;
 
-                if ($registration_limit && count($opportunity->getSentRegistrations()) >= $registration_limit) {
-                    $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+                    if ($registration_limit && count($opportunity->getSentRegistrations()) >= $registration_limit) {
+                        $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+                    }
                 }
 
                 return;
@@ -572,5 +575,26 @@ class Registration extends EntityController {
         } 
         
         $this->json(true);
+    }
+
+    function PATCH_assignBonus()
+    {
+        $registrationId = (int)$this->data["registration_id"];
+        $registration = App::i()->repo('Registration')->find($registrationId);
+        $bonusAmount = (float)$this->data["bonus_amount"];
+        $fieldName = "bonus_field_{$this->data["field_id"]}";
+
+        $consolidatedWithBonus = (float)$registration->consolidatedResult + $bonusAmount;
+        $registration->consolidatedResult = number_format($consolidatedWithBonus, 2);
+
+        $regMeta = new RegistrationMeta();
+        $regMeta->key = $fieldName;
+        $regMeta->value = true;
+        $regMeta->owner = $registration;
+
+        App::i()->disableAccessControl();
+        $registration->save(true);
+        $regMeta->save(true);
+        App::i()->enableAccessControl();
     }
 }
