@@ -2,15 +2,15 @@
 
 namespace Diligence\Controllers;
 
-use \MapasCulturais\App;
-use Diligence\Entities\AnswerDiligence;
-use Diligence\Service\NotificationInterface;
-use Diligence\Entities\NotificationDiligence;
-use MapasCulturais\Entities\RegistrationMeta;
-use Diligence\Entities\Diligence as EntityDiligence;
-use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
+use Diligence\Entities\AnswerDiligence;
+use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\NotificationDiligence;
+use Diligence\Repositories\Diligence as DiligenceRepo;
+use Diligence\Service\NotificationInterface;
+use MapasCulturais\App;
 use MapasCulturais\Entity;
+use MapasCulturais\Entities\RegistrationMeta;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface
 {
@@ -35,7 +35,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $registration = $app->repo('Registration')->find($this->data['registration']);
 
         if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
-            $diligences = $app->repo('Diligence\Entities\Diligence')->findBy(['registration' => $registration]);
+            $diligences = $app->repo(EntityDiligence::class)->findBy([
+                'registration' => $registration,
+                'status' => [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+            ]);
 
             if (count($diligences) > 0) {
                 $this->json([

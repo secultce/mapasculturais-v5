@@ -310,6 +310,8 @@ class Registration extends \MapasCulturais\Entity
             }
         }
 
+        $json['alreadyBonusFields'] = $this->getAlreadyBonusFields();
+
         if($this->opportunity->publishedRegistrations || $this->opportunity->canUser('@control')) {
             $json['status'] = $this->status;
         }
@@ -379,6 +381,24 @@ class Registration extends \MapasCulturais\Entity
         }
 
         return false;
+    }
+
+    private function getAlreadyBonusFields()
+    {
+        $query = "SELECT key FROM registration_meta WHERE object_id = :owner AND key LIKE :key";
+        $params = [
+            "owner" => $this->id,
+            "key" => "bonus_field%",
+        ];
+        $conn = App::i()->em->getConnection();
+        $result = $conn->fetchAllAssociative($query, $params);
+
+        $fields = [];
+        foreach ($result as $res) {
+            $fields[] = $res["key"];
+        }
+
+        return $fields;
     }
 
     function getSpaceRelation(){ 

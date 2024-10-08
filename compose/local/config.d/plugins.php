@@ -14,5 +14,6 @@ return [
         'PublicConsultation' => ['namespace' => 'PublicConsultation'],
         'PDFReport' => ['namespace' => 'PDFReport'],
         'BigSheetImporter' => ['namespace' => 'BigSheetImporter'],
+        'Accessibility' => ['namespace' => 'Accessibility'],
     ]
 ];

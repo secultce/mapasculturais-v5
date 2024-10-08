@@ -54,7 +54,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     rm composer-setup.php
 
 # Install redis
-RUN pecl install -o -f redis \
+RUN pecl install -o -f redis-5.3.7 \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis
 

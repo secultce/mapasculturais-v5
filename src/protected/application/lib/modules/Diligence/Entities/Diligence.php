@@ -33,8 +33,8 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     use \Diligence\Traits\DiligenceSingle;
 
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
-    const STATUS_SEND = 3; // Para diligência que foi enviada para o proponente
-    const STATUS_ANSWERED = 4; // Para diligências que foi respondido pelo proponente
+    const STATUS_SEND = 3; // Para diligência enviada para o proponente
+    const STATUS_ANSWERED = 4; // Para diligências respondida pelo proponente
 
     /**
      * @var integer
@@ -337,12 +337,15 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 return \MapasCulturais\i::_e('Enviado ao proponente');
             case 4:
                 return \MapasCulturais\i::_e('Respondido');
+            case -10:
+                return \MapasCulturais\i::_e('Excluído');
             default:
-                throw new \Exception('Invalid status');
+                return 'Status inválido';
+//                throw new \Exception('Invalid status');
         endswitch;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $preSerialized = parent::jsonSerialize();
         $serialized = $preSerialized;

@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php composer-setup.php --version=1.10.16 --install-dir=/usr/local/bin && \
     rm composer-setup.php \
     # Install redis
-    && pecl install -o -f redis \
+    && pecl install -o -f redis-5.3.7 \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis \
     # Instalação da pasta vendor
