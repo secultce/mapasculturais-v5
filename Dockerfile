@@ -54,7 +54,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis \
     # Instalação da pasta vendor
-    && cd /var/www/html/protected && composer.phar install \
+    && cd /var/www/html/protected && composer.phar install && composer.phar update \
     && cd /var/www/html/protected/application/plugins/PDFReport && composer.phar install \
     && cd /var/www/html/protected/application/themes/ \
     && find . -maxdepth 1 -mindepth 1 -exec echo "compilando sass do tema " {} \; -exec sass {}/assets/css/sass/main.scss {}/assets/css/main.css -E "UTF-8" \; \
