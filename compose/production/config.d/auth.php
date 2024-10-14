@@ -6,7 +6,7 @@ return [
        'timeout' => '24 hours',
        'enableLoginByCPF' => true,
        'metadataFieldCPF' => 'documento',
-       'userMustConfirmEmailToUseTheSystem' => false,
+       'userMustConfirmEmailToUseTheSystem' => true,
        'passwordMustHaveCapitalLetters' => false,
        'passwordMustHaveLowercaseLetters' => true,
        'passwordMustHaveSpecialCharacters' => false,
