@@ -427,7 +427,7 @@ MapasCulturais.Editables = {
     },
 
     initTypes: function(){
-        if(MapasCulturais.entity.object.lockedFields && MapasCulturais.entity.object.lockedFields.indexOf('type') >= 0) {
+        if(MapasCulturais.entity?.object.lockedFields && MapasCulturais.entity.object.lockedFields.indexOf('type') >= 0) {
             return;
         }
         $('.js-editable-type').each(function(){
@@ -453,7 +453,7 @@ MapasCulturais.Editables = {
     },
 
     createAll : function (){
-        var entity = MapasCulturais.entity.definition;
+        var entity = MapasCulturais.entity?.definition;
         var labels = MapasCulturais.gettext.editable;
         MapasCulturais.Editables.getEditableElements().each(function(){
 

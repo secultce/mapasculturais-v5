@@ -122,8 +122,8 @@ class EntityRevision extends \MapasCulturais\Entity{
             }
         } else {
             $lastRevision = $entity->getLastRevision();
-            $lastRevisionData = $lastRevision->getRevisionData();
             if (isset($lastRevision->updateTimestamp) && $lastRevision->updateTimestamp) {
+                $lastRevisionData = $lastRevision->getRevisionData();
                 $createTimestamp = $lastRevision->updateTimestamp;
             } elseif (isset($this->user->lastLoginTimestamp) && $this->user->lastLoginTimestamp) {
                 $createTimestamp = $this->user->lastLoginTimestamp;

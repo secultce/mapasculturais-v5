@@ -1,6 +1,8 @@
 <?php
 namespace MapasCulturais;
 
+use Doctrine\DBAL\Exception;
+
 $app = App::i();
 $em = $app->em;
 $conn = $em->getConnection();
@@ -1567,7 +1569,7 @@ $$
     },
 
     'create table job' => function () use($conn) {
-        __exec("CREATE TABLE job (
+        __exec("CREATE TABLE IF NOT EXISTS job (
                     id VARCHAR(255) NOT NULL, 
                     name VARCHAR(32) NOT NULL, 
                     iterations INT NOT NULL, 
@@ -1584,8 +1586,8 @@ $$
 
         __exec("COMMENT ON COLUMN job.metadata IS '(DC2Type:json_array)';");
 
-        __exec("CREATE INDEX job_next_execution_timestamp_idx ON job (next_execution_timestamp);");
-        __exec("CREATE INDEX job_search_idx ON job (next_execution_timestamp, iterations_count, status);");
+        __exec("CREATE INDEX IF NOT EXISTS  job_next_execution_timestamp_idx ON job (next_execution_timestamp);");
+        __exec("CREATE INDEX IF NOT EXISTS  job_search_idx ON job (next_execution_timestamp, iterations_count, status);");
     },
 
     'clean existing orphans' => function () {
@@ -1909,5 +1911,144 @@ $$
                 p1.object_type = p2.object_type AND 
                 p1.object_id = p2.object_id AND 
                 p1.action = p2.action;");
-    }
+    },
+    'create table diligence' => function(){
+        __exec("CREATE SEQUENCE diligence_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+
+        __exec("CREATE TABLE IF NOT EXISTS diligence (
+            id INT NOT NULL, 
+            registration_id INT NOT NULL, 
+            open_agent_id INT NOT NULL, 
+            agent_id VARCHAR(32) NOT NULL,
+            create_timestamp timestamp,
+            description TEXT,
+            status INT NOT NULL,
+            situation INT NULL,
+            send_diligence timestamp,
+            PRIMARY KEY(id));");
+
+        __exec("ALTER TABLE diligence ADD
+        CONSTRAINT diligence_registration_fk
+        FOREIGN KEY (registration_id) REFERENCES registration (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+
+        __exec("ALTER TABLE diligence ADD
+        CONSTRAINT diligence_open_agent_id_fk
+        FOREIGN KEY (open_agent_id) REFERENCES agent (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+    },
+
+    'create table answer_diligence' => function() {
+        __exec("CREATE SEQUENCE answer_diligence_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec("CREATE TABLE answer_diligence (
+            id INT NOT NULL, 
+            diligence_id INT NOT NULL, 
+            answer TEXT NOT NULL, 
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            status INT NOT NULL, 
+            PRIMARY KEY(id))"
+            );
+        __exec("CREATE INDEX IDX_609B3FB63A3758E0 ON answer_diligence (diligence_id)");
+        __exec("ALTER TABLE answer_diligence ADD CONSTRAINT FK_609B3FB63A3758E0 FOREIGN KEY (diligence_id) REFERENCES diligence (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    },
+
+    'insert day of' => function() {
+        //Datas de feriados nacionais
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','01-01','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','02-13','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','03-29','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','04-21','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','05-01','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','09-07','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','10-12','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-02','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
+    },
+    
+    'create table tado' => function() {
+        __exec("CREATE SEQUENCE tado_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec("CREATE TABLE tado (
+            id INT NOT NULL, 
+            agent_id INT DEFAULT NULL, 
+            registration_id INT NOT NULL, 
+            agent_signature INT DEFAULT NULL, 
+            number VARCHAR(24) DEFAULT NULL, 
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_from TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            period_to TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+            object VARCHAR(255) NOT NULL, 
+            conclusion TEXT DEFAULT NULL,
+            status SMALLINT NOT NULL, 
+            PRIMARY KEY(id));");
+        __exec("CREATE INDEX IDX_50909BAA3414710B ON tado (agent_id);");
+        __exec("CREATE INDEX IDX_50909BAA833D8F43 ON tado (registration_id);");
+        __exec("CREATE INDEX IDX_50909BAA59DC8705 ON tado (agent_signature);");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA3414710B FOREIGN KEY (agent_id) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+        __exec("ALTER TABLE tado ADD CONSTRAINT FK_50909BAA59DC8705 FOREIGN KEY (agent_signature) REFERENCES agent (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
+    },
+
+    'add a column to table answer_diligence' => function() {
+        __exec("ALTER TABLE answer_diligence ADD registration_id INT");
+    },
+
+    'add column subject to table diligence' => function() {
+        __exec("ALTER TABLE diligence ADD subject varchar(50)");
+    },
+
+    'refactoring registrations draw' => function () use ($conn) {
+        try {
+            $conn->beginTransaction();
+            // Criando nova tabela draw
+            $conn->executeQuery("CREATE TABLE draw (
+                id SERIAL PRIMARY KEY,
+                opportunity_id INTEGER NOT NULL REFERENCES opportunity(id),
+                category TEXT NOT NULL,
+                create_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                user_id INTEGER NOT NULL REFERENCES usr(id),
+                published BOOLEAN NOT NULL DEFAULT FALSE
+            );");
+
+            // Criando nova tabela draw_registrations
+            $conn->executeQuery("CREATE TABLE draw_registrations (
+                id SERIAL PRIMARY KEY,
+                draw_id INTEGER NOT NULL REFERENCES draw(id),
+                registration_id INTEGER NOT NULL REFERENCES registration(id),
+                rank INTEGER NOT NULL
+            );");
+
+            $oldTableExists = $conn
+                ->executeQuery("SELECT * FROM information_schema.tables WHERE table_name = 'registrations_ranking'")
+                ->fetch();
+            if ($oldTableExists) {
+                // Migrando dados de registrations_ranking para draw e draw_registrations
+                $conn->executeQuery("INSERT INTO draw (opportunity_id, category, create_timestamp, user_id, published)
+                    SELECT DISTINCT
+                        rr.opportunity_id,
+                        rr.category,
+                        rr.create_timestamp,
+                        (SELECT user_id FROM agent a WHERE a.id = rr.agent_id), FALSE
+                    FROM registrations_ranking rr;");
+
+                $conn->executeQuery("INSERT INTO draw_registrations (draw_id, registration_id, rank)
+                    SELECT d.id, rr.registration_id, rr.rank
+                    FROM registrations_ranking rr
+                    JOIN draw d ON d.opportunity_id = rr.opportunity_id AND d.category = rr.category;");
+
+                $conn->executeQuery("DROP TABLE registrations_ranking CASCADE;");
+            }
+
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            $conn->executeQuery("DELETE FROM db_update WHERE name = 'refactoring registrantions draw'");
+        }
+    },
+
+    'add column manager to table tado' => function() {
+        __exec("ALTER TABLE tado ADD name_manager varchar(255) DEFAULT NULL");
+        __exec("ALTER TABLE tado ADD cpf_manager varchar(255) DEFAULT NULL");
+    },
+
 ] + $updates ;

@@ -7,6 +7,7 @@ use MapasCulturais\Definitions;
 use MapasCulturais\Entities;
 use MapasCulturais\Entities\RegistrationSpaceRelation as RegistrationSpaceRelationEntity;
 use MapasCulturais\Entities\OpportunityMeta;
+use MapasCulturais\Entities\RegistrationMeta;
 
 /**
  * Registration Controller
@@ -79,6 +80,13 @@ class Registration extends EntityController {
 
             ];
             $registration = $this->requestedEntity;
+            $evaluators = $registration->opportunity->getEvaluationCommittee(false);
+            $authUserIsEvaluator = array_filter($evaluators, function ($evaluator) use ($app) {
+                return $evaluator->user->id === $app->auth->authenticatedUser->id;
+            });
+
+            if ($authUserIsEvaluator) $app->disableAccessControl();
+
             foreach($registration->opportunity->registrationFileConfigurations as $rfc){
 
                 $fileGroup = new Definitions\FileGroup($rfc->fileGroupName, $mime_types, \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true, null, true);
@@ -97,22 +105,37 @@ class Registration extends EntityController {
             $finfo = pathinfo($this->name);
             $hash = uniqid();
 
-            $this->name = $this->owner->number . ' - ' . $hash . ' - ' . substr( preg_replace ('/[^\. \-\_\p{L}\p{N}]/u', '', $rfc->title),0,64) . '.' . $finfo['extension'];
+            $words = explode(' ', trim($rfc->title));
+            //Criando uma string com a primeira palavra do título do campo + números randômicos + as horas
+            $title = $words[0] . "-".rand()."-".microtime(true);
+
+            $this->name = $this->owner->number . ' - ' . $hash . ' - '
+                . substr( preg_replace ('/[^\p{L}\p{N}]/u', '', $title),0,64)
+                . '.' . $finfo['extension'];
             $tmpFile = $this->tmpFile;
             $tmpFile['name'] = $this->name;
             $this->tmpFile = $tmpFile;
         });
 
-        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function() {
+        $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function () use ($app) {
             $registration = $this->getRequestedEntity();
-           
-            if(!$registration || !$registration->id){
+
+            if (!$registration || !$registration->id) {
+                if (isset($this->data["opportunityId"])) {
+                    $opportunity = $app->repo('Opportunity')->find((int)$this->data["opportunityId"]);
+                    $registration_limit = (int)$opportunity->registrationLimit;
+
+                    if ($registration_limit && count($opportunity->getSentRegistrations()) >= $registration_limit) {
+                        $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+                    }
+                }
+
                 return;
             }
 
             $registration->registerFieldsMetadata();
-            
         });
+
         //Dados recebido vindo da criação do formulário quando seleciona opção do espaço
         $app->hook('POST(registration.spaceRel)' , function() {
            $this->createSpaceRelation();
@@ -552,5 +575,26 @@ class Registration extends EntityController {
         } 
         
         $this->json(true);
+    }
+
+    function PATCH_assignBonus()
+    {
+        $registrationId = (int)$this->data["registration_id"];
+        $registration = App::i()->repo('Registration')->find($registrationId);
+        $bonusAmount = (float)$this->data["bonus_amount"];
+        $fieldName = "bonus_field_{$this->data["field_id"]}";
+
+        $consolidatedWithBonus = (float)$registration->consolidatedResult + $bonusAmount;
+        $registration->consolidatedResult = number_format($consolidatedWithBonus, 2);
+
+        $regMeta = new RegistrationMeta();
+        $regMeta->key = $fieldName;
+        $regMeta->value = true;
+        $regMeta->owner = $registration;
+
+        App::i()->disableAccessControl();
+        $registration->save(true);
+        $regMeta->save(true);
+        App::i()->enableAccessControl();
     }
 }

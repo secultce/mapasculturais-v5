@@ -1,7 +1,3 @@
-[submodule "src/protected/application/plugins/MultipleLocalAuth"]
-	path = src/protected/application/plugins/MultipleLocalAuth
-	url = https://github.com/mapasculturais/plugin-MultipleLocalAuth
-	branch = master
 [submodule "src/protected/application/plugins/Recourse"]
 	path = src/protected/application/plugins/Recourse
 	url = https://github.com/secultce/plugin-Recourse.git
@@ -21,4 +17,23 @@
 [submodule "src/protected/application/plugins/LocationStateCity"]
 	path = src/protected/application/plugins/LocationStateCity
 	url = https://github.com/secultce/plugin-LocationStateCity.git
+	branch = main
+[submodule "src/protected/application/plugins/EditOpportunityType"]
+	path = src/protected/application/plugins/EditOpportunityType
+	url = https://github.com/secultce/plugin-EditOpportunityType
+	branch = main
+[submodule "src/protected/application/plugins/PublicConsultation"]
+	path = src/protected/application/plugins/PublicConsultation
+	url = https://github.com/secultce/plugin-PublicConsultation.git
+	branch = main
+[submodule "src/protected/application/plugins/PDFReport"]
+	path = src/protected/application/plugins/PDFReport
+	url = https://github.com/secultce/plugin-PDFReport.git
+	branch = main
+[submodule "src/protected/application/plugins/BigSheetImporter"]
+	path = src/protected/application/plugins/BigSheetImporter
+	url = https://github.com/secultce/plugin-BigSheetImporter.git
+[submodule "src/protected/application/plugins/MultipleLocalAuth"]
+	path = src/protected/application/plugins/MultipleLocalAuth
+	url = https://github.com/secultce/plugin-MultipleLocalAuth.git
 	branch = main

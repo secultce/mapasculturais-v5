@@ -37,6 +37,13 @@ class Module extends \MapasCulturais\Module
 
         $self = $this;
 
+        $app->_config['mailer.templates'] = array_merge($app->_config['mailer.templates'], [
+            'accountability_project-communication' => [
+                'title' => i::__("Nova mensagem no chat"),
+                'template' => 'accountability/project-communication.html'
+            ],
+        ]);
+
         $this->evaluationMethod = new EvaluationMethod($this->_config);
         $this->evaluationMethod->module = $this;
 
@@ -345,11 +352,6 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        // Insere novo painel para mostrar as prestações de contas
-        $app->hook('panel.menu:after', function() use ($app) {
-            $this->part('accountability/accountability-nav-panel');
-        });
-
         //Cria painel de prestação de contas
         $app->hook('GET(panel.accountability)', function() use($app) {
             $this->requireAuthentication();
@@ -466,17 +468,6 @@ class Module extends \MapasCulturais\Module
             }
         });
 
-        // Adidiona o checkbox haverá última fase
-        $app->hook('template(opportunity.edit.new-phase-form-step2):end', function () use ($app) {
-            $this->part('widget-opportunity-accountability');
-        });
-
-        // Adicionar radio button para criar apenas fase de prestação de contas
-        $app->hook('template(opportunity.edit.new-phase-form-step1):end', function () use ($app, $self) {
-            $this->part('widget-opportunity-phase-only');
-        });
-
-        //
         $app->hook('template(opportunity.edit.new-phase-form):end', function () use ($app, $self) {
             $this->part('accountability-phase-confirmation');
 
@@ -950,7 +941,7 @@ class Module extends \MapasCulturais\Module
     static function sendAccountabilityProjectEmail(Project $project)
     {
         $app = App::i();
-        $template = "accountability/project-communication.html";
+        $template = "accountability_project-communication";
         $phase = $project->opportunity->accountabilityPhase;
         $start = self::fullTextDate($phase->registrationFrom->getTimestamp());
         $end = self::fullTextDate($phase->registrationTo->getTimestamp());
@@ -970,7 +961,7 @@ class Module extends \MapasCulturais\Module
                      $project->ownerUser->email),
             "subject" => sprintf(i::__("Novo projeto criado no %s"),
                                  $params["siteName"]),
-            "body" => $app->renderMustacheTemplate($template, $params)
+            "body" => $app->renderMailerTemplate($template, $params)['body']
         ];
         if (!isset($email_params["to"])) {
             return;

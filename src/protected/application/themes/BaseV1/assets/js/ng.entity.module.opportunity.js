@@ -179,6 +179,27 @@
                 return fields;
             },
 
+            getBonusFields: function () {
+                const fields = this.getFields();
+                const bonusFieldsConfig = MapasCulturais.entity.object.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig;
+
+                const bonusFieldsIds = bonusFieldsConfig?.map(bonusField => {
+                    return parseInt(bonusField.field);
+                });
+                const bonusFields = fields.filter(field => {
+                    let fieldId = field.id;
+
+                    // Obtém o campo condicional pelo ID do campo a que foi condicionado
+                    if (field.conditional) {
+                        fieldId = parseInt(field.conditionalField.split('_').pop());
+                    }
+
+                    return bonusFieldsIds?.includes(fieldId);
+                });
+
+                return bonusFields;
+            },
+
             getSelectedCategory: function(){
                 
                 return $q(function(resolve){
@@ -1161,8 +1182,10 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     $scope.data.fileConfigurations.forEach(function(item){
         item.file = MapasCulturais.entity.registrationFiles[item.groupName];
     });
-    
+
     $scope.data.fields = RegistrationService.getFields();
+    $scope.data.enableBonusFields = MapasCulturais.evaluationConfiguration?.enableConfigBonusFields;
+    $scope.data.bonusFields = RegistrationService.getBonusFields();
     $scope.data.fieldsRequiredLabel = labels['requiredLabel'];
     $scope.data.fieldsOptionalLabel = labels['optionalLabel'];
 
@@ -1702,6 +1725,16 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
 
         return result;
     };
+
+    $scope.alreadyBonusedField = function (field) {
+        const alreadyBonusFieldsIds = MapasCulturais.registration.alreadyBonusFields.map(field => {
+            return parseInt(field.split('_').pop())
+        })
+
+        if (alreadyBonusFieldsIds.includes(field.id)) return true
+
+        return false
+    }
 
     $scope.isAvaliableEvaluationFields = function(field){
         if($scope.data.avaliableEvaluationFields[$scope.getFieldNameString(field)]){
@@ -2609,21 +2642,31 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
                 RegistrationService.save();
             };            
 
-
             $scope.register = function(){                
-                var registration = $scope.data.registration;                
-                
-                RegistrationService.register(registration).success(function(rs){
-                    if(rs.error) {
-                        if(rs.data.owner) {
-                            MapasCulturais.Messages.error(rs.data.owner);
+                const registration = $scope.data.registration;
+
+                RegistrationService.register(registration)
+                    .success(function(rs){
+                        if(rs.error) {
+                            if(rs.data.owner) {
+                                MapasCulturais.Messages.error(rs.data.owner);
+                            } else {
+                                MapasCulturais.Messages.error(MapasCulturais.gettext.moduleOpportunity.unexpectedError);
+                            }
                         } else {
-                            MapasCulturais.Messages.error(MapasCulturais.gettext.moduleOpportunity.unexpectedError);
+                            document.location = rs.editUrl;
                         }
-                    } else {
-                        document.location = rs.editUrl;
-                    }
-                });
+                    })
+                    .error(function (err) {
+                        const defaultMessage = 'Não foi possível realizar a inscrição. Verifique se tem permissão a esse agente!'
+                        const message = err.message ?? defaultMessage
+
+                        MapasCulturais.Messages.alert(message);
+
+                        setTimeout(() => {
+                            document.location.reload()
+                        }, 3000);
+                    });
             };
 
             $scope.sendRegistrationRulesFile = function(){

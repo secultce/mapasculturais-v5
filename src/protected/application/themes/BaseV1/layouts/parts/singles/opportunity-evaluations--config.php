@@ -1,14 +1,17 @@
-<?php 
+<?php
+
 use MapasCulturais\i;
 
 $configuration = $entity->evaluationMethodConfiguration;
 $definition = $configuration->definition;
+
 ?>
 
 <div id="evaluations-config" class="aba-content" ng-controller="EvaluationMethodConfigurationController">
     <?php $this->applyTemplateHook('evaluations-config', 'begin') ?>
+
     <?php
-    if(is_object($definition) && property_exists($definition, 'evaluationMethod') ) :
+    if (is_object($definition) && property_exists($definition, 'evaluationMethod')) :
         $evaluationMethod = $definition->evaluationMethod;
         $config_form_part_name = $evaluationMethod->getConfigurationFormPartName();
     ?>
@@ -16,10 +19,11 @@ $definition = $configuration->definition;
 
         <?php $this->part('singles/opportunity-evaluations--committee', ['entity' => $entity]) ?>
 
-        <?php if($config_form_part_name): ?>
-            <div> <?php $this->part($config_form_part_name, ['entity' => $entity]) ?> </div> <hr>
+        <?php if ($config_form_part_name): ?>
+            <div> <?php $this->part($config_form_part_name, ['entity' => $entity]) ?> </div>
+            <hr>
         <?php endif; ?>
-    
+
         <?php $this->applyTemplateHook('evaluations-config--texts', 'before') ?>
         <div>
             <h4> <?php i::_e('Textos informativos para a fichas de inscrição') ?> </h4>
@@ -42,7 +46,7 @@ $definition = $configuration->definition;
         i::_e('As inscrições para esta oportunidade já foram encerradas. Não é mais possível configurar a avaliação.');
     endif; ?>
 
-    <?php if($entity->canUser('@control')):?>
+    <?php if ($entity->canUser('@control')): ?>
         <?php $this->part('singles/opportunity-evaluations-fields--config', ['entity' => $entity]) ?>
     <?php endif; ?>
 

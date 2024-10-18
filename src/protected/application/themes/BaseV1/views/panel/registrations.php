@@ -4,8 +4,8 @@ use MapasCulturais\i;
 use MapasCulturais\Entities\Registration;
 $this->layout = 'panel';
 $has_drafts_registration = false;
-$drafts = $app->repo('Registration')->findByUser($app->user, Registration::STATUS_DRAFT);
-$sent = $app->repo('Registration')->findByUser($app->user, 'sent');
+$drafts = $app->user->getRegistrationsNotAccountability(Registration::STATUS_DRAFT);
+$sent = $app->user->getRegistrationsNotAccountability('sent', 3);
 $app->applyHookBoundTo($this, 'panel(registration.panel):begin', [&$sent,&$drafts]);
 ?>
 <div class="panel-list panel-main-content">

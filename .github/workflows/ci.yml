@@ -4,11 +4,14 @@ on:
   pull_request:
     branches: 
       - homolog
+    types:
+      - closed
   
   workflow_dispatch:
 
 jobs:
   BUILD:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps: 
       
@@ -30,14 +33,13 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            secultceara/mapasculturais:5.8.15
-            secultceara/mapasculturais:latest
+            secultceara/mapasculturais:homolog
 
   DEPLOY:
     needs: BUILD
     runs-on: mapahomolog
     steps:
       - name: Pull da imagem do dockerhub
-        run: sudo docker pull secultceara/mapasculturais:latest
+        run: sudo docker pull secultceara/mapasculturais:homolog
       - name: Restart do docker-compose para atualizar o container com a nova imagem
         run: cd /opt/docker/mapa5 && sudo docker-compose down && sudo docker-compose up -d

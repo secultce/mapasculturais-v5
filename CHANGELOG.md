@@ -4,6 +4,59 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.2] - 2024-09-24
+### Adicionado
+- Área Prestação de Contas.
+### Modificado
+- Atualizando layouts de e-mails
+### Corrigido
+- Removendo mensagem de erro dos logs
+
+## [5.9.2-rc4] - 2024-09-13
+### Novas Funcionalidades
+- Adicionado módulo para realizar rankeamento aleatório dentro de oportunidades com avaliação documental.
+- Adicionada configuração de cotas a oportunidade.
+- Adicionado módulo de heteroidentificação.
+### Melhorias
+- Adicionado logs às oportunidades.
+- Modificação de algumas terminologias.
+
+## [5.9.2-rc1] - 2024-07-09
+### Melhorias
+- Adicionado novo plugin no gitmodule
+- Adicionado plugin para realizar Consulta Pública
+- Adicionado Publicação do resultado dos sorteios
+- Geração do resultado do sorteio em PDF
+- Adicionados arquivos de configuração para bots de indexação
+### Correções
+- Adicionado arquivo cache
+
+## [5.9.1] - 2024-06-25
+### Melhorias
+- Adicionado novo plugin no gitmodule
+- Adicionado arquivo de configuração no ambiente de desenvolvimento
+- Adicionado geração do relatório TADO
+- Removido código desnecessário
+### Correções
+- Remoção de códigos desnecessários do plugin PDFReport
+
+## [5.9.0] - 2024-06-14
+### Melhorias
+- Adiciona módulo de diligência.
+- Atualiza versões de plugins de Recurso e Parecer.
+- Adiciona feedback em caso de erro ao iniciar inscrição.
+### Correções
+- Corrige nome do hook 'importFields' na entidade Opportunity.
+- Corrige listagem completa de agentes que esgotava o limite de memória.
+- Corrige a busca de avaliações pelo filtro "não avaliadas".
+- Limitar o usuário para no momento da inscrição só poder selecionar agentes que ele tem permissão.
+
+## [5.8.16] - 2024-03-11
+### Melhorias
+- Adicionado novos repositórios dos plugins para o submodulos do git
+- Adicionar o arquivo CI.yml para deploy automátizado
+- Habilitado nas configurações do plugin do Parecer
+
 ## [5.8.15] - 2024-02-16
 ### Coreções
 - Corrige a aba de avaliações da oportunidade onde poderiam algumas avaliações não serem exibidas e outras duplicadas.

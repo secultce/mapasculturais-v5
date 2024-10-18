@@ -6,7 +6,14 @@ return [
         'EvaluationMethodSimple' => ['namespace' => 'EvaluationMethodSimple'],
         'EvaluationMethodDocumentary' => ['namespace' => 'EvaluationMethodDocumentary'],
         'EvaluationMethodQualification' => ['namespace' => 'EvaluationMethodQualification'],
-        'ValuersManagement' => [ 'namespace' => 'ValuersManagement' ],
-        'OpinionManagement' => [ 'namespace' => 'OpinionManagement' ],
+        'OpinionManagement' => ['namespace' => 'OpinionManagement'],
+        'Recourse' => ['namespace' => 'Recourse'],
+        'EditOpportunityType' => ['namespace' => 'EditOpportunityType'],
+        'LocationStateCity' => ['namespace' => 'LocationStateCity'],
+        'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
+        'PublicConsultation' => ['namespace' => 'PublicConsultation'],
+        'PDFReport' => ['namespace' => 'PDFReport'],
+        'BigSheetImporter' => ['namespace' => 'BigSheetImporter'],
+        'Accessibility' => ['namespace' => 'Accessibility'],
     ]
 ];

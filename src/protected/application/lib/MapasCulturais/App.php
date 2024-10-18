@@ -50,7 +50,7 @@ use MapasCulturais\Entities\User;
  * @property-read \MapasCulturais\Module[] $modules active modules
  * @property-read \MapasCulturais\Plugin[] $plugins active plugins
  *
- * @method \MapasCulturais\App i() Returns the application object
+ * @method static \MapasCulturais\App i() Returns the application object
  */
 class App extends \Slim\Slim{
     use \MapasCulturais\Traits\MagicGetter,
@@ -377,6 +377,7 @@ class App extends \Slim\Slim{
         $doctrine_config->addCustomStringFunction('string_agg', 'MapasCulturais\DoctrineMappings\Functions\StringAgg');
         $doctrine_config->addCustomStringFunction('unaccent', 'MapasCulturais\DoctrineMappings\Functions\Unaccent');
         $doctrine_config->addCustomStringFunction('recurring_event_occurrence_for', 'MapasCulturais\DoctrineMappings\Functions\RecurringEventOcurrenceFor');
+        $doctrine_config->addCustomStringFunction('regexp_replace', 'MapasCulturais\DoctrineMappings\Functions\RegexpReplace');
 
         $doctrine_config->addCustomNumericFunction('st_dwithin', 'MapasCulturais\DoctrineMappings\Functions\STDWithin');
         $doctrine_config->addCustomNumericFunction('st_makepoint', 'MapasCulturais\DoctrineMappings\Functions\STMakePoint');
@@ -894,12 +895,12 @@ class App extends \Slim\Slim{
             'gallery' => new Definitions\FileGroup('gallery', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), false),
             'registrationFileConfiguration' => new Definitions\FileGroup('registrationFileTemplate', ['^application/.*'], \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true),
             'rules' => new Definitions\FileGroup('rules', ['^application/.*'], \MapasCulturais\i::__('O arquivo enviado não é um documento válido.'), true),
-            'logo'  => new Definitions\FileGroup('logo',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'background' => new Definitions\FileGroup('background',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'),true),
-            'share' => new Definitions\FileGroup('share',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'),true),
-            'institute'  => new Definitions\FileGroup('institute',['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'favicon'  => new Definitions\FileGroup('favicon',['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'zipArchive'  => new Definitions\FileGroup('zipArchive',['^application/zip$'], \MapasCulturais\i::__('O arquivo não é um ZIP.'), true, null, true),
+            'logo'  => new Definitions\FileGroup('logo', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'background' => new Definitions\FileGroup('background', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'share' => new Definitions\FileGroup('share', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'institute'  => new Definitions\FileGroup('institute', ['^image/(jpeg|png)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'favicon'  => new Definitions\FileGroup('favicon', ['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], \MapasCulturais\i::__('O arquivo enviado não é uma imagem válida.'), true),
+            'zipArchive'  => new Definitions\FileGroup('zipArchive', ['^application/zip$'], \MapasCulturais\i::__('O arquivo não é um ZIP.'), true, null, true),
         ];
 
         // register file groups
@@ -3222,5 +3223,52 @@ class App extends \Slim\Slim{
             return $this->_config['routes']['readableNames'][$id];
         }
         return null;
+    }
+
+    /**
+     * Função para verificar exclusivamente se o usuário é avaliador de uma inscrição
+     *
+     * @return boolean
+     */
+    public function isEvaluator(Entities\Opportunity $opportunity, Entities\Registration $registration): bool
+    {
+        $app = App::i();
+
+        if($opportunity->owner === $app->user->profile)
+            return true;
+
+        /**
+         * Verifica se o usuário tem permissão direta de avaliar a inscrição
+         * sem considerar o papel de Admin ou superior na plataforma
+         */
+        $evaluateAction = $app->repo('RegistrationPermissionCache')->findBy([
+            'user' => $app->user,
+            'action' => 'evaluate',
+            'owner' => $registration,
+        ]);
+        if(count($evaluateAction) > 0)
+            return true;
+
+        $queryBuilder = $app->em->createQueryBuilder()
+            ->select('a')
+            ->from('\MapasCulturais\Entities\Agent', 'a')
+            ->innerJoin('\MapasCulturais\Entities\AgentRelation', 'ar')
+            ->where("ar.objectId = {$opportunity->id}")
+            ->andWhere("ar.agent = a")
+            ->andWhere("ar.group = 'group-admin'")
+            ->andWhere("ar.status = 1");
+        $query = $queryBuilder->getQuery();
+        /**
+         * @var $agentsAdmin Entities\Agent[]
+         */
+        $opportunityAdminAgents = $query->getResult();
+
+        // verifica se o usuário tem permissão sobre os agentes administradores da oportunidade
+        foreach ($opportunityAdminAgents as $agent) {
+            if($agent->canUser('control'))
+                return true;
+        }
+
+        return false;
     }
 }

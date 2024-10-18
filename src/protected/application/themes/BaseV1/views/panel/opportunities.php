@@ -3,7 +3,7 @@ use MapasCulturais\i;
 
 $this->layout = 'panel';
 $app = \MapasCulturais\App::i();
-$opportunitiesToEvaluate = $user->opportunitiesCanBeEvaluated;
+$opportunitiesToEvaluate = $user->getOpportunitiesNotAccountability();
 
 $ativos_num = count($user->enabledOpportunities);
 $permitido_num = count($user->hasControlOpportunities);
