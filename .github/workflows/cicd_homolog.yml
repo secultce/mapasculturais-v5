@@ -1,4 +1,4 @@
-name: ci
+name: CICD_HOMOLOG
 
 on:
   pull_request:
