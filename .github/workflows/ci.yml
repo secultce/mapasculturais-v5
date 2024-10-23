@@ -40,7 +40,7 @@ jobs:
           push: true
           tags: |
             secultceara/mapasculturais:homolog
-            secultceara/mapasculturais:${{ env.app_version }}
+            secultceara/mapasculturais:${{ env.app_version }}-rc
 
   DEPLOY:
     needs: BUILD
