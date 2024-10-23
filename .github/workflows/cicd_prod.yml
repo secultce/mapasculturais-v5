@@ -1,9 +1,9 @@
-name: ci
+name: CICD_PROD
 
 on:
   pull_request:
     branches: 
-      - homolog
+      - main
     types:
       - closed
   
@@ -16,6 +16,12 @@ jobs:
     steps: 
       
       - uses: actions/checkout@v4.1.1
+
+      - name: Read version file
+        id: get_version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "app_version=$VERSION" >> $GITHUB_ENV
       
       - name: Docker Login  
         uses: docker/login-action@v3.0.0
@@ -33,13 +39,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            secultceara/mapasculturais:homolog
+            secultceara/mapasculturais:latest
+            secultceara/mapasculturais:${{ env.app_version }}
 
-  DEPLOY:
-    needs: BUILD
-    runs-on: mapahomolog
-    steps:
-      - name: Pull da imagem do dockerhub
-        run: sudo docker pull secultceara/mapasculturais:homolog
-      - name: Restart do docker-compose para atualizar o container com a nova imagem
-        run: cd /opt/docker/mapa5 && sudo docker-compose down && sudo docker-compose up -d
