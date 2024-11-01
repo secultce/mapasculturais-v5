@@ -1,4 +1,71 @@
 $(document).ready(() => {
+    const formatDateTime = datetime => {
+        let [ date, time ] = datetime.split('.')[0].split(' ');
+        date = date.split('-').reverse().join('/');
+        return `${date} às ${time}`;
+    }
+
+    const renderRanking = (draw, category) => {
+        const { drawRegistrations } = draw;
+        const tableBodyElement = $('table#ranking-table tbody');
+        tableBodyElement.children()
+            .each((_, elem) =>
+                elem.style.display = 'none');
+        $('#categories-draw').children()
+            .each((_, elem) =>
+                elem.innerText === category ? elem.setAttribute('disabled', '') : '');
+
+        if(category !== '') {
+            $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
+        }
+
+        // Add new item on history and set as .active
+        const categoryContainerTitle = document.querySelector(`div[data-category="${category}"] > span.history-category`);
+        const newItemOnHistory = document.createElement('label');
+        newItemOnHistory.classList.add('active');
+        newItemOnHistory.setAttribute('data-draw-id', draw.id);
+        newItemOnHistory.setAttribute('data-category-name', category);
+        newItemOnHistory.setAttribute('onclick', 'filterTableRows(this)');
+        categoryContainerTitle.after(newItemOnHistory);
+
+        newItemOnHistory.innerHTML = `Sorteio realizado em: <br>
+            <strong>${formatDateTime(draw.createTimestamp.date)}<strong>`;
+        // Remove active class from all labels
+        $('label[data-draw-id]').each((_, elem) => {
+            elem.classList.remove('active');
+        });
+        // Set current category name to table title
+        document.getElementById('current-category-name').innerText = category;
+
+        drawRegistrations.sort((current, next) => {
+            return current.rank - next.rank;
+        })
+        let i = 0;
+        const arrayRankingCount = drawRegistrations.length;
+
+        const intervalId = setInterval(() => {
+            // Verifica se o índice iguala ou excede o tamanho do array e para de executar a função
+            if(i >= arrayRankingCount) {
+                clearInterval(intervalId);
+
+                const tr = $('<tr><td colspan="4">&#9989; Sorteio Finalizado</td></tr>')
+                tableBodyElement.append(tr);
+                return;
+            }
+
+            const rank = drawRegistrations[i];
+            i++;
+            const tr = $(`<tr data-draw-id="${draw.id}" class="approved"></tr>`)
+                .append($(`<td>#${rank.rank}</td>` +
+                    `<td><a href="${rank.registration.singleUrl}">${rank.registration.number}</a></td>` +
+                    `<td><a href="/agente/${rank.registration.owner.id}">${rank.registration.owner.name}</a></td>` +
+                    `<td>Selecionado</td>`));
+
+            tableBodyElement.append(tr);
+            document.getElementById('ranking-table').scrollIntoView();
+        }, 200)
+    };
+
     $('#draw-button').on('click', async e => {
         e.preventDefault();
 
@@ -116,72 +183,6 @@ $(document).ready(() => {
 
     document.querySelector('label[data-draw-id]').click();
 
-    const renderRanking = (draw, category) => {
-        const { drawRegistrations } = draw;
-        const tableBodyElement = $('table#ranking-table tbody');
-        tableBodyElement.children()
-            .each((_, elem) =>
-                elem.style.display = 'none');
-        $('#categories-draw').children()
-            .each((_, elem) =>
-                elem.innerText === category ? elem.setAttribute('disabled', '') : '');
-
-        if(category !== '') {
-            $('#drawed-categories-filter').append(`<option selected>${category}</option>`);
-        }
-
-        // Add new item on history and set as .active
-        const categoryContainerTitle = document.querySelector(`div[data-category="${category}"] > span.history-category`);
-        const newItemOnHistory = document.createElement('label');
-        newItemOnHistory.classList.add('active');
-        newItemOnHistory.setAttribute('data-draw-id', draw.id);
-        newItemOnHistory.setAttribute('data-category-name', category);
-        newItemOnHistory.setAttribute('onclick', 'filterTableRows(this)');
-        categoryContainerTitle.after(newItemOnHistory);
-
-        newItemOnHistory.innerHTML = `Sorteio realizado em: <br>
-            <strong>${formatDateTime(draw.createTimestamp.date)}<strong>`;
-        // Remove active class from all labels
-        $('label[data-draw-id]').each((_, elem) => {
-            elem.classList.remove('active');
-        });
-        // Set current category name to table title
-        document.getElementById('current-category-name').innerText = category;
-
-        drawRegistrations.sort((current, next) => {
-            return current.rank - next.rank;
-        })
-        let i = 0;
-        const arrayRankingCount = drawRegistrations.length;
-
-        const intervalId = setInterval(() => {
-            // Verifica se o índice iguala ou excede o tamanho do array e para de executar a função
-            if(i >= arrayRankingCount) {
-                clearInterval(intervalId);
-
-                const tr = $('<tr><td colspan="4">&#9989; Sorteio Finalizado</td></tr>')
-                tableBodyElement.append(tr);
-                return;
-            }
-
-            const rank = drawRegistrations[i];
-            i++;
-            const tr = $(`<tr data-draw-id="${draw.id}" class="approved"></tr>`)
-                .append($(`<td>#${rank.rank}</td>` +
-                    `<td><a href="${rank.registration.singleUrl}">${rank.registration.number}</a></td>` +
-                    `<td><a href="/agente/${rank.registration.owner.id}">${rank.registration.owner.name}</a></td>` +
-                    `<td>Selecionado</td>`));
-
-            tableBodyElement.append(tr);
-            document.getElementById('ranking-table').scrollIntoView();
-        }, 200)
-    };
-
-    const formatDateTime = datetime => {
-        let [ date, time ] = datetime.split('.')[0].split(' ');
-        date = date.split('-').reverse().join('/');
-        return `${date} às ${time}`;
-    }
 });
 
 const filterTableRows = target => {
