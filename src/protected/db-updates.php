@@ -2051,4 +2051,9 @@ $$
         __exec("ALTER TABLE tado ADD cpf_manager varchar(255) DEFAULT NULL");
     },
 
+    'insert total phases' => function() {
+        // Datas de feriados nacionais
+        __exec("INSERT INTO term(taxonomy,term,description) VALUES ('phases',9,'Total de fases')");
+    },
+
 ] + $updates ;
