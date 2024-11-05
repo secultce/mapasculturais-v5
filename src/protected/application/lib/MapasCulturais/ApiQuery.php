@@ -1865,7 +1865,7 @@ class ApiQuery {
             $pkey = $this->addSingleParam($this->_permission);
             $_uid = $user->id;
             
-            if(($this->_permission != 'view' || $class::isPrivateEntity()) && (!$this->usesOriginSubsite || !$this->adminInSubsites)) {
+            if(($this->_permission != 'view' || $class::isPrivateEntity()) && (!$this->usesOriginSubsite)) {
                 $this->joins .= " JOIN e.__permissionsCache $alias WITH $alias.action = $pkey AND $alias.userId = $_uid ";
                 
             } else {
@@ -1890,6 +1890,8 @@ class ApiQuery {
 
                     $admin_where = implode(' OR ', $admin_where);
                     $admin_where = "OR ($admin_where)";
+                } else {
+                    $admin_where = "OR (e._subsiteId IS NULL)";
                 }
                 
                 if($this->usesStatus && $this->_permission == 'view' && !$class::isPrivateEntity()) {

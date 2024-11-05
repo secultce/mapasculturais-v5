@@ -528,19 +528,13 @@ class Module extends \MapasCulturais\Module{
             if ($last_phase->isLastPhase) {
                 $this->errorJson(i::__('Já foi criada a última fase!'), 400);
             }
-
-            $_phases = [
-                \MapasCulturais\i::__('Segunda fase'),
-                \MapasCulturais\i::__('Terceira fase'),
-                \MapasCulturais\i::__('Quarta fase'),
-                \MapasCulturais\i::__('Quinta fase'),
-                \MapasCulturais\i::__('Sexta fase'),
-                \MapasCulturais\i::__('Sétima fase'),
-                \MapasCulturais\i::__('Oitava fase'),
-                \MapasCulturais\i::__('Nona fase'),
-                \MapasCulturais\i::__('Décima fase')
-            ];
-
+            // Buscando o total de fases configurado no banco de dados
+            $termsPhases = $app->repo('Term')->findOneBy(['taxonomy' => 'phases']);
+            $_phases = [];
+            // Criando um array com o total das fases
+            for ($i=0; $i < $termsPhases->term; $i++) { 
+                array_push($_phases, 'Nova fase ' . ($i + 1) );
+            }
             $phases = self::getPhases($parent);
 
             $num_phases = count($phases);
