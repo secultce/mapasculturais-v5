@@ -104,18 +104,19 @@ use MapasCulturais\i;
             <span ng-if="!usingRegistrationsFilters() && data.registrationsAPIMetadata.count === 1"><?php i::_e("1 inscrição.");?></span>
             <span ng-if="usingRegistrationsFilters() && data.registrationsAPIMetadata.count === 1"><?php i::_e("1 inscrição encontrada com os filtros selecionados.");?></span>
             <span ng-if="!usingRegistrationsFilters() && data.registrationsAPIMetadata.count > 1">
-                {{data.registrations.length}} <i> de {{ data.registrationsAPIMetadata.count }}</i> <?php i::_e("inscrições.");?>
+                {{data.registrations.length}} <?php i::_e("inscrições.");?>
                 <?php if($entity->registrationLimit > 0):?>
                     | <?php i::_e("Número máximo de vagas na oportunidade:");?> <?php echo $entity->registrationLimit;?>
                 <?php endif;?>
             </span>
+
             <div ng-if="usingRegistrationsFilters() && data.registrationsAPIMetadata.count > 1">
                 <div ng-if="data.registrations.length === 0">
                     <?php i::_e("Nenhuma inscrição encontrada com os filtros selecionados."); ?>
                 </div>
                 <div ng-if="data.registrations.length >= 1 ">
                     <strong> {{ data.registrations.length }} </strong>
-                    <span ng-if="data.registrationsAPIMetadata.count > 1"> de {{ data.registrationsAPIMetadata.count }}</i> </span>
+<!--                    <span ng-if="data.registrationsAPIMetadata.count > 1"> de {{ data.registrationsAPIMetadata.count }}</i> </span>-->
                     <span ng-if="data.registrations.length === 1"> <?php i::_e("inscrição encontrada"); ?> </span>
                     <span ng-if="data.registrations.length > 1"> <?php i::_e("inscrições encontradas"); ?> </span>
                     <?php i::_e(" com os filtros selecionados."); ?>
