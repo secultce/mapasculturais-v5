@@ -191,7 +191,7 @@
 
                     // Obtém o campo condicional pelo ID do campo a que foi condicionado
                     if (field.conditional) {
-                        fieldId = parseInt(field.conditionalField.split('_').pop());
+                        fieldId = parseInt(field.conditionalField?.split('_').pop());
                     }
 
                     return bonusFieldsIds?.includes(fieldId);
