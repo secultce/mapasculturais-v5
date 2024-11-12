@@ -1,8 +1,8 @@
 <?php
 
 return [
-    // 'auth.provider' => 'Fake',
-    'auth.provider' => '\MultipleLocalAuth\Provider',
+     'auth.provider' => 'Fake',
+//    'auth.provider' => '\MultipleLocalAuth\Provider',
     'auth.config' => [
         'salt' => 'LT_SECURITY_SALT_SECURITY_SALT_SECURITY_SALT_SECURITY_SALT_SECU',
         'timeout' => '24 hours',
