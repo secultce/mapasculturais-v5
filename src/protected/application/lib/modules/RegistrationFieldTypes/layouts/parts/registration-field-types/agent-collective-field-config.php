@@ -21,6 +21,10 @@ foreach ($agent_fields as $field) {
     } else {
         $fields_options[$field] = $field;
     }
+    // Removendo opção de adicionar a data de nascimento ou fundação
+    if($field == 'dataDeNascimento') {
+        unset($fields_options[$field]);
+    }
 }
 ?>
 <div ng-if="field.fieldType === 'agent-collective-field'" >
