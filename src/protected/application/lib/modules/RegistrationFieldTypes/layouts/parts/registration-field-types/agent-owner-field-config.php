@@ -37,6 +37,10 @@ foreach ($agent_fields as $field) {
     } else {
         $fields_options[$field] = $field;
     }
+    // Removendo opção de adicionar a data de nascimento
+    if($field == 'dataDeNascimento') {
+        unset($fields_options[$field]);
+    }
 }
 // eval(\psy\sh());
 ?>
