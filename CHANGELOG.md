@@ -7,7 +7,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.9.4-rc3] - 2024-11-14
 ### Corrigido
 - Corrigido renderização da página em relatório de graficos.
-- 
+
+## [5.9.4-rc2] - 2024-11-14
+### Corrigido
+- Corrigido renderização da página em relatório de graficos.
+
 ## [5.9.4-rc1] - 2024-11-07
 ### Corrigido
 - Corrigido renderização de campos da pré visualização de formulário.
