@@ -40,13 +40,13 @@ if (isset($series) && is_array($series)) {
 /**
  * Calcula a largura em porcentagem para o gráfico, baseado na quantidade de dados
  */
+
 $count_data = function ( $data ) use ( $print ) {
 
     if ( $print ) {
         return 100;
     }
-
-    if ( count( $data ) < 30 || (count( $data ) * 2) < 100) {
+    if ( (!is_array($data) && !($data instanceof Countable)) || count($data) < 30 || (count($data) * 2) < 100) {
         return 100;
     } else {
         return count( $data ) * 2;
@@ -57,6 +57,19 @@ $width = $width ?? '50vw';
 $height = $height ?? '50vw';
 
 $route = MapasCulturais\App::i()->createUrl('reports', $action, ['opportunity_id' => $opportunity->id, 'action' => $action]);
+//Veriicação se existe o indice data por depender da quantidade de dados
+if( !isset($series[0]['data']) ) {
+    foreach ($series as $key => $dataSeries) {
+        $series[$key]['data'] = 0;
+    }
+}
+$isSeriesData = isset($series[0]['data']);
+//Padronizando o valor da variável $width
+$widthData = $width;
+
+//se não existir dados então atribui o valor padrao da largura da variavel $width
+($isSeriesData) ?? $widthData =  $series[0]['data'];
+
 
 ?>
 
