@@ -4,6 +4,14 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.5] - 2024-11-25
+### Corrigido
+- Corrigido renderização da lista de inscritos na aba de avaliação
+
+## [5.9.4] - 2024-11-18
+### Corrigido
+- Corrigido renderização da página em relatório de graficos
+
 ## [5.9.4-rc3] - 2024-11-14
 ### Corrigido
 - Corrigido renderização da página em relatório de graficos
