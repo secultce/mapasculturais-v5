@@ -1865,7 +1865,7 @@ class ApiQuery {
             $pkey = $this->addSingleParam($this->_permission);
             $_uid = $user->id;
             
-            if(($this->_permission != 'view' || $class::isPrivateEntity()) && (!$this->usesOriginSubsite)) {
+            if(($this->_permission != 'view' || $class::isPrivateEntity()) && (!$this->usesOriginSubsite || !$this->adminInSubsites)) {
                 $this->joins .= " JOIN e.__permissionsCache $alias WITH $alias.action = $pkey AND $alias.userId = $_uid ";
                 
             } else {
