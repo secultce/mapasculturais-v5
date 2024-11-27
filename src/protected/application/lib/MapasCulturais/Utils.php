@@ -211,6 +211,11 @@ class Utils {
             'avaliada' => 'monitorada',
         ];
 
+
+        if (!method_exists($opportunity, 'getMetadata')) {
+            return $text;
+        }
+
         if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
             $text = strtr($text, $terminology);
         }
