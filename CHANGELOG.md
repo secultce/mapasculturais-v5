@@ -4,6 +4,10 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.6] - 2024-11-29
+### Corrigido
+- Corrigindo bug de metadata do relacionamento de entidade com selos
+
 ## [5.9.5] - 2024-11-25
 ### Corrigido
 - Corrigido renderização da lista de inscritos na aba de avaliação
