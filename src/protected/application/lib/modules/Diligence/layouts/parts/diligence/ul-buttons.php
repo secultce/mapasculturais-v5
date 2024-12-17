@@ -1,11 +1,11 @@
 <ul class="abas clearfix">
-    <li class="active">
-        <a href="#diligence-principal" rel="noopener noreferrer" onclick="showRegistration()" id="tab-main-content-diligence-principal">Ficha</a>
+    <li class="active"  id="li-tab-ficha-diligence">
+        <a href="#registration-content-all" rel="noopener noreferrer" onclick="showRegistration()" id="">Ficha</a>
     </li>
     <?php
     if (!$sendEvaluation) : ?>
         <li class="" id="li-tab-diligence-diligence">
-            <a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>
+            <a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="">Diligência</a>
         </li>
     <?php endif; ?>
     <li class="" style="float: right;">

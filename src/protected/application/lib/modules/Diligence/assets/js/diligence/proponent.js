@@ -60,7 +60,7 @@ $(document).ready(function () {
             })
 
             MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
-            const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+            const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
@@ -146,6 +146,34 @@ $(document).ready(function () {
     })
 
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     const urlCompleta = window.location.href;
+//     console.log({urlCompleta})
+// // Conteúdo a ser procurado
+//     const conteudoProcurado = '/#/tab=main-content-diligence-diligence';
+
+// // Verificando se a URL contém o conteúdo
+//     const contemConteudo = urlCompleta.includes(conteudoProcurado);
+
+//     if (contemConteudo) {
+//         console.log("A URL contém o conteúdo especificado.");
+//         // $("#li-tab-ficha-diligence").removeClass('active');
+//         // $("#li-tab-diligence-diligence").addClass('active');
+//         // $("#diligence-diligence").show();
+//         // $("#diligence-principal").hide();
+//         // Faça algo caso o conteúdo seja encontrado (ex: exiba uma mensagem, execute uma função, etc.)
+//     } else {
+//         $("#tab-main-content-diligence-principal").addClass('active');
+//     }
+//     setTimeout(() => {
+//         // $("#diligence-principal").show();
+//         // $("#li-tab-diligence-diligence").removeClass('active');
+//         // $("#li-tab-ficha-diligence").addClass('active');
+//         console.log('setTimeout')
+//         // $("#diligence-diligence").show();
+//     }, 1500);
+// });
 
 function hideAnswerDraft()
 {

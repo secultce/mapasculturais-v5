@@ -10,10 +10,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 $this->applyTemplateHook("body-diligence-multi", "before");
 $this->applyTemplateHook("body-diligence-multi-div", "begin");
 ?>
-<div>
-    <hr>
-</div>
-<div class="import-financial-report" style="margin-top: 15px">
+<div class="import-financial-report" style="margin-top: 15px;">
 
     <?php
     //Para mostrar o botão de excluir para gestores da oportuniade

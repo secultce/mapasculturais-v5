@@ -29,10 +29,7 @@ $tado = DiligenceRepo::getTado($context['entity']);
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
 ?>
-
-<div class="tabs-content">
-    <div id="diligence-principal"></div>
-    <div id="diligence-diligence">
+    <div id="diligence-diligence" class="aba-content">
         <p id="paragraph_loading_content">
             <label for="">
                 Carregando ... <img id="img-loading-content" />
@@ -129,5 +126,5 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             </div>
         </div>
     </div>
-</div>
+
 <?php $this->applyTemplateHook('tabs', 'after'); ?>
