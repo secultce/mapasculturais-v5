@@ -173,4 +173,23 @@ class Diligence{
 
         return $result;
     }
+
+    /**
+     * Verifica se quem está logado tem controle na opp. e se é o fiscal de uma diligência
+     * @param $registration
+     * @return DiligenceEntity|null
+     */
+    public static function getIsAuditor($registration)
+    {
+        $app = App::i();
+        $auditorDiligence = $app->repo(DiligenceEntity::class)->findOneBy(['registration' => $registration], ['id' => 'desc']);
+
+        $isAdmin = $auditorDiligence->registration->opportunity->canUser("@control", $app->user);
+        if($auditorDiligence->openAgent->userId !== $app->user->id && !$isAdmin) {
+            $app->setCookie("denied-auditor", 'Esse monitoramento já está sendo acompanhado por outro Fiscal', time()+3600);;
+            $app->redirect($app->createUrl('oportunidade', $auditorDiligence->registration->opportunity->id));
+        }
+        return $auditorDiligence;
+    }
+
 }

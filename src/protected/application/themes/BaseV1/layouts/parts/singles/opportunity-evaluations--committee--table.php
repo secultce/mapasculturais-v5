@@ -1,10 +1,20 @@
-<?php $this->applyTemplateHook('opportunity-evaluations--committee--table','before'); ?>
+<?php
+use MapasCulturais\App;
+
+$app = App::i();
+
+$this->applyTemplateHook('opportunity-evaluations--committee--table','before'); ?>
 <header id="header-inscritos" class="clearfix">
     <?php $this->applyTemplateHook('opportunity-evaluations--committee--table','begin'); ?>
 
     <h3><?php \MapasCulturais\i::_e("Avaliações");?></h3>
 </header>
+
 <?php
+if(!empty($app->getCookie("denied-auditor"))) {
+    echo '<div class="alert danger">' . $app->getCookie("denied-auditor") . ' </div>';
+    $app->deleteCookie("denied-auditor");
+}
 
 if($entity->isUserEvaluationsSent()): ?>
     <div id='status-info' class="alert success">

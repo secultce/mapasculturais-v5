@@ -1,5 +1,4 @@
 <?php
-
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
@@ -9,6 +8,9 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $this->applyTemplateHook("body-diligence-multi", "before");
 $this->applyTemplateHook("body-diligence-multi-div", "begin");
+
+DiligenceRepo::getIsAuditor($entity->id);
+
 ?>
 <div>
     <hr>
