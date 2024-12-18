@@ -12,10 +12,7 @@ $this->applyTemplateHook("body-diligence-multi-div", "begin");
 DiligenceRepo::getIsAuditor($entity->id);
 
 ?>
-<div>
-    <hr>
-</div>
-<div class="import-financial-report" style="margin-top: 15px">
+<div class="import-financial-report" style="margin-top: 15px;">
 
     <?php
     //Para mostrar o botão de excluir para gestores da oportuniade

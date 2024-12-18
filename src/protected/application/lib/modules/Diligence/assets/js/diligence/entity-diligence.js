@@ -130,6 +130,7 @@ var EntityDiligence = (function(){
     {
         $("#btn-open-diligence").attr('disabled', true);
         $("#btn-open-diligence").addClass('btn-diligence-open-desactive');
+        $(".btn-diligence-open-active").addClass('btn-diligence-open-desactive');
     }
     //Remove o botão de abrir diligencia
     function removeBtnOpenDiligence()

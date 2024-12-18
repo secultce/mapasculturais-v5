@@ -45,12 +45,15 @@ $_params = [
 
 <article class="main-content registration" ng-controller="OpportunityController">
     <?php $this->part('singles/registration--header', $_params); ?>
-        <?php $this->applyTemplateHook('content-diligence','begin'); ?>
-            <article id="diligence">
-                
-            </article>
+      
+
+    <div class="tabs-content">
+         <?php $this->applyTemplateHook('content-diligence','begin'); ?>
+           
         <?php $this->applyTemplateHook('content-diligence','end'); ?>
-    <article id="registration-content-all">
+
+    <article id="registration-content-all" class="aba-content">
+
         <?php $this->applyTemplateHook('form','begin'); ?>
 
         <?php $this->part('singles/registration-single--header', $_params) ?>
@@ -81,6 +84,7 @@ $_params = [
 
         <?php $this->applyTemplateHook('form','end'); ?>
     </article>
+    </div>
     <?php $this->part('singles/registration--valuers-list', $_params) ?>
 </article>
 <article id="sidebars">
