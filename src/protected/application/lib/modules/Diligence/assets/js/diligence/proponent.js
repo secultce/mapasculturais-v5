@@ -149,34 +149,6 @@ $(document).ready(function () {
 
 });
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const urlCompleta = window.location.href;
-//     console.log({urlCompleta})
-// // Conteúdo a ser procurado
-//     const conteudoProcurado = '/#/tab=main-content-diligence-diligence';
-
-// // Verificando se a URL contém o conteúdo
-//     const contemConteudo = urlCompleta.includes(conteudoProcurado);
-
-//     if (contemConteudo) {
-//         console.log("A URL contém o conteúdo especificado.");
-//         // $("#li-tab-ficha-diligence").removeClass('active');
-//         // $("#li-tab-diligence-diligence").addClass('active');
-//         // $("#diligence-diligence").show();
-//         // $("#diligence-principal").hide();
-//         // Faça algo caso o conteúdo seja encontrado (ex: exiba uma mensagem, execute uma função, etc.)
-//     } else {
-//         $("#tab-main-content-diligence-principal").addClass('active');
-//     }
-//     setTimeout(() => {
-//         // $("#diligence-principal").show();
-//         // $("#li-tab-diligence-diligence").removeClass('active');
-//         // $("#li-tab-ficha-diligence").addClass('active');
-//         console.log('setTimeout')
-//         // $("#diligence-diligence").show();
-//     }, 1500);
-// });
-
 function hideAnswerDraft()
 {
     $("#div-btn-actions-proponent").hide();
