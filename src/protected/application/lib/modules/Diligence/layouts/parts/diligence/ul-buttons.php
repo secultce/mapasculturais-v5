@@ -8,12 +8,12 @@
             <a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="">Diligência</a>
         </li>
     <?php endif; ?>
-    <li class="" style="float: right;">
-        <button type="button"
+    <li class="" id="li-btn-opend-diligence" style="float: right;">
+        <a href="#diligence-diligence" rel="noopener noreferrer"
                 class="btn btn-primary btn-diligence-open-active"
                 id="btn-open-diligence"
                 onclick="openDiligence(0)">
             Abrir Diligência
-        </button>
+        </a>
     </li>
 </ul>
