@@ -178,6 +178,10 @@
     box-shadow: 2px 2px 2px #a6a6a6;
 }
 
+.btn-diligence-open-active {
+    color: white !important;
+}
+
 .btn-success-rec {
     color: #fff !important;
     background-color: #085E55 !important;

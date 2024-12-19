@@ -253,7 +253,7 @@ function saveDiligence(status, st, idDiligence) {
         //Mensagem de confirmação
         Swal.fire({
             title: "Confirmar o envio da diligência?",
-            text: "Essa ação não pode ser desfeita. Por isso, revise sua diligência com cuidado.",
+            text: "Você pode desfazer o envio em até 10 segundos. Revise sua diligência com cuidado.",
             showConfirmButton: true,
             showCloseButton: false,
             showCancelButton: true,
@@ -290,6 +290,9 @@ function sendAjaxDiligence(status, idDiligence) {
             if (res.status == 200) {
                 showSaveContent(status)
                 $("#id-input-diligence").val(res.entityId);
+            }
+            if (res.status == 403) {
+                diligenceMessage.messageError('Ops! Um erro.', res.message, 3500);
             }
         },
         error: function () {
