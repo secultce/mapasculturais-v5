@@ -164,6 +164,6 @@ class Tado extends \MapasCulturais\Controller
         };
 
         $class->data = $notifi;
-        $notification->create($class, $msgTado);
+        $notification->create($class, 'diligence');
     }
 }
