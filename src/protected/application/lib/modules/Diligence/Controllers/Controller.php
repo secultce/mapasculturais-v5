@@ -36,7 +36,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
         $isDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $this->data['registration']]);
 
-        if(is_null($isDiligence)){
+        if(is_null($isDiligence) || $isDiligence->open_agent_id == $app->user->profile_id){
             if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
                 $diligences = $app->repo(EntityDiligence::class)->findBy([
                     'registration' => $registration,

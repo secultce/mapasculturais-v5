@@ -104,7 +104,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
         <div class="flex-container" id="btn-actions-proponent">
             <?php
             if ($showText || is_null($diligenceAndAnswers)) {
-                $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                $this->part('diligence/description', ['placeHolder' => $placeHolder, 'isProponent' => $context['isProponent']]);
                 $this->part('diligence/message-success-draft');
                 $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText]);
             }

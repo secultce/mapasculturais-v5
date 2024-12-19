@@ -21,7 +21,7 @@
 
 .btn-send-diligence {
     font-size: medium;
-    border: none;
+    border: 1px solid #10776d;
     font-weight: 600;
     cursor: pointer;
     background: #085E55;
