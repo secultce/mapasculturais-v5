@@ -34,26 +34,33 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
 
-        if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
-            $diligences = $app->repo(EntityDiligence::class)->findBy([
-                'registration' => $registration,
-                'status' => [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
-            ]);
+        $isDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $this->data['registration']]);
 
-            if (count($diligences) > 0) {
-                $this->json([
-                    'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
-                    'error' => 'multiple_diligence_not_alowed',
-                ], 400);
+        if(is_null($isDiligence)){
+            if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
+                $diligences = $app->repo(EntityDiligence::class)->findBy([
+                    'registration' => $registration,
+                    'status' => [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+                ]);
 
-                return;
+                if (count($diligences) > 0) {
+                    $this->json([
+                        'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
+                        'error' => 'multiple_diligence_not_alowed',
+                    ], 400);
+
+                    return;
+                }
             }
+
+            $answer = new EntityDiligence();
+            $entity = $answer->createOrUpdate($this);
+
+            $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
+        }else{
+            $this->json(['message' => 'Essa prestação de conta já está em diligência.', 'status' => 403]);
         }
 
-        $answer = new EntityDiligence();
-        $entity = $answer->createOrUpdate($this);
-
-        $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
     }
 
     /**
