@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Respect\Validation\Rules\Json;
 use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
+use Diligence\Entities\Diligence as DiligenceEntity;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
 
@@ -95,7 +96,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         // Notificando a pessoa fiscal
 
         $notification = new NotificationDiligence();
-        $notification->create($class, 'answer');
+        $notification->create($class, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
 
