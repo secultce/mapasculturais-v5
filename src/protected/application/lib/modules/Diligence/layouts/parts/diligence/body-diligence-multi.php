@@ -35,10 +35,15 @@ DiligenceRepo::getIsAuditor($entity->id);
 <?php if ($diligenceAndAnswers):
     if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND): ?>
         <div>
-
-            <h5>
-                <?php i::_e("Diligências enviadas"); ?>
-            </h5>
+            <div style="display: flex;justify-content: space-between;">
+                <h5>
+                    <?php i::_e("Diligências enviadas"); ?>
+                </h5>
+                <h5 style="font-size: 14px;">
+                    Status Atual:
+                    <label class="label-diligence-status"  id="label-status-actual"></label>                   
+                </h5>
+            </div>
             <div style="margin-top: 25px;">
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
