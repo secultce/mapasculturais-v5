@@ -48,7 +48,7 @@ $this->jsObject['countFileUpload'] = count($files);
             Salvar
             <i class="fas fa-save"></i>
         </button>
-        <button id="btn-send-diligence-proponente" class="btn-save-diligence" title="Salva e envia a sua resposta para a comissão avaliadora." onclick="saveAnswerProponente(3)">
+        <button id="btn-send-diligence-proponente" class="btn-send-diligence" title="Salva e envia a sua resposta para a comissão avaliadora." onclick="saveAnswerProponente(3)">
             Enviar resposta
             <i class="fas fa-paper-plane"></i>
         </button>
