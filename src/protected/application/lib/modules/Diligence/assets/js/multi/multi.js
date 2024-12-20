@@ -41,8 +41,8 @@ $(document).ready(function () {
     //Retornando o valor da situação
     getSituacion();
     $( "#situacion-refo-multi" ).on( "change", function(e) {
-
         sendSituacion(e.target.value);
+        $("#label-status-actual").html($(this).find("option:selected").text());
         $(".multi-itens-select").show();
         $("#p-btn-tado").show();
         
