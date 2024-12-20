@@ -2,12 +2,14 @@
 namespace Diligence\Entities;
 
 use DateTime;
-use \MapasCulturais\App;
+use Diligence\Entities\NotificationDiligence;
+use MapasCulturais\App;
 use MapasCulturais\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Respect\Validation\Rules\Json;
 use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
+use Diligence\Entities\Diligence as DiligenceEntity;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Carbon\Carbon;
 
@@ -89,17 +91,18 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         App::i()->applyHook('entity(diligence).createAnswer:before');
 
         $repo       = new DiligenceRepo();
-
         //Buscando a ultima diligencia da inscrição passado por parametro
         $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
+        // Notificando a pessoa fiscal
 
+        $notification = new NotificationDiligence();
+        $notification->create($class, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
 
         if($class->data['idAnswer'] > 0){
             //Se tiver registro de diligência
             $answerDiligences = App::i()->repo('Diligence\Entities\AnswerDiligence')->find($class->data['idAnswer']);
-
             $answerDiligences->answer = $class->data['answer'];
             $answerDiligences->createTimestamp = new DateTime();
             $answerDiligences->registration = $reg;
@@ -118,7 +121,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $save = self::saveEntity($answer);
        
         App::i()->applyHook('entity(diligence).createAnswer', [&$answer]);
-        
+
         return json_encode(['message' => 'success', 'entityId' => $save['entityId'], 'status' => 200]);
     }
 

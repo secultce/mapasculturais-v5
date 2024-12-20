@@ -147,8 +147,6 @@ class Tado extends \MapasCulturais\Controller
     //Notificação via plataforma do mapa cultural ao proponente
     public function sendNotificationTagoGeneration()
     {
-        $msgTado = 'O TERMO DE ACEITAÇÃO DEFINITIVA DO OBJETO, foi gerado e você já pode verificar acessando o sua inscrição: Nº ';
-       
         $app = App::i();
         $ag = $app->repo('Registration')->find($this->data['id']);
         //Inscrição, agente fiscal e agente proponente
@@ -164,6 +162,6 @@ class Tado extends \MapasCulturais\Controller
         };
 
         $class->data = $notifi;
-        $notification->create($class, $msgTado);
+        $notification->create($class, EntityDiligence::TYPE_NOTIFICATION_TADO);
     }
 }
