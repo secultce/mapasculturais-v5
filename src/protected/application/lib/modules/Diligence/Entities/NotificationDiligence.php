@@ -1,6 +1,8 @@
 <?php
 
 namespace Diligence\Entities;
+
+use Diligence\Entities\Diligence as EntityDiligence;
 use \MapasCulturais\App;
 use MapasCulturais\Entities\Notification;
 use Diligence\Repositories\Diligence as DiligenceRepo;
@@ -50,14 +52,18 @@ class NotificationDiligence {
     public function generateMessage($class, $type) : string
     {
         $app = App::i();
-        if($type == 'diligence') {
+        $numberRegis = '<a href="'. $app->createUrl('inscricao', $class->data['registration']).'">'.$class->data['registration'].'</a>';
+        if($type == EntityDiligence::TYPE_NOTIFICATION_AUDITOR) {
             // Mensagem para o proponente
-            $numberRegis = '<a href="'. $app->createUrl('inscricao', $class->data['registration']).'">'.$class->data['registration'].'</a>';
             return 'Um parecerista abriu uma diligência para você responder na inscrição de número: '.$numberRegis;
-        } else {
+        }
+        if($type == EntityDiligence::TYPE_NOTIFICATION_PROPONENT) {
             // Mensagem para o fiscal
-            $numberRegis = '<a href="'.$app->createUrl('inscricao', $class->data['registration']).'">'.$class->data['registration'].'</a>';
             return "Houve uma resposta para prestação de conta de número: ".$numberRegis;
+        }
+        if($type == EntityDiligence::TYPE_NOTIFICATION_TADO) {
+            // Mensagem para o proponente
+            return "O TERMO DE ACEITAÇÃO DEFINITIVA DO OBJETO, foi gerado e você já pode verificar acessando o sua inscrição: Nº ".$numberRegis;
         }
     }
 
