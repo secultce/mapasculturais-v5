@@ -35,7 +35,10 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     const STATUS_OPEN = 2; // Para diligencias que está em aberto
     const STATUS_SEND = 3; // Para diligência enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências respondida pelo proponente
+    const TYPE_NOTIFICATION_AUDITOR =  'diligence';
+    const TYPE_NOTIFICATION_PROPONENT =  'answer';
 
+    const TYPE_NOTIFICATION_TADO =  'tado';
     /**
      * @var integer
      *
