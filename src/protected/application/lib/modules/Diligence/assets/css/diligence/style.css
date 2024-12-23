@@ -279,3 +279,8 @@
 .d-none {
     display: none;
 }
+.label-diligence-status {
+    color: #085E55; 
+    font-weight: 700; 
+    font-size: 14px;
+}
