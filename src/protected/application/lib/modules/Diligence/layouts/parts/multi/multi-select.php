@@ -6,6 +6,7 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     <label style="font-weight: 500">Selecione o status da prestação de contas</label>
     <select name="" id="situacion-refo-multi" class="form-control-multi">
         <option value="all" disabled selected>-- Selecione --</option>
+        <option value="under_analysis">Em Análise</option>
         <option value="approved">Aprovada</option>
         <option value="partially">Parcialmente aprovada</option>
         <option value="disapproved">Reprovada</option>
