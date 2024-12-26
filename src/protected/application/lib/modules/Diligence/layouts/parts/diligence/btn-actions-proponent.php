@@ -20,7 +20,7 @@ $this->jsObject['countFileUpload'] = count($files);
         <span class="title-send-file">ENVIAR ARQUIVO</span><br>
         <?php if ($showText) { ?>
             <div id="div-upload-file-count">
-                <a class="js-open-editbox hltip" data-target="#answer-diligence" href="#" title="Click para anexar arquivo">Anexar arquivo</a>
+                <a class="js-open-editbox hltip" id="attach-dili-res-file" data-target="#answer-diligence" href="#" title="Click para anexar arquivo">Anexar arquivo</a>
                 <div id="answer-diligence" class="js-editbox mc-left" title="Anexar arquivo" data-submit-label="Enviar">
                     <form class="js-ajax-upload" id="upload-file-diligence" data-action="append" data-target=".import-diligence" data-group="answer-diligence" method="post" action="<?php echo $app->createUrl('diligence', 'upload', ['id' => $diligenceId]) ?>" enctype="multipart/form-data">
                         <div class="alert danger hidden"></div>

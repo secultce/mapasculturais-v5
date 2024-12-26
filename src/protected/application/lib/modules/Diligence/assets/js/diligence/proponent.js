@@ -147,6 +147,11 @@ $(document).ready(function () {
         MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
 
+    $('#attach-dili-res-file').on('click', () => {
+        const text = $('#descriptionDiligence').val();
+        
+        if (text.length) saveAnswerProponente(0);
+    });
 });
 
 function hideAnswerDraft()
