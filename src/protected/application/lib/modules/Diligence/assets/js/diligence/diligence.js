@@ -104,7 +104,7 @@ function openDiligence(status) {
     $("#descriptionDiligence").show();
     showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
-    $('#btn-actions-diligence').removeClass('d-none');
+    EntityDiligence.hideRegistration();
 }
 
 //Editando a descrição do rascunho.

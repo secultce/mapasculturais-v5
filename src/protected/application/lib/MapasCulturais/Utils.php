@@ -209,7 +209,7 @@ class Utils {
             'avaliado' => 'monitorado',
             'Avaliada' => 'Monitorada',
             'avaliada' => 'monitorada',
-            'Enviar inscrição' => 'Enviar prestação de conta'
+            'Enviar inscrição' => 'Enviar prestação de contas'
         ];
 
 

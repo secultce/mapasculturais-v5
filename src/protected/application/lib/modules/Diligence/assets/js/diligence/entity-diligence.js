@@ -50,7 +50,7 @@ var EntityDiligence = (function(){
 
     function hideRegistration() {
         $("#registration-content-all").hide();
-        $("#registration-valuers--admin").hide();        
+        $('#registration-attachments').hide();
     }
     
     function showRegistration() {
@@ -65,7 +65,7 @@ var EntityDiligence = (function(){
         var sentencaDesejada = "#/tab=diligence-diligence";
         if (urlAtual.includes(sentencaDesejada)) {
             $("#registration-content-all").hide();
-            $("#registration-valuers--admin").hide();
+            $('#registration-attachments').hide();
         } else {
             $("#diligence-diligence").hide();
 
