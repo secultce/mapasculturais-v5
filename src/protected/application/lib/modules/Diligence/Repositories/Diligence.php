@@ -186,11 +186,10 @@ class Diligence{
         $reg = $app->repo('Registration')->find($registration);
 
         $isAdmin = $reg->opportunity->canUser("@control", $app->user);
-        if(isset($auditorDiligence->openAgent->userId) && $auditorDiligence->openAgent->userId !== $app->user->id && !$isAdmin) {
-            $app->setCookie("denied-auditor", 'Esse monitoramento já está sendo acompanhado por outro Fiscal', time()+3600);;
-            $app->redirect($app->createUrl('oportunidade', $auditorDiligence->registration->opportunity->id));
+        if ($auditorDiligence && $auditorDiligence->openAgent->userId !== $app->user->id && !$isAdmin) {
+            $app->setCookie("denied-auditor", 'Esse monitoramento já está sendo acompanhado por outro Fiscal', time() + 3600);
+            $app->redirect($app->createUrl('oportunidade', $auditorDiligence->registration->opportunity->id) . '#/tab=evaluations');
         }
         return $auditorDiligence;
     }
-
 }

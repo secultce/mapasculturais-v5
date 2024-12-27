@@ -55,6 +55,7 @@ var EntityDiligence = (function(){
     
     function showRegistration() {
         $("#registration-content-all").show();
+        $('#registration-attachments').show();
     }
 
     function hideCommon()
