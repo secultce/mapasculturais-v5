@@ -1,12 +1,16 @@
 <?php
 
 use Diligence\Entities\AnswerDiligence;
+use Diligence\Entities\Diligence;
 use \MapasCulturais\App;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $app = App::i();
 
-$diligences = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['registration' => $entity->id]);
+$diligences = DiligenceRepo::findBy('Diligence\Entities\Diligence', [
+    'registration' => $entity->id,
+    'status' => Diligence::STATUS_SEND
+], ['createTimestamp' => 'asc']);
 $mostRecentDiligence = end($diligences);
 $diligenceId = $diligences ? $mostRecentDiligence->id : null;
 
