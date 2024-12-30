@@ -8,16 +8,13 @@ use MapasCulturais\Entities\Registration;
 
 class Diligence{
 
-    static public function findBy($className = 'Diligence\Entities\Diligence', $array): array
+    static public function findBy(string $className = 'Diligence\Entities\Diligence', array $criteria = [], array $orderBy = []): array
     {
         $app = App::i();  
-        $entity = $app->em->getRepository($className)->findBy($array);       
-        if(count($entity) > 0){
-            return $entity;
-        }
+        $entity = $app->em->getRepository($className)->findBy($criteria, $orderBy);
         return $entity;
     }
-    
+
     static public function getRegistrationAgentOpenAndAgent($number, $agentOpen, $agent): array
     {
         $app = App::i();  
