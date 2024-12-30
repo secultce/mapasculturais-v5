@@ -44,7 +44,7 @@ DiligenceRepo::getIsAuditor($entity->id);
                     <label class="label-diligence-status"  id="label-status-actual"></label>                   
                 </h5>
             </div>
-            <div style="margin-top: 25px;">
+            <div>
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
                         <b>
