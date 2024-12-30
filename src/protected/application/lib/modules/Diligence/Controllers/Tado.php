@@ -89,13 +89,14 @@ class Tado extends \MapasCulturais\Controller
             $tado->object           = $this->data['object'];
             $tado->registration     = $reg;
             $tado->conclusion       = $this->data['conclusion'];
-            $tado->status           = self::STATUS_DRAFT;
+            $tado->status           = $this->data['status'];
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
             $tado->nameManager      = $this->data['nameManager'];
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
             if ($entity["entityId"]) {
+                if ($this->data['status'] == 1) self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
                 self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
             }
         }
