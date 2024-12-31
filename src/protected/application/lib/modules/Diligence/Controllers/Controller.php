@@ -34,10 +34,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
-
+        // Consulta se tem diligencia
         $isDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $this->data['registration']]);
-
-        if(is_null($isDiligence) || $isDiligence->open_agent_id == $app->user->profile_id){
+        // Se não tiver diligencia ou se quem abriu a diligencia é a mesma pessoa logada poderá alterar o registro
+        if(is_null($isDiligence) || $isDiligence->openAgent->id == $app->user->profile->id){
             if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
                 $diligences = $app->repo(EntityDiligence::class)->findBy([
                     'registration' => $registration,
@@ -73,9 +73,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $app = App::i();
 
-        //ID é o número da inscrição
+        // ID é o número da inscrição
         if (isset($this->data['id'])) {
-            //Repositorio da Diligencia
+            // Repositorio da Diligencia
             $diligences = $app->repo('Diligence\Entities\Diligence')
                 ->findBy(
                     ['registration' => $this->data['id']],
