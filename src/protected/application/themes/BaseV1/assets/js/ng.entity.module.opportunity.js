@@ -125,7 +125,7 @@
                 
                 return $http.patch(this.getUrl('single', entity.id), data, {headers: {forceSave: true}}).
                     success(function(data, status){
-                        MapasCulturais.Messages.success(labels['changesSaved']);
+                        // MapasCulturais.Messages.success(labels['changesSaved']);
                         $rootScope.$emit('registration.update', {message: "Opportunity registration was updated ", data: data, status: status});
                     }).
                     error(function(data, status){
@@ -1461,6 +1461,7 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     $scope.sendRegistration = function(redirectUrl = false, isAccountability = false){
         var labels = MapasCulturais.gettext.moduleOpportunity;
         $timeout.cancel(saveTimeout); 
+        console.log($scope);
 
         $scope.saveRegistration().success(function(){
             var req = $scope.validateRegistration();

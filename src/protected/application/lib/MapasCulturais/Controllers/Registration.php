@@ -410,6 +410,12 @@ class Registration extends EntityController {
         if($errors = $registration->getSendValidationErrors()){
             $this->errorJson($errors);
         }else{
+            $registration_limit = (int)$registration->opportunity->registrationLimit;
+
+            if ($registration_limit && count($registration->opportunity->getSentRegistrations()) >= $registration_limit) {
+                $this->json(['message' => 'O número máximo de inscrições já foi atingido'], 400);
+            }
+
             $registration->cleanMaskedRegistrationFields();
             $registration->send();
 
