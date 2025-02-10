@@ -22,6 +22,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     const ANSWER_DRAFT      = 'resposta_rascunho';
     const ANSWER_SEND       = 'resposta_enviada';
 
+
     /**
      * Salva uma diligência
      *
@@ -33,27 +34,34 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
         $app = App::i();
         $registration = $app->repo('Registration')->find($this->data['registration']);
+        // Consulta se tem diligencia
+        $isDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $this->data['registration']]);
+        // Se não tiver diligencia ou se quem abriu a diligencia é a mesma pessoa logada poderá alterar o registro
+        if(is_null($isDiligence) || $isDiligence->openAgent->id == $app->user->profile->id){
+            if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
+                $diligences = $app->repo(EntityDiligence::class)->findBy([
+                    'registration' => $registration,
+                    'status' => [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
+                ]);
 
-        if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
-            $diligences = $app->repo(EntityDiligence::class)->findBy([
-                'registration' => $registration,
-                'status' => [EntityDiligence::STATUS_DRAFT, EntityDiligence::STATUS_OPEN, EntityDiligence::STATUS_SEND]
-            ]);
+                if (count($diligences) > 0) {
+                    $this->json([
+                        'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
+                        'error' => 'multiple_diligence_not_alowed',
+                    ], 400);
 
-            if (count($diligences) > 0) {
-                $this->json([
-                    'message' => 'Já foi aberta uma diligência para essa inscrição. Não é permitida a abertura de outra',
-                    'error' => 'multiple_diligence_not_alowed',
-                ], 400);
-
-                return;
+                    return;
+                }
             }
+
+            $answer = new EntityDiligence();
+            $entity = $answer->createOrUpdate($this);
+
+            $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
+        }else{
+            $this->json(['message' => 'Essa prestação de conta já está em diligência.', 'status' => 403]);
         }
 
-        $answer = new EntityDiligence();
-        $entity = $answer->createOrUpdate($this);
-
-        $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
     }
 
     /**
@@ -65,9 +73,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     {
         $app = App::i();
 
-        //ID é o número da inscrição
+        // ID é o número da inscrição
         if (isset($this->data['id'])) {
-            //Repositorio da Diligencia
+            // Repositorio da Diligencia
             $diligences = $app->repo('Diligence\Entities\Diligence')
                 ->findBy(
                     ['registration' => $this->data['id']],
@@ -113,7 +121,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         App::i()->applyHook('controller(diligence).notification:before');
         //Notificação no Mapa Cultural
         $notification = new NotificationDiligence();
-        $notification->create($this, '');
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_AUDITOR);
 
         $userDestination = $notification->userDestination($this);
         App::i()->applyHook('controller(diligence).notification:after');

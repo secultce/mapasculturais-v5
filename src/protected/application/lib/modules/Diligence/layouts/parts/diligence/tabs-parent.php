@@ -23,16 +23,12 @@ $placeHolder = "Digite aqui a sua diligência";
 
 //Tado
 $tado = DiligenceRepo::getTado($context['entity']);
-
 ?>
 <?php
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
 ?>
-
-<div class="tabs-content">
-    <div id="diligence-principal"></div>
-    <div id="diligence-diligence">
+    <div id="diligence-diligence" class="aba-content">
         <p id="paragraph_loading_content">
             <label for="">
                 Carregando ... <img id="img-loading-content" />
@@ -102,7 +98,7 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             <div class="d-none" id="btn-actions-diligence">
                 <?php
                 if ($showText || is_null($diligenceAndAnswers)) {
-                    $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                    $this->part('diligence/description', ['placeHolder' => $placeHolder, 'isProponent' => $context['isProponent']]);
                     $this->part('diligence/message-success-draft');
                     $this->part('diligence/btn-actions-diligence', [
                         'entity' => $context['entity'],
@@ -129,5 +125,5 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
             </div>
         </div>
     </div>
-</div>
+
 <?php $this->applyTemplateHook('tabs', 'after'); ?>

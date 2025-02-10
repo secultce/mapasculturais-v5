@@ -8,16 +8,13 @@ use MapasCulturais\Entities\Registration;
 
 class Diligence{
 
-    static public function findBy($className = 'Diligence\Entities\Diligence', $array): array
+    static public function findBy(string $className = 'Diligence\Entities\Diligence', array $criteria = [], array $orderBy = []): array
     {
         $app = App::i();  
-        $entity = $app->em->getRepository($className)->findBy($array);       
-        if(count($entity) > 0){
-            return $entity;
-        }
+        $entity = $app->em->getRepository($className)->findBy($criteria, $orderBy);
         return $entity;
     }
-    
+
     static public function getRegistrationAgentOpenAndAgent($number, $agentOpen, $agent): array
     {
         $app = App::i();  
@@ -172,5 +169,24 @@ class Diligence{
         ]);
 
         return $result;
+    }
+
+    /**
+     * Verifica se quem está logado tem controle na opp. e se é o fiscal de uma diligência
+     * @param $registration
+     * @return DiligenceEntity|null
+     */
+    public static function getIsAuditor($registration)
+    {
+        $app = App::i();
+        $auditorDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $registration], ['id' => 'desc']);
+        $reg = $app->repo('Registration')->find($registration);
+
+        $isAdmin = $reg->opportunity->canUser("@control", $app->user);
+        if ($auditorDiligence && $auditorDiligence->openAgent->userId !== $app->user->id && !$isAdmin) {
+            $app->setCookie("denied-auditor", 'Esse monitoramento já está sendo acompanhado por outro Fiscal', time() + 3600);
+            $app->redirect($app->createUrl('oportunidade', $auditorDiligence->registration->opportunity->id) . '#/tab=evaluations');
+        }
+        return $auditorDiligence;
     }
 }

@@ -17,17 +17,13 @@ $app->view->enqueueScript('app', 'diligence', 'js/diligence/proponent.js');
 $placeHolder = "Digite aqui a sua resposta";
 
 Carbon::setLocale('pt_BR');
-
+$tado = RepoDiligence::getTado($context['entity']);
 $this->applyTemplateHook('tabs', 'before');
 $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
-//Tado
-$tado = RepoDiligence::getTado($context['entity']);
 ?>
 
 <?php $this->applyTemplateHook('tabs', 'after'); ?>
-<div class="tabs-content">
-    <div id="diligence-principal"></div>
-    <div id="diligence-diligence">
+    <div id="diligence-diligence" class="aba-content">
         <!-- PARA O PROPONENTE -->
         <?php
         $diligenceType = $context['entity']->opportunity->use_multiple_diligence == 'Sim' ? 'multi' : 'common';
@@ -108,7 +104,7 @@ $tado = RepoDiligence::getTado($context['entity']);
         <div class="flex-container" id="btn-actions-proponent">
             <?php
             if ($showText || is_null($diligenceAndAnswers)) {
-                $this->part('diligence/description', ['placeHolder' => $placeHolder]);
+                $this->part('diligence/description', ['placeHolder' => $placeHolder, 'isProponent' => $context['isProponent']]);
                 $this->part('diligence/message-success-draft');
                 $this->part('diligence/btn-actions-proponent', ['entity' => $context['entity'], 'showText' => $showText]);
             }
@@ -117,4 +113,4 @@ $tado = RepoDiligence::getTado($context['entity']);
         <?php endif; ?>
         <!-- FIM PROPONENTE -->
     </div>
-</div>
+

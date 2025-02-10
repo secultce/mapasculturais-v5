@@ -1,5 +1,4 @@
 <?php
-
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
@@ -9,11 +8,11 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $this->applyTemplateHook("body-diligence-multi", "before");
 $this->applyTemplateHook("body-diligence-multi-div", "begin");
+
+DiligenceRepo::getIsAuditor($entity->id);
+
 ?>
-<div>
-    <hr>
-</div>
-<div class="import-financial-report" style="margin-top: 15px">
+<div class="import-financial-report" style="margin-top: 15px;">
 
     <?php
     //Para mostrar o botão de excluir para gestores da oportuniade
@@ -36,11 +35,16 @@ $this->applyTemplateHook("body-diligence-multi-div", "begin");
 <?php if ($diligenceAndAnswers):
     if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND): ?>
         <div>
-
-            <h5>
-                <?php i::_e("Diligências enviadas"); ?>
-            </h5>
-            <div style="margin-top: 25px;">
+            <div style="display: flex;justify-content: space-between;">
+                <h5>
+                    <?php i::_e("Diligências enviadas"); ?>
+                </h5>
+                <h5 style="font-size: 14px;">
+                    Status Atual:
+                    <label class="label-diligence-status"  id="label-status-actual"></label>                   
+                </h5>
+            </div>
+            <div>
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
                         <b>

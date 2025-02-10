@@ -21,7 +21,7 @@
 
 .btn-send-diligence {
     font-size: medium;
-    border: none;
+    border: 1px solid #10776d;
     font-weight: 600;
     cursor: pointer;
     background: #085E55;
@@ -164,15 +164,22 @@
 
 .btn-diligence-open-desactive {
     background-color: #dfdfdf !important;
-    cursor: not-allowed;
+    cursor: not-allowed !important;
     border: 1px solid #a6a6a6;
+    pointer-events:none;
+    color: white !important;
+    border-radius: 5px;
 }
 
 .btn-diligence-open-desactive:hover {
     background-color: #dfdfdf !important;
-    cursor: not-allowed;
+    cursor: not-allowed ;
     border: 1px solid #a6a6a6 !important;
     box-shadow: 2px 2px 2px #a6a6a6;
+}
+
+.btn-diligence-open-active {
+    color: white !important;
 }
 
 .btn-success-rec {
@@ -271,4 +278,9 @@
 
 .d-none {
     display: none;
+}
+.label-diligence-status {
+    color: #085E55; 
+    font-weight: 700; 
+    font-size: 14px;
 }

@@ -12,6 +12,8 @@ $(document).ready(function () {
 
     //Bloqueando aba para proponente
     $("#li-tab-diligence-diligence > a").remove();
+    $("#tab-diligence-diligence").remove();
+    
     $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
     $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
 
@@ -60,7 +62,7 @@ $(document).ready(function () {
             })
 
             MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
-            const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-main-content-diligence-diligence">Diligência</a>';
+            const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
                 $("#li-tab-diligence-diligence").append(ahref);
@@ -145,6 +147,11 @@ $(document).ready(function () {
         MapasCulturais.Messages.error('Erro ao carregar diligência');
     })
 
+    $('#attach-dili-res-file').on('click', () => {
+        const text = $('#descriptionDiligence').val();
+        
+        if (text.length) saveAnswerProponente(0);
+    });
 });
 
 function hideAnswerDraft()

@@ -89,13 +89,14 @@ class Tado extends \MapasCulturais\Controller
             $tado->object           = $this->data['object'];
             $tado->registration     = $reg;
             $tado->conclusion       = $this->data['conclusion'];
-            $tado->status           = self::STATUS_DRAFT;
+            $tado->status           = $this->data['status'];
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
             $tado->nameManager      = $this->data['nameManager'];
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
             if ($entity["entityId"]) {
+                if ($this->data['status'] == 1) self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
                 self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
             }
         }
@@ -147,8 +148,6 @@ class Tado extends \MapasCulturais\Controller
     //Notificação via plataforma do mapa cultural ao proponente
     public function sendNotificationTagoGeneration()
     {
-        $msgTado = 'O TERMO DE ACEITAÇÃO DEFINITIVA DO OBJETO, foi gerado e você já pode verificar acessando o sua inscrição: Nº ';
-       
         $app = App::i();
         $ag = $app->repo('Registration')->find($this->data['id']);
         //Inscrição, agente fiscal e agente proponente
@@ -164,6 +163,6 @@ class Tado extends \MapasCulturais\Controller
         };
 
         $class->data = $notifi;
-        $notification->create($class, $msgTado);
+        $notification->create($class, EntityDiligence::TYPE_NOTIFICATION_TADO);
     }
 }
