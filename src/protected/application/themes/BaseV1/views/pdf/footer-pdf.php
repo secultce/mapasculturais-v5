@@ -7,8 +7,8 @@
                 <label for="">
                     <strong>Secretaria da Cultura do Ceara</strong>
                 </label><br>
-                <label for="">Rua Major Facundo, 500 - Centro. CEP: 60.025-100</label><br>
-                <label for="">Fortaleza/CE. Fone: (85) 31016767</label>
+                <label for="">Rua Dr. João Moreira, 500 - Centro. CEP: 60.030-000</label><br>
+                <label for="">Fortaleza/CE. Fone: (85) 981152400</label>
             </p>
         </div>
         <img
