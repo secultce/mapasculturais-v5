@@ -9,7 +9,7 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
         <option value="under_analysis">Em Análise</option>
         <option value="approved">Regular</option>
         <option value="partially">Regular com ressalva</option>
-        <option value="disapproved">Inregular</option>
+        <option value="disapproved">Irregular</option>
     </select>
 </div>
 
