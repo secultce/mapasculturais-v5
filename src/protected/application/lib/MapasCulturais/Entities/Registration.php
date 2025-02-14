@@ -336,8 +336,8 @@ class Registration extends \MapasCulturais\Entity
         }else{
             $json = null;
         }
-        
-        if($this->canUser("viewUserEvaluation") && !$this->canUser("@control")){
+
+        if($this->canUser("viewUserEvaluation") && !$this->canUser("@control") && !$this->canSeeRecources()){
             $checkList = 'projectName,category,files,field,owner';
             $values = ['files' => []];
 
@@ -371,6 +371,15 @@ class Registration extends \MapasCulturais\Entity
         }
 
         return $values;
+    }
+
+    private function canSeeRecources()
+    {
+        $uri = $_SERVER["REQUEST_URI"];
+
+        if (str_contains($uri, 'recursos') && str_contains($uri, 'todos') && $this->canUser("viewUserEvaluation")) return true;
+
+        return false;
     }
 
     public function canSee($key)
