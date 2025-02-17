@@ -4,6 +4,11 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.9.8] - 2025-02-17
+### Modificado
+- Atualizando a referência do plugin de Recurso
+- Corrigido textos da Prestação de Contas
+
 ## [5.9.7] - 2025-02-10
 ### Modificado
 - Ativação para LGPD
