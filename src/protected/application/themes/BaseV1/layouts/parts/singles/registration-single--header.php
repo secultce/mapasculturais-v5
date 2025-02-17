@@ -1,10 +1,10 @@
 <?php 
 $entity = $this->controller->requestedEntity;
-$sentDate = $entity->sentTimestamp; 
+$sentDate = $entity->sentTimestamp;
+if(!$entity->opportunity->getMetadata('use_multiple_diligence')) :
 ?>
-
 <h3 class="registration-header"><?php \MapasCulturais\i::_e("Formulário de Inscrição");?></h3>
-
+<?php endif; ?>
 <?php $this->applyTemplateHook('header-fieldset', 'before');?>
 <div class="registration-fieldset clearfix">
 

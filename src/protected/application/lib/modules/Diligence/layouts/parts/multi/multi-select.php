@@ -7,9 +7,9 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     <select name="" id="situacion-refo-multi" class="form-control-multi">
         <option value="all" disabled selected>-- Selecione --</option>
         <option value="under_analysis">Em Análise</option>
-        <option value="approved">Aprovada</option>
-        <option value="partially">Parcialmente aprovada</option>
-        <option value="disapproved">Reprovada</option>
+        <option value="approved">Regular</option>
+        <option value="partially">Regular com ressalva</option>
+        <option value="disapproved">Irregular</option>
     </select>
 </div>
 
@@ -28,7 +28,9 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     </p>
 
     <p style="text-align: center;width: 100%; margin-bottom: 15px" id="p-btn-tado">
-        <a href="<?= $app->createUrl('tado', 'emitir/' . $reg->id); ?>" target="_blank" class="btn btn-primary" title="Gera o relatório TADO" style="display: block;">
+        <a href="<?= $app->createUrl('tado', 'emitir/' . $reg->id); ?>"
+           id="btn-generate-tado"
+           target="_blank" class="btn btn-primary" title="Gera o relatório TADO" style="display: block;">
             Finalizar e emitir TADO
         </a>
     </p>
