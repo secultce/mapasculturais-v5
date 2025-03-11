@@ -34,6 +34,15 @@
     module.factory('RegistrationService', ['$http', '$rootScope', '$q', 'UrlService', function ($http, $rootScope, $q, UrlService) {
         var url = new UrlService('registration');
         var labels = MapasCulturais.gettext.moduleOpportunity;
+        // Verifica algumas propriedades no objeto para tratar a informação no alert
+        function verifyPropertyField(object) {
+            for (const property in object) {
+                if (property.startsWith("field_") || property.startsWith("file_")) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         return {
             getUrl: function(action, registrationId){
@@ -100,6 +109,22 @@
             validateEntity: function(registrationId) {
                 return $http.post(this.getUrl('validateEntity', registrationId)).
                 success(function(data, status){
+                    let messageError = '';
+                    // Verifica se a propriedade agent_coletivo existe
+                    if (data && data.data && data.data.hasOwnProperty('agent_coletivo')) {
+                        messageError = data.data.agent_coletivo;
+                    }
+                    if(verifyPropertyField(data.data)){
+                        messageError = 'Dados obrigatórios pendentes';
+                    }
+                    if(data.error == true)
+                    {
+                        Swal.fire({
+                            icon:  "error",
+                            title: "Oops...",
+                            text:  messageError
+                        });
+                    }
                     $rootScope.$emit('registration.validate', {message: "Opportunity registration was validated ", data: data, status: status});
                 }).
                 error(function(data, status){
