@@ -35,12 +35,10 @@
         var url = new UrlService('registration');
         var labels = MapasCulturais.gettext.moduleOpportunity;
         // Verifica algumas propriedades no objeto para tratar a informação no alert
-        function verifyPropertyField(objeto) {
-            for (const property in objeto) {
-                if (objeto.hasOwnProperty(property)) {
-                    if (property.startsWith("field_")) {
-                        return true;
-                    }
+        function verifyPropertyField(object) {
+            for (const property in object) {
+                if (property.startsWith("field_") || property.startsWith("file_")) {
+                    return true;
                 }
             }
             return false;
