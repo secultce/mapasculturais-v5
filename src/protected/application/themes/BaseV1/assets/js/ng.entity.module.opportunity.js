@@ -1502,11 +1502,25 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
                     }                    
                 }
              
-         
                 RegistrationService.send(MapasCulturais.registration.id).success(function(response){
                     $('.js-response-error').remove();
                     if(response.error){
                         $scope.data.errors = response.data;
+
+                        if(response.data == 'exceeded')
+                        {
+                            Swal.fire({
+                                position: "top-center",
+                                icon:  "error",
+                                title: "Oops...",
+                                text:  'O Total de vagas para essa oportunidade já foi preenchida',
+                                showConfirmButton: true,
+                                allowOutsideClick: false
+                            }).then((res) => {
+                                if (res.isConfirmed) location.reload()
+                            })
+                        }
+
                         Object.keys(response.data).forEach(function(field, index){
                             var $el;
                             if(field === 'projectName'){
@@ -1520,8 +1534,7 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
                             }else {
                                 $el = $('#' + field).find('div:first');
                             }
-    
-                            $scope.data.fields.forEach(function(fieldObject) {   
+                            $scope.data.fields.forEach(function(fieldObject) {
                                 if(fieldObject.fieldName == field){
                                     fieldObject.error = response.data[field];
                                 }
