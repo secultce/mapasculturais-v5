@@ -1506,20 +1506,20 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
                     $('.js-response-error').remove();
                     if(response.error){
                         $scope.data.errors = response.data;
-
+                        // Mensagem para limite de vagas excedido
                         if(response.data == 'exceeded')
-                        {
-                            Swal.fire({
-                                position: "top-center",
-                                icon:  "error",
-                                title: "Oops...",
-                                text:  'O Total de vagas para essa oportunidade já foi preenchida',
-                                showConfirmButton: true,
-                                allowOutsideClick: false
-                            }).then((res) => {
-                                if (res.isConfirmed) location.reload()
-                            })
-                        }
+                            {
+                                Swal.fire({
+                                    position: "top-center",
+                                    icon:  "error",
+                                    title: "Oops...",
+                                    text:  'O Total de vagas para essa oportunidade já foi preenchida',
+                                    showConfirmButton: true,
+                                    allowOutsideClick: false
+                                }).then((res) => {
+                                    if (res.isConfirmed) location.reload()
+                                })
+                            }
 
                         Object.keys(response.data).forEach(function(field, index){
                             var $el;
