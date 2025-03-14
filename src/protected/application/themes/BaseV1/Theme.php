@@ -1299,7 +1299,8 @@ class Theme extends MapasCulturais\Theme {
      */
     public function hasExceededRegistrationLimit($app, $reg, $locationTheme)
     {
-        $countReg = $app->repo('Registration')->findBy(['opportunity' => $reg->opportunity->id]);
+
+        $countReg = $reg->opportunity->countSentRegistrations();
         $limit = false;
         // verifica se tem o campo e valor diferente de null
         foreach ($reg->opportunity->getMetadata() as $key => $valueMeta) {
@@ -1309,7 +1310,7 @@ class Theme extends MapasCulturais\Theme {
             }elseif(// Verifica o limite
                 $key == 'registrationLimit' &&
                 !is_null($valueMeta) &&
-                count($countReg) > (int) $reg->opportunity->getMetadata('registrationLimit')
+                $countReg >= (int) $reg->opportunity->getMetadata('registrationLimit')
             ){
                 $limit = true;
             }
@@ -1318,7 +1319,7 @@ class Theme extends MapasCulturais\Theme {
         if($limit && $locationTheme)
         {
             $this->jsonError(200, 'exceeded');
-        }elseif( count($countReg) > (int) $reg->opportunity->getMetadata('registrationLimit') ){
+        }elseif( $countReg >= (int) $reg->opportunity->getMetadata('registrationLimit') ){
             return $limit;
         }
     }
