@@ -88,8 +88,6 @@ class Module extends \MapasCulturais\Module {
         $app = App::i();
         $config = $this->_config;
 
-        $app->view->enqueueScript('app', 'recaptcha', 'https://www.google.com/recaptcha/api.js');
-
         $plugin = $this;
 
         $params = [];
@@ -123,7 +121,7 @@ class Module extends \MapasCulturais\Module {
                     'compliantTypeRequired' => i::__('O preenchimento do tipo de denúncia é obrigatório.'),
                     'compliantMessageRequired' => i::__('O preenchimento da mensagem da denúncia é obrigatório.'),
                     'compliantSent' => i::__('A denúncia foi enviada.'),
-                    'recaptchaRequired' => i::__('Recaptcha não selecionado ou inválido, tente novamente.'),
+                    'recaptchaRequired' => i::__('Erro no ReCAPTCHA: Usuário suspeito ou score muito baixo.'),
                     'suggestionEmailRequired' => i::__('O preenchimento do e-mail é obrigatório.'),
                     'suggestionTypeRequired' => i::__('O preenchimento do tipo de sugestão é obrigatório.'),
                     'suggestionMessageRequired' => i::__('O preenchimento da mensagem é obrigatório.'),
@@ -138,9 +136,9 @@ class Module extends \MapasCulturais\Module {
         $app->hook('POST(<<agent|space|event|project>>.sendCompliantMessage)', function() use ($plugin) {
             $app = App::i();
             
-             //Verificando recaptcha v2
-            if (!$plugin->verifyRecaptcha2()) {
-                throw new \Exception(\MapasCulturais\i::__('Recaptcha não selecionado ou inválido, tente novamente.'));
+            // Verificando recaptcha v3
+            if (!$plugin->verifyRecaptcha3()) {
+                $this->json(['message' => 'Erro no ReCAPTCHA: Usuário suspeito ou score muito baixo.'], 500);
             }
 
             $entity = $app->repo($this->entityClassName)->find($this->data['entityId']);
@@ -210,9 +208,9 @@ class Module extends \MapasCulturais\Module {
         $app->hook('POST(<<agent|space|event|project>>.sendSuggestionMessage)', function() use ($plugin) {
             $app = App::i();
 
-            //Verificando recaptcha v2
-            if (!$plugin->verifyRecaptcha2()) {
-                throw new \Exception( \MapasCulturais\i::__('Recaptcha não selecionado ou inválido, tente novamente.') );
+            // Verificando recaptcha v3
+            if (!$plugin->verifyRecaptcha3()) {
+                $this->json(['message' => 'Erro no ReCAPTCHA: Usuário suspeito ou score muito baixo.'], 500);
             }
 
             $entity = $app->repo($this->entityClassName)->find($this->data['entityId']);
@@ -332,24 +330,24 @@ class Module extends \MapasCulturais\Module {
 
         $result = file_get_contents($url, false, $context);
 
-        if ($result === false) {
+        return json_decode($result, true);
+    }
+
+    public function verifyRecaptcha3()
+    {
+        $app = App::i();
+        $token = $_POST['g-recaptcha-response'];
+
+        if ($token) {
+            $resultado = $this->verificarToken($token, $app->_config['app.recaptcha.secret']);
+
+            // Verifica se o reCAPTCHA foi bem-sucedido e a pontuação
+            if ($resultado['success'] && $resultado['score'] >= 0.5) return true;
+
             return false;
         }
 
-        $result = json_decode($result);
-
-        return $result->success;
-    }
-
-    public function verifyRecaptcha2() {
-        $app = App::i();
-        $config = $app->_config;
-    
-        if (!isset($app->_config['app.recaptcha.key'])) return true;
-        if (!isset($_POST["g-recaptcha-response"]) || empty($_POST["g-recaptcha-response"])) return false;
-
-        $token = $_POST["g-recaptcha-response"];
-        return $this->verificarToken($token, $app->_config['app.recaptcha.secret']);
+        return false;
     }
 
     public function addConfigToJs()
