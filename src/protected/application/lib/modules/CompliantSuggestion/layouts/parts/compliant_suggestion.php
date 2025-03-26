@@ -11,6 +11,10 @@ if($this->controller->action === 'create')
     return false;
 ?>
 
+<?php if (isset($googleRecaptchaSiteKey)) : ?>
+    <script src="<?= 'https://www.google.com/recaptcha/api.js?render=' . $googleRecaptchaSiteKey ?>"></script>
+<?php endif; ?>
+
 <div class="compliant-suggestion-box">
 <?php if(isset($compliant)): ?>
     <?php if($compliantUrl) { ?>
@@ -53,12 +57,6 @@ if($this->controller->action === 'create')
             <label for="copy"><?php i::_e("Receber cópia da denúncia");?></label>
         </p>
         
-        <?php if (isset($googleRecaptchaSiteKey)): ?>
-            <p>
-                <div class="g-recaptcha" data-sitekey="<?php echo $googleRecaptchaSiteKey; ?>" data-callback="captcha"></div>
-            </p>
-        <?php endif; ?>
-
         <p ng-show="!data.compliantStatus">
             <button ng-click="data.showForm = false" class="button-form-compliant-suggestion suggestion btn-default" ><?php i::_e('Cancelar'); ?></button>
             <button class="js-submit-button compliant-form btn-warning" ng-click="send()"><?php i::_e("Enviar Denúncia");?></button>
@@ -115,12 +113,6 @@ if($this->controller->action === 'create')
                 <?php i::_e("Receber cópia da mensagem");?>
             </label>
         </p>
-
-        <?php if (isset($googleRecaptchaSiteKey)): ?>
-        <p>
-            <div class="g-recaptcha" data-sitekey="<?php echo $googleRecaptchaSiteKey; ?>" data-callback="captchasuggestion"></div>
-        </p>
-        <?php endif; ?>
 
         <p ng-show="!data.suggestionStatus">
             <button ng-click="data.showForm = false" class="button-form-compliant-suggestion suggestion btn-default" ><?php i::_e('Cancelar'); ?></button>
