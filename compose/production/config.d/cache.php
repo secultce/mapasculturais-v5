@@ -2,7 +2,7 @@
 
 return [
     // 'app.useRegisteredAutoloadCache' => false,
-    'app.useAssetsUrlCache'          => true,
+    'app.useAssetsUrlCache'          => false,
     // 'app.useFileUrlCache'            => false,
     // 'app.useEventsCache'             => false,
     // 'app.useSubsiteIdsCache'         => false,

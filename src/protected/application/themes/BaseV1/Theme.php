@@ -1284,8 +1284,58 @@ class Theme extends MapasCulturais\Theme {
         $app->hook('enabled.agent.spreadsheet.map', function(&$enabled_export_spreadsheet_map) use ($app){
             $enabled_export_spreadsheet_map = $app->user->is('admin') ? true : false;
         });
+
+        $app->hook("entity(Registration).send:before", function () use ($app, $theme) {
+            $reg = $this;
+            $locationTheme = true;
+            $theme->hasExceededRegistrationLimit($app, $reg, $locationTheme);
+        });
+
+
+    }
+    /**
+     * Verifica se o limite de inscrições foi atingido e retorna um json para uso no javascript
+     * ou boolean para uso na view
+     */
+    public function hasExceededRegistrationLimit($app, $reg, $locationTheme)
+    {
+
+        $countReg = $reg->opportunity->countSentRegistrations();
+        $limit = false;
+        // verifica se tem o campo e valor diferente de null
+        foreach ($reg->opportunity->getMetadata() as $key => $valueMeta) {
+            if($key == 'registrationLimit' && !is_null($valueMeta) && $valueMeta == "0" )
+            {
+                $limit = false;
+            }elseif(// Verifica o limite
+                $key == 'registrationLimit' &&
+                !is_null($valueMeta) &&
+                $countReg >= (int) $reg->opportunity->getMetadata('registrationLimit')
+            ){
+                $limit = true;
+            }
+        }
+
+        if($limit && $locationTheme)
+        {
+            $this->jsonError(200, 'exceeded');
+        }elseif( $countReg >= (int) $reg->opportunity->getMetadata('registrationLimit') ){
+            return $limit;
+        }
     }
 
+    /**
+     * Funcionalidade para uso quando necessitar enviar mensagem de erro ao javascript
+     * int $status
+     * object|array $data
+     * string void
+     */
+    public function jsonError($status, $data): string
+    {
+        $app = App::i();
+        $app->contentType('application/json');
+        return $app->halt($status, json_encode(['error' => true, 'data' => $data]));
+    }
     /*
      * This methods tries to fill the address fields using the postal code
      *

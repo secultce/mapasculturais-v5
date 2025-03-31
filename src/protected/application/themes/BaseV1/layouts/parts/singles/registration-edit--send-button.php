@@ -18,8 +18,18 @@ $app = \MapasCulturais\App::i();
 
 <div class="registration-fieldset">    
     <?php if($entity->opportunity->isRegistrationOpen()): ?>
-        <p class="registration-help"><?php \MapasCulturais\i::_e("Certifique-se que você preencheu as informações corretamente antes de enviar sua inscrição.");?> <strong><?php \MapasCulturais\i::_e("Depois de enviada, não será mais possível editá-la.");?></strong></p>
-        <a class="btn btn-primary" ng-click="sendRegistration()" rel='noopener noreferrer'><?php \MapasCulturais\i::_e("Enviar inscrição");?></a>
+        <p class="registration-help"><?php \MapasCulturais\i::_e("Certifique-se que você preencheu as informações corretamente antes de enviar sua inscrição.");?></p>
+        <?php if($this->hasExceededRegistrationLimit($app, $entity, false)) : ?>
+                <span class="text-danger"><?php \MapasCulturais\i::_e("Essa oportunidade atingiu o limite de inscrições");?></span> <br>
+                <a class="btn btn-primary disabled" rel='noopener noreferrer'><?php \MapasCulturais\i::_e("Enviar inscrição");?></a>
+        <?php else: ?>
+            <strong><?php \MapasCulturais\i::_e("Depois de enviada, não será mais possível editá-la.");?></strong>
+            <p>
+                <a class="btn btn-primary" ng-click="sendRegistration()" rel='noopener noreferrer'>
+                    <?php \MapasCulturais\i::_e("Enviar inscrição");?>
+                </a>
+            </p>
+        <?php endif; ?>
     <?php else: ?>
         <p class="registration-help">
             <strong>

@@ -456,6 +456,15 @@ abstract class Opportunity extends \MapasCulturais\Entity
     }
 
     /**
+     * Return count array getSendRegistrations
+     * @return int
+     */
+    public function countSentRegistrations(): int
+    {
+        return count($this->getSentRegistrations());
+    }
+
+    /**
      * Returns registrations by status
      * @param $status
      * @return \MapasCulturais\Entities\Registration[]
