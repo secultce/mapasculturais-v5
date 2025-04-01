@@ -112,7 +112,7 @@ class EntityRevision extends \MapasCulturais\Entity{
         $this->action = $action;
         $this->data = new \Doctrine\Common\Collections\ArrayCollection();
         if ($action == self::ACTION_CREATED) {
-            $this->createTimestamp = $entity->createTimestamp;
+            $this->createTimestamp = $entity->createTimestamp ?? new \DateTime();
             foreach ($dataRevision as $key => $data) {
                 $revisionData = new EntityRevisionData;
                 $revisionData->key = $key;
