@@ -172,7 +172,7 @@ trait EntityRevision{
 
         if ($last_revision) {
             $last_revision_data = $last_revision->getRevisionData();
-            $old_status = $last_revision_data['status']->value;
+            $old_status = isset($last_revision_data['status']) ? $last_revision_data['status']->value : null;
             $new_status = $this->status;
 
             if ($old_status != $new_status) {

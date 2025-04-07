@@ -24,6 +24,7 @@ class ObjectType extends DoctrineEnumType
             'Project' => 'MapasCulturais\Entities\Project',
             'Registration' => 'MapasCulturais\Entities\Registration',
             'RegistrationEvaluation' => 'MapasCulturais\Entities\RegistrationEvaluation',
+            'RegistrationFieldConfiguration' => 'MapasCulturais\Entities\RegistrationFieldConfiguration',
             'RegistrationFileConfiguration' => 'MapasCulturais\Entities\RegistrationFileConfiguration',
             'Request' => 'MapasCulturais\Entities\Request',
             'Seal' => 'MapasCulturais\Entities\Seal',
