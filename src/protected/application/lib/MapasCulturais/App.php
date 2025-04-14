@@ -13,6 +13,8 @@ use Exception;
 use MapasCulturais\Entities\Job;
 use MapasCulturais\Entities\PermissionCachePending;
 use MapasCulturais\Entities\User;
+use MapasCulturais\Services\SentryService;
+use MapasCulturais\Exceptions\GlobalThrowableHandler as ExceptionHandler;
 
 /**
  * MapasCulturais Application class.
@@ -415,6 +417,7 @@ class App extends \Slim\Slim{
         
 
         // QUERY LOGGER
+        $query_logger = null;
         if(@$config['app.log.query']){
             if (isset($config['app.queryLogger']) && is_object($config['app.queryLogger'])) {
                 $query_logger = $config['app.queryLogger'];
@@ -428,8 +431,6 @@ class App extends \Slim\Slim{
         }
 
         // ===================================== //
-
-
 
         $domain = @$_SERVER['HTTP_HOST'];
 
@@ -461,7 +462,15 @@ class App extends \Slim\Slim{
             $theme_class = $config['themes.active'] . '\Theme';
             $theme_instance = new $theme_class($config['themes.assetManager']);
         }
+        # INICIALIZA INTEGRAÇÃO COM SENTRY
+        SentryService::init();
 
+        $entityManager = $this->_em;
+        $loggerSlim = $this->getLog();
+        set_exception_handler(function ($e) use ($loggerSlim , $entityManager) {
+            $handler = new ExceptionHandler($loggerSlim, $entityManager);
+            $handler->handle($e);
+        });
 
         parent::__construct([
             'log.level' => $config['slim.log.level'],
