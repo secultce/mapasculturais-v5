@@ -221,6 +221,7 @@ function saveAnswerProponente(status) {
                     cancelButtonText: 'Desfazer envio',
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
+
                     if (result.isConfirmed) {
                         sendNofificationAnswer();
                         location.reload();
@@ -265,13 +266,12 @@ function cancelAnswer()
     $.ajax({
         type: "PUT",
         url: MapasCulturais.createUrl('diligence', 'cancelsendAnswer'),
-        data: {
-            diligence: MapasCulturais.idDiligence,
-        },
+        data: `idAnswer=${MapasCulturais.idAnswer}`,
         dataType: "json",
         success: function(response) {
-           if(response.status == 200){
-            EntityDiligence.hideShowSuccessAction();
+           if (response.status == 200) {
+               MapasCulturais.Messages.info('Salvo como rascunho!');
+               EntityDiligence.hideShowSuccessAction();
            }
         }
     });
@@ -295,6 +295,7 @@ function saveRequestAnswer(status)
             if(response.status == 200){
                 EntityDiligence.hideShowSuccessAction();
                 $("#id-input-diligence").val(response.entityId);
+                MapasCulturais.idAnswer = response.entityId;
             }
         },
         error: function(err) {
