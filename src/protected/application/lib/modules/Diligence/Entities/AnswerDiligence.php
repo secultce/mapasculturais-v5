@@ -95,8 +95,6 @@ class AnswerDiligence extends Entity implements DiligenceInterface{
         $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
         // Notificando a pessoa fiscal
 
-        $notification = new NotificationDiligence();
-        $notification->create($class, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
 

@@ -219,27 +219,24 @@ function saveAnswerProponente(status) {
                     reverseButtons: true,
                     confirmButtonText: "OK",
                     cancelButtonText: 'Desfazer envio',
-                }).then((result) => {
+                }).then((result2) => {
                     /* Read more about isConfirmed, isDenied below */
-
-                    if (result.isConfirmed) {
+                    if (result2.isConfirmed) {
                         sendNofificationAnswer();
                         location.reload();
                     }
 
-                    if (result.isDismissed && result.dismiss === 'cancel') {
+                    if (result2.isDismissed && result2.dismiss === 'cancel') {
                         showViewActions();
                         cancelAnswer();                  
                     }
 
-                    if (
-                        result.dismiss === Swal.DismissReason.timer
-                      ) {
+                    if (result2.dismiss === Swal.DismissReason.timer) {
                         sendNofificationAnswer();
                         hideViewActions();
                         location.reload();
-                      } 
-                }).catch( (err) => {
+                    }
+                }).catch((err) => {
                     Swal.close();
                     MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
                 });
@@ -270,7 +267,7 @@ function cancelAnswer()
         dataType: "json",
         success: function(response) {
            if (response.status == 200) {
-               MapasCulturais.Messages.info('Salvo como rascunho!');
+               MapasCulturais.Messages.help('Salvo como rascunho!');
                EntityDiligence.hideShowSuccessAction();
            }
         }
