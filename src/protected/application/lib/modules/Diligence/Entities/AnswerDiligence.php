@@ -2,12 +2,12 @@
 namespace Diligence\Entities;
 
 use DateTime;
-use Diligence\Entities\NotificationDiligence;
+use Diligence\Controllers\Controller;
+use Diligence\Traits\DiligenceSingle;
+use Exception;
 use MapasCulturais\App;
 use MapasCulturais\Entity;
 use Doctrine\ORM\Mapping as ORM;
-use Respect\Validation\Rules\Json;
-use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Entities\Diligence as DiligenceEntity;
 use Diligence\Repositories\Diligence as DiligenceRepo;
@@ -20,8 +20,8 @@ use Carbon\Carbon;
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */
-class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterface{
-    use \Diligence\Traits\DiligenceSingle;
+class AnswerDiligence extends Entity implements DiligenceInterface{
+    use DiligenceSingle;
 
     const STATUS_DRAFT = 0;
     const STATUS_OPEN = 2; // Para respostas salvas não enviadas
@@ -93,10 +93,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $repo       = new DiligenceRepo();
         //Buscando a ultima diligencia da inscrição passado por parametro
         $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
-        // Notificando a pessoa fiscal
 
-        $notification = new NotificationDiligence();
-        $notification->create($class, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
 
@@ -125,24 +122,23 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         return json_encode(['message' => 'success', 'entityId' => $save['entityId'], 'status' => 200]);
     }
 
-    public function cancel(Controller $class) : Json
+    public function cancel(Controller $controller): void
     {
         $app =  App::i();
-        //Buscando diligencia
-        $repo       = new DiligenceRepo();
-        $diligence  = $repo->findId($this->data['diligence']);
-        //Buscando a resposta da diligencia
-        $answer = $app->repo('\Diligence\Entities\AnswerDiligence')->findBy( ['diligence' => $diligence]);
-        $save = null;
-        //Alterando o valor do status
-        foreach ($answer as $ans) {
-            $ans->status  = 0;
-            self::saveEntity($ans);     
+        $answer = $app->repo('\Diligence\Entities\AnswerDiligence')
+            ->find($controller->data['idAnswer']);
+
+        try {
+            $answer->status = self::STATUS_DRAFT;
+            $answer->diligence->situation = Diligence::STATUS_SEND;
+            self::saveEntity($answer);
+        } catch (Exception $e) {
+            $app->error($e->getMessage());
+            $controller->json(['message' => 'error', 'status' => 400]);
+            return;
         }
-        if($save == null){
-            return $this->json(['message' => 'success', 'status' => 200], 200);
-        }
-        return $this->json(['message' => 'error', 'status' => 400], 400);
+
+        $controller->json(['message' => 'success', 'status' => 200], 200);
     }
 
     public static function setNumberDaysAnswerDiligence($diligence_receipt_date, $days_to_respond, $type_of_day)
