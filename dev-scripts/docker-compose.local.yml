@@ -33,7 +33,7 @@ services:
       - MAIL_MAILER=smtp
       - MAIL_HOST=mailpit
       - MAILER_PROTOCOL= #precisa ficar vazio para o mailpit funcionar
-      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_HOST=rabbitmq_local
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=mqadmin
       - RABBITMQ_PASSWORD=Admin123XX_
@@ -45,6 +45,9 @@ services:
       - SECULT_SEAL_ID=
       - URL_SITE_EDITAIS=
       - QUOTA_SERVICE_BASE_URL=quota-service:9501/api/v1
+      - SENTRY_DSN=link_sentry
+      - APP_ENV=development
+      - APP_VERSION=5.8.11
     depends_on:
       - db
       - redis
