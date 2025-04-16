@@ -93,10 +93,7 @@ class AnswerDiligence extends \MapasCulturais\Entity implements DiligenceInterfa
         $repo       = new DiligenceRepo();
         //Buscando a ultima diligencia da inscrição passado por parametro
         $lastDiligence = $repo->getIdLastDiligence($class->data['registration']);
-        // Notificando a pessoa fiscal
 
-        $notification = new NotificationDiligence();
-        $notification->create($class, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
         $answer     = new AnswerDiligence();
         $reg        = $app->repo('Registration')->find($class->data['registration']);
 

@@ -165,6 +165,11 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     public function POST_notifiAnswer()
     {
+        // Cria a notificação dentro do painel
+        $notification = new NotificationDiligence();
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
+
+        // Adiciona notificação por e-mail à fila
         $app = App::i();
         $dili = $app->repo('\Diligence\Entities\Diligence')->findBy(['registration' => $this->data['registration']]);
         $userDestination = [];
