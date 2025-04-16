@@ -26,23 +26,22 @@ class GlobalThrowableHandler
             'code' => $e->getCode(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'trace' => 'улицы'
-
+            'trace' => $e->getTrace()
         ];
 
         // Decisão de como tratar o erro
         switch ($this->shouldHandle($e)) {
-            case 'log_to_db':
+            case 'log_to_db': // para registra no banco de dados
                 $this->saveToDatabase($errorData);
                 break;
-            case 'send_email':
-//                $this->sendEmail($e);
+            case 'error_sentry': // para registrar no sentry
+                SentryService::captureExceptions($e);
                 break;
-            case 'ignore':
-                $this->sendEmail($e);
+            case 'send_email': // para enviar email em casos importantes
+                $this->sendEmail($errorData);
                 break;
             default:
-                $this->logError($errorData); // Fallback: apenas logar
+                $this->logError($errorData); // para registro no log
         }
 
         // Retornar uma resposta genérica para o usuário, se necessário
@@ -51,9 +50,9 @@ class GlobalThrowableHandler
 
     private function shouldHandle(\Throwable $e)
     {
-        dump($e);
+    
         if ($e instanceof \Error) {
-            return 'send_email'; // Erros graves vão pro banco
+            return 'error_sentry'; // Erros graves vão para o sentry
         }
         $code = $e->getCode();
         // Lógica personalizada para decidir o que fazer com o erro
@@ -67,29 +66,15 @@ class GlobalThrowableHandler
 
     private function saveToDatabase(array $errorData)
     {
-        if ($this->entityManager) {
-            dump('saveToDatabase');
+        if ($this->entityManager) {            
             // Exemplo de entidade fictícia para erros
-            // $errorEntity = new \Secult\Entity\ErrorLog();
-            // $errorEntity->setMessage($errorData['message']);
-            // $errorEntity->setCode($errorData['code']);
-            // $errorEntity->setFile($errorData['file']);
-            // $errorEntity->setLine($errorData['line']);
-            // $errorEntity->setCreatedAt(new \DateTime());
-
-            // $this->entityManager->persist($errorEntity);
-            // $this->entityManager->flush();
+            // Possível registro no banco de dados
         }
     }
 
-    private function sendEmail(Throwable $e)
+    private function sendEmail(array $errorData)
     {
-        // Exemplo simples de envio de e-mail
-//        $to = 'admin@example.com';
-//        $subject = 'Erro na aplicação: ' . $errorData['message'];
-//        $body = print_r($errorData, true);
-//        mail($to, $subject, $body);
-        SentryService::captureExceptions($e);
+        // @todo implementar disparo de email
     }
 
     private function logError(array $errorData)

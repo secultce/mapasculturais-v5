@@ -463,14 +463,13 @@ class App extends \Slim\Slim{
             $theme_instance = new $theme_class($config['themes.assetManager']);
         }
         # INICIALIZA INTEGRAÇÃO COM SENTRY
-        SentryService::init();
-
         $entityManager = $this->_em;
         $loggerSlim = $this->getLog();
         set_exception_handler(function ($e) use ($loggerSlim , $entityManager) {
             $handler = new ExceptionHandler($loggerSlim, $entityManager);
             $handler->handle($e);
         });
+       
 
         parent::__construct([
             'log.level' => $config['slim.log.level'],
@@ -480,7 +479,7 @@ class App extends \Slim\Slim{
             'view' => $theme_instance,
             'mode' => $this->_config['app.mode']
         ]);
-
+      
         foreach($config['plugins'] as $slug => $plugin){
             $_namespace = $plugin['namespace'];
             $_class = isset($plugin['class']) ? $plugin['class'] : 'Plugin';

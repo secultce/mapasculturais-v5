@@ -13,7 +13,7 @@ class SentryService
         }
 
         \Sentry\init([
-            'dsn' => getenv('SENTRY_DSN') ?: 'https://8aa8dbf93cc99ab07fdcaf4a2acb0a7e@o4509135044804608.ingest.us.sentry.io/4509135046377472',
+            'dsn' => getenv('SENTRY_DSN') ?: '',
             'environment' => getenv('APP_ENV') ?: null,
             'release' => getenv('APP_VERSION') ?: 'v1.0.0',
             'traces_sample_rate' => 1.0, // captura 100% das transações (ajuste se necessário)
