@@ -181,6 +181,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             ];
         };
         EntityDiligence::sendQueue($userDestination, 'resposta');
+
+        $notification = new NotificationDiligence();
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
+
         $this->json(['message' => 'success', 'status' => 200]);
     }
 
