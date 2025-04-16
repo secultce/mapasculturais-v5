@@ -4,7 +4,6 @@ namespace Diligence\Controllers;
 
 use Carbon\Carbon;
 use Diligence\Entities\AnswerDiligence;
-use Diligence\Entities\Diligence as DiligenceEntity;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\NotificationDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
@@ -179,7 +178,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         EntityDiligence::sendQueue($userDestination, 'resposta');
 
         $notification = new NotificationDiligence();
-        $notification->create($this, DiligenceEntity::TYPE_NOTIFICATION_PROPONENT);
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
 
         $this->json(['message' => 'success', 'status' => 200]);
     }

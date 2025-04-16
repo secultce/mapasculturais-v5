@@ -219,19 +219,19 @@ function saveAnswerProponente(status) {
                     reverseButtons: true,
                     confirmButtonText: "OK",
                     cancelButtonText: 'Desfazer envio',
-                }).then((result2) => {
+                }).then((successResult) => {
                     /* Read more about isConfirmed, isDenied below */
-                    if (result2.isConfirmed) {
+                    if (successResult.isConfirmed) {
                         sendNofificationAnswer();
                         location.reload();
                     }
 
-                    if (result2.isDismissed && result2.dismiss === 'cancel') {
+                    if (successResult.isDismissed && successResult.dismiss === 'cancel') {
                         showViewActions();
                         cancelAnswer();                  
                     }
 
-                    if (result2.dismiss === Swal.DismissReason.timer) {
+                    if (successResult.dismiss === Swal.DismissReason.timer) {
                         sendNofificationAnswer();
                         hideViewActions();
                         location.reload();
