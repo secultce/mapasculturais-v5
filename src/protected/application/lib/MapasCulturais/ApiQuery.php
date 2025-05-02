@@ -728,11 +728,12 @@ class ApiQuery {
         }
 
         if ($this->usesStatus && (!$this->_subsiteId && !isset($this->apiParams['status']) || $this->_permission != 'view')) {
-            if ($this->entityClassName === Event::class) {
-                $this->_status = '> 0 OR e.status = -9';
-            }
+            // if ($this->entityClassName === Event::class) {
+            //     $this->_status = '> 0 OR e.status = -9';
+            // }
 
-            $where = $where ? "($where) AND (e.status {$this->_status})" : "(e.status {$this->_status})";
+            // $where = $where ? "($where) AND (e.status {$this->_status})" : "(e.status {$this->_status})";
+            $where = $where ? "($where) AND e.status {$this->_status}" : "e.status {$this->_status}";
         }
 
         if($keyword_where = $this->getKeywordSubDQL()){
