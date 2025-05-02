@@ -4,6 +4,19 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.0] - 2025-05-02
+### Adicionado
+- Logs de Exceptions para serviços
+- Dispondo de eventos cancelados na api do endpoint de eventos
+### Corrigido
+- Correção ao cancelar envio na resposta de diligência
+- Correção de notificação ao fiscal
+- Remoção de notificação de diligência ao usuário
+- Correção na obrigatoriedade de critérios em habilitação documental
+### Modificado
+- Evita duplo clicks em importar inscrições
+
+
 ## [5.9.11] - 2025-03-26
 ### Modificado
 - Atualização a referência ao plugin de Recurso e Login
