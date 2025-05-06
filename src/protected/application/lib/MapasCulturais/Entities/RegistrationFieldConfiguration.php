@@ -14,7 +14,9 @@ use MapasCulturais\Traits;
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  * @ORM\HasLifecycleCallbacks
  */
-class RegistrationFieldConfiguration extends \MapasCulturais\Entity {
+class RegistrationFieldConfiguration extends \MapasCulturais\Entity
+{
+    use Traits\EntityRevision;
 
     /**
      * @var integer

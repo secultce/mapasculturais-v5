@@ -24,7 +24,7 @@ class Diligence{
         return ['reg' => $reg, 'openAgent' => $openAgent, 'agent' => $agent];
     }
 
-    public function findId($diligence): object
+    public function findId($diligence): ?object
     {
         $app = App::i();  
         return $app->em->getRepository('Diligence\Entities\Diligence')->find($diligence);       

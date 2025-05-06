@@ -5,9 +5,9 @@ namespace MapasCulturais\Themes\BaseV1;
 use MapasCulturais;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\EntityRevision as Revision;
 use MapasCulturais\i;
 use MapasCulturais\Utils;
-
 
 class Theme extends MapasCulturais\Theme {
 
@@ -1291,8 +1291,20 @@ class Theme extends MapasCulturais\Theme {
             $theme->hasExceededRegistrationLimit($app, $reg, $locationTheme);
         });
 
+        /**
+         * Função callback para logs de remoção de campos
+         * @var \MapasCulturais\Entities\RegistrationFieldConfiguration|\MapasCulturais\Entities\RegistrationFileConfiguration $this
+         */
+        $logRemoveField = function () {
+            $data = $this->_getRevisionData();
+            $revision = new Revision($data, $this, Revision::ACTION_DELETED, 'Registro deletado.');
+            $revision->save(true);
+        };
 
+        $app->hook('entity(registration).fieldConfiguration(<<*>>).remove:before', $logRemoveField);
+        $app->hook('entity(RegistrationFileConfiguration).remove:before', $logRemoveField);
     }
+
     /**
      * Verifica se o limite de inscrições foi atingido e retorna um json para uso no javascript
      * ou boolean para uso na view

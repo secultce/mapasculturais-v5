@@ -219,26 +219,24 @@ function saveAnswerProponente(status) {
                     reverseButtons: true,
                     confirmButtonText: "OK",
                     cancelButtonText: 'Desfazer envio',
-                }).then((result) => {
+                }).then((successResult) => {
                     /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed) {
+                    if (successResult.isConfirmed) {
                         sendNofificationAnswer();
                         location.reload();
                     }
 
-                    if (result.isDismissed && result.dismiss === 'cancel') {
+                    if (successResult.isDismissed && successResult.dismiss === 'cancel') {
                         showViewActions();
                         cancelAnswer();                  
                     }
 
-                    if (
-                        result.dismiss === Swal.DismissReason.timer
-                      ) {
+                    if (successResult.dismiss === Swal.DismissReason.timer) {
                         sendNofificationAnswer();
                         hideViewActions();
                         location.reload();
-                      } 
-                }).catch( (err) => {
+                    }
+                }).catch((err) => {
                     Swal.close();
                     MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
                 });
@@ -265,13 +263,12 @@ function cancelAnswer()
     $.ajax({
         type: "PUT",
         url: MapasCulturais.createUrl('diligence', 'cancelsendAnswer'),
-        data: {
-            diligence: MapasCulturais.idDiligence,
-        },
+        data: `idAnswer=${MapasCulturais.idAnswer}`,
         dataType: "json",
         success: function(response) {
-           if(response.status == 200){
-            EntityDiligence.hideShowSuccessAction();
+           if (response.status == 200) {
+               MapasCulturais.Messages.help('Salvo como rascunho!');
+               EntityDiligence.hideShowSuccessAction();
            }
         }
     });
@@ -295,6 +292,7 @@ function saveRequestAnswer(status)
             if(response.status == 200){
                 EntityDiligence.hideShowSuccessAction();
                 $("#id-input-diligence").val(response.entityId);
+                MapasCulturais.idAnswer = response.entityId;
             }
         },
         error: function(err) {
