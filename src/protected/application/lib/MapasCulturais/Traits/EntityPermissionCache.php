@@ -90,7 +90,7 @@ trait EntityPermissionCache {
             
             $app->applyHookBoundTo($this, "{$this->hookPrefix}.permissionCacheUsers", [&$users]);
         }
-        
+
         if($delete_old && $users){
             $this->deletePermissionsCache($users);
         }
@@ -102,6 +102,8 @@ trait EntityPermissionCache {
         $isPrivateEntity = $class_name::isPrivateEntity();
         $hasCanUserViewMethod = method_exists($this, 'canUserView');
         $isStatusNotDraft = ($this->status > Entity::STATUS_DRAFT);
+
+        $users = $this->customFilterUsers($users);
 
         $already_created_users = [];
         $users = array_unique($users);
@@ -159,7 +161,12 @@ trait EntityPermissionCache {
         
         $this->__enabled = true;
     }
-    
+
+    public function customFilterUsers(array $users): array
+    {
+        return $users;
+    }
+
     function deletePermissionsCache($users = null){
         $app = App::i();
         $conn = $app->em->getConnection();

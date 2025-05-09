@@ -313,8 +313,17 @@ class Registration extends EntityController {
        
         $entity->checkPermission('view');
 
+        $valuersUsers = array_map(function ($agentRelation) {
+            return $agentRelation->agent->user;
+        }, $entity->opportunity->evaluationMethodConfiguration->agentRelations);
+
         if($entity->status === Entities\Registration::STATUS_DRAFT && $entity->canUser('modify')){
             parent::GET_edit();
+        } else if ($entity->status === Entities\Registration::STATUS_INVALID && in_array(App::i()->getUser(), $valuersUsers)) {
+            return App::i()
+                ->redirect(
+                    App::i()->createUrl('opportunity', 'single', [$entity->opportunity->id])
+                );
         } else {
             parent::GET_single();
         }

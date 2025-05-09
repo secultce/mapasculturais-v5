@@ -2,6 +2,7 @@
 namespace MapasCulturais\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
+use MapasCulturais\Entity;
 use MapasCulturais\Traits;
 use MapasCulturais\App;
 use MapasCulturais\i;
@@ -1423,4 +1424,28 @@ class Registration extends \MapasCulturais\Entity
     public function preUpdate($args = null){ parent::preUpdate($args); }
     /** @ORM\PostUpdate */
     public function postUpdate($args = null){ parent::postUpdate($args); }
+
+    /**
+     * @override
+     * Parte adicionada para não distribuir inscrições inválidas para avaliação
+     * @return array
+     * @var User[] $evaluationAgentRelationsUsers
+     */
+    public function customFilterUsers(array $users): array
+    {
+        $evaluationAgentRelationsUsers = array_map(
+            function ($agentRelation) {
+                return $agentRelation->agent->user;
+            },
+            $this->opportunity->evaluationMethodConfiguration->agentRelations
+        );
+
+        return array_filter($users, function ($user) use ($evaluationAgentRelationsUsers) {
+            if (self::STATUS_INVALID === $this->status && in_array($user, $evaluationAgentRelationsUsers)) {
+                return false;
+            }
+
+            return true;
+        });
+    }
 }
