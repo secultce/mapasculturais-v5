@@ -98,7 +98,7 @@
     <tbody>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        COORDENADOR FINALÍSTIVO :
+        COORDENADOR FINALÍSTICO :
       </td>
       <td  class="title-bold" style="width: 50%">
         CPF :
