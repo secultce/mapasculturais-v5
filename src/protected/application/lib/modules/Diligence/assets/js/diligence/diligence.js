@@ -244,8 +244,9 @@ function cancelSend() {
         }
     });
 }
+
 function saveDiligence(status, st, idDiligence) {
-     if ($("#descriptionDiligence").val() === '') {
+    if ($("#descriptionDiligence").val() === '') {
          diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
          return false;
     }
@@ -277,10 +278,19 @@ function saveDiligence(status, st, idDiligence) {
 
 function sendAjaxDiligence(status, idDiligence) {
     //Enviando o assunto com formato de array
-    objSendDiligence['subject'] = verifySubject("subject_exec_physical", "subject_report_finance");
+    const subject = verifySubject();
+    console.log(subject);
+    if (!subject) {
+        console.log(subject)
+        return;
+    }
+
+    objSendDiligence['subject'] = subject;
     objSendDiligence['description'] = $("#descriptionDiligence").val();
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;
+
+    console.log(objSendDiligence);
     $.ajax({
         type: "POST",
         url: urlSaveDiligence,
@@ -303,37 +313,25 @@ function sendAjaxDiligence(status, idDiligence) {
 
 /**
  * Método que verifica se o assunto está confirmado
- * @param subject_exec_physical string
- * @param subject_report_finance string
- * @returns {array}
+ * @returns {array|false}
  */
-function verifySubject(subject_exec_physical, subject_report_finance)
-{
-    objSendDiligence['subject'] = [];
-    const physicalChecked = $(`#${subject_exec_physical}:checked`).val();
-    const financialReportChecked = $(`#${subject_report_finance}:checked`).val();
+function verifySubject() {
+    const subjects = [];
 
-    //se a escolha for execução do objeto
-    if (physicalChecked === 'on') {
-        objSendDiligence['subject'].push('subject_exec_physical');
-    }
-    //se a escolha for relatório financeiro
-    if (financialReportChecked === 'on') {
-        objSendDiligence['subject'].push('subject_report_finance');
-    }
-    //Na situação de diligência única
-    if (
-        MapasCulturais.entity.object.opportunity.use_multiple_diligence === 'Sim'
-        && physicalChecked === undefined
-        && financialReportChecked === undefined
-    ) {
+    document.querySelectorAll('input[name="assunto[]"]:checked').forEach(el => {
+        subjects.push(el.value);
+    });
+
+    if (subjects.length === 0) {
         diligenceMessage.messageSimple("Ops!", "Você precisa escolher um assunto ou mais assuntos", 2000);
         return false;
-    } else if(MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim'){
-        objSendDiligence['subject'].push('single_diligence');
     }
-    
-    return objSendDiligence['subject'];
+
+    if (MapasCulturais.entity.object.opportunity.use_multiple_diligence !== 'Sim') {
+        subjects.push('single_diligence');
+    }
+
+    return subjects;
 }
 
 //Oculta o botão de Finalizar avaliação
