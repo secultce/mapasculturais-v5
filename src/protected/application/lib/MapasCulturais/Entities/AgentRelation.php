@@ -4,6 +4,7 @@ namespace MapasCulturais\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 use MapasCulturais\App;
+use MapasCulturais\JobTypes\ReopenEvaluations;
 
 /**
  * AgentRelation
@@ -157,30 +158,33 @@ abstract class AgentRelation extends \MapasCulturais\Entity
         $this->objectId = $target->id;
     }
 
-    function save($flush = false) {
-        try{
+    function save($flush = false)
+    {
+        try {
             parent::save($flush);
-            
-            if($this->owner->usesPermissionCache()){
+
+            if ($this->owner->usesPermissionCache()) {
                 $this->owner->deleteUsersWithControlCache();
                 $this->owner->enqueueToPCacheRecreation([$this->agent->user]);
             }
-        }  catch (\MapasCulturais\Exceptions\PermissionDenied $e){
-           if(!App::i()->isWorkflowEnabled())
-               throw $e;
+        } catch (\MapasCulturais\Exceptions\PermissionDenied $e) {
+            if (!App::i()->isWorkflowEnabled())
+                throw $e;
 
-           $app = App::i();
-           $app->disableAccessControl();
-           $this->status = self::STATUS_PENDING;
-           parent::save($flush);
-           $app->enableAccessControl();
+            $app = App::i();
+            $app->disableAccessControl();
+            $this->status = self::STATUS_PENDING;
+            parent::save($flush);
+            $app->enableAccessControl();
 
-           $request = new RequestAgentRelation;
-           $request->agentRelation = $this;
-           $request->save(true);
+            $request = new RequestAgentRelation;
+            $request->agentRelation = $this;
+            $request->save(true);
 
-           throw new \MapasCulturais\Exceptions\WorkflowRequest([$request]);
+            $job = $app->enqueueJob(ReopenEvaluations::SLUG, ['agentRelation' => $this]);
+            $app->applyHookBoundTo($this, "{$this->hookPrefix}.reopen:after", [$job]);
 
+            throw new \MapasCulturais\Exceptions\WorkflowRequest([$request]);
         }
     }
 
