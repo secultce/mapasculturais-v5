@@ -54,12 +54,18 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 }
             }
 
+            $subject = $this->data['subject'] ?? [];
+            if (!in_array('subject_exec_physical', $subject) && !in_array('subject_report_finance', $subject)) {
+                $this->json(['message' => 'Assunto da diligência inválido.'], 400);
+                return;
+            }
+
             $answer = new EntityDiligence();
             $entity = $answer->createOrUpdate($this);
 
             $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
         }else{
-            $this->json(['message' => 'Essa prestação de conta já está em diligência.', 'status' => 403]);
+            $this->json(['message' => 'Essa prestação de conta já está em diligência.', 'status' => 403], 403);
         }
 
     }

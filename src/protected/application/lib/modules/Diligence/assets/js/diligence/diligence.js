@@ -279,9 +279,7 @@ function saveDiligence(status, st, idDiligence) {
 function sendAjaxDiligence(status, idDiligence) {
     //Enviando o assunto com formato de array
     const subject = verifySubject();
-    console.log(subject);
     if (!subject) {
-        console.log(subject)
         return;
     }
 
@@ -290,7 +288,6 @@ function sendAjaxDiligence(status, idDiligence) {
     objSendDiligence['status'] = status;
     objSendDiligence['idDiligence'] = idDiligence;
 
-    console.log(objSendDiligence);
     $.ajax({
         type: "POST",
         url: urlSaveDiligence,
