@@ -4,6 +4,13 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.2] - 2025-05-16
+### Modificado
+- Reabertura de avaliação para admins e dono da oportunidade
+- Alterando nomes no tado para Coordenador e Coordenador Finalístico
+### Corrigido
+- Proibindo distribuição de inscrições inválidas
+
 ## [5.10.1] - 2025-05-06
 ### Modificado
 - Calculo e forma de apresentar valor de critérios de aceitação
