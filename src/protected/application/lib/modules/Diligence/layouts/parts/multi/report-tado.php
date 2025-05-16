@@ -90,7 +90,7 @@
 <table>
     <tbody>
     <tr>
-        <td class="title-bold"  style="text-align: center">RESPONSÁVEL PELA EMISSÃO - FISCAL</td>
+        <td class="title-bold"  style="text-align: center">RESPONSÁVEL PELA EMISSÃO L</td>
     </tr>
     </tbody>
 </table>
@@ -98,7 +98,7 @@
     <tbody>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        NOME DO FISCAL :
+        COORDENADOR FINALÍSTICO :
       </td>
       <td  class="title-bold" style="width: 50%">
         CPF :
