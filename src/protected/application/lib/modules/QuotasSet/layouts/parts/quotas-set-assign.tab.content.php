@@ -229,6 +229,7 @@
                 renderResults(response)
             },
             error: (error) => {
+                MapasCulturais.Messages.error('Sem agentes encontrados.');
                 console.error(error);
             }
         });
@@ -282,6 +283,7 @@
                 renderAssignedAgents(response)
             },
             error: (error) => {
+                MapasCulturais.Messages.error('Sem agentes encontrados.');
                 console.error(error);
             }
         });
@@ -330,6 +332,7 @@
                 target.onclick = () => unassignQuota(response.id, quotaId, agentId, target);
             },
             error: (error) => {
+                MapasCulturais.Messages.error('Erro inesperado ao associar cota.');
                 console.error(error);
             }
         });
@@ -355,6 +358,7 @@
                 target.onclick = () => assignQuota(quotaId, agentId, target);
             },
             error: (error) => {
+                MapasCulturais.Messages.error('Erro inesperado ao desassociar.');
                 console.error(error);
             }
         });
