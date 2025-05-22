@@ -4,10 +4,12 @@ namespace QuotasSet;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use MapasCulturais\App;
 use MapasCulturais\Controller;
 use MapasCulturais\Entities\Agent;
 use MapasCulturais\Entities\AgentMeta;
+use MapasCulturais\Services\SentryService;
 use MapasCulturais\Theme;
 
 class Module extends \MapasCulturais\Module
@@ -69,10 +71,17 @@ class Module extends \MapasCulturais\Module
             }, $agents);
 
             $uri = $baseUri . '/agent?filter_agent_ids=' . implode(',', $agentsIds) . '&filter_term=racial,Racial,RACIAL';
-            $client = new Client();
-            $response = $client->request('GET', $uri, [
-                'headers' => $headers,
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('GET', $uri, [
+                    'headers' => $headers,
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
+
             $body = json_decode($response->getBody(), true);
             $assignedAgentsIds = [];
             foreach ($body as $agent) {
@@ -102,10 +111,16 @@ class Module extends \MapasCulturais\Module
             }
             $uri = $baseUri . '/agent';
 
-            $client = new Client();
-            $response = $client->request('GET', $uri, [
-                'headers' => $headers,
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('GET', $uri, [
+                    'headers' => $headers,
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
 
             $body = json_decode($response->getBody(), true);
             $this->json($body);
@@ -124,16 +139,22 @@ class Module extends \MapasCulturais\Module
             $start_date = (new Carbon($this->data['start_date']))->format('Y-m-d');
 
             $uri = $baseUri . '/agent-quotas';
-            $client = new Client();
-            $response = $client->request('POST', $uri, [
-                'headers' => $headers,
-                'json' => [
-                    'quotas_policy_id' => $quotas_policy_id,
-                    'agent_id' => $agent_id,
-                    'start_date' => $start_date,
-                    'created_by' => $module->app->user->id,
-                ],
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('POST', $uri, [
+                    'headers' => $headers,
+                    'json' => [
+                        'quotas_policy_id' => $quotas_policy_id,
+                        'agent_id' => $agent_id,
+                        'start_date' => $start_date,
+                        'created_by' => $module->app->user->id,
+                    ],
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
 
             $body = json_decode($response->getBody(), true);
             $this->json($body, $response->getStatusCode());
@@ -150,10 +171,16 @@ class Module extends \MapasCulturais\Module
             $agent_quota_id = $this->data['agent_quota_id'];
 
             $uri = $baseUri . '/agent-quotas/' . $agent_quota_id;
-            $client = new Client();
-            $response = $client->request('DELETE', $uri, [
-                'headers' => $headers,
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('DELETE', $uri, [
+                    'headers' => $headers,
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
 
             $body = json_decode($response->getBody(), true);
             $this->json($body, $response->getStatusCode());
@@ -174,17 +201,23 @@ class Module extends \MapasCulturais\Module
             $description = $this->data['description'] ?? '';
 
             $uri = $baseUri . '/quotas';
-            $client = new Client();
-            $response = $client->request('POST', $uri, [
-                'headers' => $headers,
-                'json' => [
-                    'created_by' => $user_id,
-                    'validity_duration' => $this->data['validity_duration'],
-                    'name' => $this->data['name'],
-                    'status' => 1,
-                    'description' => $description,
-                ],
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('POST', $uri, [
+                    'headers' => $headers,
+                    'json' => [
+                        'created_by' => $user_id,
+                        'validity_duration' => $this->data['validity_duration'],
+                        'name' => $this->data['name'],
+                        'status' => 1,
+                        'description' => $description,
+                    ],
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
 
             $body = json_decode($response->getBody(), true);
             $this->json($body, $response->getStatusCode());
@@ -199,10 +232,16 @@ class Module extends \MapasCulturais\Module
             $agent = $this->controller->requestedEntity->owner;
 
             $uri = $baseUri . '/agent?filter_agents_ids=' . $agent->id;
-            $client = new Client();
-            $response = $client->request('GET', $uri, [
-                'headers' => $headers,
-            ]);
+            try {
+                $client = new Client();
+                $response = $client->request('GET', $uri, [
+                    'headers' => $headers,
+                ]);
+            } catch (ConnectException $e) {
+                $this->part('registration/quotas-set.widget.unavailable');
+                SentryService::captureExceptions($e);
+                return;
+            }
 
             $body = json_decode($response->getBody(), true);
             $thisAgent = null;
