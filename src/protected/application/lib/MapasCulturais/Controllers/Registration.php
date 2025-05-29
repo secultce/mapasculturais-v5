@@ -460,9 +460,6 @@ class Registration extends EntityController {
         } else {
             $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
         }
-
-        $this->setRegistrationStatus($registration);
-
         $this->json($evaluation);
     }
 
