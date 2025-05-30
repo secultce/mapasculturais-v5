@@ -108,7 +108,18 @@ return array(
                 "v::url('pinterest.com')" => \MapasCulturais\i::__("A url informada é inválida.")
             )
         ),
-
+        'artista' => array(
+            'label' => \MapasCulturais\i::__('Artista'),
+            'type' => 'text',
+        ),
+        'organizador' => array(
+            'label' => \MapasCulturais\i::__('Organizador'),
+            'type' => 'text',
+        ),
+        'publico' => array(
+            'label' => \MapasCulturais\i::__('Público'),
+            'type' => 'text',
+        ),
     ),
     'items' => array(
         1 =>  array('name' => \MapasCulturais\i::__('Padrão')),
