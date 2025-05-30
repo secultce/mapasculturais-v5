@@ -832,6 +832,11 @@ class Module extends \MapasCulturais\Module{
     function importLastPhaseRegistrations(Opportunity $previous_phase, Opportunity $target_opportunity, $as_draft = false) {
         $app = App::i();
 
+        $service = new \MapasCulturais\Services\RabbitMQService();
+        $service->sendMessage('msg','import_registration', ['indice' => 1, 'indice' => 2], 'import_registration');
+        dump($app->config['rabbitmq']['host']);
+
+        die;
         $target_opportunity ->checkPermission('@control');
 
         $dql = "
@@ -890,15 +895,15 @@ class Module extends \MapasCulturais\Module{
             $reg->previousPhaseRegistrationId = $r->id;
             $reg->category = $r->category;
 
-            $reg->save(true);
+//            $reg->save(true);
 
             if(!$as_draft){
                 $reg->send();
             }
-            $r->__skipQueuingPCacheRecreation = true;
-            $r->nextPhaseRegistrationId = $reg->id;
-
-            $r->save(true);
+//            $r->__skipQueuingPCacheRecreation = true;
+//            $r->nextPhaseRegistrationId = $reg->id;
+//
+//            $r->save(true);
 
             $new_registrations[] = $reg;
 
