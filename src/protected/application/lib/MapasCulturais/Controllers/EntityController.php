@@ -1,10 +1,12 @@
 <?php
+
 namespace MapasCulturais\Controllers;
 
 use MapasCulturais\App;
 use MapasCulturais\Entity;
 use MapasCulturais\ApiQuery;
 use MapasCulturais\Exceptions\WorkflowRequest;
+use MapasCulturais\Utils;
 
 /**
  * This is the base class to Entity Controllers
@@ -164,24 +166,27 @@ abstract class EntityController extends \MapasCulturais\Controller{
         return $this->getFields();
     }
 
-    protected function _finishRequest($entity, $isAjax = false, $function = null){
+    protected function _finishRequest($entity, $isAjax = false, $function = null)
+    {
         $status = 200;
-        try{
-            if($function){
+        try {
+            if ($function) {
                 $entity->$function(true);
             } else {
                 $entity->save(true);
+                if ($entity->avatar) Utils::saveFileByUrl($entity->avatar, $entity, 'avatar');
+                if ($entity->banner) Utils::saveFileByUrl($entity->banner, $entity, 'header');
             }
-        }  catch (WorkflowRequest $e){
+        } catch (WorkflowRequest $e) {
             $status = 202;
             $reqs = [];
-            foreach($e->requests as $request){
+            foreach ($e->requests as $request) {
                 $reqs[] = $request->getRequestType();
             }
 
             header('CreatedRequests: ' . json_encode($reqs));
         }
-        
+
         $this->finish($entity, $status, $isAjax);
     }
 

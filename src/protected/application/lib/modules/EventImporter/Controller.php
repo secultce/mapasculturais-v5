@@ -19,6 +19,7 @@ use MapasCulturais\Entities\MetaList;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use MapasCulturais\Entities\EventOccurrence;
+use MapasCulturais\Utils;
 
 class Controller extends \MapasCulturais\Controller
 {
@@ -950,12 +951,12 @@ class Controller extends \MapasCulturais\Controller
                $gallery_list = $this->matches($value[$key]);
    
                foreach($gallery_list as $item){
-                  if(!$this->saveFile($item, $owner, $grp_import) && !$no_error){
+                  if(!Utils::saveFileByUrl($item, $owner, $grp_import) && !$no_error){
                      $no_error = false;
                   }
                }
             }else{
-               if(!$this->saveFile($value[$key], $owner, $grp_import) && !$no_error){
+               if(!Utils::saveFileByUrl($value[$key], $owner, $grp_import) && !$no_error){
                   $no_error = false;
                }
             }
@@ -964,63 +965,6 @@ class Controller extends \MapasCulturais\Controller
 
       return $no_error;
    }
-
-   public function saveFile($value, $owner, $grp_import)
-   {
-      
-      try {
-        
-         $exp = explode(":", $value);
-
-         $_file = $exp[0].":".$exp[1];
-         $description = isset($exp[2]) ? $exp[2] : null;
-
-         $basename = basename($_file);
-         $file_data = str_replace($basename, urlencode($basename), $_file);
-
-         $curl = new Curl;
-         $curl->get($file_data);
-         $curl->close();
-         $response = $curl->response;
-
-         $tmp = tempnam("/tmp", "");
-         $handle = fopen($tmp, "wb");
-
-         if(mb_strpos($response, 'html')){
-            fclose($handle);
-            unlink($tmp);
-            return false;
-         }
-
-         if(!$this->urlFileExists($_file)){
-            fclose($handle);
-            unlink($tmp);
-            return false;
-         }
-
-         fwrite($handle,$response);
-         fclose($handle);
-         
-         $class_name = $owner->fileClassName;
-
-         $file = new $class_name([
-            "name" => $basename,
-            "type" => mime_content_type($tmp),
-            "tmp_name" => $tmp,
-            "error" => 0,
-            "size" => filesize($tmp)
-         ]);
-
-         $file->group = $grp_import;
-         $file->owner = $owner;
-         $file->description = $description;
-         $file->save(true);
-         return true;
-      } catch (\Throwable $th) {
-         return false;
-      }
-   }
-
 
    public function createMetalists(Entity $owner, $value)
    {
@@ -1057,17 +1001,6 @@ class Controller extends \MapasCulturais\Controller
          return false;
       }
    }
-
-   function urlFileExists($url) {
-
-      $ch = curl_init($url);
-      curl_setopt($ch, CURLOPT_NOBODY, true);
-      curl_exec($ch);
-      $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      curl_close($ch);
-  
-      return ($code == 200);
-  }
 
    public function matches($value)
    {
