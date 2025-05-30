@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MapasCulturais\Controllers;
 
 use MapasCulturais\App;
@@ -602,5 +605,28 @@ class Registration extends EntityController {
         $registration->save(true);
         $regMeta->save(true);
         App::i()->enableAccessControl();
+    }
+
+    public function PATCH_single($data = null): void
+    {
+        if (is_null($data)) {
+            $data = $this->postData;
+        }
+
+        $registration = $this->getRequestedEntity();
+        $metadatas = $registration->getRegisteredMetadata(null, true);
+
+        foreach ($metadatas as $meta_key => $metadata) {
+            if (str_contains($meta_key, 'field_')) {
+                $conditionalField = $metadata->config['registrationFieldConfiguration']->conditionalField ?? null;
+                $conditionalValue = $metadata->config['registrationFieldConfiguration']->conditionalValue ?? null;
+
+                if ($conditionalField && $conditionalValue !== $data[$conditionalField]) {
+                    $data[$meta_key] = null;
+                }
+            }
+        }
+
+        parent::PATCH_single($data);
     }
 }
