@@ -727,7 +727,7 @@ class Registration extends \MapasCulturais\Entity
         if ("pendent" === $status) {
             $_status = self::STATUS_SENT;
         } else if ("invalid" === $status) {
-            $_status = self::STATUS_INVALID;
+            $_status = self::STATUS_SENT;
         } else {
             return;
         }
