@@ -65,4 +65,32 @@ trait EntityArchive{
 
         $app->applyHookBoundTo($this, 'entity(' . $hook_class_path . ').unarchive:before');
     }
+
+    /**
+     * Criando a funcao de desabilitar aqui pois no momento somente via api desabilita uma entidade
+     * Se houver a necessidade de criar essa função para o usuário, então, deve criar uma trait separada
+     *
+     * @param boolean $flush
+     * @return void
+     */
+    function disabled($flush = true){
+      
+        $this->checkPermission('disabled');
+        
+        $hook_class_path = $this->getHookClassPath();
+
+        $app = App::i();
+       
+        $app->applyHookBoundTo($this, 'entity(' . $hook_class_path . ').disabled:before');
+
+        $this->setStatus(self::STATUS_DISABLED);
+
+        $this->save($flush);
+
+        if($this->usesFiles()){
+            $this->makeFilesPrivate();
+        }
+
+        $app->applyHookBoundTo($this, 'entity(' . $hook_class_path . ').disabled:before');
+    }
 }
