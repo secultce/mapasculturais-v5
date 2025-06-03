@@ -12,6 +12,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Remove valores dos metadados condicionados quando os campos não estão visíveis
 - Alterando referência do plugin de recurso
 - Alterando referência do plugin multiplelocalauth para layout de e-mail
+- Alterando cache do assets
 ### Adicionado
 - Adicionado imagem de destaque das entidades via api
 - Adicionado exceções e mensagens de erro para serviço de cotas indisponíveis
