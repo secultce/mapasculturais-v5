@@ -49,9 +49,7 @@ RUN docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-install -j$(nproc) gd
     
 # Install composer
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php composer-setup.php --version=1.10.16 --install-dir=/usr/local/bin && \
-    rm composer-setup.php
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install redis
 RUN pecl install -o -f redis-5.3.7 \
@@ -65,7 +63,7 @@ COPY src/protected/composer.json /var/www/html/protected/composer.json
 COPY src/protected/composer.lock /var/www/html/protected/composer.lock
 
 WORKDIR /var/www/html/protected
-RUN composer.phar install
+RUN composer install
 
 RUN mkdir -p /var/www/html/protected/vendor /var/www/.composer && \
     chown -R www-data:www-data /var/www/html/protected/vendor /var/www/.composer
