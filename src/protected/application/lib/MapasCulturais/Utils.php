@@ -2,6 +2,8 @@
 
 namespace MapasCulturais;
 
+use Curl\Curl;
+
 class Utils {
     static function removeAccents($string) {
         if (!preg_match('/[\x80-\xff]/', $string))
@@ -222,5 +224,76 @@ class Utils {
         }
 
         return $text;
+    }
+
+    static function saveFileByUrl($url, $owner, $group)
+    {
+        try {
+            $exp = explode(":", $url);
+
+            $_file = $exp[0] . ":" . $exp[1];
+            $description = isset($exp[2]) ? $exp[2] : null;
+
+            $basename = basename($_file);
+            $file_data = str_replace($basename, urlencode($basename), $_file);
+
+            $curl = new Curl;
+            $curl->get($file_data);
+            $curl->close();
+            $response = $curl->response;
+
+            $tmp = tempnam("/tmp", "");
+            $handle = fopen($tmp, "wb");
+
+            if (mb_strpos($response, 'html')) {
+                fclose($handle);
+                unlink($tmp);
+                return false;
+            }
+
+            if (!self::urlFileExists($_file)) {
+                fclose($handle);
+                unlink($tmp);
+                return false;
+            }
+
+            fwrite($handle, $response);
+            fclose($handle);
+
+            $class_name = $owner->fileClassName;
+
+            $savedFile = App::i()->repo($class_name)->findOneBy([
+                'owner' => $owner,
+                'group' => $group,
+            ]);
+            if ($savedFile) $savedFile->delete(true);
+
+            $file = new $class_name([
+                "name" => $basename,
+                "type" => mime_content_type($tmp),
+                "tmp_name" => $tmp,
+                "error" => 0,
+                "size" => filesize($tmp)
+            ]);
+
+            $file->group = $group;
+            $file->owner = $owner;
+            $file->description = $description;
+            $file->save(true);
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
+
+    static function urlFileExists($url)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ($code == 200);
     }
 }

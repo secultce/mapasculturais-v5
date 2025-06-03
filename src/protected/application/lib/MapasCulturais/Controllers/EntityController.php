@@ -1,10 +1,12 @@
 <?php
+
 namespace MapasCulturais\Controllers;
 
 use MapasCulturais\App;
 use MapasCulturais\Entity;
 use MapasCulturais\ApiQuery;
 use MapasCulturais\Exceptions\WorkflowRequest;
+use MapasCulturais\Utils;
 
 /**
  * This is the base class to Entity Controllers
@@ -35,25 +37,36 @@ abstract class EntityController extends \MapasCulturais\Controller{
             Entity::STATUS_ENABLED => null,
             Entity::STATUS_DRAFT => 'unpublish',
             Entity::STATUS_TRASH => 'delete',
-            Entity::STATUS_ARCHIVED => 'archive'
+            Entity::STATUS_ARCHIVED => 'archive',
+            Entity::STATUS_DISABLED => 'disabled'
         ],
         Entity::STATUS_DRAFT => [
             Entity::STATUS_ENABLED => 'publish',
             Entity::STATUS_DRAFT => null,
             Entity::STATUS_TRASH => 'delete',
-            Entity::STATUS_ARCHIVED => 'archive'
+            Entity::STATUS_ARCHIVED => 'archive',
+            Entity::STATUS_DISABLED => 'disabled'
         ],
         Entity::STATUS_TRASH => [
             Entity::STATUS_ENABLED => 'undelete',
             Entity::STATUS_DRAFT => 'undelete',
             Entity::STATUS_TRASH => null,
-            Entity::STATUS_ARCHIVED => 'archive'
+            Entity::STATUS_ARCHIVED => 'archive',
+            Entity::STATUS_DISABLED => 'disabled'
         ],
         Entity::STATUS_ARCHIVED => [
             Entity::STATUS_ENABLED => 'publish',
             Entity::STATUS_DRAFT => 'unpublish',
             Entity::STATUS_TRASH => 'delete',
-            Entity::STATUS_ARCHIVED => null
+            Entity::STATUS_ARCHIVED => null,
+            Entity::STATUS_DISABLED => 'disabled'
+        ],
+        Entity::STATUS_DISABLED => [
+            Entity::STATUS_DISABLED => null,
+             Entity::STATUS_ENABLED => 'publish',
+            Entity::STATUS_DRAFT => 'unpublish',
+            Entity::STATUS_TRASH => 'delete',
+            Entity::STATUS_ARCHIVED => 'archive',
         ]
     ];
 
@@ -164,24 +177,27 @@ abstract class EntityController extends \MapasCulturais\Controller{
         return $this->getFields();
     }
 
-    protected function _finishRequest($entity, $isAjax = false, $function = null){
+    protected function _finishRequest($entity, $isAjax = false, $function = null)
+    {
         $status = 200;
-        try{
-            if($function){
+        try {
+            if ($function) {
                 $entity->$function(true);
             } else {
                 $entity->save(true);
+                if ($entity->avatar) Utils::saveFileByUrl($entity->avatar, $entity, 'avatar');
+                if ($entity->banner) Utils::saveFileByUrl($entity->banner, $entity, 'header');
             }
-        }  catch (WorkflowRequest $e){
+        } catch (WorkflowRequest $e) {
             $status = 202;
             $reqs = [];
-            foreach($e->requests as $request){
+            foreach ($e->requests as $request) {
                 $reqs[] = $request->getRequestType();
             }
 
             header('CreatedRequests: ' . json_encode($reqs));
         }
-        
+
         $this->finish($entity, $status, $isAjax);
     }
 
@@ -450,7 +466,7 @@ abstract class EntityController extends \MapasCulturais\Controller{
             }
             $entity->$field = $value;
         }
-
+     
         if($errors = $entity->validationErrors){
             $this->errorJson($errors);
         }else{
@@ -473,7 +489,7 @@ abstract class EntityController extends \MapasCulturais\Controller{
         }
 
         $app = App::i();
-
+        
         $app->applyHookBoundTo($this, "PATCH({$this->id}.single):data", ['data' => &$data]);
 
         $entity = $this->requestedEntity;
@@ -494,7 +510,7 @@ abstract class EntityController extends \MapasCulturais\Controller{
         foreach($data as $field => $value){
             if($field == 'status'){
                 $function = isset(self::$changeStatusMap[$entity->status][(int)$value]) ? self::$changeStatusMap[$entity->status][(int)$value] : null;
-                continue;
+                continue;               
             }
             $entity->$field = $value;
         }

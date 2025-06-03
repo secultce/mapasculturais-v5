@@ -5,11 +5,11 @@
         <label class="multi-title-label">Assunto da diligência</label>
         <div class="radio-group">
             <label style="margin-right: 50px;">
-                <input type="checkbox" name="assunto[]" <?= $checkPhysical; ?> id="subject_exec_physical">
+                <input type="checkbox" name="assunto[]" <?= $checkPhysical; ?> value="subject_exec_physical">
                 Execução física do objeto
             </label>
             <label>
-                <input type="checkbox" name="assunto[]" <?= $checkFinance; ?> id="subject_report_finance">
+                <input type="checkbox" name="assunto[]" <?= $checkFinance; ?> value="subject_report_finance">
                 Relatório financeiro
             </label>
         </div>

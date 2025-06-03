@@ -4,6 +4,20 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.3] - 2025-06-03
+### Modificado
+- Modificando view da planilha para não mostrar campos condicionais ocultos
+- Remoção do modal de início
+- Criado metodo para desabilitar entidades
+- Remove valores dos metadados condicionados quando os campos não estão visíveis
+- Alterando referência do plugin de recurso
+- Alterando referência do plugin multiplelocalauth para layout de e-mail
+### Adicionado
+- Adicionado imagem de destaque das entidades via api
+- Adicionado exceções e mensagens de erro para serviço de cotas indisponíveis
+### Corrigido
+- Mantendo exequibilidade orçamentária como pendente
+
 ## [5.10.2] - 2025-05-16
 ### Modificado
 - Reabertura de avaliação para admins e dono da oportunidade
