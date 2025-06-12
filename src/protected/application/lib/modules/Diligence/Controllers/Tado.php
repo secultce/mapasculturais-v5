@@ -28,9 +28,9 @@ class Tado extends \MapasCulturais\Controller
 
         $app->view->enqueueScript('app', 'tado', 'js/multi/tado.js');
         $app->view->enqueueScript('app', 'diligence-message', 'js/diligence/diligenceMessage.js');
-        $app->view->enqueueScript('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/js/froala_editor.pkgd.min.js');
-        $app->view->enqueueScript('app', 'jquery-cookies', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js');
-        $app->view->enqueueStyle('app', 'ckeditor-diligence', 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.1/css/froala_editor.pkgd.min.css');
+        $app->view->enqueueScript('app', 'ckeditor-diligence', 'plugins/froala/js/froala_editor.pkgd.min.js');
+        $app->view->enqueueScript('app', 'jquery-cookies', 'js/jquery.cookie.min.js');
+        $app->view->enqueueStyle('app', 'ckeditor-diligence', 'plugins/froala/css/froala_editor.pkgd.min.css');
         //Acesso ao avaliador, superAdmin+ ou admin da oportunidade
         if($isEvaluator || $app->user->is('superAdmin') || $reg->opportunity->canUser('@control'))
         {
