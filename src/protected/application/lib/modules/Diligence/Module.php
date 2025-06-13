@@ -88,6 +88,7 @@ class Module extends \MapasCulturais\Module {
 
             $diligenceAndAnswers = DiligenceRepo::getDiligenceAnswer($registration->id, $isProponent, $isEvaluator);
             if ($isProponent) {
+                $app->view->enqueueScript('app', 'proponent', 'js/diligence/proponent.js');
                 $this->part('diligence/proponent', [
                     'context' => $context,
                     'sendEvaluation' => $sendEvaluation,
