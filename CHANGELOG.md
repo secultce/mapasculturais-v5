@@ -4,6 +4,12 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.4] - 2025-06-16
+### Adicionado
+- Envio de e-mails ao publicar os pareceres das avaliações
+### Corrigido
+- Adicionado script faltante para funcionamento da diligencia pela visão do proponente
+
 ## [5.10.3] - 2025-06-03
 ### Modificado
 - Modificando view da planilha para não mostrar campos condicionais ocultos
