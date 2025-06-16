@@ -38,7 +38,8 @@
         "nesbot/carbon": "^2.72",
         "mpdf/mpdf": "^8.2",
         "guzzlehttp/guzzle": "^7.9.2",
-        "sentry/sentry": "^4.10"
+        "sentry/sentry": "^4.10",
+        "ext-json": "*"
     },
     "repositories": [
         {
