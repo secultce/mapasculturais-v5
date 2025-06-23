@@ -38,15 +38,13 @@ class Module extends \MapasCulturais\Module {
             $this->jsObject['idDiligence'] = 0;
             $registration = $this->controller->requestedEntity;
 
-            $entityDiligence = new EntityDiligence();
-            //Verifica se já ouve o envio da avaliação
             $sendEvaluation = EntityDiligence::evaluationSend($registration);
             //Repositório de diligência, busca Diligencia pelo id da inscrição
-            $diligenceRepository = DiligenceRepo::findBy(EntityDiligence::class, ['registration' => $registration]);
+            $diligences = DiligenceRepo::findBy(['registration' => $registration]);
             //Verifica a data limite para resposta contando com dias úteis
-            if (isset($diligenceRepository[0]) && count($diligenceRepository) > 0) {
+            if (isset($diligences[0]) && count($diligences) > 0) {
                 $diligence_days = AnswerDiligence::setNumberDaysAnswerDiligence(
-                    $diligenceRepository[0]->sendDiligence,
+                    $diligences[0]->sendDiligence,
                     $registration->opportunity->getMetadata('diligence_days'),
                     $registration->opportunity->getMetadata('type_day_response_diligence')
                 );
@@ -63,11 +61,11 @@ class Module extends \MapasCulturais\Module {
 
             $app->view->enqueueScript('app', 'entity-diligence', 'js/diligence/entity-diligence.js');
             $placeHolder = '';
-            $isProponent = $entityDiligence->isProponent($diligenceRepository, $registration);
+            $isProponent = EntityDiligence::isProponent($diligences, $registration);
             $isEvaluator = $module->isEvaluator($opportunity, $this->data['entity']);
             $context = [
                 'entity' => $registration,
-                'diligenceRepository' => $diligenceRepository,
+                'diligenceRepository' => $diligences,
                 'diligenceDays' => $diligence_days ,
                 'placeHolder' => $placeHolder,
                 'isProponent' => $isProponent,
@@ -127,7 +125,9 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(opportunity.single.tabs-content):end', function () use ($app) {
-            if($this->data['entity']->use_diligence === 'Sim' && $this->data['entity']->canUser('@control')) {
+            if($this->data['entity']->use_diligence === 'Sim') {
+                $app->view->enqueueStyle('app', 'opportunity-diligence', 'css/diligence/opportunity-diligence.css');
+
                 $qb = $app->em->createQueryBuilder();
 
                 $registrations = $qb
@@ -135,11 +135,18 @@ class Module extends \MapasCulturais\Module {
                     ->from('\MapasCulturais\Entities\Registration', 'r')
                     ->innerJoin('\Diligence\Entities\Diligence', 'd', 'WITH', 'd.registration = r')
                     ->where($qb->expr()->in('r.opportunity', '?1'))
-                    ->groupBy('r.id')
+                    ->groupBy('r')
                     ->having('COUNT(d) > 0')
                     ->setParameter(1, $this->data['entity']->id)
                     ->getQuery()
                     ->getResult();
+
+                if (!$this->data['entity']->canUser('@control')) {
+                    $registrations = array_filter($registrations, function ($registration) use ($app) {
+                        /** @var Entities\Registration $registration */
+                        return $registration->canUser('view');
+                    });
+                }
 
                 $registrationsWithDiligences = [];
                 foreach ($registrations as $registration) {
@@ -216,7 +223,7 @@ class Module extends \MapasCulturais\Module {
 
         //Hook para antes de upload para um logica para diligência
         $app->hook('POST(diligence.upload):before', function () use ($app) {
-            $diligence = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]]);
+            $diligence = DiligenceRepo::findBy(['id' => $this->data["id"]]);
 
             //Se Files é diferente de null
             //Se Files tem o indice com o grupo da diligencia

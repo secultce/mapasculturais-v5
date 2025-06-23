@@ -1,8 +1,9 @@
 <?php
+
 namespace Diligence\Controllers;
 
-use DateTime;
 use Carbon\Carbon;
+use Diligence\Repositories\Diligence;
 use \MapasCulturais\App;
 use MapasCulturais\Entity;
 use Diligence\Entities\Tado as EntityTado;
@@ -96,7 +97,14 @@ class Tado extends \MapasCulturais\Controller
 
             $entity = self::saveEntity($tado);
             if ($entity["entityId"]) {
-                if ($this->data['status'] == 1) self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
+                if ($this->data['status'] == 1) {
+                    Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
+                    self::returnRequestJson(
+                        'O seu documento foi gerado!',
+                        'TADO finalizado e realizado o download para o seu computador.',
+                        200
+                    );
+                }
                 self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
             }
         }
@@ -122,8 +130,13 @@ class Tado extends \MapasCulturais\Controller
         self::sendNotificationTagoGeneration();
 
         if($entity["entityId"]){
-            if($request->data['status'] == 1){
-                self::returnRequestJson('O seu documento foi gerado!', 'TADO finalizado e realizado o download para o seu computador.', 200);
+            if ($request->data['status'] == 1) {
+                Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
+                self::returnRequestJson(
+                    'O seu documento foi gerado!',
+                    'TADO finalizado e realizado o download para o seu computador.',
+                    200
+                );
             }else{
                 self::returnRequestJson('Sucesso!', 'Tado alterado com sucesso', 200);
             }            
