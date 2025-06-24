@@ -167,13 +167,13 @@ $tado = RepoDiligence::getTado($reg);
                         <div class="form-group">
 
                             <label class="title-info">Nome</label>
-                            <input name="nameFiscal" id="nameFiscal"
+                            <input name="nameFiscal" id="nameManager"
                                    value="<?= isset($tado) ? $tado->nameManager : '' ?>"
                             />
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF</label>
-                            <input name="cpf" id="cpfTado"
+                            <input name="cpf" id="cpfManager"
                                    value="<?= isset($tado) ? $tado->cpfManager : '' ?>" />
                         </div>
                     </div>

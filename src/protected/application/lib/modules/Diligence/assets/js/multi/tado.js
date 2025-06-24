@@ -4,7 +4,7 @@ $(document).ready(function () {
    
     //Mascara de data
     $(".dateTado").mask('00/00/0000');
-    $("#cpfTado").mask('000.000.000-00');
+    $("#cpfManager").mask('000.000.000-00');
     $( ".dateTado" ).datepicker({
         altFormat: "dd/mm/YYYY"
     });
@@ -31,7 +31,7 @@ $(document).ready(function () {
 
 function saveTado(editor, status)
 {
-    if ($("#nameFiscal").val() == '' || $("#cpfTado").val() == '') {
+    if ($("#nameManager").val() == '' || $("#cpfManager").val() == '') {
         Swal.fire({
             title: "Ops!",
             icon: "error",
@@ -49,8 +49,8 @@ function saveTado(editor, status)
         conclusion: editor.html.get(),//Captura o html do textarea
         idTado: $("#idTado").val(),
         status : status,
-        nameManager :  $("#nameFiscal").val(),
-        cpfManager  : $("#cpfTado").val()
+        nameManager :  $("#nameManager").val(),
+        cpfManager  : $("#cpfManager").val()
     };
 
     if($("#idTado").val() !== '') {
