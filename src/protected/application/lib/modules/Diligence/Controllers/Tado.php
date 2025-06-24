@@ -76,7 +76,7 @@ class Tado extends \MapasCulturais\Controller
         !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;
      
         $app = App::i();
-       
+
         if (intval($request->data['idTado']) > 0) {
             self::update($request);           
         } else {

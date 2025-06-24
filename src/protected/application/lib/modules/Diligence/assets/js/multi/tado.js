@@ -4,7 +4,7 @@ $(document).ready(function () {
    
     //Mascara de data
     $(".dateTado").mask('00/00/0000');
-    $("#cpfTado").mask('000.000.000-00');
+    $("#cpfManager").mask('000.000.000-00');
     $( ".dateTado" ).datepicker({
         altFormat: "dd/mm/YYYY"
     });
@@ -31,6 +31,14 @@ $(document).ready(function () {
 
 function saveTado(editor, status)
 {
+    if ($("#nameManager").val() == '' || $("#cpfManager").val() == '') {
+        Swal.fire({
+            title: "Ops!",
+            icon: "error",
+            text: "Está faltando os dados do Coordenador"
+        });
+        return false;
+    }
     // Dados para requisição
     const postDataTado = {
         numbertec: $("#numbertec").val(),
