@@ -1,4 +1,4 @@
-<div id="diligences">
+<div id="diligences" class="aba-content">
     <table class="js-registration-list registrations-table"><!-- adicionar a classe registrations-results quando resultados publicados-->
         <?php $this->applyTemplateHook('opportunity-diligences--table-thead','before'); ?>
         <thead>
