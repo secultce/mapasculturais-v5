@@ -92,6 +92,7 @@ class Tado extends \MapasCulturais\Controller
             $tado->conclusion       = $this->data['conclusion'];
             $tado->status           = $this->data['status'];
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
+            $tado->nameManager       = $this->data['nameManager'];
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
