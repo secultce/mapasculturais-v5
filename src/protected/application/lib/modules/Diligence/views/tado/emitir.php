@@ -165,11 +165,11 @@ $tado = RepoDiligence::getTado($reg);
                     <div style=" display: flex; justify-content: space-between;">
                         <div class="form-group">
                             <label class="title-info">Nome</label>
-                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                            <input name="nameManager" id="nameManager" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF</label>
-                            <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                            <input name="cpf" id="cpfManager" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
                         </div>
                     </div>
                 </div>
