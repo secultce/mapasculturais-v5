@@ -13,7 +13,7 @@ $(document).ready(function () {
     //Bloqueando aba para proponente
     $("#li-tab-diligence-diligence > a").remove();
     $("#tab-diligence-diligence").remove();
-    
+
     $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
     $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');
 
@@ -61,7 +61,7 @@ $(document).ready(function () {
                 }
             })
 
-            MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);    
+            MapasCulturais.idDiligence = Math.max.apply(null, idsDiligences);
             const ahref ='<a href="#diligence-diligence" rel="noopener noreferrer" onclick="hideRegistration()" id="tab-diligence-diligence">Diligência</a>';
                 $("#li-tab-diligence-diligence > label").removeClass('cursor-disabled');
                 $("#li-tab-diligence-diligence > label").remove();
@@ -79,7 +79,7 @@ $(document).ready(function () {
                     $("#descriptionDiligence").show();
                     $("#div-btn-actions-proponent").show();
                 }
-            });  
+            });
             if (res.data[0].answer != null) {
                 $("#descriptionDiligence").hide();
                 $("#div-btn-actions-proponent").hide();
@@ -149,7 +149,7 @@ $(document).ready(function () {
 
     $('#attach-dili-res-file').on('click', () => {
         const text = $('#descriptionDiligence').val();
-        
+
         if (text.length) saveAnswerProponente(0);
     });
 });
@@ -228,7 +228,7 @@ function saveAnswerProponente(status) {
 
                     if (successResult.isDismissed && successResult.dismiss === 'cancel') {
                         showViewActions();
-                        cancelAnswer();                  
+                        cancelAnswer();
                     }
 
                     if (successResult.dismiss === Swal.DismissReason.timer) {
@@ -246,7 +246,7 @@ function saveAnswerProponente(status) {
                 $("#div-btn-actions-proponent").show();
                 $("#descriptionDiligence").show();
                 $("#div-content-all-diligence-send").show();
-                $("#answer_diligence").hide();                
+                $("#answer_diligence").hide();
             }
 
         }).catch((err) => {
@@ -349,7 +349,7 @@ function showViewActions()
 
 /**
  * Envia requisição com id do arquivo para exclusão
- * @param {string} id 
+ * @param {string} id
  */
 function deleteFileDiligence(id)
 {

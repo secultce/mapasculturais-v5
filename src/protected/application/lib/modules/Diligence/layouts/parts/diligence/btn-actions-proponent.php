@@ -7,7 +7,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 $app = App::i();
 
-$diligences = DiligenceRepo::findBy('Diligence\Entities\Diligence', [
+$diligences = DiligenceRepo::findBy([
     'registration' => $entity->id,
     'status' => Diligence::STATUS_SEND
 ], ['createTimestamp' => 'asc']);

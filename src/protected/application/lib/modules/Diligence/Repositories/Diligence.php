@@ -1,4 +1,5 @@
 <?php
+
 namespace Diligence\Repositories;
 
 use Diligence\Entities\Tado;
@@ -7,12 +8,12 @@ use Diligence\Entities\Diligence as DiligenceEntity;
 use MapasCulturais\Entities\Registration;
 
 class Diligence{
+    private static $className = DiligenceEntity::class;
 
-    static public function findBy(string $className = 'Diligence\Entities\Diligence', array $criteria = [], array $orderBy = []): array
+    static public function findBy(array $criteria = [], array $orderBy = []): array
     {
-        $app = App::i();  
-        $entity = $app->em->getRepository($className)->findBy($criteria, $orderBy);
-        return $entity;
+        $app = App::i();
+        return $app->em->getRepository(self::$className)->findBy($criteria, $orderBy);
     }
 
     static public function getRegistrationAgentOpenAndAgent($number, $agentOpen, $agent): array
@@ -109,8 +110,7 @@ class Diligence{
     public function getIdLastDiligence($registration) : DiligenceEntity
     {
         $app = App::i();
-        $lastDiligence = $app->repo(DiligenceEntity::class)->findOneBy(['registration' => $registration], ['id' => 'desc']);
-        return $lastDiligence;
+        return $app->repo(self::$className)->findOneBy(['registration' => $registration], ['id' => 'desc']);
     }
 
     //Verifica se tem acesso ao relatório financeiro da PC
@@ -188,5 +188,21 @@ class Diligence{
             $app->redirect($app->createUrl('oportunidade', $auditorDiligence->registration->opportunity->id) . '#/tab=evaluations');
         }
         return $auditorDiligence;
+    }
+
+    /**
+     * @param int|Registration $reg
+     * @param int $status
+     * @return void
+     */
+    public static function updateStatusByRegistration($reg, int $status): void
+    {
+        App::i()->getEm()->createQueryBuilder()->update(DiligenceEntity::class, 'd')
+            ->set('d.status', ':status')
+            ->where('d.registration = :registration')
+            ->setParameter('registration', $reg)
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->execute();
     }
 }
