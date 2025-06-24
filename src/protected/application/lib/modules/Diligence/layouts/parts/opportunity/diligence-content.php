@@ -11,7 +11,7 @@
                 <?php \MapasCulturais\i::_e("Inscrição");?>
             </th>
             <th class="registration-id-col">
-                <select id="evaluator-filter" class="dropdown">
+                <select id="evaluator-filter" class="select-filter dropdown">
                     <option value="0" selected>Avaliador</option>
                     <?php /** @var \MapasCulturais\Entities\Agent[] $evaluators */
                     foreach ($evaluators as $evaluator): ?>
@@ -31,19 +31,27 @@
             </th>
             <th class="registration-status-col">
                 <select id="status-filter" class="select-filter dropdown">
-                    <option value="all" selected>Status</option>
+                    <option value="placeholder" selected disabled>Status</option>
+                    <option value="all">Todos</option>
                     <option value="3">Enviado ao proponente</option>
                     <option value="4">Respondido</option>
+                    <option value="10">TADO gerado</option>
                 </select>
             </th>
             <th class="registration-status-col">
-
-                <select id="subject-filter" class="select-filter dropdown">
-                    <option value="all" selected><?php \MapasCulturais\i::_e('Assunto');?></option>
-                    <option value="Execução Física do Objeto."><?php \MapasCulturais\i::_e('Execução Física do Objeto');?></option>
-                    <option value="Relatório Financeiro."><?php \MapasCulturais\i::_e('Relatório Financeiro');?></option>
-                    <option value="Execução Física do Objeto, Relatório Financeiro."><?php \MapasCulturais\i::_e('Execução Física do Objeto, Relatório Financeiro.');?></option>
-                </select>
+                <div id="subject-filter" class="select-filter dropdown">
+                    <span>Assunto</span>
+                    <div class="subject-options">
+                        <label>
+                            <input type="checkbox" name="subject-filter" value="Execução Física do Objeto.">
+                            <?php \MapasCulturais\i::_e('Execução Física do Objeto');?>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="subject-filter" value="Relatório Financeiro.">
+                            <?php \MapasCulturais\i::_e('Relatório Financeiro');?>
+                        </label>
+                    </div>
+                </div>
             </th>
             <?php $this->applyTemplateHook('opportunity-diligences--table-thead-tr','end'); ?>
         </tr>
@@ -74,7 +82,6 @@
             data-evaluator-filter="<?= $diligence->openAgent->id ?>" 
             data-status-filter="<?= $diligence->status ?>"
             data-subject-filter="<?= $diligence->getSubject() ?>"
-        
         >
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','before'); ?>
             <td class="registration-id-col">
@@ -105,7 +112,7 @@
                 <?= $diligence->status == 3 ? '<br>' . $diligence->createTimestamp->format('d-m-Y H:i:s') : '' ?>
             </td>
             <td class="registration-status-col">
-                <?php $diligence->getSubject(); ?>
+                <?= $diligence->getSubject(); ?>
             </td>
             <?php $this->applyTemplateHook('opportunity-diligences--table-tbody-tr','end'); ?>
         </tr>

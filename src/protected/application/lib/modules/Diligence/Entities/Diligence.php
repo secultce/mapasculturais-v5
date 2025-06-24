@@ -32,13 +32,15 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 {
     use \Diligence\Traits\DiligenceSingle;
 
-    const STATUS_OPEN = 2; // Para diligencias que está em aberto
+    const STATUS_OPEN = 2; // Para diligências que estão em aberto
     const STATUS_SEND = 3; // Para diligência enviada para o proponente
     const STATUS_ANSWERED = 4; // Para diligências respondida pelo proponente
+    const STATUS_COMPLETE = 10; // Para diligências com o TADO gerado
+
     const TYPE_NOTIFICATION_AUDITOR =  'diligence';
     const TYPE_NOTIFICATION_PROPONENT =  'answer';
-
     const TYPE_NOTIFICATION_TADO =  'tado';
+
     /**
      * @var integer
      *
@@ -206,29 +208,29 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     /**
      * Verifica se o agente logado é o que deve responder a diligência
      *
-     * @param [array] $diligenceAgentId
+     * @param array $diligences
      * @return boolean
      */
-    static public function isProponent($diligenceAgentId, $entity) : bool
+    static public function isProponent(array $diligences, $entity) : bool
     {
         $app = App::i();
         //Em caso de não ter diligencia aberta, então verifica o dono da inscrição com o usuario logado
-        if(empty($diligenceAgentId)){
+        if(empty($diligences)){
             if($entity->getOwnerUser() == $app->user)
             {
                 return true;
             }
         }
 
-        if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
-            if($app->user->profile->id == $diligenceAgentId[0]->agent->id){
+        if(isset($diligences[0]) && count($diligences) > 0){
+            if($app->user->profile->id == $diligences[0]->agent->id){
                 return true;
             }
         }
         return false;
     }
 
-    static public function isEvaluate($entity, $user)
+    static public function isEvaluate($entity, $user): bool
     {
         $evaluation = $entity->getUserEvaluation($user);
       
@@ -340,6 +342,8 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
                 return \MapasCulturais\i::_e('Enviado ao proponente');
             case 4:
                 return \MapasCulturais\i::_e('Respondido');
+            case 10:
+                return \MapasCulturais\i::_e('TADO gerado');
             case -10:
                 return \MapasCulturais\i::_e('Excluído');
             default:
@@ -375,35 +379,26 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 
     /**
      * Função para retornar o dado do campo de assunto
-     * @return mixed
+     * @return string
      */
-    public function getSubject()
+    public function getSubject(): string
     {
+        $map = [
+            'subject_exec_physical' => 'Execução Física do Objeto',
+            'subject_report_finance' => 'Relatório Financeiro',
+            'single_diligence' => 'Única Diligência',
+        ];
+
         //Se string para array
         $subject  = json_decode($this->subject, true);
-        if(!is_null($subject))
-        {
-            $retSubject = [];
-            //Tratando os termos para o usuário
-            foreach ($subject as $item) {
 
-                if($item == "subject_exec_physical")
-                {
-                    array_push($retSubject, "Execução Física do Objeto");
-                }
-                if($item == "subject_report_finance")
-                {
-                    array_push($retSubject, "Relatório Financeiro");
-                }
-                //Para diligência única
-                if($item == "single_diligence")
-                {
-                    array_push($retSubject, "Única Diligência");
-                }
-            }
-            //Tratando a forma de escrita
-            return implode(', ', $retSubject). '.';
-        };
+        $retSubject = is_array($subject)
+            ? array_map(function ($item) use ($map) {
+                return $map[$item];
+            }, $subject)
+            : [];
+
+        return implode(', ', $retSubject) . '.';
     }
 
     /**
