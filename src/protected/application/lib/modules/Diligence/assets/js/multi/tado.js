@@ -31,6 +31,14 @@ $(document).ready(function () {
 
 function saveTado(editor, status)
 {
+    if ($("#nameFiscal").val() == '' || $("#cpfTado").val() == '') {
+        Swal.fire({
+            title: "Ops!",
+            icon: "error",
+            text: "Está faltando os dados do Coordenador"
+        });
+        return false;
+    }
     // Dados para requisição
     const postDataTado = {
         numbertec: $("#numbertec").val(),
@@ -41,8 +49,8 @@ function saveTado(editor, status)
         conclusion: editor.html.get(),//Captura o html do textarea
         idTado: $("#idTado").val(),
         status : status,
-        nameManager :  $("#nameManager").val(),
-        cpfManager  : $("#cpfManager").val()
+        nameManager :  $("#nameFiscal").val(),
+        cpfManager  : $("#cpfTado").val()
     };
 
     if($("#idTado").val() !== '') {

@@ -90,42 +90,11 @@
 <table>
     <tbody>
     <tr>
-        <td class="title-bold"  style="text-align: center">RESPONSÁVEL PELA EMISSÃO L</td>
+        <td class="title-bold"  style="text-align: center">RESPONSÁVEL PELA EMISSÃO</td>
     </tr>
     </tbody>
 </table>
-<table style="width: 100%">
-    <tbody>
-    <tr style="width: 100%">
-      <td class="title-bold" style="width: 50%">
-        COORDENADOR FINALÍSTICO :
-      </td>
-      <td  class="title-bold" style="width: 50%">
-        CPF :
-      </td>
-    </tr>
-    <tr style="width: 100%">
-        <td class="" style="width: 50%">
-            <?= $app->view->regObject['tado']->agentSignature->name; ?>
-        </td>
-        <td style="width: 50%">
-            <?= $app->view->regObject['tado']->agentSignature->getMetadata('cpf'); ?>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <br>
-        </td>
-    </tr>
-    <tr style="width: 100%;">
-        <td style="width: 100%;border-bottom: 1px solid black" colspan="2">
-            <p>
-            Assinatura:
-            </p>
-        </td>
-    </tr>
-    </tbody>
-</table>
+
 <?php 
     if( ($app->view->regObject['tado']->nameManager !== null)):
         //Em ocasioes que o gestor é adicionado e depois removido
@@ -139,14 +108,14 @@
 <table  style="width: 100%">
     <tbody>
     <tr style="width: 100%">
-        <td class="title-bold">RESPONSÁVEL PELA EMISSÃO - GESTOR(A)</td>
+        <td class="title-bold"> COORDENADOR FINALÍSTICO :</td>
     </tr>
     <tr style="width: 100%">
       <td class="title-bold" style="width: 50%">
-        NOME DO(A) GESTOR(A) :
+        NOME:
       </td>
       <td  class="title-bold" style="width: 50%">
-        CPF :
+        CPF:
       </td>
     </tr>
     <tr style="width: 100%">

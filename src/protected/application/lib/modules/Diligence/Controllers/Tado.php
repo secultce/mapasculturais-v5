@@ -75,7 +75,7 @@ class Tado extends \MapasCulturais\Controller
         !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;
      
         $app = App::i();
-       
+
         if (intval($request->data['idTado']) > 0) {
             self::update($request);           
         } else {
@@ -91,7 +91,6 @@ class Tado extends \MapasCulturais\Controller
             $tado->conclusion       = $this->data['conclusion'];
             $tado->status           = $this->data['status'];
             $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
-            $tado->nameManager      = $this->data['nameManager'];
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
