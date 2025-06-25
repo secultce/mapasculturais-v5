@@ -325,7 +325,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     function POST_upload(): void
     {
-        $owner = DiligenceRepo::findBy('Diligence\Entities\Diligence', ['id' => $this->data["id"]])[0];
+        $owner = DiligenceRepo::findBy(['id' => $this->data["id"]])[0];
         $savedFiles = DiligenceRepo::getFilesDiligence($this->data["id"]);
         $useMultiDiligence = $owner->registration->opportunity->use_multiple_diligence;
 

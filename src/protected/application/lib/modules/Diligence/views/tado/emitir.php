@@ -159,19 +159,25 @@ $tado = RepoDiligence::getTado($reg);
             </div>
             <div>
                 <div class="form-container">
+                    <?php if ((isset($tado) && $tado->nameManager !== '') || is_null($tado)) : ?>
                     <p class="title-label" style="font-size: 18px;">
                         Coordenador Finalístico
                     </p>
                     <div style=" display: flex; justify-content: space-between;">
                         <div class="form-group">
+
                             <label class="title-info">Nome</label>
-                            <input name="nameFiscal" value="<?= $app->auth->getAuthenticatedUser()->profile->name; ?>" />
+                            <input name="nameFiscal" id="nameManager"
+                                   value="<?= isset($tado) ? $tado->nameManager : '' ?>"
+                            />
                         </div>
                         <div class="form-group">
                             <label class="title-info">CPF</label>
-                            <input name="cpf" id="cpfTado" value="<?= $app->auth->getAuthenticatedUser()->profile->getMetadata('cpf'); ?>" />
+                            <input name="cpf" id="cpfManager"
+                                   value="<?= isset($tado) ? $tado->cpfManager : '' ?>" />
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <div class="form-container footer-action-tado">
                     <?php if ((isset($tado) && $tado->status == 0) || is_null($tado)) : ?>
