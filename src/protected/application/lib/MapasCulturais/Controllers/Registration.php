@@ -612,7 +612,6 @@ class Registration extends EntityController {
         if (is_null($data)) {
             $data = $this->postData;
         }
-
         $registration = $this->getRequestedEntity();
         $metadatas = $registration->getRegisteredMetadata(null, true);
 
@@ -620,13 +619,20 @@ class Registration extends EntityController {
             if (str_contains($meta_key, 'field_')) {
                 $conditionalField = $metadata->config['registrationFieldConfiguration']->conditionalField ?? null;
                 $conditionalValue = $metadata->config['registrationFieldConfiguration']->conditionalValue ?? null;
-
-                if ($conditionalField && $conditionalValue !== $data[$conditionalField]) {
-                    $data[$meta_key] = null;
+                if ($conditionalField) {
+                    // Verifica se o campo condicional é um array (checkboxes)
+                    if (is_array($data[$conditionalField])) {
+                        if (!in_array($conditionalValue, $data[$conditionalField])) {
+                            $data[$meta_key] = null;
+                        }
+                    } else {
+                        if ($conditionalValue !== $data[$conditionalField]) {
+                            $data[$meta_key] = null;
+                        }
+                    }
                 }
             }
         }
-
         parent::PATCH_single($data);
     }
 }
