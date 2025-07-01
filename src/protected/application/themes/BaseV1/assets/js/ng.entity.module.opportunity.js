@@ -1737,26 +1737,30 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     }
 
     $scope.showField = function(field){
-        
+
         var result;
-        if (!$scope.useCategories){
+        if (!$scope.useCategories) {
             result = true;
         } else {
             result = field.categories.length === 0 || field.categories.indexOf($scope.selectedCategory) >= 0;
         }
 
-        if(field.conditional){
-            result = result && $scope.entity[field.conditionalField] == field.conditionalValue;
+        if (field.conditional) {
+            // Verifica se o campo condicional é um array (checkboxes)
+            if (Array.isArray($scope.entity[field.conditionalField])) {
+                result = result && $scope.entity[field.conditionalField].includes(field.conditionalValue);
+            } else {
+                result = result && $scope.entity[field.conditionalField] == field.conditionalValue;
+            }
         }
 
         if (field.config && field.config.require && field.config.require.condition && field.config.require.hide) {
             var requiredFieldName = field.config.require.field;
             var requeredFieldValue = field.config.require.value;
-
         }
 
-        if(MapasCulturais.entity.canUserEvaluate){
-            if(result && !$scope.isAvaliableEvaluationFields(field)){
+        if (MapasCulturais.entity.canUserEvaluate) {
+            if (result && !$scope.isAvaliableEvaluationFields(field)) {
                 result = false;
             }
         }
