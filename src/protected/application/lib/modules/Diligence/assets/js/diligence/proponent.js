@@ -13,6 +13,7 @@ $(document).ready(function () {
     //Bloqueando aba para proponente
     $("#li-tab-diligence-diligence > a").remove();
     $("#tab-diligence-diligence").remove();
+    $("#tab-opinion-accountability").remove();
 
     $("#li-tab-diligence-diligence").append('<label>Diligência</label>');
     $("#li-tab-diligence-diligence > label").addClass('cursor-disabled');

@@ -13,7 +13,7 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     </select>
 </div>
 
-<div style="text-align: center;width: 100%;" id="multi-div-btn-status">
+<div id="multi-div-btn-status" class="d-none">
     <p style="text-align: center;width: 100%; margin-bottom: 15px" class="multi-itens-select">
         <a href="<?= $app->createUrl('refo', 'report/' . $reg->id); ?>" target="_blank" class="btn btn-default" title="Gera o relatório para o financeiro analisar" style="display: block;">
             <i class="fas fa-solid fa-file-pdf"></i>

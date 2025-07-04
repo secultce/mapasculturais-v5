@@ -374,5 +374,3 @@ function trashDraftDiligence(idDiligence, titleQuestion,textTrash, titleCancel, 
         });
     })
 }
-
-
