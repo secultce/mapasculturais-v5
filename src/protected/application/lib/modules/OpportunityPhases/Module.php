@@ -9,6 +9,7 @@ use MapasCulturais\App,
     MapasCulturais\Exceptions;
 use MapasCulturais\Entities\Opportunity;
 use \MapasCulturais\Types\GeoPoint;
+use MapasCulturais\Services\AmqpQueueService;
 
 class Module extends \MapasCulturais\Module{
 
@@ -803,6 +804,31 @@ class Module extends \MapasCulturais\Module{
             self::sendApprovalEmails($this);
             return;
         });
+
+        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
+           // Dados para envio para mensageria
+            $bodyMessageRegistration = array_map(function ($reg) {
+                return [
+                    'registration' => $reg->id,
+                    'opp_id' => $reg->opportunity->id,
+                    'opp_name' => $reg->opportunity->name,
+                    'number' => $reg->number,
+                    'owner' => $reg->owner->name
+                ];
+            }, $new_registrations);
+                
+            // instanciando e enviando para a mensageria
+            $queueService = new AmqpQueueService();
+            $queueService->sendMessage(
+                'registration',
+                'import_registration',
+                $bodyMessageRegistration,
+                null,
+                true
+            );          
+        });
+
+
     }
 
     function register () {
@@ -889,7 +915,7 @@ class Module extends \MapasCulturais\Module{
 
             $reg->previousPhaseRegistrationId = $r->id;
             $reg->category = $r->category;
-
+        
             $reg->save(true);
 
             if(!$as_draft){
@@ -899,17 +925,18 @@ class Module extends \MapasCulturais\Module{
             $r->nextPhaseRegistrationId = $reg->id;
 
             $r->save(true);
-
+           
             $new_registrations[] = $reg;
 
             $app->em->clear();
         }
 
         $opp_repo->find($target_opportunity->id)->save(true);
-
+        
+        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
+       
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
-
         return $new_registrations;
     }
 
