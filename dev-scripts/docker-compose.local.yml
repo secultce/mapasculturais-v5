@@ -45,7 +45,7 @@ services:
       - SECULT_SEAL_ID=
       - URL_SITE_EDITAIS=
       - QUOTA_SERVICE_BASE_URL=quota-service:9501/api/v1
-      - SENTRY_DSN=link_sentry
+      - SENTRY_DSN=https://8aa8dbf93cc99ab07fdcaf4a2acb0a7e@o4509135044804608.ingest.us.sentry.io/4509135046377472
       - APP_ENV=development
       - APP_VERSION=5.8.11
     depends_on:
