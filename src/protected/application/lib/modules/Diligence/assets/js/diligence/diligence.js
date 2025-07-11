@@ -87,6 +87,25 @@ $(document).ready(function () {
     $("#input-value-project-diligence").on("blur", function (e) {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
+
+    $('.save-opinion-accountability-btn').on('click', function () {
+        saveOrPublishOpinion('save')
+    })
+
+    $('.publish-opinion-accountability-btn').on('click', function () {
+        Swal.fire({
+            title: "Deseja publicar o parecer?",
+            text: "Essa ação não poderá ser desfeita.",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Confirmar",
+            reverseButtons: true
+        }).then(res => {
+            if (res.isConfirmed) {
+                saveOrPublishOpinion('publish')
+            }
+        })
+    })
 });
 
 //Clico do botão de abrir a diligência
@@ -247,8 +266,8 @@ function cancelSend() {
 
 function saveDiligence(status, st, idDiligence) {
     if ($("#descriptionDiligence").val() === '') {
-         diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
-         return false;
+        diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
+        return false;
     }
     if (status == 3) {
         //Mensagem de confirmação
@@ -357,22 +376,44 @@ function hideAfterSend() {
     $("#descriptionDiligence").hide();
 }
 
-function trashDraftDiligence(idDiligence, titleQuestion,textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
+function trashDraftDiligence(idDiligence, titleQuestion, textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
     const trashDraft = diligenceMessage.messageConfirm(
-        titleQuestion, textTrash, titleCancel, titleConfirm, classBtnCancel ,classBtnConfirm
+        titleQuestion, textTrash, titleCancel, titleConfirm, classBtnCancel, classBtnConfirm
     );
     trashDraft.then(() => {
         $.ajax({
             type: "POST",
             url: MapasCulturais.createUrl('diligence', 'trashDraftDiligence'),
-            data: {id : idDiligence},
+            data: { id: idDiligence },
             dataType: 'json',
             success: function (response) {
-                diligenceMessage.messageSimple('Excluído','Rascunho excluído com sucesso', 1500);
-               window.location.reload();
+                diligenceMessage.messageSimple('Excluído', 'Rascunho excluído com sucesso', 1500);
+                window.location.reload();
             }
         });
     })
 }
 
+function saveOrPublishOpinion(action) {
+    $.ajax({
+        type: "POST",
+        url: MapasCulturais.createUrl('diligence', `${action}Opinion`),
+        data: {
+            opinion: $('.opinion-form #opinion-accountability').val(),
+            registrationId: MapasCulturais.entity.id,
+        },
+        dataType: "json",
+        success(res) {
+            MapasCulturais.Messages.success(res.message)
 
+            if (action === 'publish') {
+                setTimeout(() => {
+                    location.reload()
+                }, 1500)
+            }
+        },
+        error(err) {
+            MapasCulturais.Messages.error(err.responseJSON.message);
+        }
+    })
+}
