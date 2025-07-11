@@ -35,23 +35,24 @@ const refo = {
     }
 }
 
-$(document).ready(function () {
-    $("#p-btn-tado").hide();
-    $(".multi-itens-select").hide();
-    //Retornando o valor da situação
-    getSituacion();
-    $( "#situacion-refo-multi" ).on( "change", function(e) {
+$(function () {
+    // Retornando o valor da situação
+    getSituacion()
 
-        sendSituacion(e.target.value);
-        $("#label-status-actual").html($(this).find("option:selected").text());
-        if(e.target.value == 'disapproved' ) {
-            $("#btn-generate-tado").hide();
-        }else{
-            $("#btn-generate-tado").show();
+    $("#situacion-refo-multi").on("change", function (event) {
+        sendSituacion(event.target.value)
+
+        $("#label-status-actual").html($(this).find("option:selected").text())
+        $("#multi-div-btn-status").removeClass('d-none')
+
+        if (event.target.value !== 'under_analysis') {
+            $('.info-message-opinion').addClass('d-none')
+            $('.opinion-form').removeClass('d-none')
+        } else {
+            $('.info-message-opinion').removeClass('d-none')
+            $('.opinion-form').addClass('d-none')
         }
-        $(".multi-itens-select").show();
-        $("#p-btn-tado").show();
-    });
+    })
 
     $('#import-financial-report .mc-submit').on('click', () => {
         setTimeout(() => {
@@ -60,18 +61,17 @@ $(document).ready(function () {
     })
 
     refo.activeEventDeleteFinancialReport()
-});
+})
 
 /**
  * Envia o situação para salvar ou alterar o valor
  * @param {string} valueSituacion 
  */
-function sendSituacion(valueSituacion)
-{
+function sendSituacion(valueSituacion) {
     $.ajax({
         type: "POST",
         url: MapasCulturais.createUrl('refo', 'situacion'),
-        data: {situacion: valueSituacion, entity: MapasCulturais.entity.id},
+        data: { situacion: valueSituacion, entity: MapasCulturais.entity.id },
         dataType: "json",
         success: function (res) {
             if (res.status == 200) {
@@ -84,18 +84,16 @@ function sendSituacion(valueSituacion)
     });
 }
 
-//Setando o valor cadastrado no banco
-function getSituacion()
-{
+// Setando o valor cadastrado no banco
+function getSituacion() {
     $.ajax({
         type: "GET",
-        url: MapasCulturais.createUrl('refo', 'getSituacionPC/'+MapasCulturais.entity.id),
+        url: MapasCulturais.createUrl('refo', 'getSituacionPC/' + MapasCulturais.entity.id),
         dataType: "json",
         success: function (response) {
-            if(response.situacion === 'all'){
-                $(".multi-itens-select").hide();
+            if (response.situacion === 'all') {
                 $("#p-btn-tado").hide();
-            }else{
+            } else {
                 $("#situacion-refo-multi").val(response.situacion).change();
             }
         }
