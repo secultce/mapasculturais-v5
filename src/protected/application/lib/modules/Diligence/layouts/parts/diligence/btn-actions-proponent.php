@@ -66,7 +66,7 @@ $this->jsObject['countFileUpload'] = count($files);
             <li>Você poderá enviar até 02 (dois) anexos, <strong>01 por vez</strong></li>
         <?php endif; ?>
         <li>Tamanho de arquivo suportado: <strong><?php echo $this->jsObject['maxUploadSizeFormatted']; ?></strong></li>
-        <li>Tipos de arquivos suportados: <strong>.pdf|.gif|jpeg|pjpeg|png</strong></li>
+        <li>Tipos de arquivos suportados: <b>.pdf|.doc|.docx|gif|jpeg|pjpeg|png</b></li>
         <li>Preferencialmente, salve a resposta antes de anexar o arquivo</li>
         <li><b>Não é possível anexar ou excluir um arquivo após o envio da resposta</b></li>
     </ul>

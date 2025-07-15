@@ -325,18 +325,35 @@ class Module extends \MapasCulturais\Module {
             'default' => 'Não'
         ]);
 
+        $standardFileTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd\.openxmlformats-officedocument\.wordprocessingml\.document',
+            'application/vnd\.openxmlformats-officedocument\.wordprocessingml\.template',
+            'application/vnd\.ms-word\.document\.macroEnabled\.12',
+            'application/vnd\.ms-word\.template\.macroEnabled\.12',
+        ];
+        $answerFileTypes = ['image/(gif|jpeg|pjpeg|png)'];
+
         $app->registerFileGroup(
             'diligence',
             new Definitions\FileGroup(
                 'answer-diligence',
-                ['application/pdf', 'image/(gif|jpeg|pjpeg|png)'],
-                'O arquivo não e valido'
+                array_merge($standardFileTypes, $answerFileTypes),
+                'O arquivo não é válido'
             )
         );
 
         $app->registerFileGroup(
             'registration',
-            new Definitions\FileGroup('financial-report-accountability', ['application/pdf'], 'O arquivo não é válido', false, null, true)
+            new Definitions\FileGroup(
+                'financial-report-accountability',
+                $standardFileTypes,
+                'O arquivo não é válido',
+                false,
+                null,
+                true
+            )
         );
 
         $this->registerRegistrationMetadata('situacion_diligence', [

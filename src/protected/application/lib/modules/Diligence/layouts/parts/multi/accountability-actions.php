@@ -12,7 +12,7 @@ $response_template = '
     <div class="financial-report-wrapper" id="financial-report-wrapper">
         <i class="fas fa-download" style="margin-right: 10px;"></i>
         <a href="{{url}}" target="_blank" rel="noopener noreferrer">
-            relatorio_financeiro.pdf
+            {{description}}
         </a>
         <div class="delete-financial-report-btn">
             <a delete-financial-report data-file-id="{{id}}" class="icon icon-close hltip" title="Excluir arquivo">
@@ -50,7 +50,7 @@ $response_template = '
     
 <?php endif; ?>
 
-<div id="import-financial-report" class="js-editbox mc-bottom" title="Importar Relatório Financeiro" data-submit-label="Importar">
+<div id="import-financial-report" class="js-editbox mc-bottom" title="Enviar arquivo para o proponente" data-submit-label="Enviar">
     <?php
     $this->ajaxUploader(
         $reg,
@@ -61,7 +61,7 @@ $response_template = '
         $response_transform = '',
         $add_description_input = false,
         $humanCrop = false,
-        $file_types = '.pdf'
+        $file_types = '.pdf, .doc, .docx'
     );
     ?>
 </div>
