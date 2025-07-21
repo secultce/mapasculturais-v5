@@ -48,6 +48,7 @@ services:
       - SENTRY_DSN=link_sentry
       - APP_ENV=development
       - APP_VERSION=5.8.11
+      - MAX_NUMBER_LINKS= # Número máximo de links que o proponente pode adicionar em uma inscrição
     depends_on:
       - db
       - redis
