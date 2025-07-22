@@ -813,7 +813,8 @@ class Module extends \MapasCulturais\Module{
                     'opp_id' => $reg->opportunity->id,
                     'opp_name' => $reg->opportunity->name,
                     'number' => $reg->number,
-                    'owner' => $reg->owner->name
+                    'agent_name' => $reg->owner->name,
+                    'agent_email' => $reg->owner->user->email
                 ];
             }, $new_registrations);
                 
@@ -825,7 +826,8 @@ class Module extends \MapasCulturais\Module{
                 $bodyMessageRegistration,
                 null,
                 true
-            );          
+            );
+            die;     
         });
 
 
@@ -934,10 +936,12 @@ class Module extends \MapasCulturais\Module{
         $opp_repo->find($target_opportunity->id)->save(true);
         
         $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
-       
+        dump($new_registrations);
+        die;
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
-        return $new_registrations;
+        
+        // return $new_registrations;
     }
 
     static function sendApprovalEmails(Opportunity $opportunity)
