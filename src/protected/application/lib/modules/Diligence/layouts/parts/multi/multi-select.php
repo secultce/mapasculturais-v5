@@ -22,8 +22,8 @@ if( is_null($tado) || ($tado->status == 0) ) : ?>
     </p>
 
     <p style="text-align: center; width: 100%; margin-bottom: 15px" class="multi-itens-select">
-        <a class="btn btn-default send js-open-editbox hltip" data-target="#import-financial-report" title="Importar Relatório Financeiro" style="display: block;">
-            Importar Relatório Financeiro
+        <a class="btn btn-default send js-open-editbox hltip" data-target="#import-financial-report" title="Enviar arquivo para o proponente" style="display: block;">
+            Enviar arquivo para o proponente
         </a>
     </p>
 
