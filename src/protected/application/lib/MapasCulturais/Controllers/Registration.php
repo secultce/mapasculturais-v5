@@ -609,6 +609,15 @@ class Registration extends EntityController {
 
     public function PATCH_single($data = null): void
     {
+        $maxRequestSize = (int)rtrim(ini_get('post_max_size'), "M");
+        $maxRequestSizeInBytes = $maxRequestSize * 1024 * 1024;
+        $requestSize = isset($_SERVER['CONTENT_LENGTH']) ? (int)$_SERVER['CONTENT_LENGTH'] : 0;
+        if ($requestSize > $maxRequestSizeInBytes) {
+            $this->errorJson([
+                'message' => 'Não foi possível salvar a inscrição. Sua inscrição está excedendo o tamanho permitido.',
+            ], 413);
+        }
+
         if (is_null($data)) {
             $data = $this->postData;
         }

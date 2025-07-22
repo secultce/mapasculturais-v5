@@ -1293,14 +1293,19 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     }
 
     $scope.saveRegistration = function () {
-       return RegistrationService.updateFields($scope.data.editableEntity).success(function(){
-       }).error(function(req, status){
-            if(status == 400){
+        return RegistrationService.updateFields($scope.data.editableEntity).success(function () {
+        }).error(function (req, status) {
+            if (status == 400) {
                 MapasCulturais.Messages.success(labels['changesSaved']);
-            }else{
+            } else if (status == 413) {
+                Swal.fire({
+                    icon: "error",
+                    text: req.data.message,
+                });
+            } else {
                 MapasCulturais.Messages.error(labels['unexpectedError']);
             }
-       })        
+        })
     }
 
     function replaceRegistrationAgentBy(groupName, agent, relationStatus){
@@ -1578,10 +1583,16 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
         }
     }
 
-    $scope.remove = function(array, index){
-        array.splice(index, 1);
+    $scope.addLinkField = function (links, maxNumberLinks) {
+        if (links.length < maxNumberLinks) return links.concat([{}])
+
+        MapasCulturais.Messages.alert(`O número máximo de links que você pode adicionar é: ${maxNumberLinks}`)
+        return links
     }
 
+    $scope.remove = function (array, index) {
+        array.splice(index, 1);
+    }
 
     $scope.data.fields.forEach(function(field) {
         $scope.$watch('entity.' + field.fieldName, function(current, old){
