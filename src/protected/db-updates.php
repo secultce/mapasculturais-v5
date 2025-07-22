@@ -2056,4 +2056,22 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('phases',9,'Total de fases')");
     },
 
+    'create table accountability_opinion' => function () {
+        __exec("CREATE SEQUENCE accountability_opinion_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec(
+            "CREATE TABLE accountability_opinion (
+                id INT NOT NULL,
+                opinion TEXT NOT NULL,
+                status SMALLINT NOT NULL,
+                registration_id INT NOT NULL,
+                agent_id INT NOT NULL,
+                create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
+                PRIMARY KEY(id),
+                FOREIGN KEY (agent_id) REFERENCES agent(id),
+                FOREIGN KEY (registration_id) REFERENCES registration(id)
+            );"
+        );
+    },
+
 ] + $updates ;

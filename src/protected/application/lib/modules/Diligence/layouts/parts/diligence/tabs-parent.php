@@ -6,7 +6,9 @@ use Diligence\Entities\Diligence;
 use MapasCulturais\Entity;
 use MapasCulturais\i;
 use Diligence\Entities\Diligence as EntityDiligence;
+use Diligence\Entities\Opinion as OpinionEntity;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use MapasCulturais\App;
 
 /**
  * @var array<string, mixed> $context
@@ -14,105 +16,107 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
  * @var (Diligence|AnswerDiligence)[]|null $diligenceAndAnswers
  */
 
-$files = DiligenceRepo::getFilesDiligence($context['entity']->id);
-Carbon::setLocale('pt_BR');
-
-$this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $context['entity']);
 $showText = false;
 $placeHolder = "Digite aqui a sua diligência";
 
-//Tado
-$tado = DiligenceRepo::getTado($context['entity']);
-?>
-<?php
-$this->applyTemplateHook('tabs', 'before');
-$this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvaluation' => $sendEvaluation]);
-?>
-    <div id="diligence-diligence" class="aba-content">
-        <p id="paragraph_loading_content">
-            <label for="">
-                Carregando ... <img id="img-loading-content" />
-            </label>
-            <br />
-            <br />
-        </p>
-        <?php
-        if (!is_null($diligenceAndAnswers)) {
-            $diligenceAndAnswerLast = [];
-            foreach ($diligenceAndAnswers as $key => $resultsDraft) {
-                //Array somente com os dois ultimos registros
-                if ($key < 2) {
-                    array_push($diligenceAndAnswerLast, $resultsDraft);
-                }
-            };
-            if ($diligenceAndAnswerLast[0]->status === 0) {
-                $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
-                // @todo: Talvez essa não seja a melhor lógica, alterar depois
-                if ($tado !== null && $tado->status !== 0) {
-                    $titleButton = 'expirou';
-                }
-                $this->part('diligence/edit-description', [
-                    'titleDraft' => 'Diligência em rascunho.',
-                    'titleButton' => $titleButton ?? 'Editar Diligência',
-                    'titleTrash' => 'Excluir Rascunho',
-                    'resultsDraft' => $diligenceAndAnswerLast[0]->description,
-                    'id' => $diligenceAndAnswerLast[0]->id,
-                    'type' => "diligence",
-                    'dateDraft' => ucfirst($dateDraft),
-                ]);
-                $showText = true;
-            }
+$registration = $context['entity'];
+$files = DiligenceRepo::getFilesDiligence($registration->id);
+$tado = DiligenceRepo::getTado($registration);
+$opinion = App::i()->repo(OpinionEntity::class)->findOneBy(['registration' => $registration]);
 
-            if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 3) {
-                $showText = true;
+$this->jsObject['isProponent'] = EntityDiligence::isProponent($context['diligenceRepository'], $registration);
+
+Carbon::setLocale('pt_BR');
+
+$this->applyTemplateHook('tabs', 'before');
+$this->part('diligence/ul-buttons', ['entity' => $registration, 'sendEvaluation' => $sendEvaluation]);
+
+?>
+
+<div id="diligence-diligence" class="aba-content">
+    <p id="paragraph_loading_content">
+        <label for="">
+            Carregando ... <img id="img-loading-content" />
+        </label>
+        <br />
+        <br />
+    </p>
+    <?php
+    if (!is_null($diligenceAndAnswers)) {
+        $diligenceAndAnswerLast = [];
+        foreach ($diligenceAndAnswers as $key => $resultsDraft) {
+            //Array somente com os dois ultimos registros
+            if ($key < 2) {
+                array_push($diligenceAndAnswerLast, $resultsDraft);
             }
-        }
-        ?>
-        <?php
-            $diligenceType = $context['entity']->opportunity->use_multiple_diligence == 'Sim' ? 'multi' : 'common';
-            $this->part("diligence/body-diligence-$diligenceType", [
-                'entity' => $context['entity'],
-                'diligenceRepository' => $context['diligenceRepository'],
-                'diligenceDays' => $context['diligenceDays'],
-                'placeHolder' => $context['placeHolder'],
-                'sendEvaluation' => $sendEvaluation,
-                'isProponent' => $context['isProponent'],
-                'diligenceAndAnswers' => $diligenceAndAnswers,
+        };
+        if ($diligenceAndAnswerLast[0]->status === 0) {
+            $dateDraft = Carbon::parse($diligenceAndAnswerLast[0]->createTimestamp)->diffForHumans();
+            // @todo: Talvez essa não seja a melhor lógica, alterar depois
+            if ($tado !== null && $tado->status !== 0) {
+                $titleButton = 'expirou';
+            }
+            $this->part('diligence/edit-description', [
+                'titleDraft' => 'Diligência em rascunho.',
+                'titleButton' => $titleButton ?? 'Editar Diligência',
+                'titleTrash' => 'Excluir Rascunho',
+                'resultsDraft' => $diligenceAndAnswerLast[0]->description,
+                'id' => $diligenceAndAnswerLast[0]->id,
+                'type' => "diligence",
+                'dateDraft' => ucfirst($dateDraft),
             ]);
+            $showText = true;
+        }
+
+        if (!is_null($diligenceAndAnswerLast[1]) && $diligenceAndAnswerLast[1]->status == 3) {
+            $showText = true;
+        }
+    }
+
+    $diligenceType = $registration->opportunity->use_multiple_diligence == 'Sim' ? 'multi' : 'common';
+    $this->part("diligence/body-diligence-$diligenceType", [
+        'entity' => $registration,
+        'diligenceRepository' => $context['diligenceRepository'],
+        'diligenceDays' => $context['diligenceDays'],
+        'placeHolder' => $context['placeHolder'],
+        'sendEvaluation' => $sendEvaluation,
+        'isProponent' => $context['isProponent'],
+        'diligenceAndAnswers' => $diligenceAndAnswers,
+    ]);
+    ?>
+    <div id="div-info-send" class="div-info-send">
+        <p>
+            <?php i::_e('Sua diligência já foi enviada') ?>
+        </p>
+    </div>
+    <div class="div-btn-send-diligence flex-container">
+        <?php
+        // Se tiver TADO finalizado não tem mais interação
+        if (
+            is_null($tado)
+            || $tado->status == 0
+            || $diligenceAndAnswers[0] === null
+            || $diligenceAndAnswers[0]->status !== Entity::STATUS_TRASH
+        ) :
         ?>
-        <div id="div-info-send" class="div-info-send">
-            <p>
-                <?php i::_e('Sua diligência já foi enviada') ?>
-            </p>
-        </div>
-        <div class="div-btn-send-diligence flex-container">
-            <?php
-                //Se tiver TADO finalizado não tem mais interação
-                if(
-                    is_null($tado) 
-                    || $tado->status == 0
-                    || $diligenceAndAnswers[0] === null
-                    || $diligenceAndAnswers[0]->status !== Entity::STATUS_TRASH
-                ) :
-            ?>
             <div class="d-none" id="btn-actions-diligence">
                 <?php
                 if ($showText || is_null($diligenceAndAnswers)) {
                     $this->part('diligence/description', ['placeHolder' => $placeHolder, 'isProponent' => $context['isProponent']]);
                     $this->part('diligence/message-success-draft');
                     $this->part('diligence/btn-actions-diligence', [
-                        'entity' => $context['entity'],
+                        'entity' => $registration,
                         'sendEvaluation' => $sendEvaluation
                     ]);
                 }
                 ?>
             </div>
-            <?php endif; ?>
-            <div class="import-diligence" style="width: 100%">
-                <?php
-                foreach ($files as $file) {
-                    $id = $file["id"];
-                    echo  '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
+        <?php endif; ?>
+        <div class="import-diligence" style="width: 100%">
+            <?php
+            foreach ($files as $file) {
+                $id = $file["id"];
+                echo  '<article id="file-diligence-up-' . $id . '" class="objeto" style="margin-top: 20px;">
                     <span>Arquivo</span>
                     <h1><a href="/arquivos/privateFile/' . $id . '" 
                     class="attachment-title ng-binding ng-scope" target="_blank" rel="noopener noreferrer" 
@@ -121,9 +125,36 @@ $this->part('diligence/ul-buttons', ['entity' => $context['entity'], 'sendEvalua
                        
                     </div>
                 </article>';
-                } ?>
-            </div>
+            }
+            ?>
         </div>
     </div>
+</div>
+
+<div id="opinion-accountability" class="aba-content">
+    <?php if ($opinion && $opinion->status === OpinionEntity::STATUS_ENABLED) : ?>
+        <div>
+            <h5><?= i::_e("Parecer publicado"); ?></h5>
+            <p><?= $opinion->opinion ?></p>
+        </div>
+    <?php else : ?>
+        <?php if ($registration->canUser('evaluate')) : ?>
+            <div class="info-message-opinion">
+                <p>Selecione o status da prestação de contas para dar seu parecer</p>
+            </div>
+            <div class="opinion-form d-none">
+                <textarea id="opinion-accountability" rows="10" class="textarea-opinion" placeholder="Digite seu parecer aqui..."><?= $opinion ? $opinion->opinion : '' ?></textarea>
+                <div>
+                    <button class="save-opinion-accountability-btn">Salvar</button>
+                    <button class="publish-opinion-accountability-btn">Publicar</button>
+                </div>
+            </div>
+        <?php else : ?>
+            <div class="info-message-opinion__admin">
+                <p>O parecer do fiscal ainda não foi publicado</p>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+</div>
 
 <?php $this->applyTemplateHook('tabs', 'after'); ?>

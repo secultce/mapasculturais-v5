@@ -51,11 +51,13 @@ var EntityDiligence = (function(){
     function hideRegistration() {
         $("#registration-content-all").hide();
         $('#registration-attachments').hide();
+        $('#registration-valuers--admin').hide();
     }
     
     function showRegistration() {
         $("#registration-content-all").show();
         $('#registration-attachments').show();
+        $('#registration-valuers--admin').show();
     }
 
     function hideCommon()
@@ -64,9 +66,10 @@ var EntityDiligence = (function(){
         var urlAtual = window.location.href;      
         // Sentença de string para ser verificada na URL
         var sentencaDesejada = "#/tab=diligence-diligence";
-        if (urlAtual.includes(sentencaDesejada)) {
+        if (urlAtual.includes(sentencaDesejada) || urlAtual.includes("#/tab=opinion-accountability")) {
             $("#registration-content-all").hide();
             $('#registration-attachments').hide();
+            $('#registration-valuers--admin').hide();
         } else {
             $("#diligence-diligence").hide();
 
