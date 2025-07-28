@@ -296,6 +296,7 @@ class Registration extends \MapasCulturais\Entity
             'owner' => $this->owner->simplify('id,name,lockedFields,singleUrl'),
             'agentRelations' => [],
             'files' => [],
+            'consolidatedResult' => $this->consolidatedResult,
             'singleUrl' => $this->singleUrl,
             'editUrl' => $this->editUrl
         ];
