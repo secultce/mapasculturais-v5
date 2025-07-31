@@ -31,7 +31,7 @@ case $i in
 
     -b=  | --build      builda a imagem Docker
     -u=  | --update     atualiza os pacotes do composer
-	-d=  | --down       executa o docker-compose down antes do docker-compose run
+	-d=  | --down       executa o docker compose down antes do docker compose run
     -h=  | --help       Imprime este texto de ajuda
 		    "
     	    exit
@@ -42,14 +42,14 @@ done
 sudo chown -R www-data:www-data docker-data/
 
 if [ $BUILD = "1" ]; then
-   docker-compose -f docker-compose.local.yml build
+   docker compose -f docker-compose.local.yml build
 fi
 
 if [ $DOWN = "1" ]; then
-   docker-compose -f docker-compose.local.yml down
+   docker compose -f docker-compose.local.yml down
 fi
 
-docker-compose -f docker-compose.local.yml run --name=$MAPAS_NAME --service-ports mapas 
+docker compose -f docker-compose.local.yml run --name=$MAPAS_NAME --service-ports mapas 
 
-docker-compose -f docker-compose.local.yml down --remove-orphans
+docker compose -f docker-compose.local.yml down --remove-orphans
 cd $CDIR
