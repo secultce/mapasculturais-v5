@@ -827,7 +827,6 @@ class Module extends \MapasCulturais\Module{
                 null,
                 true
             );
-            die;     
         });
 
 
@@ -936,8 +935,7 @@ class Module extends \MapasCulturais\Module{
         $opp_repo->find($target_opportunity->id)->save(true);
         
         $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
-        dump($new_registrations);
-        die;
+
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
         
