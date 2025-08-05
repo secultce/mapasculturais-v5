@@ -631,7 +631,7 @@ class Module extends \MapasCulturais\Module{
             $previous_phase = self::getPreviousPhase($target_opportunity);
 
             $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);
-
+           
             if(count($registrations) < 1){
                 $this->errorJson(\MapasCulturais\i::__('Não há inscrições aprovadas fase anterior'), 400);
             }
@@ -821,10 +821,10 @@ class Module extends \MapasCulturais\Module{
             // instanciando e enviando para a mensageria
             $queueService = new AmqpQueueService();
             $queueService->sendMessage(
-                'registration',
-                'import_registration',
+                'exchange_notification',
+                'module_import_registration_draft',
                 $bodyMessageRegistration,
-                null,
+                'queue_import_registration',
                 true
             );
         });
