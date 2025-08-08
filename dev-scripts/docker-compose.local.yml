@@ -33,11 +33,20 @@ services:
       - MAIL_MAILER=smtp
       - MAIL_HOST=mailpit
       - MAILER_PROTOCOL= #precisa ficar vazio para o mailpit funcionar
-      - RABBITMQ_HOST=rabbitmq_local
+      - RABBITMQ_HOST=172.19.18.239 # Endereço do RabbitMQ
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=mqadmin
       - RABBITMQ_PASSWORD=Admin123XX_
       - RABBITMQ_VHOST=/
+      - RABBITMQ_EXCHANGE_DEFAULT=exchange_notification
+      - QUEUE_OPINION_MANAGEMENT=queue_opinion_management
+      - QUEUE_PUBLISHED_RECOURSES=queue_published_recourses
+      - QUEUE_IMPORT_REGISTRATION=queue_import_registration
+      - QUEUE_ACCOUNTABILITY=queue_accountability
+      - QUEUE_IMPORT_REGISTRATION_DRAFT=queue_import_registration_draft
+      - MODULE_IMPORT_REGISTRATION_DRAFT=module_import_registration_draft
+      - MODULE_ACCOUNTABILITY_ADM=module_accountability_adm
+      - MODULE_ACCOUNTABILITY_PROPONENT=module_accountability_proponent
       # chaves de teste do google recaptcha
       - GOOGLE_RECAPTCHA_SITEKEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
       - GOOGLE_RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
