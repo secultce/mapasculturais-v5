@@ -39,14 +39,17 @@ services:
       - RABBITMQ_PASSWORD=Admin123XX_
       - RABBITMQ_VHOST=/
       - RABBITMQ_EXCHANGE_DEFAULT=exchange_notification
+      ## FILAS
       - QUEUE_OPINION_MANAGEMENT=queue_opinion_management
       - QUEUE_PUBLISHED_RECOURSES=queue_published_recourses
       - QUEUE_IMPORT_REGISTRATION=queue_import_registration
       - QUEUE_ACCOUNTABILITY=queue_accountability
       - QUEUE_IMPORT_REGISTRATION_DRAFT=queue_import_registration_draft
+      ## CHAVES DAS MENSAGENS
       - MODULE_IMPORT_REGISTRATION_DRAFT=module_import_registration_draft
       - MODULE_ACCOUNTABILITY_ADM=module_accountability_adm
       - MODULE_ACCOUNTABILITY_PROPONENT=module_accountability_proponent
+      - PLUGIN_PUBLISHED_RECOURSES=plugin_published_recourses
       # chaves de teste do google recaptcha
       - GOOGLE_RECAPTCHA_SITEKEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
       - GOOGLE_RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
