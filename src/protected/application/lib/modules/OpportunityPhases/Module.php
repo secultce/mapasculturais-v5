@@ -625,13 +625,11 @@ class Module extends \MapasCulturais\Module{
         // action para importar as inscrições da última fase concluida
         $app->hook('GET(opportunity.importLastPhaseRegistrations)', function() use($app, $self) {
             ini_set('max_execution_time', 0);
-            $target_opportunity = self::getRequestedOpportunity();
-            
+            $target_opportunity = self::getRequestedOpportunity();            
             $as_draft = !isset($this->data['sent']);
             $previous_phase = self::getPreviousPhase($target_opportunity);
 
-            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);
-           
+            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);           
             if(count($registrations) < 1){
                 $this->errorJson(\MapasCulturais\i::__('Não há inscrições aprovadas fase anterior'), 400);
             }

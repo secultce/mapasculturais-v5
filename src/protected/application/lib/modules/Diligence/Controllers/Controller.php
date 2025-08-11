@@ -179,7 +179,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
        
         // Cria a notificação dentro do painel
         $notification = new NotificationDiligence();
-        // $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
 
         // Adiciona notificação por e-mail à fila
         $app = App::i();
@@ -195,8 +195,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         
         EntityDiligence::sendQueue($userDestination, $app->config['rabbitmq']['routing']['module_accountability_adm']);
 
-        // $notification = new NotificationDiligence();
-        // $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
+        $notification = new NotificationDiligence();
+        $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
 
         $this->json(['message' => 'success', 'status' => 200]);
     }
