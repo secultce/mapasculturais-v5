@@ -806,7 +806,9 @@ class Module extends \MapasCulturais\Module{
         });
 
         $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
-           // Dados para envio para mensageria
+           $app = App::i();
+
+            // Dados para envio para mensageria
             $bodyMessageRegistration = array_map(function ($reg) {
                 return [
                     'registration' => $reg->id,
@@ -821,10 +823,10 @@ class Module extends \MapasCulturais\Module{
             // instanciando e enviando para a mensageria
             $queueService = new AmqpQueueService();
             $queueService->sendMessage(
-                'exchange_notification',
-                'module_import_registration_draft',
+                $app->config['rabbitmq']['exchange_default'],
+                $app->config['rabbitmq']['routing']['module_import_registration_draft'],
                 $bodyMessageRegistration,
-                'queue_import_registration',
+                $app->config['rabbitmq']['queues']['queue_import_registration'],
                 true
             );
         });
