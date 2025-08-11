@@ -626,7 +626,7 @@ class Module extends \MapasCulturais\Module{
         $app->hook('GET(opportunity.importLastPhaseRegistrations)', function() use($app, $self) {
             ini_set('max_execution_time', 0);
             $target_opportunity = self::getRequestedOpportunity();
-
+            
             $as_draft = !isset($this->data['sent']);
             $previous_phase = self::getPreviousPhase($target_opportunity);
 
@@ -884,9 +884,8 @@ class Module extends \MapasCulturais\Module{
             'previous_opportunity' => $previous_phase,
             'target_opportunity' => $target_opportunity
         ]);
-
+        
         $registration_ids = array_map(function($item){ return $item['id']; }, $query->getArrayResult());
-
         if(count($registration_ids) < 1){
             return [];
         }
@@ -938,8 +937,8 @@ class Module extends \MapasCulturais\Module{
 
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
-        
-        // return $new_registrations;
+       
+        return $new_registrations;
     }
 
     static function sendApprovalEmails(Opportunity $opportunity)
