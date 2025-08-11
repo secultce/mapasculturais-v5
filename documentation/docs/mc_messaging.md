@@ -2,7 +2,7 @@
 O Mapa atualmente tem um serviço para a mensageria [RabbitMQ](https://www.rabbitmq.com/) , sendo assim existe um arquivo de configuração chamado rabbitmq.php.
 
 ## 📝 Documentação
-Todos os plugins e modulos deve seguir preferencialmente o padrão descrito na [documentação](https://docs.google.com/document/d/1RKOQ5t1FscF75oXSCFWvChg8gC5cRE5f6IkSvlmMc8c/edit?usp=sharing) para todos os produtores e consumidores.
+Todos os plugins e modulos deve seguir preferencialmente o padrão descrito na [documentação](https://secult-ceara-1.gitbook.io/secult-ceara-docs/documentacao) para todos os produtores e consumidores.
 
 ## 🔧 Arquivos
 
