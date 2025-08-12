@@ -33,7 +33,7 @@ services:
       - MAIL_MAILER=smtp
       - MAIL_HOST=mailpit
       - MAILER_PROTOCOL= #precisa ficar vazio para o mailpit funcionar
-      - RABBITMQ_HOST=172.19.18.239 # Endereço do RabbitMQ
+      - RABBITMQ_HOST=ip_maquina_ou_nome_servico # Endereço do RabbitMQ
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=mqadmin
       - RABBITMQ_PASSWORD=Admin123XX_
