@@ -824,8 +824,7 @@ class Module extends \MapasCulturais\Module{
                 $app->config['rabbitmq']['exchange_default'],
                 $app->config['rabbitmq']['routing']['module_import_registration_draft'],
                 $bodyMessageRegistration,
-                $app->config['rabbitmq']['queues']['queue_import_registration'],
-                true
+                $app->config['rabbitmq']['queues']['queue_import_registration']
             );
         });
 
