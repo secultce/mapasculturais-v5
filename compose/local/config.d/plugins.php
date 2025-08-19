@@ -12,7 +12,6 @@ return [
         'LocationStateCity' => ['namespace' => 'LocationStateCity'],
         'MultipleLocalAuth' => ['namespace' => 'MultipleLocalAuth'],
         'PublicConsultation' => ['namespace' => 'PublicConsultation'],
-        'PDFReport' => ['namespace' => 'PDFReport'],
         'BigSheetImporter' => ['namespace' => 'BigSheetImporter'],
         'Accessibility' => ['namespace' => 'Accessibility'],
     ]
