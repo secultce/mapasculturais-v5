@@ -142,7 +142,6 @@ class Pdf extends \MapasCulturais\Controller
 
     private function generatePdfRegistration($allPhases)
     {
-        ini_set('display_errors', 1);
         $app = App::i();
 
         // SOMENTE AUTENTICADO
