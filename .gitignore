@@ -1,4 +1,5 @@
 .vscode
+.devcontainer
 .sass-cache
 *.codekit
 src/files

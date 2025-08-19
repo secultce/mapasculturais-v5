@@ -26,10 +26,6 @@
 	path = src/protected/application/plugins/PublicConsultation
 	url = https://github.com/secultce/plugin-PublicConsultation.git
 	branch = main
-[submodule "src/protected/application/plugins/PDFReport"]
-	path = src/protected/application/plugins/PDFReport
-	url = https://github.com/secultce/plugin-PDFReport.git
-	branch = main
 [submodule "src/protected/application/plugins/BigSheetImporter"]
 	path = src/protected/application/plugins/BigSheetImporter
 	url = https://github.com/secultce/plugin-BigSheetImporter.git

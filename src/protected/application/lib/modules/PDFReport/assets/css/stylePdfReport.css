@@ -1,0 +1,305 @@
+body {
+    font-family: 'Helvetica' !important;
+}
+
+.title-edital {
+    margin-left: 20px;
+    color: rgba(107, 102, 102, 0.6);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 11px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.sub-title-edital {
+    margin-left: 20px;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 20px;
+    align-items: center;
+}
+
+.text-center {
+    text-align: center;
+    font-size: 8px;
+}
+
+.fontArial {
+    font-family: Arial !important;
+}
+
+.td-classificacao {
+    width: 10%;
+    border-right: 1px solid black
+}
+
+.border-title {
+    border: 1px solid #716e6e;
+}
+
+.title-ins {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.title-ins-label {
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 11px;
+    color: #FAFAFA !important;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-top: 4px;
+}
+
+.title-ins-sublabel {
+    font-family: Arial;
+    font-style: normal;
+    font-weight: 100;
+    font-size: 15px;
+    line-height: 11px;
+    color: #FAFAFA !important;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.title-ins-sublabel-right {
+    float: right;
+    margin-top: 18px;
+    margin-left: 50px;
+    display: flex;
+    align-items: center;
+    text-align: right;
+    letter-spacing: 0.5px;
+}
+
+.table-info-ins {
+    background: #1F4E37;
+    height: 44px;
+    border-radius: 8px;
+    padding-left: 13px;
+    padding-top: 8px;
+    left: 8px;
+    color: #FAFAFA !important;
+}
+
+.left-registration {
+    width: 50%;
+    float: left;
+}
+
+.my-registration-email-confirm {
+    font-family: Open Sans;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 10px;
+    line-height: 14px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.my-registration-fields {
+    margin-top: 2px;
+    margin-left: 8px;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 8px;
+    align-items: center;
+}
+
+.my-registration-fields-span {
+    margin-top: 2px;
+    margin-left: 8px;
+    font-size: 10px;
+    line-height: 8px;
+    align-items: center;
+}
+
+.my-conten-agent {
+    margin-left: 5px;
+    line-height: 25px;
+}
+
+.my-registration-number {
+    font-size: 12px;
+    line-height: 9px;
+    color: rgba(0, 0, 0, 0.87);
+    font-style: normal;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    align-items: center;
+}
+
+#my-info-registration {
+    float: left;
+    padding: 5px;
+    text-align: left;
+    width: 100%;
+}
+
+#numer_registration {
+    float: left;
+    padding-top: 15px;
+    padding-left: 10px;
+}
+
+.border-section {
+    border: 1px solid #E8E8E8;
+    border-radius: 8px;
+    width: 100%;
+    height: 400px;
+    padding-left: 20px;
+    padding-right: 20px;
+    line-height: 20px;
+    margin-bottom: 25px;
+}
+
+.span-section {
+    margin-top: 2px;
+    padding-left: 20px;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 10px;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+.pre-text {
+    padding-top: 18px;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    text-align: center;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.table-info-cat {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    background: #1F4E37;
+    border: 2px solid #1F4E37 !important;
+    padding-left: 12px;
+    left: 8px;
+    color: white !important;
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+    font-size: 12px;
+}
+
+.text-left {
+    text-align: left;
+    font-size: 10px;
+}
+
+.text-center {
+    text-align: center;
+    font-size: 10px;
+}
+
+#table-preliminar tr:nth-child(odd) td {
+    background-color: #ffffff;
+}
+
+#table-preliminar tr:nth-child(even) td {
+    background-color: #c2bebe;
+}
+
+#table-preliminar {
+    border-collapse: collapse;
+    line-height: 20px;
+}
+
+#table-preliminar tr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.content-info-edital {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.text-opp {
+    color: gray !important;
+    font-family: Arial;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 11px;
+    display: flex;
+    align-items: center;
+}
+
+.my-registration-category {
+    border: 1px solid #E8E8E8;
+    border-radius: 8px;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.no-subs {
+    border-bottom: solid #c2bebe 1px;
+}
+
+.my-reg-font-10 {
+    font-size: 10px
+}
+
+.my-registration-value-span {
+    width: 20px;
+    text-align: justify-all;
+    font-size: 10px;
+
+}
+
+@page {
+    margin-footer: 0px;
+    odd-header-name: html_MyHeader1;
+    odd-footer-name: html_MyFooter1;
+}

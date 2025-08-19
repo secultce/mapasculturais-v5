@@ -625,13 +625,11 @@ class Module extends \MapasCulturais\Module{
         // action para importar as inscrições da última fase concluida
         $app->hook('GET(opportunity.importLastPhaseRegistrations)', function() use($app, $self) {
             ini_set('max_execution_time', 0);
-            $target_opportunity = self::getRequestedOpportunity();
-
+            $target_opportunity = self::getRequestedOpportunity();            
             $as_draft = !isset($this->data['sent']);
             $previous_phase = self::getPreviousPhase($target_opportunity);
 
-            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);
-
+            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);           
             if(count($registrations) < 1){
                 $this->errorJson(\MapasCulturais\i::__('Não há inscrições aprovadas fase anterior'), 400);
             }
@@ -806,7 +804,9 @@ class Module extends \MapasCulturais\Module{
         });
 
         $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
-           // Dados para envio para mensageria
+           $app = App::i();
+
+            // Dados para envio para mensageria
             $bodyMessageRegistration = array_map(function ($reg) {
                 return [
                     'registration' => $reg->id,
@@ -821,11 +821,10 @@ class Module extends \MapasCulturais\Module{
             // instanciando e enviando para a mensageria
             $queueService = new AmqpQueueService();
             $queueService->sendMessage(
-                'registration',
-                'import_registration',
+                $app->config['rabbitmq']['exchange_default'],
+                $app->config['rabbitmq']['routing']['module_import_registration_draft'],
                 $bodyMessageRegistration,
-                null,
-                true
+                $app->config['rabbitmq']['queues']['queue_import_registration']
             );
         });
 
@@ -884,9 +883,8 @@ class Module extends \MapasCulturais\Module{
             'previous_opportunity' => $previous_phase,
             'target_opportunity' => $target_opportunity
         ]);
-
+        
         $registration_ids = array_map(function($item){ return $item['id']; }, $query->getArrayResult());
-
         if(count($registration_ids) < 1){
             return [];
         }
@@ -938,8 +936,8 @@ class Module extends \MapasCulturais\Module{
 
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
-        
-        // return $new_registrations;
+       
+        return $new_registrations;
     }
 
     static function sendApprovalEmails(Opportunity $opportunity)
