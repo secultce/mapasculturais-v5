@@ -107,31 +107,28 @@
             },
 
             validateEntity: function(registrationId) {
-                return $http.post(this.getUrl('validateEntity', registrationId)).
-                success(function(data, status){
-                    let messageError = '';
-                    // Verifica se a propriedade agent_coletivo existe
-                    if (data && data.data && data.data.hasOwnProperty('agent_coletivo')) {
-                        messageError = data.data.agent_coletivo;
+                return $http.post(this.getUrl('validateEntity', registrationId))
+                .success(function(data, status) {
+                    let htmlMessage = '';
+                    let pendingFields = [];
+
+                    if (data.error === true) {
+                        htmlMessage = pendingFields.length ? '<ul>' + pendingFields.join('') + '</ul>' : '<p>Dados obrigatórios pendentes</p>';
                     }
-                    if(verifyPropertyField(data.data)){
-                        messageError = 'Dados obrigatórios pendentes';
-                    }
-                    if(data.error == true)
-                    {
+
+                    if (data.error === true) {
                         Swal.fire({
-                            icon:  "error",
+                            icon: "error",
                             title: "Oops...",
-                            text:  messageError
+                            html: htmlMessage || '<p>Erro inesperado na validação</p>'
                         });
                     }
                     $rootScope.$emit('registration.validate', {message: "Opportunity registration was validated ", data: data, status: status});
-                }).
-                error(function(data, status){
+                })
+                .error(function(data, status) {
                     $rootScope.$emit('error', {message: "Cannot validate opportunity registration", data: data, status: status});
                 });
-            }, 
-
+            },
             updateFields: function(entity) {
                 var data = {};
                 
@@ -1438,24 +1435,74 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     });
 
     $scope.validateRegistration = function(callback='') {
+
+        const fieldNamesMap = {
+            space: 'espaço',
+            projectName: 'nome do projeto'
+        };
+
+        function buildFieldNamesMap() {
+            $scope.data.fields.forEach(field => {
+                if (field.fieldType === 'file') {
+                    const fieldName = `file_${field.id}`;
+                    fieldNamesMap[fieldName] = field.title || `Arquivo ${field.id}`; 
+                }
+            });
+        }
+
+        buildFieldNamesMap();
+
+        function getSpanContent(fieldName) {
+            if (fieldNamesMap[fieldName]) {
+                return fieldNamesMap[fieldName];
+            }
+
+            let fieldElement = document.querySelector(`[name="${fieldName}"]`) || document.querySelector(`[data-field-name="${fieldName}"]`);
+            if (fieldElement) {
+                let span = fieldElement.closest('.field-container')?.querySelector('span') || 
+                        fieldElement.querySelector('span');
+                return span ? span.textContent.trim().split(' ')[0].replace(/[\*]/g, '') : fieldName.replace("file_", "Arquivo ").replace("field_", "");
+            }
+            return fieldName.replace("file_", "Arquivo ").replace("field_", "");
+        }
+
         return RegistrationService.validateEntity(MapasCulturais.entity.object.id)
             .success(function(response) {
-                if(response.error) {
+                if (response.error) {
                     $scope.entityValidated = false;
                     $scope.entityErrors = response.data;
-                    let errors = response.data;
-                    for (let index in $scope.data.fields){
-                        let field = $scope.data.fields[index];
-                        
-                        if(field.fieldType == 'file') {
-                            field.fieldName = 'file_' + field.id;
-                        } 
-                        
-                        if(errors[field.fieldName]) {
-                            field.error = errors[field.fieldName]
+                    let pendingFields = [];
+
+                    for (let fieldName in response.data) { 
+                        if (response.data.hasOwnProperty(fieldName)) {
+                            const errorMessage = response.data[fieldName];
+                            const displayName = getSpanContent(fieldName); 
+                            pendingFields.push(`<li>O campo ${displayName} é obrigatório.</li>`);
                         }
                     }
 
+                    $scope.pendingFieldsMessage = pendingFields.length 
+                        ? '<ul style="list-style:none; padding:0; margin:0;line-height:3vh;">' + pendingFields.join('') + '</ul>' 
+                        : '<p>Dados obrigatórios pendentes</p>';
+
+                    let errors = response.data;
+                    for (let index in $scope.data.fields) {
+                        let field = $scope.data.fields[index];
+                        if (field.fieldType === 'file') {
+                            field.fieldName = `file_${field.id}`;
+                        }
+                        if (errors[field.fieldName]) {
+                            field.error = errors[field.fieldName];
+                        }
+                    }
+
+                    if (response.error === true) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            html: $scope.pendingFieldsMessage || '<p>Erro inesperado na validação</p>'
+                        });
+                    }
                 } else {
                     $scope.entityErrors = {};
                     $scope.entityValidated = true;
@@ -1464,8 +1511,11 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
             .error(function(response) {
                 console.log('error', response);
             });
-    }; 
-    
+    };
+
+    $scope.$on('$viewContentLoaded', function() {
+        buildFieldNamesMap();
+    });
     $scope.data.sent = false;
     $scope.data.propLabels = [];
 

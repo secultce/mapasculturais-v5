@@ -67,7 +67,7 @@ trait ControllerUploads{
        
         // if no files uploaded or no id in request data, return an error
         if(empty($_FILES) || !$this->data['id']){
-            $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado'));
+            $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado ou arquivo acima do permitido'));
             return ;
         }
 
