@@ -40,13 +40,15 @@ class Controller extends  \MapasCulturais\Controller
     {
         $app = App::i();
         $this->requireAuthentication();
-
+        
         /**
          * @var $registration Registration
          */
+
         $registration = $app->repo(Registration::class)->find($this->data['id']);
         if ($registration->canUser('view')) {
-            $evaluationsAvg = self::getEvaluationsAvg($registration);
+            $evaluationsAvg = $this->getEvaluationsAvg($registration);
+        
             (new EvaluationTechnicalPlugin())->applyAffirmativePolicies($evaluationsAvg, $registration);
 
             $opinions = new EvaluationList($registration);
@@ -205,15 +207,22 @@ class Controller extends  \MapasCulturais\Controller
         return $finalCriteria;
     }
 
-    public static function getEvaluationsAvg(Registration $registration): float
+    private function getEvaluationsAvg(Registration $registration)
     {
         $app = App::i();
 
         $evaluations = $app->repo(RegistrationEvaluation::class)->findBy(['registration' => $registration]);
+        
+        if (empty($evaluations)) {
+            $this->json(['not-found'], 404);
+        }
+        
         $evaluationsAvg = 0;
+
         foreach ($evaluations as $evaluation) {
             $evaluationsAvg += (float) $evaluation->result;
         }
+
         $evaluationsAvg /= count($evaluations); // Necessário utilizar a média das avaliações para aplicar as políticas afirmativas
 
         return $evaluationsAvg;
