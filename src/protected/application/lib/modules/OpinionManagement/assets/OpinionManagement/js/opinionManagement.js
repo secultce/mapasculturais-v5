@@ -143,9 +143,11 @@ const showOpinions = registrationId => {
                 message = 'Você não tem permissão para acessar este recurso.';
             } else if (error.message === 'Guest') {
                 message = 'É necessário estar autenticado.';
+            }else if (error.message === `Not Found`) {
+                message = 'Os pareceres ainda não foram enviados.';
             }
 
-            errorAlert(message);
+            errorAlert(message, error.message);
         });
 }
 
@@ -203,14 +205,23 @@ const publishOpinions = target => {
         });
 }
 
-const errorAlert = message => {
-    Swal.fire({
-        title: "Oops...",
-        text: "Aconteceu um problema!",
-        footer: `<code style="font-size:11px; color:#c93">${message}</code>`,
-        showConfirmButton: false,
-        showCloseButton: true,
-    });
+const errorAlert = (message, errorType = '') => {
+    if (errorType === 'Not Found') {
+        Swal.fire({
+            title: "Oops...",
+            text: message,
+            showConfirmButton: false,
+            showCloseButton: true,
+        });
+    } else {
+        Swal.fire({
+            title: "Oops...",
+            text: "Aconteceu um problema!",
+            footer: `<code style="font-size:11px; color:#c93">${message}</code>`,
+            showConfirmButton: false,
+            showCloseButton: true,
+        });
+    }
 }
 
 const consolidatedResultHtml = (registration, evaluationMethod, appliedAffirmativePolicy) => {
