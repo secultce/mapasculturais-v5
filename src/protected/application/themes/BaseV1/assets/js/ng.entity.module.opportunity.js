@@ -1805,11 +1805,10 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
         return false;
     }
 
-    $scope.printField = function(field, value){
-
-        if (field.fieldType === 'date') {
-            return moment(value).format('DD-MM-YYYY');
-        } else if (field.fieldType === 'url'){
+    $scope.printField = function(field, value) {
+        if (field.fieldType === 'date' || (typeof value === 'object') && field.unchangedFieldJSON.includes('00:00.000Z')) {
+            return moment(value).format('DD/MM/YYYY');
+        } else if (field.fieldType === 'url') {
             return '<a href="' + value + '" target="_blank" rel="noopener noreferrer">' + value + '</a>';
         } else if (field.fieldType === 'email'){
             return '<a href="mailto:' + value + '"  target="_blank" rel="noopener noreferrer">' + value + '</a>';
@@ -1819,7 +1818,6 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
             return value;
         }
     };
-
 
     $scope.setClassColumn = function(values){
         if(values.length >= 8){
