@@ -4,18 +4,31 @@ $app = \MapasCulturais\App::i();
 
 <div>
     <div class="validation-fields-errors">
-        <div class="errors-header" ng-if="numFieldErrors() > 0">
+        <div class="errors-header" ng-if="numFieldErrors() > 0 || otherErrors.length > 0">
             <p class="errors-header-title title"><?= \MapasCulturais\i::_e('O cadastro não foi enviado!') ?></p>
-            <p class="errors-header-title text"><?= \MapasCulturais\i::_e('Corrija os campos listados abaixo e valide seu formulário utilizando o botão Salvar e validar.') ?></p>
-            <div class="errors " ng-repeat="field in data.fields" ng-if="entityErrors[field.fieldName]">
-                <a ng-click="scrollTo('wrapper-' + field.fieldName, 130)">
-                    <span class="errors-field" ng-repeat="error in entityErrors[field.fieldName]"> <strong>{{field.title.replace(':', '')}}:</strong> {{error}} </span>
+            <p class="errors-header-title text"><?= \MapasCulturais\i::_e('Corrija os campos listados abaixo e valide seu formulário utilizando o botão Salvar e validar. Ao clicar, você será redirecionado.') ?></p>
+            
+            <div class="errors" ng-repeat="field in data.fields" ng-if="entityErrors[field.fieldName]">
+                <a ng-click="scrollToInput(field.fieldName, 130)">
+                    <span class="errors-field" ng-repeat="error in entityErrors[field.fieldName] track by $index">
+                        <strong>{{field.title.replace(':', '')}}:</strong> {{error | formatErrorMessage}}
+                    </span>
+                </a>
+            </div>
+            
+            <div class="errors" ng-repeat="error in otherErrors">
+                <a ng-click="scrollToInput(error.name, 130)">
+                    <span class="errors-field" ng-if="angular.isArray(error.messages)" ng-repeat="msg in error.messages track by $index">
+                        <strong>{{error.name.replace(':', '')}}:</strong> {{msg | formatErrorMessage}}
+                    </span>
+                    <span class="errors-field" ng-if="!angular.isArray(error.messages)">
+                        <strong>{{error.name.replace(':', '')}}:</strong> {{error.messages | formatErrorMessage}}
+                    </span>
                 </a>
             </div>
         </div>
     </div>
 </div>
-
 <div class="registration-fieldset">    
     <?php if($entity->opportunity->isRegistrationOpen()): ?>
         <p class="registration-help"><?php \MapasCulturais\i::_e("Certifique-se que você preencheu as informações corretamente antes de enviar sua inscrição.");?></p>
