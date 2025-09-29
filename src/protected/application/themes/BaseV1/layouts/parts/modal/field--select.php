@@ -13,12 +13,10 @@ $_title = empty($definition['label']) ? i::__("Tipo de avaliação") : $definiti
 
 <select name='evaluationMethod'>
     <option value=""><?= i::__("Selecione"); ?></option>
-
     <?php foreach ($evaluation_methods as $method) {?>
-
-            <option value="<?=$method->slug ?>"> <?php echo $method->name; ?> </option>
+        <?php if ($method->slug !== 'qualification') { ?>
+            <option value="<?= $method->slug ?>"> <?php echo $method->name; ?> </option>
+        <?php } ?>
     <?php } ?>
 </select>
-
 <?php
-
