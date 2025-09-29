@@ -543,11 +543,9 @@ class Module extends \MapasCulturais\Module{
             $opportunity_class_name = $parent->getSpecializedClassName();
 
             $phase = new $opportunity_class_name;
-
             $phase->status = Entities\Opportunity::STATUS_DRAFT;
             $phase->parent = $parent;
             $phase->ownerEntity = $parent->ownerEntity;
-
             $phase->name = $_phases[$num_phases];
             $phase->registrationCategories = $parent->registrationCategories;
             $phase->shortDescription = sprintf(i::__('Descrição da %s'), $_phases[$num_phases]);
@@ -569,6 +567,10 @@ class Module extends \MapasCulturais\Module{
 
             $evaluation_method = $this->data['evaluationMethod'];
 
+            if($evaluation_method === 'qualification') {
+                $this->errorJson(i::__('Fase de avaliação de habilitação documental não permitida!'), 400);
+            }
+            
             $app->applyHookBoundTo($phase, "module(OpportunityPhases).createNextPhase({$evaluation_method}):before", [&$evaluation_method]);
             $phase->save(true);
             $app->applyHookBoundTo($phase, "module(OpportunityPhases).createNextPhase({$evaluation_method}):after", [&$evaluation_method]);
