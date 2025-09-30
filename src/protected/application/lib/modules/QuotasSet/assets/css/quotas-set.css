@@ -1,0 +1,171 @@
+ #atribuir .search-input {
+            padding: .5rem;
+            margin-top: .6rem;
+            min-height: 3rem;
+            min-width: 50rem;
+            width: fit-content;
+            text-align: left;
+            vertical-align: text-top;
+            border-radius: .3rem;
+            border: 1px solid #bbbbbb;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: .4rem .8rem;
+            align-items: flex-start;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #search-input {
+            border: none;
+            display: inline-block;
+            outline: none;
+            width: 100%;
+            position: relative;
+        }
+
+        .clear-button {
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-left: 1rem;
+            color: #0b0b0b;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .input-entry {
+            background: #E8E8E8;
+            border-radius: .3rem;
+            font-size: 1rem;
+            color: #0b0b0b;
+            padding: .4rem;
+        }
+
+        .agents-list {
+            display: flex;
+            flex-direction: column;
+            gap: .8rem;
+        }
+
+        .agents-list p {
+            text-align: center;
+        }
+
+        .agent-result {
+            background: #ededed;
+            font-weight: bold;
+        }
+
+        .agent-result td {
+            text-align: left;
+            width: fit-content;
+            text-wrap: nowrap;
+            padding: 1.33rem;
+            font-size: 1rem;
+            border-block: .85px solid #bbbbbb;
+            vertical-align: middle;
+        }
+
+        #agent-results-table td:nth-child(2),
+        #assigned-agents-table td:nth-child(3) {
+            width: 100%;
+        }
+
+        .agent-result td button {
+            font-size: 1rem;
+            padding: 0 1.33rem;
+        }
+
+        #agent-results-table_wrapper {
+            display: none;
+        }
+        #agent-results-table_wrapper.has-results {
+            display: block;
+        }
+
+        #assigned-agents-table_wrapper {
+            display: block;
+        }
+        #assigned-agents-table_wrapper.has-search {
+            display: none;
+        }
+
+        .search-list-header {
+            display: none;
+        }
+        .search-list-header.has-search {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #agent-results-table_wrapper:not(:has(.dataTables_empty)) ~ p,
+        #assigned-agents-table_wrapper:not(:has(.dataTables_empty)) ~ p,
+        #agents-list-container:has(#agent-results-table:not(.dataTables_empty)) > h4,
+        #agents-list-container:not(:has(#agent-results-table:not(.dataTables_empty))) > .search-list-header {
+            display: none;
+        }
+        #assigned-agents-table td:nth-child(3) {
+            width: 20rem;  
+            white-space: normal; 
+        }
+
+        #bulk-assign-button {
+            height: 3rem;
+            width: 100%;
+            display: inline-block;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .assigned-quotas-details {
+            display: flex;
+            gap: 1rem;
+            font-weight: normal;
+        }
+
+        .assigned-quotas-details > * {
+            display: inline-block;
+        }
+
+        .export-buttons {
+            margin-bottom: 1rem;
+        }
+
+        #results-export-buttons {
+            display: none;
+        }
+
+        #results-export-buttons.has-results {
+            display: block;
+        }
+
+        #assigned-export-buttons {
+            display: block;
+        }
+
+        #assigned-export-buttons.has-search {
+            display: none;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 4px 8px;      
+            margin: 2px;             
+            font-size: 12px;         
+            border-radius: 3px;     
+        }
+        #assigned-agents-table_info{
+            font-size: 14px;
+        }
+        .dataTables_filter input {
+            width: 200px; 
+            font-size: 14px; 
+            padding: 6px; 
+        }
