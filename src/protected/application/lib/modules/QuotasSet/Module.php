@@ -24,6 +24,14 @@ class Module extends \MapasCulturais\Module
         $baseUri = 'http://' . env('QUOTA_SERVICE_BASE_URL', 'quota-service:9501/api/v1');
         $headers = ['Authorization' => env('QUOTA_SERVICE_TOKEN', '26243157766b1c1b4d269ad254e113e3c89eae83478efcd38f5100db69b843e903cd445feda1f5895148cfc0f34e56bf756555b64bdd6efd6acde67ac06fbe23')];
 
+        $this->app->view->enqueueStyle('app', 'datatables-css', 'css/jquery.dataTables.min.css');
+        $this->app->view->enqueueStyle('app', 'datatables-buttons-css', 'css/buttons.dataTables.min.css');
+
+        $this->app->view->enqueueScript('app', 'datatables', 'js/jquery.dataTables.min.js');
+        $this->app->view->enqueueScript('app', 'datatables-buttons', 'js/dataTables.buttons.min.js');
+        $this->app->view->enqueueScript('app', 'jszip', 'js/jszip.min.js');
+        $this->app->view->enqueueScript('app', 'buttons-html5', 'js/buttons.html5.min.js');
+
         $this->app->hook('template(panel.<<*>>.nav.panel.accountability):after', function () use ($module) {
             /** @var Theme $this */
             if ($module->canUserAccess()) {
@@ -31,9 +39,15 @@ class Module extends \MapasCulturais\Module
             }
         });
 
+        $this->app->hook('GET(registration.view):before', function() use($module) {
+            $module->getQuotaAssets();
+         });
+         
         $this->app->hook('GET(panel.cotas-e-politicas)', function () use ($module) {
             /** @var Controller $this */
             $this->requireAuthentication();
+            $module->getQuotaAssets();
+            
             if ($module->canUserAccess()) {
                 $this->render('panel-quotas-set');
             } else {
@@ -274,5 +288,11 @@ class Module extends \MapasCulturais\Module
         }
 
         return false;
+    }
+
+    public function getQuotaAssets() {
+        $this->app = App::i();
+        $this->app->view->enqueueStyle('app', 'quotas-set-css', 'css/quotas-set.css');
+        $this->app->view->enqueueScript('app', 'quotas-set-js', 'js/quotas-set.js');
     }
 }
