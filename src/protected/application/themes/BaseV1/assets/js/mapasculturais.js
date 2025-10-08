@@ -1796,3 +1796,35 @@ $(function () {
         map.on('moveend', setState);
     }
 });
+
+$(function () {
+    $('body').on('mouseover', '.my-terms', function () {
+        let $self = $(this);
+        let $submenu = $self.find('.terms-submenu');
+
+        $submenu.fadeIn(100);
+    });
+
+    $('body').on('mouseleave', '.my-terms', function () {
+        let $self = $(this);
+        let $submenu = $self.find('.terms-submenu');
+
+        $submenu.fadeOut(100);
+    });
+
+    $('body').on('click touchend', '.my-terms a', function (e) {
+        let $submenu = $(this).closest('.my-terms').find('.terms-submenu');
+        $submenu.css('left', '-150px');
+
+        if ($(this).closest('.terms-submenu').length > 0) {
+            return;
+        }
+
+        if ($submenu.is(':visible')) {
+            $submenu.fadeOut(100);
+        } else {
+            $submenu.fadeIn(100);
+        }
+        e.preventDefault(); 
+    });
+});
