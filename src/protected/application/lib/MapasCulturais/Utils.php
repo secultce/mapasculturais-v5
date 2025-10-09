@@ -219,11 +219,17 @@ class Utils {
             return $text;
         }
 
-        if ($opportunity->getMetadata('use_multiple_diligence') === 'Sim') {
+        if (self::isOpportunityForAccountability($opportunity)) {
             $text = strtr($text, $terminology);
         }
 
         return $text;
+    }
+
+    static function isOpportunityForAccountability($opportunity)
+    {
+        if ($opportunity->use_diligence === 'Sim' && $opportunity->use_multiple_diligence === 'Sim') return true;
+        return false;
     }
 
     static function saveFileByUrl($url, $owner, $group)

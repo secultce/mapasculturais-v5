@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 use MapasCulturais\App;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\BadRequest;
+use MapasCulturais\Utils;
+
 /**
  * User
  *
@@ -931,7 +933,7 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
     public function getOpportunitiesNotAccountability()
     {
         $opportunities = array_filter($this->opportunitiesCanBeEvaluated, function ($opp) {
-            return $opp->getMetadata('use_multiple_diligence') !== 'Sim';
+            return !Utils::isOpportunityForAccountability($opp);
         });
 
         return $opportunities;
@@ -941,7 +943,7 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
     {
         $registrationsSent = App::i()->repo('Registration')->findByUser($this, $status, $limit);
         $registrations = array_filter($registrationsSent, function ($reg) {
-            return $reg->opportunity->getMetadata('use_multiple_diligence') !== 'Sim';
+            return !Utils::isOpportunityForAccountability($reg->opportunity);
         });
 
         return $registrations;
