@@ -1,7 +1,10 @@
-<?php 
+<?php
+
+use MapasCulturais\Utils;
+
 $entity = $this->controller->requestedEntity;
 $sentDate = $entity->sentTimestamp;
-if(!$entity->opportunity->getMetadata('use_multiple_diligence')) :
+if (!Utils::isOpportunityForAccountability($entity->opportunity)) :
 ?>
 <h3 class="registration-header"><?php \MapasCulturais\i::_e("Formulário de Inscrição");?></h3>
 <?php endif; ?>
