@@ -1,11 +1,11 @@
 <?php
 
+use MapasCulturais\Utils;
+
 $enableBtn = false;
 
-foreach ($reg->opportunity->getMetadata() as $key => $value) {
-    if ($key == 'use_multiple_diligence' && $value == 'Sim') {
-        $enableBtn = true;
-    }
+if (Utils::isOpportunityForAccountability($reg->opportunity)) {
+    $enableBtn = true;
 }
 
 $response_template = '

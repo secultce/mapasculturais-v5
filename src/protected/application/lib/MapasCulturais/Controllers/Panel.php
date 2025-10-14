@@ -8,6 +8,7 @@ use MapasCulturais\App;
 use MapasCulturais\Entities\Space;
 use MapasCulturais\Entities\Seal;
 use Diligence\Repositories\Diligence as DiligenceRepo;
+use MapasCulturais\Utils;
 
 /**
  * User Panel Controller
@@ -379,7 +380,7 @@ class Panel extends \MapasCulturais\Controller {
 
         // Retorna as inscrições em oportunidades de prestação de contas (proponente)
         $regAsProp = array_filter($registrations, function ($reg) {
-            return $reg->opportunity->getMetadata('use_multiple_diligence') === 'Sim';
+            return Utils::isOpportunityForAccountability($reg->opportunity);
         });
 
         // Retorna as inscrições de prestação de contas finalizadas (TADO gerado)
@@ -394,7 +395,7 @@ class Panel extends \MapasCulturais\Controller {
 
         // Retorna as oportunidades de prestação de contas (fiscal)
         $oppAsFiscal = array_filter($opportunities, function ($opp) {
-            return $opp->getMetadata('use_multiple_diligence') === 'Sim';
+            return Utils::isOpportunityForAccountability($opp);
         });
 
         /**

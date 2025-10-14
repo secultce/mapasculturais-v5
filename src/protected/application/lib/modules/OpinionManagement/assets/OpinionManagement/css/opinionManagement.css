@@ -1,0 +1,163 @@
+:root {
+    --low-pure: #1e1e1e;
+    --low-light: #666;
+    --low-dark: #3d3d3d;
+    --high-dark: #bbb;
+    --high-light: #f5f5f5;
+    --high-pure: #fff;
+}
+
+.swal2-container {
+    z-index: 1800;
+}
+.swal2-popup:has(.opinion) {
+    width: auto;
+}
+.swal2-close {
+    position: absolute;
+}
+
+.registration-status-col:has(.status-notapproved), .status-notapproved {
+    width: max-content;
+}
+
+div:has(>.showOpinion) {
+    display: flex;
+    justify-content: start;
+}
+
+.showOpinion {
+    cursor: pointer;
+}
+
+.opinion {
+    border: 1px solid var(--low-light);
+    border-radius: 4px;
+    padding: 13px 16px;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 800px;
+    margin-bottom: 16px;
+    scroll-behavior: smooth;
+}
+.opinion:has(.chk-collapse:checked) {
+    max-height: 400px;
+    overflow: auto;
+}
+.opinion:has(.chk-collapse:not(:checked)) {
+    gap: 0;
+}
+
+.opinion * {
+    font-family: inherit;
+}
+
+.opinion .evaluation-title {
+    font-size: 15px;
+    text-align: justify;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    justify-content: space-between;
+}
+.opinion .evaluation-title label {
+    cursor: pointer;
+    position: relative;
+}
+.opinion .evaluation-title .collapsible {
+    color:#117C83;
+    position: absolute;
+    font-weight: 700;
+    right: 0;
+    text-wrap: nowrap;
+}
+.opinion .evaluation-title .collapsible svg {
+    width: .8em;
+    padding-block: 2px;
+}
+.opinion .evaluation-title .collapsible-hidden {display: none}
+.opinion .chk-collapse:not(:checked) ~ .criteria-fields {
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    opacity: 0;
+    overflow: hidden;
+}
+.opinion .chk-collapse:checked ~ .criteria-fields {
+    /*max-height: 100px;*/
+    display: initial;
+}
+
+.opinion .criteria-fields {
+    text-align: justify;
+}
+
+.opinion .chk-collapse {display: none}
+
+.opinion .evaluation-title h3,
+.opinion .evaluation-title h3 * {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: start;
+    margin-bottom: 16px;
+}
+
+.opinion h5 {
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 0;
+    color: var(--low-pure);
+}
+
+.criteria-fields {
+    border: 1px solid var(--high-dark);
+    border-radius: 4px;
+    padding: 8px;
+    transition: all .4s ease-in-out 0s;
+}
+
+.criteria-status-valid, .criteria-status-invalid, .criteria-status-pending {
+    text-align: start;
+    padding: 0;
+    margin: 0;
+}
+
+.criteria-status-valid:before,
+.criteria-status-invalid:before,
+.criteria-status-pending:before {
+    font-size: 12px;
+    font-weight: 700;
+}
+.criteria-status-valid:before {
+    content: '\01F7E2  Válida';
+    color: green;
+}
+.criteria-status-invalid:before {
+    content: '\01F534  Inválida';
+    color: #ff2424;
+}
+.criteria-status-pending:before {
+    content: '\01F7E1  Pendente';
+    color: #ffd400;
+}
+
+.opinion-evaluation-obs {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--low-pure);
+    text-align: start;
+    margin-top: 8px;
+}
+
+.opinions-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.opinions-section hr {
+    width: 100%;
+}

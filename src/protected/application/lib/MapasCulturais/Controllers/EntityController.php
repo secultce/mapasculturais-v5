@@ -308,6 +308,10 @@ abstract class EntityController extends \MapasCulturais\Controller{
             $entity->$field = $value;
         }
 
+        if( isset($data['evaluationMethod'] ) && $data['evaluationMethod'] ==='qualification') {
+            $this->errorJson('Fase de avaliação de habilitação documental não permitida!', 400);
+        }
+
         if($errors = $entity->validationErrors){
             $this->errorJson($errors);
         }else{
