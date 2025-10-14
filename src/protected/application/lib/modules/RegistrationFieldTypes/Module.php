@@ -297,8 +297,9 @@ class Module extends \MapasCulturais\Module
                         ],
                         ['id' => 'asc']
                     );
+                    $value = $metadata ? $metadata->value : null;
 
-                    return json_decode($metadata->value);
+                    return json_decode($value);
                 }
             ],
             [
