@@ -34,7 +34,7 @@ class Module extends \MapasCulturais\Module{
 
         // adiciona seção de configuração do formulário de recurso
         $app->hook("view.partial(singles/opportunity-registrations--export):after", function(){
-            $this->part('claim-configuration', ['opportunity' => $this->controller->requestedEntity]);
+            // $this->part('claim-configuration', ['opportunity' => $this->controller->requestedEntity]);
         });
 
         // adiciona o botão de recurso na lista de
@@ -105,11 +105,12 @@ class Module extends \MapasCulturais\Module{
     function register(){
 
         $this->registerOpportunityMetadata('claimDisabled', [
-            'label' => i::__('Desabilitar formulário de recursos'),
+            'label' => i::__('Desabilitar recursos na oportunidade'),
+            'default' => 1,
             'type' => 'select',
             'options' => (object)[
-                '0' => i::__('formulário de recurso habilitado'),
-                '1' => i::__('formulário de recurso desabilitado'),
+                '0' => i::__('Recurso habilitado na oportunidade'),
+                '1' => i::__('Recurso desabilitado na oportunidade'),
             ]
         ]);
 
