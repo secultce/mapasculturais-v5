@@ -93,7 +93,8 @@ class Controller extends  \MapasCulturais\Controller
             return;
         }
 
-        $this->notificateUsers($opportunity->id);
+        $sealIds = $opportunity->owner->getRelatedSealIds();
+        $this->notificateUsers($opportunity->id, true, $sealIds);
 
         $this->json(['success' => true]);
     }
@@ -102,7 +103,7 @@ class Controller extends  \MapasCulturais\Controller
      * @throws WorkflowRequest
      * @throws PermissionDenied
      */
-    public static function notificateUsers(int $opportunityId, bool $verifyPublishingOpinions = true): bool
+    public static function notificateUsers(int $opportunityId, bool $verifyPublishingOpinions = true,array $sealIds = []): bool
     {
         $app = App::i();
         $opportunity = $app->repo('Opportunity')->find($opportunityId);
@@ -118,9 +119,10 @@ class Controller extends  \MapasCulturais\Controller
 
         $registrations = $app->repo('Registration')->matching($criteria);
 
-        self::sendToMailQueue($registrations);
-
-        $app->log->debug("Processo de envio de emails enviado para a fila.");
+        if (in_array(2, $sealIds)) {
+            self::sendToMailQueue($registrations);
+            $app->log->debug("Processo de envio de emails enviado para a fila.");
+        }
 
         $count = count($registrations);
         $failed = 0;
