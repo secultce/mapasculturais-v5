@@ -798,10 +798,17 @@ class Module extends \MapasCulturais\Module{
 
         // envia e-mail para os aprovados na última fase
         $app->hook("entity(Opportunity).publishRegistrations:after", function () use ($app) {
+            $opportunity = $app->repo('Opportunity')->find($this->data['opportunityId']);
+            $sealIds = $opportunity->owner->getRelatedSealIds();
+
             if (!$this instanceof \MapasCulturais\Entities\ProjectOpportunity || !$this->isLastPhase) {
                 return;
             }
-            self::sendApprovalEmails($this);
+
+            if(in_array(2,$sealIds)) {
+                self::sendApprovalEmails($opportunity);
+            }
+            
             return;
         });
 
@@ -819,15 +826,19 @@ class Module extends \MapasCulturais\Module{
                     'agent_email' => $reg->owner->user->email
                 ];
             }, $new_registrations);
-                
-            // instanciando e enviando para a mensageria
-            $queueService = new AmqpQueueService();
-            $queueService->sendMessage(
-                $app->config['rabbitmq']['exchange_default'],
-                $app->config['rabbitmq']['routing']['module_import_registration_draft'],
-                $bodyMessageRegistration,
-                $app->config['rabbitmq']['queues']['queue_import_registration']
-            );
+            $registration = $new_registrations[0];
+            $owner = $registration->opportunity->owner;
+            $sealIds = $owner->getRelatedSealIds();
+            if(in_array(2,$sealIds)) {
+                // instanciando e enviando para a mensageria
+                $queueService = new AmqpQueueService();
+                $queueService->sendMessage(
+                    $app->config['rabbitmq']['exchange_default'],
+                    $app->config['rabbitmq']['routing']['module_import_registration_draft'],
+                    $bodyMessageRegistration,
+                    $app->config['rabbitmq']['queues']['queue_import_registration']
+                );
+            }
         });
 
 

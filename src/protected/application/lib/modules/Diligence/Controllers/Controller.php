@@ -142,7 +142,13 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     public function POST_sendNotification()
     {
-       self::notification();
+        $app = App::i();
+        $registration = $app->repo('Registration')->find($this->data['registration']);
+        $owner = $registration->opportunity->owner;
+        $sealIds = $owner->getRelatedSealIds();
+        if(in_array(2,$sealIds)){
+            self::notification();
+        }
     }
     /**
      * Rsposta do proponente
