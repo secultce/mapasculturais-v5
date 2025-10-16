@@ -179,4 +179,16 @@ trait EntitySealRelation {
     function getRenewSealRelationUrl($idRelation){
         return App::i()->createUrl($this->controllerId, 'renewsealrelation', [$idRelation]);
     }
+
+    function getRelatedSealIds($include_pending_relations = false) {
+        $sealIds = [];
+
+        foreach ($this->getSealRelations($include_pending_relations) as $relation) {
+           
+            if ($relation->seal instanceof \MapasCulturais\Entities\Seal) {
+                $sealIds[] = $relation->seal->id;
+            }
+        }
+        return $sealIds;
+    }
 }
