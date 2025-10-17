@@ -8,7 +8,7 @@ use MapasCulturais\App,
     MapasCulturais\Definitions,
     MapasCulturais\Exceptions;
 use MapasCulturais\Entities\Opportunity;
-use \MapasCulturais\Types\GeoPoint;
+use MapasCulturais\Services\SentryService;
 use MapasCulturais\Services\AmqpQueueService;
 
 class Module extends \MapasCulturais\Module{
@@ -798,18 +798,31 @@ class Module extends \MapasCulturais\Module{
 
         // envia e-mail para os aprovados na última fase
         $app->hook("entity(Opportunity).publishRegistrations:after", function () use ($app) {
-            $opportunity = $app->repo('Opportunity')->find($this->data['opportunityId']);
-            $sealIds = $opportunity->owner->getRelatedSealIds();
+            try {
+                // $this é a entidade ProjectOpportunity
+                $opportunity = $app->repo('Opportunity')->find($this->id);
 
-            if (!$this instanceof \MapasCulturais\Entities\ProjectOpportunity || !$this->isLastPhase) {
+                if (!$opportunity) {
+                    $app->log->info("Opportunity não encontrada para ID: " . $this->id);
+                    return;
+                }
+                // Busca os selos do dono da oportunidade
+                $sealIds = $opportunity->owner->getRelatedSealIds();
+
+                if (!$this instanceof \MapasCulturais\Entities\ProjectOpportunity || !$this->isLastPhase) {
+                    return;
+                }
+                // Add variavel de ambiente com id do selo Secult
+                $seal = (int)env('SECULT_SEAL_ID');
+                if (in_array($seal, $sealIds)) {
+                    self::sendApprovalEmails($opportunity);
+                }
+
                 return;
+            } catch (\Throwable $th) {
+                $app->log->info("Opportunity não encontrada: " . $th->getMessage());
+                SentryService::captureExceptions($th);
             }
-
-            if(in_array(2,$sealIds)) {
-                self::sendApprovalEmails($opportunity);
-            }
-            
-            return;
         });
 
         $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
