@@ -15,9 +15,11 @@
     function getOpportunityId(){
         if(MapasCulturais.entity.object.opportunity){
             return MapasCulturais.entity.object.opportunity.id;
-        } else {
-            return MapasCulturais.entity.id;
+        } 
+        if(MapasCulturais.evaluationConfiguration.opportunity !== null){
+            return MapasCulturais.evaluationConfiguration.opportunity.id
         }
+        return MapasCulturais.entity.id;
     }
 
     function _getStatusSlug(status) {
@@ -199,7 +201,7 @@
 
             getBonusFields: function () {
                 const fields = this.getFields();
-                const bonusFieldsConfig = MapasCulturais.entity.object.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig;
+                const bonusFieldsConfig = MapasCulturais.entity.object?.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig || [];
 
                 const bonusFieldsIds = bonusFieldsConfig?.map(bonusField => {
                     return parseInt(bonusField.field);
@@ -2282,12 +2284,9 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
     var select_fields = MapasCulturais.opportunitySelectFields.map(function(e){ return e.fieldName; });
     var registrationsApi;
     var evaluationsApi;
-
     var committeeApi = new OpportunityApiService($scope, 'evaluationCommittee', 'evaluationCommittee', {'@opportunity': getOpportunityId()});
-
     $scope.registrationsFilters = {};
-    $scope.evaluationsFilters = {};
-
+    $scope.evaluationsFilters = {};    
     $scope.isSelected = function(object, key){
         var selected  = false;
         for(var index in object) {
