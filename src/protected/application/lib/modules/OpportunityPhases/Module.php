@@ -796,7 +796,7 @@ class Module extends \MapasCulturais\Module{
             }
         });
 
-        // envia e-mail para os aprovados na última fase
+
         $app->hook("entity(Opportunity).publishRegistrations:after", function () use ($app) {
             try {
                 // $this é a entidade ProjectOpportunity
@@ -809,9 +809,7 @@ class Module extends \MapasCulturais\Module{
                 // Busca os selos do dono da oportunidade
                 $sealIds = $opportunity->owner->getRelatedSealIds();
 
-                if (!$this instanceof \MapasCulturais\Entities\ProjectOpportunity || !$this->isLastPhase) {
-                    return;
-                }
+
                 // Add variavel de ambiente com id do selo Secult
                 $seal = (int)env('SECULT_SEAL_ID');
                 if (in_array($seal, $sealIds)) {
