@@ -4,6 +4,10 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.11.1] - 2025-10-21
+### Corrigido
+- Correção para buscar agente ao se inscrever em uma oportunidade
+
 ## [5.11.0] - 2025-10-21
 ### Adicionado
 - Nas inscrições foram adicionado novas validações de campos obrigatórios
