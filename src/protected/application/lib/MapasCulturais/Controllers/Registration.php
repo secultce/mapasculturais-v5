@@ -609,10 +609,18 @@ class Registration extends EntityController {
 
     public function PATCH_single($data = null): void
     {
+        $maxRequestSize = (int)rtrim(ini_get('post_max_size'), "M");
+        $maxRequestSizeInBytes = $maxRequestSize * 1024 * 1024;
+        $requestSize = isset($_SERVER['CONTENT_LENGTH']) ? (int)$_SERVER['CONTENT_LENGTH'] : 0;
+        if ($requestSize > $maxRequestSizeInBytes) {
+            $this->errorJson([
+                'message' => 'Não foi possível salvar a inscrição. Sua inscrição está excedendo o tamanho permitido.',
+            ], 413);
+        }
+
         if (is_null($data)) {
             $data = $this->postData;
         }
-
         $registration = $this->getRequestedEntity();
         $metadatas = $registration->getRegisteredMetadata(null, true);
 
@@ -620,13 +628,20 @@ class Registration extends EntityController {
             if (str_contains($meta_key, 'field_')) {
                 $conditionalField = $metadata->config['registrationFieldConfiguration']->conditionalField ?? null;
                 $conditionalValue = $metadata->config['registrationFieldConfiguration']->conditionalValue ?? null;
-
-                if ($conditionalField && $conditionalValue !== $data[$conditionalField]) {
-                    $data[$meta_key] = null;
+                if ($conditionalField) {
+                    // Verifica se o campo condicional é um array (checkboxes)
+                    if (is_array($data[$conditionalField])) {
+                        if (!in_array($conditionalValue, $data[$conditionalField])) {
+                            $data[$meta_key] = null;
+                        }
+                    } else {
+                        if ($conditionalValue !== $data[$conditionalField]) {
+                            $data[$meta_key] = null;
+                        }
+                    }
                 }
             }
         }
-
         parent::PATCH_single($data);
     }
 }

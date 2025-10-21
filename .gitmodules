@@ -6,10 +6,6 @@
 	path = src/protected/application/themes/Ceara
 	url = https://github.com/secultce/theme-Ceara.git
 	branch = master
-[submodule "src/protected/application/plugins/OpinionManagement"]
-	path = src/protected/application/plugins/OpinionManagement
-	url = https://github.com/secultce/plugin-OpinionManagement.git
-	branch = main
 [submodule "src/protected/application/plugins/Accessibility"]
 	path = src/protected/application/plugins/Accessibility
 	url = https://github.com/govce/plugin-Accessibility.git
@@ -25,10 +21,6 @@
 [submodule "src/protected/application/plugins/PublicConsultation"]
 	path = src/protected/application/plugins/PublicConsultation
 	url = https://github.com/secultce/plugin-PublicConsultation.git
-	branch = main
-[submodule "src/protected/application/plugins/PDFReport"]
-	path = src/protected/application/plugins/PDFReport
-	url = https://github.com/secultce/plugin-PDFReport.git
 	branch = main
 [submodule "src/protected/application/plugins/BigSheetImporter"]
 	path = src/protected/application/plugins/BigSheetImporter

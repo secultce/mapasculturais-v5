@@ -487,3 +487,21 @@ Para saber se um usuário está logado você pode verificar se o usuário não �
 ## Exceções
 
 ### PermissionDenied
+
+## Boas práticas
+### Para visual studio code
+ - Instalar instensão para qualidade do php
+   - [PHP Tools](https://www.devsense.com/pt)
+   - [PHP Sniffer & Beautifier](https://marketplace.visualstudio.com/items?itemName=obliviousharmony.vscode-php-codesniffer)
+   - [Php cs fixer](https://marketplace.visualstudio.com/items?itemName=junstyle.php-cs-fixer)
+   - Instalar "Dev Containers" (de Microsoft)
+ - Instalar o PHPCS (`composer require --dev squizlabs/php_codesniffer`) e configurar o VS Code.
+ - Instale PHP-CS-Fixer (`composer require --dev friendsofphp/php-cs-fixer`)
+ - Configurar o VS Code em .vscode/settings.json adicionar:
+    ```"phpsab.executablePathCS": "docker exec mapas /var/www/html/vendor/bin/phpcs",
+    "phpsab.executablePathCBF": "docker exec mapas /var/www/html/vendor/bin/phpcbf",
+    "phpsab.standard": "PSR12",
+    "phpsab.fixerEnable": true,
+    "phpsab.snifferEnable": true,
+    "e`itor.formatOnSave": true  
+ - devcontainer.json , traz as configurações para desenvolvedores padronizada

@@ -54,15 +54,16 @@ $last_created_phase = Module::getLastCreatedPhase($opportunity);
 	<?php $this->applyTemplateHook('new-phase-form', 'begin') ?>
     <ul ng-if="data.step == 1" class="evaluation-methods">
 	    <?php $this->applyTemplateHook('new-phase-form-step1', 'begin') ?>
-        <?php foreach($evaluation_methods as $method): ?>
-        <label for="evaluationItem-<?php echo $method->slug; ?>">
-        <li class="evaluation-methods--item">
-            <input type="radio" id="evaluationItem-<?php echo $method->slug; ?>" ng-change="data.step = 2" name="evaluationMethod" value="<?php echo $method->slug ?>" ng-model="newPhasePostData.evaluationMethod">
-            <?php echo $method->name; ?>
-            <p class="evaluation-methods--name"><?php echo $method->description; ?></p>
-        </li>
-        </label>
-        <?php endforeach; ?>
+            <?php foreach($evaluation_methods as $method): ?>
+                <?php if($method->name === "Avaliação de habilitação documental") continue; ?>
+                <label for="evaluationItem-<?php echo $method->slug; ?>">
+                    <li class="evaluation-methods--item">
+                        <input type="radio" id="evaluationItem-<?php echo $method->slug; ?>" ng-change="data.step = 2" name="evaluationMethod" value="<?php echo $method->slug ?>" ng-model="newPhasePostData.evaluationMethod">
+                        <?php echo $method->name; ?>
+                        <p class="evaluation-methods--name"><?php echo $method->description; ?></p>
+                    </li>
+                </label>
+            <?php endforeach; ?>
 	    <?php $this->applyTemplateHook('new-phase-form-step1', 'end') ?>
     </ul>
     <div ng-if="data.step == 2">

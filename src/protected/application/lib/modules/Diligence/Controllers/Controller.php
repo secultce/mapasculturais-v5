@@ -6,11 +6,14 @@ use Carbon\Carbon;
 use Diligence\Entities\AnswerDiligence;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\NotificationDiligence;
+use Diligence\Entities\Opinion as OpinionEntity;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Service\NotificationInterface;
 use MapasCulturais\App;
+use MapasCulturais\Entities\EntityRevision;
 use MapasCulturais\Entity;
 use MapasCulturais\Entities\RegistrationMeta;
+use MapasCulturais\Services\SentryService;
 
 class Controller extends \MapasCulturais\Controller implements NotificationInterface
 {
@@ -37,7 +40,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         // Consulta se tem diligencia
         $isDiligence = $app->repo('Diligence\Entities\Diligence')->findOneBy(['registration' => $this->data['registration']]);
         // Se não tiver diligencia ou se quem abriu a diligencia é a mesma pessoa logada poderá alterar o registro
-        if(is_null($isDiligence) || $isDiligence->openAgent->id == $app->user->profile->id){
+        if (is_null($isDiligence) || $isDiligence->openAgent->id == $app->user->profile->id) {
             if (($this->data['idDiligence'] ?: 0) == 0 && (is_null($registration->opportunity->use_multiple_diligence) || $registration->opportunity->use_multiple_diligence === 'Não')) {
                 $diligences = $app->repo(EntityDiligence::class)->findBy([
                     'registration' => $registration,
@@ -64,10 +67,9 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             $entity = $answer->createOrUpdate($this);
 
             $this->json(['message' => 'success', 'status' => 200, 'entityId' => $entity['entityId']]);
-        }else{
+        } else {
             $this->json(['message' => 'Essa prestação de conta já está em diligência.', 'status' => 403], 403);
         }
-
     }
 
     /**
@@ -123,6 +125,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
      */
     public function notification(): void
     {
+        $app = App::i();
         $this->requireAuthentication();
         App::i()->applyHook('controller(diligence).notification:before');
         //Notificação no Mapa Cultural
@@ -132,13 +135,20 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $userDestination = $notification->userDestination($this);
         App::i()->applyHook('controller(diligence).notification:after');
         //Enviando para fila RabbitMQ
-        EntityDiligence::sendQueue($userDestination, 'proponente');
+        
+        EntityDiligence::sendQueue($userDestination, $app->config['rabbitmq']['routing']['module_accountability_proponent']);
         self::returnJson(null, $this);
     }
 
     public function POST_sendNotification()
     {
-        self::notification();
+        $app = App::i();
+        $registration = $app->repo('Registration')->find($this->data['registration']);
+        $owner = $registration->opportunity->owner;
+        $sealIds = $owner->getRelatedSealIds();
+        if(in_array(2,$sealIds)){
+            self::notification();
+        }
     }
     /**
      * Rsposta do proponente
@@ -171,6 +181,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
 
     public function POST_notifiAnswer()
     {
+        $app = App::i();
+       
         // Cria a notificação dentro do painel
         $notification = new NotificationDiligence();
         $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
@@ -186,7 +198,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 'owner' => $diligence->registration->opportunity->owner->user->email
             ];
         };
-        EntityDiligence::sendQueue($userDestination, 'resposta');
+        
+        EntityDiligence::sendQueue($userDestination, $app->config['rabbitmq']['routing']['module_accountability_adm']);
 
         $notification = new NotificationDiligence();
         $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
@@ -234,7 +247,8 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
             }
 
             $createMetadata = $app->repo('RegistrationMeta')->findBy([
-                'key' => $keyRequest, 'owner' => $idEntity
+                'key' => $keyRequest,
+                'owner' => $idEntity,
             ]);
 
             if (empty($createMetadata)) {
@@ -463,5 +477,59 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $diligence->status = Entity::STATUS_TRASH;
         self::saveEntity($diligence);
         $this->json(['message' => 'success']);
+    }
+
+    public function POST_saveOpinion()
+    {
+        $publish = false;
+        $errorMsg = 'Ocorreu um erro ao salvar o parecer.';
+        $successMsg = 'Parecer salvo com sucesso';
+
+        $this->saveOrPublishOpinion($publish, $errorMsg, $successMsg);
+    }
+
+    public function POST_publishOpinion()
+    {
+        $publish = true;
+        $errorMsg = 'Ocorreu um erro ao publicar o parecer.';
+        $successMsg = 'Seu parecer está sendo publicado. Aguarde.';
+
+        $this->saveOrPublishOpinion($publish, $errorMsg, $successMsg);
+    }
+
+    private function saveOrPublishOpinion($publish, $errorMsg, $successMsg)
+    {
+        $this->requireAuthentication();
+
+        try {
+            $this->createOrUpdateOpinion($this->data, $publish);
+        } catch (\Exception $e) {
+            SentryService::captureExceptions($e);
+
+            $this->json([
+                'message' => $errorMsg,
+                'error' => $e->getMessage()
+            ], 500);
+
+            return;
+        }
+
+        $this->json(['message' => $successMsg]);
+    }
+
+    private function createOrUpdateOpinion($data, $publish)
+    {
+        $registrationId = (int)$data["registrationId"];
+        $registration = App::i()->repo('Registration')->find($registrationId);
+        $opinion = App::i()->repo(OpinionEntity::class)->findOneBy(['registration' => $registration]);
+
+        $registration->checkPermission('evaluate');
+
+        if ($opinion) {
+            $opinion->update($data["opinion"], $publish);
+        } else {
+            $opinionEntity = new OpinionEntity();
+            $opinionEntity->create($data["opinion"], $registration, $publish);
+        }
     }
 }

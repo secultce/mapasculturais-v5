@@ -296,6 +296,7 @@ class Registration extends \MapasCulturais\Entity
             'owner' => $this->owner->simplify('id,name,lockedFields,singleUrl'),
             'agentRelations' => [],
             'files' => [],
+            'consolidatedResult' => $this->consolidatedResult,
             'singleUrl' => $this->singleUrl,
             'editUrl' => $this->editUrl
         ];
@@ -871,7 +872,7 @@ class Registration extends \MapasCulturais\Entity
                 }
             }
         }       
-
+       
         // validate attachments
         foreach($opportunity->registrationFileConfigurations as $rfc){
 
@@ -899,7 +900,7 @@ class Registration extends \MapasCulturais\Entity
 
         // validate fields
         foreach ($opportunity->registrationFieldConfigurations as $field) {
-
+            // dump($field);
             if ($use_category && count($field->categories) > 0 && !in_array($this->category, $field->categories)) {
                 continue;
             }
@@ -910,22 +911,29 @@ class Registration extends \MapasCulturais\Entity
 
             $field_name = $field_prefix . $field->id;
             $field_required = $field->required;
-            
-            if($metadata_definition && $metadata_definition->config && $metadata_definition->config['registrationFieldConfiguration'] && $metadata_definition->config['registrationFieldConfiguration']->conditional){
+
+            if($metadata_definition && 
+                $metadata_definition->config && 
+                $metadata_definition->config['registrationFieldConfiguration'] && 
+                $metadata_definition->config['registrationFieldConfiguration']->conditional){
                 $conf =  $metadata_definition->config['registrationFieldConfiguration'];
-              
+                
                 $_fied_name = $conf->conditionalField;
                 $_fied_value = $conf->conditionalValue;
-                $field_required = $this->$_fied_name == $_fied_value && $field->required;
+                
+                // Verifica se o campo é do tipo checkboxes (array)
+                if (is_array($this->$_fied_name)) {
+                    $field_required = in_array($_fied_value, $this->$_fied_name) && $field->required;
+                } else {
+                    $field_required = $this->$_fied_name == $_fied_value && $field->required;
+                }
             }
-
             $errors = [];
 
             $prop_name = $field->getFieldName();
             $val = $this->$prop_name;
 
             $empty = false;
-
             if(is_array($val)){
                 if(count($val) === 0) {
                     $empty = true;
@@ -937,7 +945,7 @@ class Registration extends \MapasCulturais\Entity
             } else {
                 $empty = trim((string) $val) === '';
             }
-
+           
             if ($empty) {
                 if($field_required) {
                     $errors[] = \MapasCulturais\i::__('O campo é obrigatório.');

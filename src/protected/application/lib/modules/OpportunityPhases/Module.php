@@ -8,7 +8,8 @@ use MapasCulturais\App,
     MapasCulturais\Definitions,
     MapasCulturais\Exceptions;
 use MapasCulturais\Entities\Opportunity;
-use \MapasCulturais\Types\GeoPoint;
+use MapasCulturais\Services\SentryService;
+use MapasCulturais\Services\AmqpQueueService;
 
 class Module extends \MapasCulturais\Module{
 
@@ -542,11 +543,9 @@ class Module extends \MapasCulturais\Module{
             $opportunity_class_name = $parent->getSpecializedClassName();
 
             $phase = new $opportunity_class_name;
-
             $phase->status = Entities\Opportunity::STATUS_DRAFT;
             $phase->parent = $parent;
             $phase->ownerEntity = $parent->ownerEntity;
-
             $phase->name = $_phases[$num_phases];
             $phase->registrationCategories = $parent->registrationCategories;
             $phase->shortDescription = sprintf(i::__('Descrição da %s'), $_phases[$num_phases]);
@@ -568,6 +567,10 @@ class Module extends \MapasCulturais\Module{
 
             $evaluation_method = $this->data['evaluationMethod'];
 
+            if($evaluation_method === 'qualification') {
+                $this->errorJson(i::__('Fase de avaliação de habilitação documental não permitida!'), 400);
+            }
+            
             $app->applyHookBoundTo($phase, "module(OpportunityPhases).createNextPhase({$evaluation_method}):before", [&$evaluation_method]);
             $phase->save(true);
             $app->applyHookBoundTo($phase, "module(OpportunityPhases).createNextPhase({$evaluation_method}):after", [&$evaluation_method]);
@@ -624,13 +627,11 @@ class Module extends \MapasCulturais\Module{
         // action para importar as inscrições da última fase concluida
         $app->hook('GET(opportunity.importLastPhaseRegistrations)', function() use($app, $self) {
             ini_set('max_execution_time', 0);
-            $target_opportunity = self::getRequestedOpportunity();
-
+            $target_opportunity = self::getRequestedOpportunity();            
             $as_draft = !isset($this->data['sent']);
             $previous_phase = self::getPreviousPhase($target_opportunity);
 
-            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);
-
+            $registrations = $self->importLastPhaseRegistrations($previous_phase, $target_opportunity, $as_draft);           
             if(count($registrations) < 1){
                 $this->errorJson(\MapasCulturais\i::__('Não há inscrições aprovadas fase anterior'), 400);
             }
@@ -795,14 +796,63 @@ class Module extends \MapasCulturais\Module{
             }
         });
 
-        // envia e-mail para os aprovados na última fase
+
         $app->hook("entity(Opportunity).publishRegistrations:after", function () use ($app) {
-            if (!$this instanceof \MapasCulturais\Entities\ProjectOpportunity || !$this->isLastPhase) {
+            try {
+                // $this é a entidade ProjectOpportunity
+                $opportunity = $app->repo('Opportunity')->find($this->id);
+
+                if (!$opportunity) {
+                    $app->log->info("Opportunity não encontrada para ID: " . $this->id);
+                    return;
+                }
+                // Busca os selos do dono da oportunidade
+                $sealIds = $opportunity->owner->getRelatedSealIds();
+
+
+                // Add variavel de ambiente com id do selo Secult
+                $seal = (int)env('SECULT_SEAL_ID');
+                if (in_array($seal, $sealIds)) {
+                    self::sendApprovalEmails($opportunity);
+                }
+
                 return;
+            } catch (\Throwable $th) {
+                $app->log->info("Opportunity não encontrada: " . $th->getMessage());
+                SentryService::captureExceptions($th);
             }
-            self::sendApprovalEmails($this);
-            return;
         });
+
+        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
+           $app = App::i();
+
+            // Dados para envio para mensageria
+            $bodyMessageRegistration = array_map(function ($reg) {
+                return [
+                    'registration' => $reg->id,
+                    'opp_id' => $reg->opportunity->id,
+                    'opp_name' => $reg->opportunity->name,
+                    'number' => $reg->number,
+                    'agent_name' => $reg->owner->name,
+                    'agent_email' => $reg->owner->user->email
+                ];
+            }, $new_registrations);
+            $registration = $new_registrations[0];
+            $owner = $registration->opportunity->owner;
+            $sealIds = $owner->getRelatedSealIds();
+            if(in_array(2,$sealIds)) {
+                // instanciando e enviando para a mensageria
+                $queueService = new AmqpQueueService();
+                $queueService->sendMessage(
+                    $app->config['rabbitmq']['exchange_default'],
+                    $app->config['rabbitmq']['routing']['module_import_registration_draft'],
+                    $bodyMessageRegistration,
+                    $app->config['rabbitmq']['queues']['queue_import_registration']
+                );
+            }
+        });
+
+
     }
 
     function register () {
@@ -857,9 +907,8 @@ class Module extends \MapasCulturais\Module{
             'previous_opportunity' => $previous_phase,
             'target_opportunity' => $target_opportunity
         ]);
-
+        
         $registration_ids = array_map(function($item){ return $item['id']; }, $query->getArrayResult());
-
         if(count($registration_ids) < 1){
             return [];
         }
@@ -889,7 +938,7 @@ class Module extends \MapasCulturais\Module{
 
             $reg->previousPhaseRegistrationId = $r->id;
             $reg->category = $r->category;
-
+        
             $reg->save(true);
 
             if(!$as_draft){
@@ -899,17 +948,19 @@ class Module extends \MapasCulturais\Module{
             $r->nextPhaseRegistrationId = $reg->id;
 
             $r->save(true);
-
+           
             $new_registrations[] = $reg;
 
             $app->em->clear();
         }
 
         $opp_repo->find($target_opportunity->id)->save(true);
+        
+        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
 
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
-
+       
         return $new_registrations;
     }
 

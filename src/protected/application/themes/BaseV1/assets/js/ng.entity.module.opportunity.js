@@ -15,9 +15,11 @@
     function getOpportunityId(){
         if(MapasCulturais.entity.object.opportunity){
             return MapasCulturais.entity.object.opportunity.id;
-        } else {
-            return MapasCulturais.entity.id;
+        } 
+        if(MapasCulturais.evaluationConfiguration.opportunity !== null){
+            return MapasCulturais.evaluationConfiguration.opportunity.id
         }
+        return MapasCulturais.entity.id;
     }
 
     function _getStatusSlug(status) {
@@ -107,31 +109,24 @@
             },
 
             validateEntity: function(registrationId) {
-                return $http.post(this.getUrl('validateEntity', registrationId)).
-                success(function(data, status){
+                return $http.post(this.getUrl('validateEntity', registrationId))
+                .success(function(data, status) {
                     let messageError = '';
-                    // Verifica se a propriedade agent_coletivo existe
+                    let pendingFields = [];
+
                     if (data && data.data && data.data.hasOwnProperty('agent_coletivo')) {
                         messageError = data.data.agent_coletivo;
                     }
+                    
                     if(verifyPropertyField(data.data)){
-                        messageError = 'Dados obrigatórios pendentes';
-                    }
-                    if(data.error == true)
-                    {
-                        Swal.fire({
-                            icon:  "error",
-                            title: "Oops...",
-                            text:  messageError
-                        });
+                        messageError = pendingFields.length ? '<ul>' + pendingFields.join('') + '</ul>' : '<p>Dados obrigatórios pendentes</p>';
                     }
                     $rootScope.$emit('registration.validate', {message: "Opportunity registration was validated ", data: data, status: status});
-                }).
-                error(function(data, status){
+                })
+                .error(function(data, status) {
                     $rootScope.$emit('error', {message: "Cannot validate opportunity registration", data: data, status: status});
                 });
-            }, 
-
+            },
             updateFields: function(entity) {
                 var data = {};
                 
@@ -206,7 +201,7 @@
 
             getBonusFields: function () {
                 const fields = this.getFields();
-                const bonusFieldsConfig = MapasCulturais.entity.object.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig;
+                const bonusFieldsConfig = MapasCulturais.entity.object?.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig || [];
 
                 const bonusFieldsIds = bonusFieldsConfig?.map(bonusField => {
                     return parseInt(bonusField.field);
@@ -1269,14 +1264,14 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     // modifica o botão salvar
     if(MapasCulturais.isEditable){
         $('#editable-entity .js-submit-button').remove();
-        $('#editable-entity .controles').html('<a class="btn btn-default js-validade-registration" rel="noopener noreferrer">Validar inscrição</a> <a class="btn btn-primary js-save-registration" rel="noopener noreferrer">Salvar</a>');
+        $('#editable-entity .controles').html('<a class="btn btn-default validate-and-save-registration-btn" rel="noopener noreferrer">Validar e salvar inscrição</a> <a class="btn btn-primary" id="send-registration-btn" rel="noopener noreferrer">Enviar inscrição</a>');
         if(!$('#editable-entity .js-save-registration').data('registration')) {
             $('#editable-entity .js-save-registration').data('registration', true);
             $('#editable-entity .js-save-registration').click(function(e) {
                 $scope.saveRegistration();
             });
 
-            $('#editable-entity .js-validade-registration').click(function(e) {
+            $('#editable-entity .validate-and-save-registration-btn').click(function(e) {
                 $scope.saveRegistration().success(function(){
                     $scope.validateRegistration().success(function(){
                         $scope.scrollToError();
@@ -1287,20 +1282,78 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
                     });
                 });
             });
+
+            $('#send-registration-btn').on('click', () => {
+                $scope.sendRegistration();
+            });
         }
     }else{
         $('#editable-entity .controles').remove();
     }
 
+    $scope.scrollToInput = function(fieldName, offset = 0) {
+        const normalize = s => String(s || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase().trim();
+
+        const fieldMap = {
+            'nome do projeto': 'projectName',
+            'categoria': 'category',
+            'espaco': 'registration-space-title',
+            'agente coletivo': 'agent_coletivo',
+            'agente instituicao': 'agent_instituicao',   
+        
+        };
+
+        const normalized = normalize(fieldName);
+        const mappedId = fieldMap[normalized];
+        const targetId = mappedId || fieldName;
+    
+        let element = document.getElementById(targetId) ||
+                    document.querySelector(`.${targetId}`) || 
+                    document.querySelector(`[name="${targetId}"]`) ||
+                    document.querySelector(`[data-field-name="${targetId}"]`);
+
+        if (!element) {
+            element = document.querySelector(`[id*="${normalized}"]`) ||
+                    document.querySelector(`[name*="${normalized}"]`) ||
+                    document.querySelector(`[data-field-name*="${normalized}"]`);
+        }
+
+        if (!element) {
+            const labels = Array.from(document.querySelectorAll('label, .registration-label'));
+            const foundLabel = labels.find(l => normalize(l.innerText).includes(normalized));
+            if (foundLabel) {
+                console.debug('Found label:', foundLabel.innerText, 'with parent:', foundLabel.parentElement);
+                const forAttr = foundLabel.getAttribute('for');
+                if (forAttr) {
+                    element = document.getElementById(forAttr) || document.querySelector(`[name="${forAttr}"]`);
+                } else {
+                    element = foundLabel.querySelector('input, textarea, select, [edit-box]') || foundLabel.closest('[ng-if], [ng-repeat]').querySelector('input, textarea, select, [edit-box]');
+                }
+            }
+        }
+
+        if (element) {
+            const y = element.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    };
+
     $scope.saveRegistration = function () {
-       return RegistrationService.updateFields($scope.data.editableEntity).success(function(){
-       }).error(function(req, status){
-            if(status == 400){
+        return RegistrationService.updateFields($scope.data.editableEntity).success(function () {
+        }).error(function (req, status) {
+            if (status == 400) {
                 MapasCulturais.Messages.success(labels['changesSaved']);
-            }else{
+            } else if (status == 413) {
+                Swal.fire({
+                    icon: "error",
+                    text: req.data.message,
+                });
+            } else {
                 MapasCulturais.Messages.error(labels['unexpectedError']);
             }
-       })        
+        })
     }
 
     function replaceRegistrationAgentBy(groupName, agent, relationStatus){
@@ -1433,34 +1486,101 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     });
 
     $scope.validateRegistration = function(callback='') {
+        const fieldNamesMap = {
+            space: 'espaço',
+            projectName: 'nome do projeto',
+            category: 'categoria',
+            agent_instituicao: 'agente instituição',
+            agent_coletivo: 'agente coletivo'
+        };
+        
+        function buildFieldNamesMap() {
+            $scope.data.fields.forEach(field => {
+                if (field.fieldType === 'file') {
+                    const fieldName = `file_${field.id}`;
+                    fieldNamesMap[fieldName] = field.title || `Arquivo ${field.id}`; 
+                }
+            });
+        }
+        buildFieldNamesMap();
+
+    $scope.getDisplayName = function(fieldName) {
+            const name = fieldNamesMap[fieldName] || fieldName.replace("file_", "Arquivo ").replace("field_", "");
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        function formatErrorMessage(message) {
+            if (Array.isArray(message)) {
+                return message.join(', ').replace(/[\[\]\\"]/g, '').trim();
+            }
+            if (typeof message === 'string') {
+                return message.replace(/[\[\]\\"]/g, '').trim();
+            }
+            return message;
+        }
+
         return RegistrationService.validateEntity(MapasCulturais.entity.object.id)
-            .success(function(response) {
-                if(response.error) {
-                    $scope.entityValidated = false;
-                    $scope.entityErrors = response.data;
-                    let errors = response.data;
-                    for (let index in $scope.data.fields){
-                        let field = $scope.data.fields[index];
-                        
-                        if(field.fieldType == 'file') {
-                            field.fieldName = 'file_' + field.id;
-                        } 
-                        
-                        if(errors[field.fieldName]) {
-                            field.error = errors[field.fieldName]
-                        }
+        .success(function(response) {
+            $scope.entityErrors = {};
+            $scope.otherErrors = [];
+
+            if (response.error) {
+                $scope.entityValidated = false;
+                $scope.entityErrors = response.data;
+
+                let pendingFields = [];
+                for (let fieldName in response.data) {
+                    const isFormError = $scope.data.fields.some(f => f.fieldName === fieldName || 'file_' + f.id === fieldName);
+
+                    let messages = response.data[fieldName];
+                    if (messages) {
+                        messages = Array.isArray(messages) ? messages.map(formatErrorMessage) : formatErrorMessage(messages);
                     }
 
-                } else {
-                    $scope.entityErrors = {};
-                    $scope.entityValidated = true;
+                    if (!isFormError) {
+                        $scope.otherErrors.push({
+                            name: $scope.getDisplayName(fieldName),
+                            messages: messages
+                        });
+                    }
+
+                    pendingFields.push('<li>O campo ' + $scope.getDisplayName(fieldName) + ' é obrigatório.</li>');
                 }
-            })
-            .error(function(response) {
-                console.log('error', response);
-            });
-    }; 
+
+                $scope.pendingFieldsMessage = pendingFields.length ? 
+                    '<ul style="list-style:none; padding:0; margin:0; line-height:3vh;">' + pendingFields.join('') + '</ul>' : 
+                    '<p>Dados obrigatórios pendentes</p>';
+
+                for (let index in $scope.data.fields) {
+                    let field = $scope.data.fields[index];
+                    if (field.fieldType === 'file') {
+                        field.fieldName = 'file_' + field.id;
+                    }
+                    if ($scope.entityErrors[field.fieldName]) {
+                        let messages = $scope.entityErrors[field.fieldName];
+                        field.error = Array.isArray(messages) ? messages.map(formatErrorMessage) : formatErrorMessage(messages);
+                    } else {
+                        field.error = null;
+                    }
+                }
+            } else {
+                $scope.entityErrors = {};
+                $scope.otherErrors = [];
+                $scope.entityValidated = true;
+            }
+
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
+        })
+        .error(function(response) {
+            console.log('error', response);
+        });
+    };
     
+    $scope.$on('$viewContentLoaded', function() {
+        buildFieldNamesMap();
+    });
     $scope.data.sent = false;
     $scope.data.propLabels = [];
 
@@ -1578,10 +1698,16 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
         }
     }
 
-    $scope.remove = function(array, index){
-        array.splice(index, 1);
+    $scope.addLinkField = function (links, maxNumberLinks) {
+        if (links.length < maxNumberLinks) return links.concat([{}])
+
+        MapasCulturais.Messages.alert(`O número máximo de links que você pode adicionar é: ${maxNumberLinks}`)
+        return links
     }
 
+    $scope.remove = function (array, index) {
+        array.splice(index, 1);
+    }
 
     $scope.data.fields.forEach(function(field) {
         $scope.$watch('entity.' + field.fieldName, function(current, old){
@@ -1737,26 +1863,30 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
     }
 
     $scope.showField = function(field){
-        
+
         var result;
-        if (!$scope.useCategories){
+        if (!$scope.useCategories) {
             result = true;
         } else {
             result = field.categories.length === 0 || field.categories.indexOf($scope.selectedCategory) >= 0;
         }
 
-        if(field.conditional){
-            result = result && $scope.entity[field.conditionalField] == field.conditionalValue;
+        if (field.conditional) {
+            // Verifica se o campo condicional é um array (checkboxes)
+            if (Array.isArray($scope.entity[field.conditionalField])) {
+                result = result && $scope.entity[field.conditionalField].includes(field.conditionalValue);
+            } else {
+                result = result && $scope.entity[field.conditionalField] == field.conditionalValue;
+            }
         }
 
         if (field.config && field.config.require && field.config.require.condition && field.config.require.hide) {
             var requiredFieldName = field.config.require.field;
             var requeredFieldValue = field.config.require.value;
-
         }
 
-        if(MapasCulturais.entity.canUserEvaluate){
-            if(result && !$scope.isAvaliableEvaluationFields(field)){
+        if (MapasCulturais.entity.canUserEvaluate) {
+            if (result && !$scope.isAvaliableEvaluationFields(field)) {
                 result = false;
             }
         }
@@ -1790,11 +1920,10 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
         return false;
     }
 
-    $scope.printField = function(field, value){
-
-        if (field.fieldType === 'date') {
-            return moment(value).format('DD-MM-YYYY');
-        } else if (field.fieldType === 'url'){
+    $scope.printField = function(field, value) {
+        if (field.fieldType === 'date' || (typeof value === 'object') && field.unchangedFieldJSON.includes('00:00.000Z')) {
+            return moment(value).format('DD/MM/YYYY');
+        } else if (field.fieldType === 'url') {
             return '<a href="' + value + '" target="_blank" rel="noopener noreferrer">' + value + '</a>';
         } else if (field.fieldType === 'email'){
             return '<a href="mailto:' + value + '"  target="_blank" rel="noopener noreferrer">' + value + '</a>';
@@ -1804,7 +1933,6 @@ module.controller('RegistrationFieldsController', ['$scope', '$rootScope', '$int
             return value;
         }
     };
-
 
     $scope.setClassColumn = function(values){
         if(values.length >= 8){
@@ -2156,12 +2284,9 @@ module.controller('OpportunityController', ['$scope', '$rootScope', '$location',
     var select_fields = MapasCulturais.opportunitySelectFields.map(function(e){ return e.fieldName; });
     var registrationsApi;
     var evaluationsApi;
-
     var committeeApi = new OpportunityApiService($scope, 'evaluationCommittee', 'evaluationCommittee', {'@opportunity': getOpportunityId()});
-
     $scope.registrationsFilters = {};
-    $scope.evaluationsFilters = {};
-
+    $scope.evaluationsFilters = {};    
     $scope.isSelected = function(object, key){
         var selected  = false;
         for(var index in object) {
@@ -3104,5 +3229,15 @@ module.controller('SealsController', ['$scope', '$rootScope', 'RelatedSealsServi
         };
         
     }]);
-
+    angular.module('entity.module.opportunity').filter('formatErrorMessage', function() {
+    return function(message) {
+        if (Array.isArray(message)) {
+            return message.join(', ').replace(/[\[\]\\"]/g, '').trim();
+        }
+        if (typeof message === 'string') {
+            return message.replace(/[\[\]\\"]/g, '').trim();
+        }
+        return message;
+    };
+});
 })(angular);

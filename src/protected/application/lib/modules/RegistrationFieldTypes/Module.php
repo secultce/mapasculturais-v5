@@ -289,7 +289,16 @@ class Module extends \MapasCulturais\Module
                     }
                     return json_encode($value);
                 },
-                'unserialize' => function ($value) {
+                'unserialize' => function ($value, Registration $registration, Metadata $metadata_definition) {
+                    $metadata = App::i()->repo('RegistrationMeta')->findOneBy(
+                        [
+                            'owner' => $registration,
+                            'key' => $metadata_definition->key,
+                        ],
+                        ['id' => 'asc']
+                    );
+                    $value = $metadata ? $metadata->value : null;
+
                     return json_decode($value);
                 }
             ],

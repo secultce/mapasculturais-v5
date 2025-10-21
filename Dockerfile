@@ -19,18 +19,20 @@ COPY compose/jobs-cron.sh /jobs-cron.sh
 COPY compose/recreate-pending-pcache-cron.sh /recreate-pending-pcache-cron.sh
 COPY compose/entrypoint.sh /entrypoint.sh
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip \
-        ruby ruby-dev libpq-dev gnupg git \
-        libfreetype6-dev libjpeg62-turbo-dev libpng-dev sudo procps \
+RUN echo "deb http://archive.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip \
+    ruby ruby-dev libpq-dev gnupg git \
+    libfreetype6-dev libjpeg62-turbo-dev libpng-dev sudo procps \
     #instalação do node 14 
     && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y nodejs \
     # Install uglify and terser
     && npm install -g \
-        terser \
-        uglifycss \
-        autoprefixer \
+    terser \
+    uglifycss \
+    autoprefixer \
     # Install sass
     && gem install sass -v 3.4.22 \
     # Install extensions
@@ -55,7 +57,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     &&  docker-php-ext-enable redis \
     # Instalação da pasta vendor
     && cd /var/www/html/protected && composer.phar install && composer.phar update \
-    && cd /var/www/html/protected/application/plugins/PDFReport && composer.phar install \
     && cd /var/www/html/protected/application/themes/ \
     && find . -maxdepth 1 -mindepth 1 -exec echo "compilando sass do tema " {} \; -exec sass {}/assets/css/sass/main.scss {}/assets/css/main.css -E "UTF-8" \; \
     && mkdir -p /var/www/html/protected/DoctrineProxies \
@@ -63,6 +64,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -s /var/www/html /var/www/src \
     && chown -R www-data:www-data /var/www/ \
     && apt-get clean && rm -rf /var/lib/apt/lists
+
+RUN echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/www.conf && \
+    echo "ping.path = /ping" >> /usr/local/etc/php-fpm.d/www.conf
 
 ENTRYPOINT ["/entrypoint.sh"]
 

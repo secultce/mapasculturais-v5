@@ -37,5 +37,16 @@
         };
     }]);
 
+    app.filter('formatDate', function() {
+        return function(input) {
+            if (!input) return '';
+            const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+            if (datePattern.test(input)) {
+                const [year, month, day] = input.split('-');
+                return `${day}/${month}/${year}`;
+            }
+            return input;
+        };
+    });
 
 })(angular);

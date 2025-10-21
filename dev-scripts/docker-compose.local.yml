@@ -33,11 +33,23 @@ services:
       - MAIL_MAILER=smtp
       - MAIL_HOST=mailpit
       - MAILER_PROTOCOL= #precisa ficar vazio para o mailpit funcionar
-      - RABBITMQ_HOST=rabbitmq_local
+      - RABBITMQ_HOST=ip_maquina_ou_nome_servico # Endereço do RabbitMQ
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=mqadmin
       - RABBITMQ_PASSWORD=Admin123XX_
       - RABBITMQ_VHOST=/
+      - RABBITMQ_EXCHANGE_DEFAULT=exchange_notification
+      ## FILAS
+      - QUEUE_OPINION_MANAGEMENT=queue_opinion_management
+      - QUEUE_PUBLISHED_RECOURSES=queue_published_recourses
+      - QUEUE_IMPORT_REGISTRATION=queue_import_registration
+      - QUEUE_ACCOUNTABILITY=queue_accountability
+      - QUEUE_IMPORT_REGISTRATION_DRAFT=queue_import_registration_draft
+      ## CHAVES DAS MENSAGENS
+      - MODULE_IMPORT_REGISTRATION_DRAFT=module_import_registration_draft
+      - MODULE_ACCOUNTABILITY_ADM=module_accountability_adm
+      - MODULE_ACCOUNTABILITY_PROPONENT=module_accountability_proponent
+      - PLUGIN_PUBLISHED_RECOURSES=plugin_published_recourses
       # chaves de teste do google recaptcha
       - GOOGLE_RECAPTCHA_SITEKEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
       - GOOGLE_RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
@@ -45,9 +57,10 @@ services:
       - SECULT_SEAL_ID=
       - URL_SITE_EDITAIS=
       - QUOTA_SERVICE_BASE_URL=quota-service:9501/api/v1
-      - SENTRY_DSN=link_sentry
+      - SENTRY_DSN=https://dc2a046285a0767ee27902ea99506adc@o4508121592102912.ingest.us.sentry.io/4508160344915968
       - APP_ENV=development
       - APP_VERSION=5.8.11
+      - MAX_NUMBER_LINKS= # Número máximo de links que o proponente pode adicionar em uma inscrição
     depends_on:
       - db
       - redis
