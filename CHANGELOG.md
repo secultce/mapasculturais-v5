@@ -4,6 +4,31 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.11.0] - 2025-10-21
+### Adicionado
+- Nas inscrições foram adicionado novas validações de campos obrigatórios
+- Alteração nos botões da inscrição (VALIDAR E SALVAR INSCRIÇÃO, ENVIAR INSCRIÇÃO)
+- Impressão do PDF  da ficha de inscrição com todas as fases da oportunidade
+- Formatação de palavras na resposta do avaliador.
+- Fiscal pode adicionar arquivo(s) para o proponente
+- Fiscal preenche um parecer técnico
+- Removido plugin do PDF e adicionado como modulo
+- Removido plugin dos Pareceres e adicionado como modulo
+- Adicionado sub menus para links dos termos
+- Exportação de planilha de cotas
+### Modificado
+- Padronização de filas para mensageria
+- Disparo de emails somente para agente com selo Secult/Ce
+- Removendo a opção de oportunidade com habilitação documental
+- Padronização de datas na ficha de inscrição do candidato
+- Melhorias no css do tema Ceara
+### Corrigido
+- Correção de envio de inscrição por dados duplicados
+- Limitando a quantidade de links na inscrição para o proponente
+- Corrigido card de prestação de contas, quando não tem prestação de contas
+- Visualização de preview de formulário
+- Não altera conf. do parecer apos o parecer está disponivel para o agente
+
 ## [5.10.5] - 2025-06-25
 ### Adicionado
 - Filtro de pretação de contas com TADO gerado
