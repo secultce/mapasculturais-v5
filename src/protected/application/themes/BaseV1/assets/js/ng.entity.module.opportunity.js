@@ -16,7 +16,7 @@
         if(MapasCulturais.entity.object.opportunity){
             return MapasCulturais.entity.object.opportunity.id;
         } 
-        if(MapasCulturais.evaluationConfiguration.opportunity !== null){
+        if (MapasCulturais.evaluationConfiguration) {
             return MapasCulturais.evaluationConfiguration.opportunity.id
         }
         return MapasCulturais.entity.id;
