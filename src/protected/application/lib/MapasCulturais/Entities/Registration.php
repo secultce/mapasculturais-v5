@@ -884,7 +884,9 @@ class Registration extends \MapasCulturais\Entity
             if($rfc->conditional){
                 $_fied_name = $rfc->conditionalField;
                 $_fied_value = $rfc->conditionalValue;
-                $field_required = $this->$_fied_name == $_fied_value && $rfc->required;
+                if (!empty($_fied_name) ) {
+                    $field_required = $this->$_fied_name == $_fied_value && $rfc->required;
+                }
             }
 
             $errors = [];
