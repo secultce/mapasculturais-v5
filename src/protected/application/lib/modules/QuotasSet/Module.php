@@ -116,6 +116,30 @@ class Module extends \MapasCulturais\Module
             $this->json($agents);
         });
 
+        $this->app->hook('API(agent.quotaTypes)', function () use ($module, $baseUri, $headers) {
+            /** @var Controller $this */
+            $this->requireAuthentication();
+            if (!$module->canUserAccess()) {
+                $module->app->redirect('/panel');
+                return;
+            }
+            $uri = $baseUri . '/quotas';
+
+            try {
+                $client = new Client();
+                $response = $client->request('GET', $uri, [
+                    'headers' => $headers,
+                ]);
+            } catch (ConnectException $e) {
+                $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
+                SentryService::captureExceptions($e);
+                return;
+            }
+
+            $body = json_decode($response->getBody(), true);
+            $this->json($body);
+        });
+
         $this->app->hook('API(agent.allWithQuotas)', function () use ($module, $baseUri, $headers) {
             /** @var Controller $this */
             $this->requireAuthentication();
