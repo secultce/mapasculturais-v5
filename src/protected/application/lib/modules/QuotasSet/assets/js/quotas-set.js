@@ -1,3 +1,13 @@
+const quotas = {
+    types: [],
+    getTypes() {
+        return this.types
+    },
+    setTypes(types) {
+        this.types = types
+    },
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     Object.defineProperty(String.prototype, 'capitalize', {
         value: function() {
@@ -5,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         enumerable: false
     });
+
+    getQuotaTypes()
 
     const findAgents = (value) => {
         $.ajax({
@@ -43,9 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 continue;
             }
             resultIds.push(agent.id);
-            let buttonHtml = agent.assigned
-                ? `<button class="btn btn-default" onclick="unassignQuota(${agent.assigned_id}, 1, ${agent.id}, this)">Remover cota</button>`
-                : `<button class="btn btn-primary" onclick="assignQuota(1, ${agent.id}, this)">Atribuir cota racial</button>`;
+            let buttonHtml = `<button class="btn btn-primary" single-assign-btn agent-id="${agent.id}">Atribuir cota</button>`;
             data.push([agent.cpf, agent.name, buttonHtml]);
         }
         agentResultsTable.rows.add(data).draw();
@@ -77,22 +87,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>até ${new Date(quota.end_date).toLocaleDateString('pt-br', {year: 'numeric', month: 'short', day: 'numeric'})}</span>
                 </div>`;
             }).join('');
-            let buttonHtml = hasRacial
-                ? `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 1, ${agent.id}, this)">Remover cota</button>`
-                : '';
+            let buttonHtml = `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 1, ${agent.id}, this)">Remover cota</button>`
             data.push([agent.cpf, agent.name, quotasHtml, periodHtml, buttonHtml]);
         }
         assignedAgentsTable.rows.add(data).draw();
     };
 
-    const assignQuota = (quotaId, agentId, target) => {
+    const assignQuota = (quotaId, agentId, target, typeAssig = 'single') => {
+        if (!quotaId) {
+            Swal.fire({
+                icon: "error",
+                title: "Cota não atribuída",
+                text: "Selecione uma cota para atribuir.",
+            })
+            return
+        }
+        const startDate = $('#quota-start-date').val()
+
         $.ajax({
             url: `/api/agent/assignQuota`,
             method: 'POST',
             data: JSON.stringify({
                 agent_id: agentId,
                 quota_id: quotaId,
-                start_date: new Date().toISOString().split('T')[0]
+                start_date: startDate ? startDate : new Date().toISOString().split('T')[0]
             }),
             contentType: "application/json",
             success: (response) => {
@@ -114,21 +132,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+
+        if (typeAssig === 'batch') searchValues.clear()
     };
 
-    const bulkAssignQuota = (target) => {
-        $(target).after('<img id="bulk-spinner" src="/assets/img/spinner.gif" alt="Spinner" style="margin-left:1rem;">');
-
-        $('#agent-results-table button[onclick^="assignQuota"]').each(function() {
-            $(this).click();
-        });
-         
-        setTimeout(() => {
-            $('#bulk-spinner').remove();
-        }, 500);
-        searchValues.clear();
-    };
-    
     const unassignQuota = (agentQuotaId, quotaId, agentId, target) => {
         $.ajax({
             url: `/api/agent/unassignQuota`,
@@ -140,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
             success: (response) => {
                 target.classList.remove('btn-default');
                 target.classList.add('btn-primary');
-                target.innerText = 'Atribuir cota racial';
+                target.innerText = 'Atribuir cota';
                 target.onclick = () => assignQuota(quotaId, agentId, target);
                 clearRendered();
             },
@@ -326,6 +333,31 @@ document.addEventListener('DOMContentLoaded', function () {
         findAssignedAgents();
     });
 
+    $('#bulk-assign-button').on('click', function () {
+        Swal.fire(swalConfigAssignQuota()).then(res => {
+            if (res.isConfirmed) {
+                const quotaType = $('#type-quota').val()
+
+                $('#agent-results-table [single-assign-btn]').each(function () {
+                    const agentId = this.attributes['agent-id'].value
+
+                    assignQuota(quotaType, agentId, this, 'batch')
+                })
+            }
+        })
+    })
+
+    $('#agent-results-table').on('click', '[single-assign-btn]', function () {
+        Swal.fire(swalConfigAssignQuota()).then(res => {
+            if (res.isConfirmed) {
+                const quotaType = $('#type-quota').val()
+                const agentId = this.attributes['agent-id'].value
+
+                assignQuota(quotaType, agentId, this)
+            }
+        })
+    })
+
     if (clearButton) {
         clearButton.addEventListener('click', () => {
             $('.input-entry').remove();
@@ -364,6 +396,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.assignQuota = assignQuota;
-    window.bulkAssignQuota = bulkAssignQuota;
     window.unassignQuota = unassignQuota;
 });
+
+const getQuotaTypes = () => {
+    $.ajax({
+        url: `/api/agent/quotaTypes`,
+        success(res) {
+            quotas.setTypes(res)
+        }
+    })
+}
+
+const swalConfigAssignQuota = () => {
+    return {
+        title: "Atribuir cota",
+        html: htmlAssignQuota(),
+        showCancelButton: true,
+        confirmButtonText: 'Atribuir',
+        cancelButtonText: 'Cancelar',
+    }
+}
+
+const htmlAssignQuota = () => {
+    return `
+        <p style="margin-bottom: 20px;">Selecione qual cota deseja atribuir e a data de início da validade.</p>
+        <div class="form-group">
+            <label class="sweetalert-label">Cota:</label>
+            <select id="type-quota" class="form-control">
+                <option disabled selected>-- Selecione a cota --</option>
+                ${quotas.getTypes().map(type => `<option value="${type.id}">${type.name}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="sweetalert-label">Data de Início:</label>
+            <input type="date" id="quota-start-date" class="form-control">
+        </div>
+    `
+}
