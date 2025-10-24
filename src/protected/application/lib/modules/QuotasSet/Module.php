@@ -291,10 +291,7 @@ class Module extends \MapasCulturais\Module
             }
             $thisAgent = $thisAgent ?? ['id' => $agent->id, 'quotas_policy' => []];
 
-            $response = $client->request('GET', $baseUri . '/quotas', [ 'headers' => $headers ]);
-            $quotas = json_decode($response->getBody(), true);
-
-            $this->part('registration/quotas-set.widget', ['agent' => $thisAgent, 'quotas' => $quotas]);
+            $this->part('registration/quotas-set.widget', ['agent' => $thisAgent]);
         });
     }
 
