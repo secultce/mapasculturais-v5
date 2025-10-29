@@ -17,10 +17,8 @@ trait DiligenceSingle{
     {
 
         $app        = App::i();
-        $app->em->persist($entity);
-        $app->em->flush();
         $app->disableAccessControl();
-        $entity->save();
+        $entity->save(true);
         $app->enableAccessControl();
         return ['entityId' => $entity->id];
     }
