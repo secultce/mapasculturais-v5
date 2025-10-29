@@ -264,32 +264,47 @@ function cancelSend() {
     });
 }
 
+
 function saveDiligence(status, st, idDiligence) {
-    if ($("#descriptionDiligence").val() === '') {
+    const $btn = $("#btn-save-diligence");
+    let saveTimeout = null;
+    if ($btn.prop("disabled")) return;
+
+    if (!$("#descriptionDiligence").val().trim()) {
         diligenceMessage.messageSimple("Ops!", "A descrição precisa ser preenchida", 2000);
-        return false;
+        return;
     }
-    if (status == 3) {
-        //Mensagem de confirmação
+
+    const originalHtml = $btn.html();
+    $btn.prop("disabled", true)
+        .addClass("disabled")
+        .html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        $btn.prop("disabled", false)
+            .removeClass("disabled")
+            .html(originalHtml);
+    }, 1000); 
+
+    if (status === 3) {
         Swal.fire({
             title: "Confirmar o envio da diligência?",
             text: "Você pode desfazer o envio em até 10 segundos. Revise sua diligência com cuidado.",
-            showConfirmButton: true,
-            showCloseButton: false,
             showCancelButton: true,
+            showConfirmButton: true,
             reverseButtons: true,
-            cancelButtonText: `Não, enviar depois`,
+            cancelButtonText: "Não, enviar depois",
             confirmButtonText: "Enviar agora",
             customClass: {
                 confirmButton: "btn-success-rec",
                 cancelButton: "btn-warning-rec"
-            },
-        })
-            .then((result) => {
-                if (result.isConfirmed) {
-                    sendAjaxDiligence(status, idDiligence);
-                }
-            })
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                sendAjaxDiligence(status, idDiligence);
+            }
+        });
     } else {
         sendAjaxDiligence(status, idDiligence);
     }
