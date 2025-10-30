@@ -31,6 +31,10 @@ class ObjectType extends DoctrineEnumType
             'Space' => 'MapasCulturais\Entities\Space',
             'Subsite' => 'MapasCulturais\Entities\Subsite',
             'Opinion' => 'Diligence\Entities\Opinion',
+            'Diligence' => 'Diligence\Entities\Diligence',
+            'AnswerDiligence' => 'Diligence\Entities\AnswerDiligence',
+            'Tado' => 'Diligence\Entities\Tado',
+
         ];
     }
 }
