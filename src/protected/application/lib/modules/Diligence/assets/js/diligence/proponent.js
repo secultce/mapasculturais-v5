@@ -182,6 +182,11 @@ function showRegistration()
 }
 //Enviar resposta do proponente
 function saveAnswerProponente(status) {
+    const $btn = $("#btn-save-diligence-proponent"); 
+    let saveTimeout = null;
+
+    if ($btn.prop("disabled")) return;
+
     if($("#descriptionDiligence").val() == '') {
         Swal.fire({
             title: "Ops!",
@@ -190,6 +195,19 @@ function saveAnswerProponente(status) {
         })
         return false;
     }
+    const originalHtml = $btn.html();
+    $btn.prop("disabled", true)
+        .addClass("disabled")
+        .html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+
+
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        $btn.prop("disabled", false)
+            .removeClass("disabled")
+            .html(originalHtml);
+    }, 1000);
+
     if (status == 3) {
         Swal.fire({
             title: "Confirmar o envio da sua resposta?",
