@@ -11,11 +11,8 @@ class Module extends \MapasCulturais\Module {
         $app = App::i();
         $module = $this;
         $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
-        $app->hook('view.partial(claim-configuration):after', function($__template, &$__html) use ($app,$module){
+        $app->hook('view.partial(singles/opportunity-registrations--export):after', function($__template, &$__html) use ($app,$module){
             $opp = $this->controller->requestedEntity;
-//            $app->view->jsObject['claimDisabled']           = $opp->getMetadata('claimDisabled');
-//            $app->view->jsObject['recourseDateIinitial']    = $opp->getMetadata('recourse_date_initial');
-//            $app->view->jsObject['recourseDateEnd']         = $opp->getMetadata('recourse_date_end');
 
             $this->part('counterReason/configuration-counter-reason', [
                 'opp' => $opp,
