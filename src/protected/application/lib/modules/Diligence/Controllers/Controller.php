@@ -25,7 +25,10 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     const ANSWER_DRAFT      = 'resposta_rascunho';
     const ANSWER_SEND       = 'resposta_enviada';
 
-
+    public function GET_index()
+    {
+        dump('GET_index');
+    }
     /**
      * Salva uma diligência
      *
@@ -135,7 +138,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
         $userDestination = $notification->userDestination($this);
         App::i()->applyHook('controller(diligence).notification:after');
         //Enviando para fila RabbitMQ
-        
+
         EntityDiligence::sendQueue($userDestination, $app->config['rabbitmq']['routing']['module_accountability_proponent']);
         self::returnJson(null, $this);
     }
@@ -182,7 +185,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     public function POST_notifiAnswer()
     {
         $app = App::i();
-       
+
         // Cria a notificação dentro do painel
         $notification = new NotificationDiligence();
         $notification->create($this, EntityDiligence::TYPE_NOTIFICATION_PROPONENT);
@@ -198,7 +201,7 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
                 'owner' => $diligence->registration->opportunity->owner->user->email
             ];
         };
-        
+
         EntityDiligence::sendQueue($userDestination, $app->config['rabbitmq']['routing']['module_accountability_adm']);
 
         $notification = new NotificationDiligence();
