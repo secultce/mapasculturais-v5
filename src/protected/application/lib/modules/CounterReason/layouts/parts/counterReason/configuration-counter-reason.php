@@ -1,10 +1,3 @@
-<?php
-// 1 - desabilitado
-// 0 - habilitado
-dump($opp->getMetadata('claimDisabled'));
-dump($opp->getMetadata('recourse_date_initial'));
-
-?>
 <div>
     <div class="panel panel-default " id="div-panel-counter-reason">
         <div class="panel-heading"> <h4 class="title-h4">Contrarrazão</h4></div>
