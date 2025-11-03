@@ -15,7 +15,6 @@ class Module extends \MapasCulturais\Module {
             $opp = $this->controller->requestedEntity;
             $this->part('counterReason/configuration-counter-reason', [
                 'opp' => $opp,
-                'app' => $app,
             ]);
         });
     }
