@@ -1,6 +1,6 @@
 // 0 - habilitado, 1 - para desabilitado
 jQuery(document).ready(function($) {
-    if(MapasCulturais.entity.object.claimDisabled == 0){
+    if(MapasCulturais.entity && MapasCulturais.entity.object.claimDisabled == 0){
         $("#div-panel-counter-reason").removeClass("d-none");
     }else {
         $("#div-panel-counter-reason").addClass("d-none");
