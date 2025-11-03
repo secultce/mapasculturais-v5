@@ -16,8 +16,9 @@
         <div class="search-list-header">
             <h6 style="font-size: 2rem">Agentes encontrados</h6>
             <div style="display: flex; align-items: center; max-width: 100%;justify-content:space-between;">
-                <strong>Utilize o botão para atribuir cotas a todos os agentes na lista abaixo.</strong>
+                <strong style="padding-right: 10px;">Utilize os botões para atribuir/remover cotas a todos os agentes na lista abaixo.</strong>
                 <button style="width: 30%;" class="btn btn-primary" id="bulk-assign-button">Atribuir cota em lote</button>
+                <button style="width: 30%;" class="btn btn-danger" id="bulk-remove-button">Remover cota em lote</button>
             </div>
         </div>
         <hr>
