@@ -10,8 +10,8 @@ class Module extends \MapasCulturais\Module {
     {
         $app = App::i();
         $module = $this;
-        $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
         $app->hook('view.partial(singles/opportunity-registrations--export):after', function($__template, &$__html) use ($app,$module){
+        $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
             $opp = $this->controller->requestedEntity;
             $this->part('counterReason/configuration-counter-reason', [
                 'opp' => $opp,
