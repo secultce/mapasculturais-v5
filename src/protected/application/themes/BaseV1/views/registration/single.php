@@ -1,4 +1,5 @@
 <?php
+use MapasCulturais\App;
 $action = preg_replace("#^(\w+/)#", "", $this->template);
 
 $this->bodyProperties['ng-app'] = "entity.app";
@@ -77,7 +78,8 @@ $_params = [
         <?php endif ?>
 
         <?php if ($entity->opportunity->canUser("@control")) {
-            $this->part('singles/registration/fields-for-bonus');
+            $canControl = App::i()->user->profile->canUser('@control');
+            $this->part('singles/registration/fields-for-bonus',['canControl'=>$canControl,]);
         } ?>
 
         <?php $this->part('singles/registration-single--fields', $_params) ?>
