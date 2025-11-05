@@ -358,7 +358,7 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             }
         }
 
-        if($empty){
+        if(!$empty){
             $errors[] = i::__('Todos os campos devem ser preenchidos');
         }
 
