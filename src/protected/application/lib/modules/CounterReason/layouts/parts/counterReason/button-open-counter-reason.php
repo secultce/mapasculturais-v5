@@ -1,15 +1,6 @@
 <div class="opportunity-claim-button">
-
-        <a class="btn btn-success"
-           onclick="#"
-           id="btn-recourse-<?php echo $entity->id; ?>">
-            Abrir contrarrazão
-        </a>
-
-    <?php
-    //if($isRecourseSent): ?>
-<!--        <p>-->
-<!--            <label class="info-btn-recourse">Recurso enviado</label>-->
-<!--        </p>-->
-    <?php //endif; ?>
+    <a class="btn btn-success btnOpen-counterReason" id="btnOpen-counterReason-<?= $entity->id; ?>"
+        data-entity-id="<?= $entity->id; ?>" href="javascript:void(0)">
+        Abrir contrarrazão
+    </a>
 </div>

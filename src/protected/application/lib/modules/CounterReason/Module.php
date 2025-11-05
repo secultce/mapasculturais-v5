@@ -11,8 +11,8 @@ class Module extends \MapasCulturais\Module {
     {
 
         $app = App::i();
-        $module = $this;
-        $app->hook('view.partial(singles/opportunity-registrations--export):after', function($__template, &$__html) use ($app,$module){
+
+        $app->hook('view.partial(singles/opportunity-registrations--export):after', function ($__template, &$__html) use ($app) {
         $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
             $opp = $this->controller->requestedEntity;
             $this->part('counterReason/configuration-counter-reason', [
@@ -20,15 +20,9 @@ class Module extends \MapasCulturais\Module {
             ]);
         });
         $app->hook('template(opportunity.single.user-registration-table--registration--status):end', function($reg_args) use ($app){
-            $isPeriod = self::validatePeriod(
-                'recourse_date_initial',
-                'recourse_date_end',
-                'recourse_time_initial',
-                'recourse_time_end',
-                    $reg_args
-                );
+            $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
             $baseUrl = $app->_config['base.url'];
-            if(  $isPeriod )
+            if (self::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/open-counter-reason', [
                     'entity' => $reg_args,
@@ -36,31 +30,28 @@ class Module extends \MapasCulturais\Module {
                 ]);
             }
         });
-        $app->hook('template(panel.registrations.panel-registration-meta):after', function($reg_args) use ($app){
-            $isPeriod = self::validatePeriod(
-                'counterReason_date_initial',
-                'counterReason_date_end',
-                'counterReason_time_initial',
-                'counterReason_time_end',
-                $reg_args
-            );
-
-            if($isPeriod)
+        $app->hook('template(panel.index.panel-registration-meta):after', function ($reg_args) use ($app) {
+            $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
+            if (self::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/button-open-counter-reason', [
                     'entity' => $reg_args
                 ]);
             }
-
         });
 
     }
 
-    static public function validatePeriod($dtInit, $dtEnd, $tmInit, $tmEnd, $entity) : bool
+    /**
+     * Verifica o período para habilitar o botão de submeter a contrarrazão
+     * @param mixed $entity
+     * @return bool
+     */
+    static public function validatePeriodCounterReason($entity): bool
     {
-        $strToInitial = $entity->opportunity->getMetadata($dtInit).' '.$entity->opportunity->getMetadata($tmInit);
+        $strToInitial = $entity->opportunity->getMetadata('counterReason_date_initial') . ' ' . $entity->opportunity->getMetadata('counterReason_time_initial');
         $initialOfPeriod = \DateTime::createFromFormat('Y-m-d H:i', $strToInitial);
-        $strToEnd = $entity->opportunity->getMetadata($dtEnd).' '.$entity->opportunity->getMetadata($tmEnd);
+        $strToEnd = $entity->opportunity->getMetadata('counterReason_date_end') . ' ' . $entity->opportunity->getMetadata('counterReason_time_end');
         $endOfPeriod = \DateTime::createFromFormat('Y-m-d H:i', $strToEnd);
         $now = new DateTime();
         if(  $now >= $initialOfPeriod &&  $now <= $endOfPeriod )
@@ -90,5 +81,4 @@ class Module extends \MapasCulturais\Module {
             'type' => 'time',
         ]);
     }
-
 }
