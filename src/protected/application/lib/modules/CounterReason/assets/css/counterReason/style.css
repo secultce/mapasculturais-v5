@@ -1,0 +1,3 @@
+div:where(.swal2-container) .swal2-html-container {
+    border: 1px solid #dcdcdc !important;
+}
