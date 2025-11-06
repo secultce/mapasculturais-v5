@@ -32,6 +32,7 @@ class Module extends \MapasCulturais\Module {
         });
         $app->hook('template(panel.index.panel-registration-meta):after', function ($reg_args) use ($app) {
             $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
+            $app->view->enqueueStyle('app', 'counterReasoncss', 'css/counterReason/style.css', []);
             if (self::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/button-open-counter-reason', [
