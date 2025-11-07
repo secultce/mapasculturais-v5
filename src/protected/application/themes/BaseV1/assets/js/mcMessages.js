@@ -6,16 +6,23 @@ var McMessages = (function () {
      * @param {string} text
      * @param {number} [time] - Tempo em ms (opcional)
      */
-    function messageSimple(title, text, time = null) {
+    function basic(title) {
+        Swal.fire(title);
+    }
+
+    function success(title, text, time = null, icon = null) {
         Swal.fire({
             title: title,
             text: text,
-            timer: time || undefined,
+            icon: icon,
+            timer: time || 5000,
             showConfirmButton: true,
-            reverseButtons: false,
-            allowOutsideClick: false
+            allowOutsideClick: false,
+            confirmButtonText: `<i class="fa fa-thumbs-up"></i> OK`,
         });
     }
+
+
 
     /**
      * Exibe um loading com spinner personalizado
@@ -42,7 +49,7 @@ var McMessages = (function () {
      * @param {string} text
      * @param {number} [time] - Tempo em ms (opcional)
      */
-    function messageError(title, text, time = null) {
+    function error(title, text, time = null) {
         Swal.fire({
             icon: 'error',
             title: title,
@@ -104,9 +111,10 @@ var McMessages = (function () {
     }
 
     return {
-        messageSimple: messageSimple,
-        loading: loading,
-        messageError: messageError,
+        basic,
+        success,
+        loading,
+        error,
         messageConfirm: messageConfirm,
         info
     };

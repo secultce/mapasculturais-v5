@@ -1,11 +1,11 @@
 // 0 - habilitado, 1 - para desabilitado
 jQuery(document).ready(function($) {
     $("#registration-claim-configuration").hide();
-    // if(MapasCulturais.entity && MapasCulturais.entity.object.claimDisabled == 0){
-    //     $("#div-panel-counter-reason").removeClass("d-none");
-    // }else {
-    //     $("#div-panel-counter-reason").addClass("d-none");
-    // }
+    if(MapasCulturais.entity && MapasCulturais.entity.object.claimDisabled == 0){
+        $("#div-panel-counter-reason").removeClass("d-none");
+    }else {
+        $("#div-panel-counter-reason").addClass("d-none");
+    }
     // Quando alterar a escolha dos recursos
     $('#disable-appeal-wrapper').on('change', event => {
         const isDisabled = parseInt(event.target.value);
@@ -16,7 +16,6 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // $('#summernote').summernote();
     document.addEventListener('click', function (e) {
         const btn = e.target.closest('.btnOpen-counterReason');
         if (!btn) return;
@@ -35,10 +34,11 @@ jQuery(document).ready(function($) {
 
 
 async function abrirContrarrazao(entityId, selectId) {
+    // Componente criado para inserir conteúdos de texto e editar palavras
     const result = await QuillEditor.open({
         title: 'Contrarrazão',
         placeholder: 'Escreva sua contrarrazão aqui...',
-        initialHtml: '', // ou carregue do backend via AJAX se quiser
+        initialHtml: '',
         entityId: entityId,
         selectId
     });
@@ -56,6 +56,7 @@ async function abrirContrarrazao(entityId, selectId) {
 
             if (response.ok) {
                 Swal.fire('Sucesso', 'Contrarrazão salva!', 'success');
+                McMessages.s
                 // Opcional: recarregar página ou atualizar DOM
             } else {
                 Swal.fire('Erro', 'Falha ao salvar.', 'error');
