@@ -1723,6 +1723,9 @@ class Theme extends MapasCulturais\Theme {
 
         if (App::i()->config('mode') == 'staging')
             $this->enqueueStyle('app', 'staging', 'css/staging.css', array('main'));
+
+        // Mensagens com base no SweetAlert2
+        $this->enqueueScript('app', 'mc-messages', 'js/mcMessages.js', array('mapasculturais'));
     }
 
     function includeIbgeJS() {

@@ -62,23 +62,28 @@ var QuillEditor = (function () {
             },
             preConfirm: () => {
                 const editorContainer = document.querySelector('#'+selectorId);
-                const entityInput = document.getElementById('entity-id');
 
                 if (!editorContainer || !editorContainer.quillInstance) {
                     Swal.showValidationMessage('Erro ao carregar o editor.');
+                    setTimeout(() => {
+                        Swal.resetValidationMessage();
+                    }, 2000);
                     return false;
                 }
 
                 const quill = editorContainer.quillInstance;
                 const conteudo = quill.root.innerHTML.trim();
-                const entityId = entityInput ? entityInput.value : null;
 
                 if (!conteudo || conteudo === '<p><br></p>') {
                     Swal.showValidationMessage('O texto não pode estar vazio!');
+                    // Remove a mensagem após 3 segundos
+                    setTimeout(() => {
+                        Swal.resetValidationMessage();
+                    }, 3000);
                     return false;
                 }
 
-                return { conteudo, entityId };
+                return conteudo;
             }
         });
     }

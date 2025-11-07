@@ -44,16 +44,13 @@ async function abrirContrarrazao(entityId, selectId) {
     });
 
     if (result.isConfirmed) {
-        const { conteudo } = result.value;
-
-        // Exemplo: enviar para o backend
         try {
-            const response = await fetch('/salvar-contrarrazao', {
+            const response = await fetch('/contrarrazao/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    entityId: entityId,
-                    conteudo: conteudo
+                    text : result.value,
+                    registration : entityId
                 })
             });
 

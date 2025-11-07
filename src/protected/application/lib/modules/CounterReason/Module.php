@@ -5,6 +5,8 @@ use DateTime;
 use MapasCulturais\App;
 use MapasCulturais\i;
 
+require __DIR__.'/Entities/CounterReason.php';
+require __DIR__.'/Services/CounterReasonService.php';
 class Module extends \MapasCulturais\Module {
 
     public function _init()
@@ -40,7 +42,6 @@ class Module extends \MapasCulturais\Module {
                 ]);
             }
         });
-
     }
 
     /**
@@ -81,5 +82,7 @@ class Module extends \MapasCulturais\Module {
             'label' => i::__('Hora Final'),
             'type' => 'time',
         ]);
+
+
     }
 }
