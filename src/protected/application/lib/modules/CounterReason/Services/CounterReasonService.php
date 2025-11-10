@@ -5,11 +5,13 @@ namespace CounterReason\Services;
 use CounterReason\Entities\CounterReason;
 use CounterReason\Entities\CounterReason as CounterReasonEntity;
 use Carbon\Carbon;
+use CounterReason\Repositories\CounterReasonRepository;
 use MapasCulturais\App;
+use MapasCulturais\Entities\Registration;
 
 class CounterReasonService
 {
-    static public function create(App $app, $data)
+    static public function create(App $app, $data): CounterReason
     {
         $app->disableAccessControl();
         $registration = $app->repo('Registration')->find($data->data['registration']);
@@ -23,5 +25,24 @@ class CounterReasonService
         $entity->save(true); // true = flush imediato
         $app->enableAccessControl();
         return $entity;
+    }
+
+    /**
+     * @param Registration $registration
+     * @param App $app
+     * @param $data
+     * @return void
+     */
+    static public function update(Registration $registration, App $app, $data): CounterReason
+    {
+
+        // Atualiza data de envio (ou edição)
+        $cr = CounterReasonRepository::getCounterReason($registration, $app);
+        $cr->text = $data['text'];
+        $cr->send = Carbon::now();
+        $app->disableAccessControl();
+        $cr->save(true);
+        $app->enableAccessControl();
+        return $cr;
     }
 }

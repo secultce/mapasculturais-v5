@@ -10,11 +10,11 @@ var McMessages = (function () {
         Swal.fire(title);
     }
 
-    function success(title, text, time = null, icon = null) {
+    function success(title, text, time = null) {
         Swal.fire({
             title: title,
             text: text,
-            icon: icon,
+            icon: 'success',
             timer: time || 5000,
             showConfirmButton: true,
             allowOutsideClick: false,

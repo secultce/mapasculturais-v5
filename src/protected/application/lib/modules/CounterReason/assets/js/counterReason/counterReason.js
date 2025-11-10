@@ -55,13 +55,13 @@ async function abrirContrarrazao(entityId, buttonElement, selectId) {
             });
 
             if (response.ok) {
-                McMessages.messageSimple('Sucesso', 'Contrarrazão salva!', 3000);
+                McMessages.success('Sucesso', 'Contrarrazão salva!', 3000 );
             } else {
-                McMessages.messageError('Erro', 'Falha ao salvar.', 5000);
+                McMessages.error('Erro', 'Falha ao salvar.', 3000);
             }
         } catch (err) {
             console.error(err);
-            McMessages.messageError('Erro', 'Erro de conexão.', 5000);
+            McMessages.error('Erro', 'Erro de conexão.', 3000);
         }
     }
 }
