@@ -1,19 +1,20 @@
 <?php
 namespace CounterReason;
-
+ini_set('error_reporting', E_ALL & ~E_NOTICE);
+use CounterReason\Repositories\CounterReasonRepository;
 use DateTime;
 use MapasCulturais\App;
 use MapasCulturais\i;
 
 require __DIR__.'/Entities/CounterReason.php';
 require __DIR__.'/Services/CounterReasonService.php';
+require __DIR__.'/Repositories/CounterReasonRepository.php';
 class Module extends \MapasCulturais\Module {
+
 
     public function _init()
     {
-
         $app = App::i();
-
         $app->hook('view.partial(singles/opportunity-registrations--export):after', function ($__template, &$__html) use ($app) {
         $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
             $opp = $this->controller->requestedEntity;
@@ -32,13 +33,24 @@ class Module extends \MapasCulturais\Module {
                 ]);
             }
         });
-        $app->hook('template(panel.index.panel-registration-meta):after', function ($reg_args) use ($app) {
+
+        $app->hook('template(panel.registrations.panel-registration-meta):after', function ($reg_args) use ($app) {
+            $labelButton = 'Abrir Contrarrazão'; // Texto inicial
             $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
             $app->view->enqueueStyle('app', 'counterReasoncss', 'css/counterReason/style.css', []);
+            $counterReason = CounterReasonRepository::getCounterReason($reg_args, $app);
+
+            if ($counterReason)
+            {
+                $labelButton = 'Editar Contrarrazão'; // Altera o texto do botão
+            }
+
             if (self::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/button-open-counter-reason', [
-                    'entity' => $reg_args
+                    'entity' => $reg_args,
+                    'labelButton' => $labelButton,
+                    'cr' => $counterReason
                 ]);
             }
         });

@@ -20,50 +20,48 @@ jQuery(document).ready(function($) {
         const btn = e.target.closest('.btnOpen-counterReason');
         if (!btn) return;
 
-        const entityId = btn.getAttribute('data-entity-id');
+        const entityId = btn.getAttribute('data-entity-id-cr');
         if (!entityId) return;
 
-        // Impede múltiplos cliques
         btn.disabled = true;
 
-        abrirContrarrazao(entityId, 'quill-editor').finally(() => {
+        abrirContrarrazao(entityId, btn, 'quill-editor').finally(() => {
             btn.disabled = false;
         });
     });
 });
 
 
-async function abrirContrarrazao(entityId, selectId) {
-    // Componente criado para inserir conteúdos de texto e editar palavras
+async function abrirContrarrazao(entityId, buttonElement, selectId) {
     const result = await QuillEditor.open({
         title: 'Contrarrazão',
         placeholder: 'Escreva sua contrarrazão aqui...',
-        initialHtml: '',
         entityId: entityId,
-        selectId
+        selectId: selectId,
+        triggerButton: buttonElement  // NOVO: passa o botão
     });
 
     if (result.isConfirmed) {
+        const { conteudo } = result.value;
+
         try {
             const response = await fetch('/contrarrazao/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    text : result.value,
-                    registration : entityId
+                    text: conteudo,
+                    registration: entityId
                 })
             });
 
             if (response.ok) {
-                Swal.fire('Sucesso', 'Contrarrazão salva!', 'success');
-                McMessages.s
-                // Opcional: recarregar página ou atualizar DOM
+                McMessages.messageSimple('Sucesso', 'Contrarrazão salva!', 3000);
             } else {
-                Swal.fire('Erro', 'Falha ao salvar.', 'error');
+                McMessages.messageError('Erro', 'Falha ao salvar.', 5000);
             }
         } catch (err) {
             console.error(err);
-            Swal.fire('Erro', 'Erro de conexão.', 'error');
+            McMessages.messageError('Erro', 'Erro de conexão.', 5000);
         }
     }
 }

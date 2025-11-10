@@ -40,50 +40,59 @@ var QuillEditor = (function () {
             cancelButtonText: 'Cancelar',
             focusConfirm: false,
             didOpen: () => {
-                const container = document.querySelector('#'+selectorId);
+                const container = document.querySelector('#' + selectorId);
                 if (!container) return;
 
-                // Inicializa o Quill
                 const quill = new Quill(container, {
                     theme: 'snow',
                     placeholder: placeholder,
-                    modules: {
-                        toolbar: toolbarOptions
-                    }
+                    modules: { toolbar: toolbarOptions }
                 });
 
-                // Se houver HTML inicial, insere
-                if (initialHtml) {
-                    quill.root.innerHTML = initialHtml;
+                // HTML inicial: 1. triggerButton → 2. initialHtml
+                let htmlToLoad = initialHtml;
+
+                if (options.triggerButton && options.triggerButton.dataset.entityContextCr) {
+                    htmlToLoad = options.triggerButton.dataset.entityContextCr;
                 }
 
-                // Armazena a instância do Quill no DOM para acesso no preConfirm
+                console.log('htmlToLoad final:', htmlToLoad); // AGORA VAI MOSTRAR O VALOR!
+
+                if (htmlToLoad && htmlToLoad.trim() !== '') {
+                    quill.root.innerHTML = htmlToLoad;
+                }
+
                 container.quillInstance = quill;
             },
             preConfirm: () => {
                 const editorContainer = document.querySelector('#'+selectorId);
+                const entityInput = document.getElementById('entity-id');
 
                 if (!editorContainer || !editorContainer.quillInstance) {
                     Swal.showValidationMessage('Erro ao carregar o editor.');
-                    setTimeout(() => {
-                        Swal.resetValidationMessage();
-                    }, 2000);
                     return false;
                 }
 
                 const quill = editorContainer.quillInstance;
                 const conteudo = quill.root.innerHTML.trim();
+                const entityId = entityInput ? entityInput.value : null;
 
                 if (!conteudo || conteudo === '<p><br></p>') {
                     Swal.showValidationMessage('O texto não pode estar vazio!');
-                    // Remove a mensagem após 3 segundos
+
                     setTimeout(() => {
-                        Swal.resetValidationMessage();
-                    }, 3000);
+                        const msg = document.querySelector('.swal2-validation-message');
+                        if (msg) {
+                            msg.style.transition = 'opacity 0.3s ease';
+                            msg.style.opacity = '0';
+                            setTimeout(() => Swal.resetValidationMessage(), 300);
+                        }
+                    }, 2000);
+
                     return false;
                 }
 
-                return conteudo;
+                return { conteudo, entityId };
             }
         });
     }
