@@ -162,24 +162,21 @@ $(function(){
             reverseButtons: true,
             confirmButtonColor: "#d33"
         }).then(res => {
-            if (res.isConfirmed) {  // <--- AÇÃO SÓ ACONTECE SE CLICAR EM "SIM"
+            if (res.isConfirmed) {  
                 $.ajax({
                     type: "PATCH",
                     url: MapasCulturais.createUrl('registration', 'removeBonus'),
                     data: {
                         registration_id: MapasCulturais.entity.id,
                         field_id: fieldId
-                        // bonus_amount: bonusAmount  // opcional, se preferir usar no backend
                     },
                     success(response) {
                         MapasCulturais.Messages.success('Bonificação removida com sucesso.');
 
-                        // Reativa o botão "Atribuir bonificação"
                         $('.assign-bonus-btn[data-field-id="' + fieldId + '"]').removeClass('disabled');
                         $(removeBonusBtn).addClass('disabled');
+                        location.reload()
 
-                        // Recarrega a página após 1.2s para o usuário ver a mensagem
-                        setTimeout(() => location.reload(), 1200);
                     },
                     error(xhr) {
                         let errorMsg = 'Erro ao remover bonificação. Tente novamente.';
