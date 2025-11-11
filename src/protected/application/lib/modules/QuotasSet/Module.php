@@ -213,6 +213,9 @@ class Module extends \MapasCulturais\Module
                 $client = new Client();
                 $response = $client->request('DELETE', $uri, [
                     'headers' => $headers,
+                    'json' => [
+                        'deleted_by' => $module->app->user->id,
+                    ],
                 ]);
             } catch (ConnectException $e) {
                 $this->json(['message' => 'Serviço indisponível', 'error' => $e->getMessage()], 503);
