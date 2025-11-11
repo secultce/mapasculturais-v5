@@ -56,11 +56,11 @@ async function abrirContrarrazao(entityId, buttonElement, selectId) {
 
             if (response.ok) {
                 McMessages.success('Sucesso', 'Contrarrazão salva!', 3000 );
+                window.location.reload();
             } else {
                 McMessages.error('Erro', 'Falha ao salvar.', 3000);
             }
         } catch (err) {
-            console.error(err);
             McMessages.error('Erro', 'Erro de conexão.', 3000);
         }
     }
