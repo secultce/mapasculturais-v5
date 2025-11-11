@@ -130,6 +130,7 @@ $(function(){
                         success() {
                             MapasCulturais.Messages.success('A bonificação foi atribuída ao proponente');
                             $(assignBonusBtn).addClass('disabled')
+                            location.reload();
                         },
                         error() {
                             MapasCulturais.Messages.error('Erro ao atribuir bonificação. Verifique, e tente novamente.');
@@ -138,5 +139,61 @@ $(function(){
                 }
             })
         }
+    });
+
+    $('body').on('click', '.remove-bonus-btn', function (event) {
+        const removeBonusBtn = event.currentTarget;
+        const isDisabled = $(removeBonusBtn).hasClass('disabled');
+
+        if (isDisabled) {
+            return; 
+        }
+
+        const fieldId = removeBonusBtn.dataset.fieldId;
+        const bonusAmount = MapasCulturais.evaluationConfiguration.bonusAmount;
+
+        Swal.fire({
+            title: "Tem certeza que deseja remover a bonificação?",
+            text: `Isso reduzirá em ${bonusAmount} ponto(s) a nota do proponente.`,
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonText: "Sim, remover",
+            reverseButtons: true,
+            confirmButtonColor: "#d33"
+        }).then(res => {
+            if (res.isConfirmed) {  // <--- AÇÃO SÓ ACONTECE SE CLICAR EM "SIM"
+                $.ajax({
+                    type: "PATCH",
+                    url: MapasCulturais.createUrl('registration', 'removeBonus'),
+                    data: {
+                        registration_id: MapasCulturais.entity.id,
+                        field_id: fieldId
+                        // bonus_amount: bonusAmount  // opcional, se preferir usar no backend
+                    },
+                    success(response) {
+                        MapasCulturais.Messages.success('Bonificação removida com sucesso.');
+
+                        // Reativa o botão "Atribuir bonificação"
+                        $('.assign-bonus-btn[data-field-id="' + fieldId + '"]').removeClass('disabled');
+                        $(removeBonusBtn).addClass('disabled');
+
+                        // Recarrega a página após 1.2s para o usuário ver a mensagem
+                        setTimeout(() => location.reload(), 1200);
+                    },
+                    error(xhr) {
+                        let errorMsg = 'Erro ao remover bonificação. Tente novamente.';
+                        if (xhr.responseJSON?.data) {
+                            errorMsg = Array.isArray(xhr.responseJSON.data)
+                                ? xhr.responseJSON.data.join('<br>')
+                                : xhr.responseJSON.data;
+                        } else if (xhr.responseJSON?.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        MapasCulturais.Messages.error(errorMsg);
+                    }
+                });
+            }
+        });
     });
 });

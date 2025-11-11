@@ -459,6 +459,7 @@ class Registration extends EntityController {
                 $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
                 return;
             }
+
             $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
         } else {
             $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
@@ -607,6 +608,45 @@ class Registration extends EntityController {
         App::i()->enableAccessControl();
     }
 
+    function PATCH_removeBonus()
+    {
+        $app = App::i();
+        $registrationId = (int)$this->data["registration_id"];
+        $registration = $app->repo('Registration')->find($registrationId);
+        $fieldId = (int)$this->data["field_id"];
+        $bonusAmount = (float)$registration->evaluationMethodConfiguration->bonusAmount;
+        if (!$registration) {
+            $this->error(404, "Inscrição não encontrada.");
+            return;
+        }
+
+        $fieldName = "bonus_field_{$fieldId}";
+  
+        $newResult = (float)$registration->consolidatedResult - $bonusAmount;
+        $registration->consolidatedResult = number_format($newResult, 2);
+
+        $bonusMeta = $app->repo('RegistrationMeta')->findOneBy([
+            'owner' => $registration,
+            'key' => $fieldName
+        ]);
+
+        $em = $app->em;
+        $app->disableAccessControl();
+
+            if ($bonusMeta) {
+                $em->remove($bonusMeta);
+                $registration->save(true);
+                $em->flush(); 
+                $this->json(['message' => 'Bonificação removida com sucesso.'],200);
+                return;
+            }
+
+        $this->errorJson([
+                'message' => 'Não foi remover a bonificação.',
+            ], 500);
+
+        $app->enableAccessControl();
+    }
     public function PATCH_single($data = null): void
     {
         $maxRequestSize = (int)rtrim(ini_get('post_max_size'), "M");
