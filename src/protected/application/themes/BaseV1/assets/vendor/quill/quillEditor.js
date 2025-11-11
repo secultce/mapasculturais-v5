@@ -56,8 +56,6 @@ var QuillEditor = (function () {
                     htmlToLoad = options.triggerButton.dataset.entityContextCr;
                 }
 
-                console.log('htmlToLoad final:', htmlToLoad); // AGORA VAI MOSTRAR O VALOR!
-
                 if (htmlToLoad && htmlToLoad.trim() !== '') {
                     quill.root.innerHTML = htmlToLoad;
                 }
