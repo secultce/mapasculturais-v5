@@ -35,15 +35,11 @@ class Module extends \MapasCulturais\Module {
         });
 
         $app->hook('template(panel.registrations.panel-registration-meta):after', function ($reg_args) use ($app) {
-            $labelButton = 'Abrir Contrarrazão'; // Texto inicial
+
             $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
             $app->view->enqueueStyle('app', 'counterReasoncss', 'css/counterReason/style.css', []);
             $counterReason = CounterReasonRepository::getCounterReason($reg_args, $app);
-
-            if ($counterReason)
-            {
-                $labelButton = 'Editar Contrarrazão'; // Altera o texto do botão
-            }
+            $labelButton = $counterReason ? 'Editar Contrarrazão' : 'Abrir Contrarrazão';
 
             if (self::validatePeriodCounterReason($reg_args))
             {
