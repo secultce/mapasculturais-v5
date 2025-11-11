@@ -14,16 +14,18 @@ class Module extends \MapasCulturais\Module {
 
     public function _init()
     {
+        $module = $this;
         $app = App::i();
-        $app->hook('view.partial(singles/opportunity-registrations--export):after', function ($__template, &$__html) use ($app) {
-        $app->view->enqueueScript('app','counterReason','js/counterReason/counterReason.js',[]);
+        $app->hook('view.partial(singles/opportunity-registrations--export):after', function ($__template, &$__html) use ($app,$module) {
+
+            $module->publishAssetsCounterReason();
             $opp = $this->controller->requestedEntity;
             $this->part('counterReason/configuration-counter-reason', [
                 'opp' => $opp,
             ]);
         });
-        $app->hook('template(opportunity.single.user-registration-table--registration--status):end', function($reg_args) use ($app){
-            $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
+        $app->hook('template(opportunity.single.user-registration-table--registration--status):end', function($reg_args) use ($app,$module){
+            $module->publishAssetsCounterReason();
             $baseUrl = $app->_config['base.url'];
             if (self::validatePeriodCounterReason($reg_args))
             {
@@ -34,13 +36,10 @@ class Module extends \MapasCulturais\Module {
             }
         });
 
-        $app->hook('template(panel.registrations.panel-registration-meta):after', function ($reg_args) use ($app) {
-
-            $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
-            $app->view->enqueueStyle('app', 'counterReasoncss', 'css/counterReason/style.css', []);
+        $app->hook('template(panel.registrations.panel-registration-meta):after', function ($reg_args) use ($app,$module) {
+            $module->publishAssetsCounterReason();
             $counterReason = CounterReasonRepository::getCounterReason($reg_args, $app);
             $labelButton = $counterReason ? 'Editar Contrarrazão' : 'Abrir Contrarrazão';
-
             if (self::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/button-open-counter-reason', [
@@ -48,6 +47,8 @@ class Module extends \MapasCulturais\Module {
                     'labelButton' => $labelButton,
                     'cr' => $counterReason
                 ]);
+            }elseif($counterReason->send){
+                echo '<p><label class="info-btn-recourse">Contrarrazão enviada!</label></p>';
             }
         });
     }
@@ -90,7 +91,11 @@ class Module extends \MapasCulturais\Module {
             'label' => i::__('Hora Final'),
             'type' => 'time',
         ]);
+    }
 
-
+    protected function publishAssetsCounterReason() {
+        $app = App::i();
+        $app->view->enqueueScript('app', 'counterReason', 'js/counterReason/counterReason.js', []);
+        $app->view->enqueueStyle('app', 'counterReasoncss', 'css/counterReason/style.css', []);
     }
 }
