@@ -47,9 +47,19 @@ class Module extends \MapasCulturais\Module {
                     'labelButton' => $labelButton,
                     'cr' => $counterReason
                 ]);
-            }elseif($counterReason->send){
+            }elseif(isset($counterReason->send)){
                 echo '<p><label class="info-btn-recourse">Contrarrazão enviada!</label></p>';
             }
+        });
+
+        /**
+         * Adiciona novos menus no painel
+         */
+
+        $app->hook('template(<<panel|contrarrazao>>.<<*>>.nav.panel.registrations):after', function () use($app) {
+            $idAgent = $app->getUser()->profile->id;
+            $url = $app->createUrl('contrarrazao', 'agente/'.$idAgent);
+            echo '<li><a href="'.$url.'"><span class="fas fa-outdent"></span> Minhas Contrarrazão</a></li>';
         });
     }
 

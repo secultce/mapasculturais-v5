@@ -156,7 +156,7 @@ class Utils {
         }
 
         similar_text(self::slugify($name1), self::slugify($name2), $similarity);
-        
+
         if($similarity >= $cutoff) {
             return true;
         }
@@ -167,11 +167,11 @@ class Utils {
     static function formatCnpjCpf($value) {
       $CPF_LENGTH = 11;
       $cnpj_cpf = preg_replace("/\D/", '', $value);
-      
+
       if (strlen($cnpj_cpf) === $CPF_LENGTH) {
         return preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cnpj_cpf);
-      } 
-      
+      }
+
       return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "\$1.\$2.\$3/\$4-\$5", $cnpj_cpf);
     }
 
@@ -301,5 +301,29 @@ class Utils {
         curl_close($ch);
 
         return ($code == 200);
+    }
+
+    static public function getPlainTextPreview($html, $maxLength = 100, $ellipsis = '…') {
+        // 1. Remove todas as tags HTML
+        $text = strip_tags($html);
+
+        // 2. Decodifica entidades HTML (ex: &nbsp; → espaço)
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // 3. Remove espaços extras (ex: múltiplos espaços, tabs, quebras)
+        $text = preg_replace('/\s+/', ' ', trim($text));
+
+        // 4. Corta até $maxLength caracteres, mas tenta não quebrar no meio da palavra
+        if (mb_strlen($text) > $maxLength) {
+            // Corta até $maxLength e tenta voltar até o último espaço
+            $truncated = mb_substr($text, 0, $maxLength);
+            $lastSpace = mb_strrpos($truncated, ' ');
+            if ($lastSpace !== false && $lastSpace > $maxLength * 0.7) { // evita cortes muito curtos
+                $truncated = mb_substr($truncated, 0, $lastSpace);
+            }
+            return $truncated . $ellipsis;
+        }
+
+        return $text;
     }
 }

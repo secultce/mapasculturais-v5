@@ -14,7 +14,8 @@ class CounterReasonService
     static public function create(App $app, $data): CounterReason
     {
         $app->disableAccessControl();
-        $registration = $app->repo('Registration')->find($data->data['registration']);
+        $registration = $app->repo('Registration')->find($data['registration']);
+
         $entity = new CounterReasonEntity();
         $entity->text = $data->data['text'] ?? null;
         $entity->send = Carbon::now();

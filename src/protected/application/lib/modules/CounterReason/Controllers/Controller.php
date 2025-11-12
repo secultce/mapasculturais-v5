@@ -1,11 +1,12 @@
 <?php
 namespace CounterReason\Controllers;
-
+ini_set('display_errors', 1);
 use CounterReason\Entities\CounterReason as CounterReasonEntity;
 use CounterReason\Repositories\CounterReasonRepository;
 use CounterReason\Services\CounterReasonService;
 use MapasCulturais\App;
 use Carbon\Carbon;
+use MapasCulturais\Entities\Agent;
 use MapasCulturais\Entities\Registration;
 
 
@@ -47,6 +48,7 @@ class Controller extends \MapasCulturais\Controller
             $existing = CounterReasonRepository::getCounterReason($registration, $app);
             if ($existing) {
                 // Atualiza
+                dd($registration);
                 $entity = CounterReasonService::update($registration, $app, $this->data);
             } else {
                 // Cria
@@ -58,4 +60,32 @@ class Controller extends \MapasCulturais\Controller
         }
 
     }
+
+    public function GET_todas()
+    {
+        $this->requireAuthentication();
+        $app = App::i();
+
+        $controller = $this;
+        $agent = $app->repo('Agent')->find($this->data['id']);
+        $cr = CounterReasonRepository::getCounterReasonByAgent($agent, $app);
+        if($this->getVerifyUser($cr[0]->agent))
+        {
+            $this->render('counter-reason-list', [
+                'cr' => $cr,
+                'scope' => $controller
+            ]);
+        }else{
+            // redirecionar com alerta que não tem contrarrazão
+        }
+
+    }
+
+    public function getVerifyUser(Agent $agent) : bool
+    {
+        $app = App::i();
+        return $app->getAuth()->getAuthenticatedUser()->profile == $agent ? true : false;
+    }
+
+
 }
