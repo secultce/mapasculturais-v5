@@ -1,6 +1,6 @@
 <?php
 namespace CounterReason;
-ini_set('error_reporting', E_ALL & ~E_NOTICE);
+
 use CounterReason\Repositories\CounterReasonRepository;
 use DateTime;
 use MapasCulturais\App;

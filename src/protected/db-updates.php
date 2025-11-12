@@ -2069,7 +2069,7 @@ $$
                 update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
                 PRIMARY KEY(id),
                 FOREIGN KEY (agent_id) REFERENCES agent(id),
-                FOREIGN KEY (registration_id) REFERENCES registration(id)1
+                FOREIGN KEY (registration_id) REFERENCES registration(id)
             );"
         );
     },

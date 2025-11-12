@@ -38,7 +38,6 @@ class Controller extends \MapasCulturais\Controller
             }
             // 2. Busca a inscrição
             $registration = $app->repo(Registration::class)->find($this->data['registration']);
-
             if (!$registration) {
                 return $this->json([
                     'error' => 'Inscrição ou Contrarrazão não encontrada.'
