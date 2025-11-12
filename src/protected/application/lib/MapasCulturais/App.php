@@ -191,7 +191,7 @@ class App extends \Slim\Slim{
         $this->_initiated = true;
 
         if(empty($config['base.url'])){
-            $config['base.url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://') . 
+            $config['base.url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://') .
                                   (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost') . '/';
         }
 
@@ -204,12 +204,12 @@ class App extends \Slim\Slim{
 
 
         session_save_path(SESSIONS_SAVE_PATH);
-        
+
         session_start();
 
         if($config['app.offline']){
             $bypass_callable = $config['app.offlineBypassFunction'];
-            
+
             if (php_sapi_name()!=="cli" && (!is_callable($bypass_callable) || !$bypass_callable())) {
                 http_response_code(307);
                 header('Location: ' . $config['app.offlineUrl']);
@@ -288,7 +288,7 @@ class App extends \Slim\Slim{
                 foreach($subfolders as $subfolder) {
                     if(!isset($namespaces[$namespace . '\\' . $subfolder])){
                         $namespaces[$namespace . '\\' . $subfolder] = $dir . '/' . $subfolder;
-                    }   
+                    }
                 }
             }
 
@@ -307,7 +307,7 @@ class App extends \Slim\Slim{
         });
 
         // extende a config with theme config files
-        
+
         $theme_class = "\\" . $config['themes.active'] . '\Theme';
         $theme_path = $theme_class::getThemeFolder() . '/';
 
@@ -390,7 +390,7 @@ class App extends \Slim\Slim{
 
 
         $doctrine_config->setAutoGenerateProxyClasses(\Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_FILE_NOT_EXISTS);
-        
+
         // obtaining the entity manager
         $this->_em = EntityManager::create($config['doctrine.database'], $doctrine_config);
 
@@ -414,7 +414,7 @@ class App extends \Slim\Slim{
         $platform->registerDoctrineTypeMapping('geometry', 'geometry');
         $platform->registerDoctrineTypeMapping('object_type', 'object_type');
         $platform->registerDoctrineTypeMapping('permission_action', 'permission_action');
-        
+
 
         // QUERY LOGGER
         $query_logger = null;
@@ -463,13 +463,16 @@ class App extends \Slim\Slim{
             $theme_instance = new $theme_class($config['themes.assetManager']);
         }
         # INICIALIZA INTEGRAÇÃO COM SENTRY
-        $entityManager = $this->_em;
-        $loggerSlim = $this->getLog();
-        set_exception_handler(function ($e) use ($loggerSlim , $entityManager) {
-            $handler = new ExceptionHandler($loggerSlim, $entityManager);
-            $handler->handle($e);
-        });
-       
+        if($config['app.sentry'] == "true")
+        {
+            $entityManager = $this->_em;
+            $loggerSlim = $this->getLog();
+            set_exception_handler(function ($e) use ($loggerSlim , $entityManager) {
+                $handler = new ExceptionHandler($loggerSlim, $entityManager);
+                $handler->handle($e);
+            });
+        }
+
 
         parent::__construct([
             'log.level' => $config['slim.log.level'],
@@ -479,7 +482,7 @@ class App extends \Slim\Slim{
             'view' => $theme_instance,
             'mode' => $this->_config['app.mode']
         ]);
-      
+
         foreach($config['plugins'] as $slug => $plugin){
             $_namespace = $plugin['namespace'];
             $_class = isset($plugin['class']) ? $plugin['class'] : 'Plugin';
@@ -501,9 +504,9 @@ class App extends \Slim\Slim{
         $this->applyHookBoundTo($this, 'app.modules.init:before', [&$available_modules]);
         foreach ($available_modules as $module){
             $module_class_name = "$module\Module";
-            $module_config = isset($config["module.$module"]) ? 
+            $module_config = isset($config["module.$module"]) ?
             $config["module.$module"] : [];
-            
+
             $this->applyHookBoundTo($this, "app.module({$module}).init:before", [&$module_config]);
             $this->_modules[$module] = new $module_class_name($module_config);
             $this->applyHookBoundTo($this, "app.module({$module}).init:after");
@@ -566,7 +569,7 @@ class App extends \Slim\Slim{
         $this->view->init();
 
         // ===================================== //
-        
+
         // run plugins
         if(isset($config['plugins.enabled']) && is_array($config['plugins.enabled'])){
             foreach($config['plugins.enabled'] as $plugin){
@@ -641,7 +644,7 @@ class App extends \Slim\Slim{
         for ($i = 0; $i < $length; $i++) {
             $token .= $codeAlphabet[self::crypto_rand_secure(0, $max)];
         }
-        
+
         return $token;
     }
 
@@ -1100,7 +1103,7 @@ class App extends \Slim\Slim{
 
             $type_meta = key_exists('metadata', $type_config) && is_array($type_config['metadata']) ? $type_config['metadata'] : [];
             $type_config['metadata'] = $type_meta;
-            
+
             // add events metadata definition to event type
             foreach($event_meta as $meta_key => $meta_config)
                 if(!key_exists($meta_key, $type_meta) || key_exists($meta_key, $type_meta) && is_null($type_config['metadata'][$meta_key]))
@@ -1172,7 +1175,7 @@ class App extends \Slim\Slim{
 
             $type_meta = key_exists('metadata', $type_config) && is_array($type_config['metadata']) ? $type_config['metadata'] : [];
             $type_config['metadata'] = $type_meta;
-            
+
         	// add projects metadata definition to project type
             foreach($seals_meta as $meta_key => $meta_config)
                 if(!key_exists($meta_key, $type_meta) || key_exists($meta_key, $type_meta) && is_null($type_config['metadata'][$meta_key]))
@@ -1240,7 +1243,7 @@ class App extends \Slim\Slim{
                 $display = false;
                 $key = substr($key, 1);
             }
-            
+
             if (!is_array($division)) { // for backward compability version < 4.0, $division is string not a array.
                 $d = new \stdClass();
                 $d->key = $key;
@@ -1496,7 +1499,7 @@ class App extends \Slim\Slim{
      * Invoke hook
      * @param  string   $name       The hook name
      * @param  mixed    $hookArgs   (Optional) Argument for hooked functions
-     * 
+     *
      * @return callable[]
      */
     function applyHook($name, $hookArg = null) {
@@ -1535,7 +1538,7 @@ class App extends \Slim\Slim{
      * @param  object $target_object Object to bind hook
      * @param  string   $name       The hook name
      * @param  mixed    $hookArgs   (Optional) Argument for hooked functions
-     * 
+     *
      * @return callable[]
      */
     function applyHookBoundTo($target_object, $name, $hookArg = null) {
@@ -1642,30 +1645,30 @@ class App extends \Slim\Slim{
 
     /**
      * Enfileira um job, substituindo um já existente
-     * 
-     * @param string $type_slug 
-     * @param array $data 
-     * @param string $start_string 
-     * @param string $interval_string 
-     * @param int $iterations 
-     * @return void 
-     * @throws Exception 
+     *
+     * @param string $type_slug
+     * @param array $data
+     * @param string $start_string
+     * @param string $interval_string
+     * @param int $iterations
+     * @return void
+     * @throws Exception
      */
     public function enqueueOrReplaceJob(string $type_slug, array $data, string $start_string = 'now', string $interval_string = '', int $iterations = 1) {
         $this->enqueueJob($type_slug, $data, $start_string, $interval_string, $iterations, true);
     }
 
-    
+
     /**
      * Enfileira um job
-     * @param string $type_slug 
-     * @param array $data 
-     * @param string $start_string 
-     * @param string $interval_string 
-     * @param int $iterations 
+     * @param string $type_slug
+     * @param array $data
+     * @param string $start_string
+     * @param string $interval_string
+     * @param int $iterations
      * @param bool $replace
-     * @return Job 
-     * @throws Exception 
+     * @return Job
+     * @throws Exception
      */
     public function enqueueJob(string $type_slug, array $data, string $start_string = 'now', string $interval_string = '', int $iterations = 1, $replace = false) {
         if($this->config['app.log.jobs']) {
@@ -1673,7 +1676,7 @@ class App extends \Slim\Slim{
         }
 
         $type = $this->getRegisteredJobType($type_slug);
-        
+
         if (!$type) {
             throw new \Exception("invalid job type: {$type_slug}");
         }
@@ -1744,9 +1747,9 @@ class App extends \Slim\Slim{
     private $_recreatedPermissionCacheList = [];
 
     /**
-     * Adiciona a entidade na fila de reprocessamento de cache de permissão 
-     * @param Entity $entity 
-     * @return void 
+     * Adiciona a entidade na fila de reprocessamento de cache de permissão
+     * @param Entity $entity
+     * @return void
      */
     public function enqueueEntityToPCacheRecreation(Entity $entity, User $user = null) {
         if (!$entity->__skipQueuingPCacheRecreation) {
@@ -1760,9 +1763,9 @@ class App extends \Slim\Slim{
 
     /**
      * Verifica se a entidade já está na fila de reprocessamento de cache de permissão
-     * 
-     * @param Entity $entity 
-     * @return bool 
+     *
+     * @param Entity $entity
+     * @return bool
      */
     public function isEntityEnqueuedToPCacheRecreation(Entity $entity, User $user = null) {
         $entity_key = $entity->id ? "{$entity}" : "{$entity}:".spl_object_id($entity);
@@ -1782,7 +1785,7 @@ class App extends \Slim\Slim{
             $entity = $config[0];
             $user = $config[1];
             if (is_int($entity->id) && !$this->repo('PermissionCachePending')->findBy([
-                    'objectId' => $entity->id, 
+                    'objectId' => $entity->id,
                     'objectType' => $entity->getClassName(),
                     'status' => 0,
                     'user' => $user
@@ -1803,7 +1806,7 @@ class App extends \Slim\Slim{
 
         $this->_permissionCachePendingQueue = [];
     }
-    
+
     public function setEntityPermissionCacheAsRecreated(Entity $entity) {
         $this->_recreatedPermissionCacheList["$entity"] = $entity;
     }
@@ -1819,17 +1822,17 @@ class App extends \Slim\Slim{
         $conn = $this->em->getConnection();
 
         $id = $conn->fetchOne('
-            SELECT id 
+            SELECT id
             FROM permission_cache_pending
-            WHERE 
-                status = 0 AND 
+            WHERE
+                status = 0 AND
                 CONCAT (object_type, object_id, usr_id) NOT IN (
-                    SELECT CONCAT(object_type, object_id, usr_id) 
-                    FROM permission_cache_pending WHERE 
+                    SELECT CONCAT(object_type, object_id, usr_id)
+                    FROM permission_cache_pending WHERE
                     status > 0
                 )');
 
-        if(!$id) { 
+        if(!$id) {
             return;
         }
         $item = $this->repo('PermissionCachePending')->find($id);
@@ -2077,7 +2080,7 @@ class App extends \Slim\Slim{
     }
 
     /**
-     * 
+     *
      * @return Definitions\JobType[]
      */
     public function getRegisteredJobTypes() {
@@ -2085,7 +2088,7 @@ class App extends \Slim\Slim{
     }
 
     /**
-     * 
+     *
      * @return Definitions\JobType
      */
     public function getRegisteredJobType(string $slug) {
@@ -2377,7 +2380,7 @@ class App extends \Slim\Slim{
     public function getControllerByEntity($entity){
         if(is_object($entity))
             $entity = $entity->getClassName();
-        
+
         $controller_class = $entity::getControllerClassName();
         return $this->getControllerByClass($controller_class);
     }
@@ -2912,7 +2915,7 @@ class App extends \Slim\Slim{
      * Utils
      ************/
 
-    function slugify($text) {        
+    function slugify($text) {
         return Utils::slugify($text);
     }
 
@@ -3116,7 +3119,7 @@ class App extends \Slim\Slim{
             }
         }
 
-        
+
         $mustache = new \Mustache_Engine();
 
         $headerData = $templateData;

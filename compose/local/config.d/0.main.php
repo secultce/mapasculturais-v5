@@ -9,6 +9,7 @@ return [
     /* MAIN */
     'themes.active' => env('ACTIVE_THEME', 'MapasCulturais\Themes\BaseV1'),
     'app.mode' => $_ENV['APP_MODE'],
+    'app.sentry' => $_ENV['SENTRY_ENABLED'],
     'doctrine.isDev' => false, // deixe true somente se estiver trabalhando nos mapeamentos das entidades
     'slim.debug' => true,
     'cep.token' => '1a61e4d00bf9c6a85e3b696ef7014372',
