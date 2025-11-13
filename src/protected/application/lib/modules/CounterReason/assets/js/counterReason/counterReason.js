@@ -1,6 +1,5 @@
 // 0 - habilitado, 1 - para desabilitado
-jQuery(document).ready(function($) {
-    console.log('Reason')
+jQuery(document).ready(function ($) {
     $("#registration-claim-configuration").hide();
     if(MapasCulturais.entity && MapasCulturais.entity.object.claimDisabled == 0){
         $("#div-panel-counter-reason").removeClass("d-none");
@@ -65,5 +64,15 @@ async function abrirContrarrazao(entityId, buttonElement, selectId) {
             McMessages.error('Erro', 'Erro de conexão.', 3000);
         }
     }
+}
+
+// Mostra o conteúdo completo da contrarrazão
+function getInfoCounterReason(text) {
+    Swal.fire({
+        html: text,
+        customClass: {
+            htmlContainer: 'modal-read-recourse'
+        },
+    });
 }
 

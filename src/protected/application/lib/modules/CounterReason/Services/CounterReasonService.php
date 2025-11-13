@@ -15,15 +15,14 @@ class CounterReasonService
     {
         $app->disableAccessControl();
         $registration = $app->repo('Registration')->find($data['registration']);
-
         $entity = new CounterReasonEntity();
-        $entity->text = $data->data['text'] ?? null;
-        $entity->send = Carbon::now();
-        $entity->status = $data->data['status'] ?? 0 ; // ou outro status padrão
-        $entity->registration = $registration;
-        $entity->opportunity = $registration->opportunity;
-        $entity->agent = $registration->owner;
-        $entity->save(true); // true = flush imediato
+        $entity->text           = $data['text'] ?? null;
+        $entity->send           = Carbon::now();
+        $entity->status         = $data->data['status'] ?? 1; // ou outro status padrão
+        $entity->registration   = $registration;
+        $entity->opportunity    = $registration->opportunity;
+        $entity->agent          = $registration->owner;
+        $entity->save(true);
         $app->enableAccessControl();
         return $entity;
     }
@@ -36,7 +35,6 @@ class CounterReasonService
      */
     static public function update(Registration $registration, App $app, $data): CounterReason
     {
-
         // Atualiza data de envio (ou edição)
         $cr = CounterReasonRepository::getCounterReason($registration, $app);
         $cr->text = $data['text'];
