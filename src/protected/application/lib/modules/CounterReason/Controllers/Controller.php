@@ -22,7 +22,7 @@ class Controller extends \MapasCulturais\Controller
     public function POST_save()
     {
         $app = App::i();
-
+        $this->requireAuthentication();
         try {
 
             // 1. Validação básica
@@ -78,23 +78,26 @@ class Controller extends \MapasCulturais\Controller
         $controller = $this;
         $agent = $app->repo('Agent')->find($this->data['id']);
         $cr = CounterReasonRepository::getCounterReasonByAgent($agent, $app);
-        if($this->getVerifyUser($cr[0]->agent))
-        {
-            $this->render('counter-reason-list', [
-                'cr' => $cr,
-                'scope' => $controller
-            ]);
-        }else{
-            // redirecionar com alerta que não tem contrarrazão
-        }
+        $app->applyHookBoundTo($this, "controller(CounterReason).all:begin", [&$cr]);
+        if (empty($cr)) $app->setCookie("cr-empty", 'No momento não tem nenhuma contrarazão', time() + 3600);
+
+        $this->render('counter-reason-list', [
+            'cr' => $cr,
+            'scope' => $controller,
+            'app' => $app
+        ]);
+
 
     }
 
+    /**
+     * Verifica se o usuario que está logado submetendo edição
+     * é o mesmo que gerou a contrarrazão
+     * @param Agent $agent
+     */
     public function getVerifyUser(Agent $agent) : bool
     {
         $app = App::i();
         return $app->getAuth()->getAuthenticatedUser()->profile == $agent ? true : false;
     }
-
-
 }

@@ -1,5 +1,6 @@
 // 0 - habilitado, 1 - para desabilitado
 jQuery(document).ready(function($) {
+    console.log('Reason')
     $("#registration-claim-configuration").hide();
     if(MapasCulturais.entity && MapasCulturais.entity.object.claimDisabled == 0){
         $("#div-panel-counter-reason").removeClass("d-none");

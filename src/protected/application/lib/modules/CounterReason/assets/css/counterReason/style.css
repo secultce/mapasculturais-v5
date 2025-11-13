@@ -1,3 +1,7 @@
 .swal2-validation-message {
     transition: opacity 0.3s ease;
 }
+.a-hover-cr:hover {
+    border: 1px solid black;
+    /* Cor e estilo da borda desejada */
+}

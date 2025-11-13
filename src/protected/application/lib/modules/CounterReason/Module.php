@@ -27,11 +27,11 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(opportunity.single.user-registration-table--registration--status):end', function($reg_args) use ($app,$module){
             $module->publishAssetsCounterReason();
             $baseUrl = $app->_config['base.url'];
-            if (self::validatePeriodCounterReason($reg_args))
+            if (CounterReasonRepository::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/open-counter-reason', [
                     'entity' => $reg_args,
-                    'baseUrl' => $baseUrl,
+                    'baseUrl' => $baseUrl
                 ]);
             }
         });
@@ -40,7 +40,7 @@ class Module extends \MapasCulturais\Module {
             $module->publishAssetsCounterReason();
             $counterReason = CounterReasonRepository::getCounterReason($reg_args, $app);
             $labelButton = $counterReason ? 'Editar Contrarrazão' : 'Abrir Contrarrazão';
-            if (self::validatePeriodCounterReason($reg_args))
+            if (CounterReasonRepository::validatePeriodCounterReason($reg_args))
             {
                 $this->part('counterReason/button-open-counter-reason', [
                     'entity' => $reg_args,
@@ -58,29 +58,17 @@ class Module extends \MapasCulturais\Module {
 
         $app->hook('template(<<panel|contrarrazao>>.<<*>>.nav.panel.registrations):after', function () use($app) {
             $idAgent = $app->getUser()->profile->id;
-            $url = $app->createUrl('contrarrazao', 'agente/'.$idAgent);
+            $url = $app->createUrl('contrarrazao', 'todas/'.$idAgent);
             echo '<li><a href="'.$url.'"><span class="fas fa-outdent"></span> Minhas Contrarrazão</a></li>';
+        });
+
+
+        $app->hook('controller(CounterReason).all:begin', function ($cr_args) use ($app,$module) {
+            $module->publishAssetsCounterReason();
         });
     }
 
-    /**
-     * Verifica o período para habilitar o botão de submeter a contrarrazão
-     * @param mixed $entity
-     * @return bool
-     */
-    static public function validatePeriodCounterReason($entity): bool
-    {
-        $strToInitial = $entity->opportunity->getMetadata('counterReason_date_initial') . ' ' . $entity->opportunity->getMetadata('counterReason_time_initial');
-        $initialOfPeriod = \DateTime::createFromFormat('Y-m-d H:i', $strToInitial);
-        $strToEnd = $entity->opportunity->getMetadata('counterReason_date_end') . ' ' . $entity->opportunity->getMetadata('counterReason_time_end');
-        $endOfPeriod = \DateTime::createFromFormat('Y-m-d H:i', $strToEnd);
-        $now = new DateTime();
-        if(  $now >= $initialOfPeriod &&  $now <= $endOfPeriod )
-            return true;
 
-        return false;
-
-    }
     function register () {
         $app = App::i();
         $app->registerController('contrarrazao', Controllers\Controller::class);
