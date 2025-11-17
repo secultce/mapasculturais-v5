@@ -99,4 +99,9 @@ class CounterReason extends \MapasCulturais\Entity
      */
     protected $createTimestamp;
 
+    /**
+     * @ORM\OneToMany(targetEntity="CounterReason\Entities\CounterReasonFile", 
+     * mappedBy="owner", cascade="remove", orphanRemoval=true)
+     */
+    protected $files = [];
 }

@@ -6,9 +6,12 @@ use DateTime;
 use MapasCulturais\App;
 use MapasCulturais\i;
 
-require __DIR__.'/Entities/CounterReason.php';
-require __DIR__.'/Services/CounterReasonService.php';
-require __DIR__.'/Repositories/CounterReasonRepository.php';
+require __DIR__ . '/Entities/CounterReason.php';
+require __DIR__ . '/Entities/CounterReasonFile.php';
+// require __DIR__ . '/Entities/File.php';
+require __DIR__ . '/Services/CounterReasonService.php';
+require __DIR__ . '/Repositories/CounterReasonRepository.php';
+
 class Module extends \MapasCulturais\Module {
 
 

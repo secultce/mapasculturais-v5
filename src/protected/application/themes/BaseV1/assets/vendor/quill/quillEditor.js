@@ -1,6 +1,5 @@
 var QuillEditor = (function () {
 
-    // Configuração fixa do toolbar
     const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike', 'link', 'image', 'blockquote'],
         [{ 'header': 1 }, { 'header': 2 }, { 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
@@ -11,92 +10,79 @@ var QuillEditor = (function () {
     ];
 
     /**
-     * Abre um SweetAlert2 com editor Quill integrado
-     * @param {Object} options - Configurações do editor
-     * @param {string} options.title - Título do popup
-     * @param {string} [options.placeholder] - Placeholder do editor
-     * @param {string} [options.initialHtml] - HTML inicial (opcional)
-     * @param {string} [options.entityId] - ID da entidade (opcional, capturado de input)
-     * @returns {Promise} - Resolvido com { conteudo: string, entityId: string }
+     * Configuração do SweetAlert com Quill + input file
+     * @param {string} editorId - ID do textarea oculto
+     * @param {string} fileId - ID do input file
+     * @param {string} initialText - Texto inicial (opcional)
+     * @returns {Object} - Configuração do Swal
      */
-    function openEditor(options = {}) {
-        const {
-            title = 'Editor de Texto Rico',
-            placeholder = 'Digite seu texto aqui...',
-            initialHtml = '',
-            entityId = null,
-            selectorId = 'quill-editor'
-        } = options;
-
-        return Swal.fire({
-            title: title,
+    function getConfig(editorId, fileId, initialText = '') {
+        return {
+            title: "Escrever Contrarrazão",
             html: `
-                <div id="${selectorId}" style="min-height: 200px;"></div>
-                <input type="hidden" id="entity-id" value="${entityId || ''}">
+                <div style="display: grid; gap: 10px;">
+                    <label>Escreva sua contrarrazão:</label>
+                    <textarea id="${editorId}" style="display: none;">${initialText}</textarea>
+                    <div id="quill-container" style="min-height: 200px;"></div>
+                    
+                    <label>Anexar arquivos (máx. 2):</label>
+                    <input id="${fileId}" type="file" multiple max="2" class="swal2-file" style="width: 100%;">
+                </div>
             `,
-            width: '800px',
+            width: '900px',
+            padding: '2em',
             showCancelButton: true,
-            confirmButtonText: 'Salvar',
+            confirmButtonText: 'Enviar',
             cancelButtonText: 'Cancelar',
-            focusConfirm: false,
+            showLoaderOnConfirm: true,
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-secondary'
+            },
             didOpen: () => {
-                const container = document.querySelector('#' + selectorId);
-                if (!container) return;
+                const textarea = document.getElementById(editorId);
+                const container = document.getElementById('quill-container');
 
+                // Inicializa Quill
                 const quill = new Quill(container, {
                     theme: 'snow',
-                    placeholder: placeholder,
+                    placeholder: 'Escreva sua contrarrazão aqui...',
                     modules: { toolbar: toolbarOptions }
                 });
 
-                // HTML inicial: 1. triggerButton → 2. initialHtml
-                let htmlToLoad = initialHtml;
-
-                if (options.triggerButton && options.triggerButton.dataset.entityContextCr) {
-                    htmlToLoad = options.triggerButton.dataset.entityContextCr;
+                // Carrega texto inicial
+                if (initialText) {
+                    quill.root.innerHTML = initialText;
                 }
 
-                if (htmlToLoad && htmlToLoad.trim() !== '') {
-                    quill.root.innerHTML = htmlToLoad;
-                }
-
-                container.quillInstance = quill;
+                // Atualiza textarea oculto sempre que mudar
+                quill.on('text-change', () => {
+                    textarea.value = quill.root.innerHTML;
+                });
             },
             preConfirm: () => {
-                const editorContainer = document.querySelector('#'+selectorId);
-                const entityInput = document.getElementById('entity-id');
+                const textarea = document.getElementById(editorId);
+                const fileInput = document.getElementById(fileId);
 
-                if (!editorContainer || !editorContainer.quillInstance) {
-                    Swal.showValidationMessage('Erro ao carregar o editor.');
-                    return false;
-                }
-
-                const quill = editorContainer.quillInstance;
-                const conteudo = quill.root.innerHTML.trim();
-                const entityId = entityInput ? entityInput.value : null;
+                const conteudo = textarea.value.trim();
 
                 if (!conteudo || conteudo === '<p><br></p>') {
-                    Swal.showValidationMessage('O texto não pode estar vazio!');
-
-                    setTimeout(() => {
-                        const msg = document.querySelector('.swal2-validation-message');
-                        if (msg) {
-                            msg.style.transition = 'opacity 0.3s ease';
-                            msg.style.opacity = '0';
-                            setTimeout(() => Swal.resetValidationMessage(), 300);
-                        }
-                    }, 2000);
-
+                    Swal.showValidationMessage('O texto da contrarrazão é obrigatório!');
                     return false;
                 }
 
-                return { conteudo, entityId };
-            }
-        });
+                // Validação: máximo 2 arquivos
+                const files = fileInput.files;
+                if (files.length > 2) {
+                    Swal.showValidationMessage('Máximo de 2 arquivos permitidos!');
+                    return false;
+                }
+
+                return [conteudo, files]; // EXATAMENTE como no Froala
+            },
+            allowOutsideClick: false
+        };
     }
 
-    return {
-        open: openEditor
-    };
-
+    return { getConfig };
 })();

@@ -2,15 +2,23 @@
 
 namespace CounterReason\Services;
 
-use CounterReason\Entities\CounterReason;
-use CounterReason\Entities\CounterReason as CounterReasonEntity;
 use Carbon\Carbon;
-use CounterReason\Repositories\CounterReasonRepository;
 use MapasCulturais\App;
+use CounterReason\Entities\CounterReason;
+use CounterReason\Traits\FileUploadTrait;
 use MapasCulturais\Entities\Registration;
+use CounterReason\Entities\CounterReasonFile;
+use MapasCulturais\Exceptions\FileUploadError;
+use CounterReason\Repositories\CounterReasonRepository;
+use CounterReason\Entities\CounterReason as CounterReasonEntity;
 
 class CounterReasonService
 {
+    use FileUploadTrait;
+    protected function getFileClassName(): string
+    {
+        return CounterReasonFile::class;
+    }
     static public function create(App $app, $data): CounterReason
     {
         $app->disableAccessControl();
@@ -22,7 +30,14 @@ class CounterReasonService
         $entity->registration   = $registration;
         $entity->opportunity    = $registration->opportunity;
         $entity->agent          = $registration->owner;
+   
         $entity->save(true);
+        foreach ($_FILES as $file) {
+            $newFile = new CounterReasonFile($file);
+            $newFile->setGroup('cr-attachment');
+            $newFile->owner = $entity;
+            $newFile->makePrivate();
+        }
         $app->enableAccessControl();
         return $entity;
     }
@@ -41,7 +56,21 @@ class CounterReasonService
         $cr->send = Carbon::now();
         $app->disableAccessControl();
         $cr->save(true);
+      
+        foreach ($_FILES as $file) {         
+            $newFile = new CounterReasonFile($file);            
+            $newFile->setGroup('recourse-attachment');
+            $newFile->owner = $cr;
+            $newFile->makePrivate();
+        }
+
         $app->enableAccessControl();
         return $cr;
     }
+
+
+    /**
+     * Retorna o nome da classe File do módulo
+     */
+    // abstract protected function getFileClassName(): string;
 }
