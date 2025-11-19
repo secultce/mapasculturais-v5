@@ -154,7 +154,7 @@
             userManagermentService.getHistory($userId)
                 .success(function (data) {
                     data.forEach(function(el){
-                        el.objectType = el.objectType.substring(24);
+                        el.objectType = el.objectType.split('\\').pop();
                         el.createTimestamp.date = new Date(el.createTimestamp.date);
                     });
                     $scope.user.history.list = data;

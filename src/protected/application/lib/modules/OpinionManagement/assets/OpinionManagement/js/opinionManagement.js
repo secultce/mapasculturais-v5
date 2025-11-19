@@ -165,6 +165,17 @@ const publishOpinions = target => {
     })
         .then(result => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Publicando pareceres...',
+                    html: 'Por favor, aguarde enquanto os pareceres estão sendo publicados.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        const loader = document.querySelector('.swal2-actions')
+                        loader.style.display = 'flex'
+                        loader.style.justifyContent = 'center'
+                    }
+                });
                 fetch(MapasCulturais.baseURL + 'opinionManagement/publishOpinions', {
                     method: 'POST',
                     headers: {

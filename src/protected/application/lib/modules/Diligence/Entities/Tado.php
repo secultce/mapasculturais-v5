@@ -14,7 +14,7 @@ use Diligence\Controllers\Controller;
 use Diligence\Service\DiligenceInterface;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Repositories\Diligence as DiligenceRepo;
-
+use MapasCulturais\Traits\EntityRevision;
 
 /**
  * Tado 
@@ -26,6 +26,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 class Tado extends \MapasCulturais\Entity
 {
+  use EntityRevision;
   /**
    * @var integer
    *

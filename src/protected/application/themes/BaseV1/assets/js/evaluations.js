@@ -11,35 +11,73 @@ $(function(){
         $list.css('margin-top', top); */
     });
 
-    $formContainer.find('.js-evaluation-submit').on('click', function(){
-        var $button = $(this);
-        var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {'0': MapasCulturais.request.id, 'status': 'evaluated'});
-        var data = $form.serialize();
+    $formContainer.find('.js-evaluation-submit').on('click', function (e) {
+        e.preventDefault();
 
-        if(!data){
-            MapasCulturais.Messages.success(labels.emptyForm);
+        var $button = $(this);
+        var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {
+            '0': MapasCulturais.request.id,
+            'status': 'evaluated'
+        });
+
+        var isValid = true;
+        $('.bonus-select').each(function () {
+            var $select = $(this);
+            var value = $select.val();
+
+            if (value==="?") { 
+
+                    isValid = false;
+                    MapasCulturais.Messages.error('Por favor, selecione uma opção válida em todos os campos de bônus.');
+                    $select.focus();
+                    return false; 
+                }
+
+        });
+
+        if (!isValid) {
+            return;
         }
 
-        $.post(url, data, function(r){
+        var data = $form.serializeArray();
+
+        $('.bonus-select').each(function () {
+            var fieldId = $(this).data('field-id');
+            var value = angular.element(this).scope().field.bonused;
+            var boolValue = (value == "true" || value === true) ? "true" : "false";
+            data.push({ name: `b2_${fieldId}`, value: boolValue });
+        });
+
+        var dataObject = {};
+        $.each(data, function (i, field) {
+            var match = field.name.match(/^data\[(.+?)\]$/);
+            if (match) {
+                dataObject[match[1]] = field.value;
+            } else {
+                dataObject[field.name] = field.value;
+            }
+        });
+
+        $.post(url, { data: dataObject }, function (r) {
             MapasCulturais.Messages.success(labels.saveMessage);
-            if($button.hasClass('js-next')){
-                // var $current = $("#registrations-list .registration-item.current");
+
+            if ($button.hasClass('js-next')) {
                 var $current = $(".current");
                 var $next = $current.nextAll('.visible:first');
                 var $link = $next.find('a');
-                //se o proximo registration da lista for igual o registration atual, pule 2 filhos 
-                if($current.find('a').attr('href') == $current.nextAll('.visible:first').find('a').attr('href')) {
-                    $link = $(".registration-item:eq(2)").find('a'); // pegue o segundo filho da lista nos <li>
+
+                if ($current.find('a').attr('href') == $next.find('a').attr('href')) {
+                    $link = $(".registration-item:eq(2)").find('a');
                 }
-                if($link.attr('href')) {
+
+                if ($link.attr('href')) {
                     document.location = $link.attr('href');
                 }
             }
-        }).fail(function(rs) {
-            if(rs.responseJSON && rs.responseJSON.error){
-                if(rs.responseJSON.data instanceof Array){
-                    rs.responseJSON.data.forEach(function(msg){
-                        console.log(msg);
+        }).fail(function (rs) {
+            if (rs.responseJSON && rs.responseJSON.error) {
+                if (rs.responseJSON.data instanceof Array) {
+                    rs.responseJSON.data.forEach(function (msg) {
                         MapasCulturais.Messages.error(msg);
                     });
                 } else {
@@ -48,6 +86,7 @@ $(function(){
             }
         });
     });
+
 
     var __onChangeTimeout;
     $(".autosave").on('keyup change', function() {

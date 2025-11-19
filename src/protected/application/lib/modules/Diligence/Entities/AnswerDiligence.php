@@ -23,6 +23,8 @@ use Carbon\Carbon;
 class AnswerDiligence extends Entity implements DiligenceInterface{
     use DiligenceSingle;
 
+    use \MapasCulturais\Traits\EntityRevision;
+    
     const STATUS_DRAFT = 0;
     const STATUS_OPEN = 2; // Para respostas salvas não enviadas
     const STATUS_SEND = 3; // Para respostas a diligência enviadas

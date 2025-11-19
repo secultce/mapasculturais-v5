@@ -201,11 +201,11 @@
 
             getBonusFields: function () {
                 const fields = this.getFields();
-                const bonusFieldsConfig = MapasCulturais.entity.object?.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig || [];
-
+                const bonusFieldsConfig = MapasCulturais.entity.object?.opportunity?.evaluationMethodConfiguration?.bonusFieldsConfig || []; 
                 const bonusFieldsIds = bonusFieldsConfig?.map(bonusField => {
                     return parseInt(bonusField.field);
                 });
+
                 const bonusFields = fields.filter(field => {
                     let fieldId = field.id;
 
@@ -215,10 +215,19 @@
                     }
 
                     return bonusFieldsIds?.includes(fieldId);
-                });
+                }).map(field => {
+                    const bonusFieldConfig = bonusFieldsConfig.find(bonusField => parseInt(bonusField.field) === field.id);
 
+                    if (bonusFieldConfig) {
+                        field.assignmentByTheEvaluator = bonusFieldConfig.assignmentByTheEvaluator;
+                    }
+
+                    return field;
+                });   
+                
                 return bonusFields;
             },
+
 
             getSelectedCategory: function(){
                 

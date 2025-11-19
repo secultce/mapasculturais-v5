@@ -1,3 +1,27 @@
+const quotas = {
+    types: [],
+    agents: [],
+    agentsIdsSearched: [],
+    getTypes() {
+        return this.types
+    },
+    setTypes(types) {
+        this.types = types
+    },
+    getAgents() {
+        return this.agents
+    },
+    setAgents(agents) {
+        this.agents = agents
+    },
+    getAgentsIdsSearched() {
+        return this.agentsIdsSearched
+    },
+    setAgentsIdsSearched(agentsIds) {
+        this.agentsIdsSearched = agentsIds
+    },
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     Object.defineProperty(String.prototype, 'capitalize', {
         value: function() {
@@ -5,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         enumerable: false
     });
+
+    getQuotaTypes()
 
     const findAgents = (value) => {
         $.ajax({
@@ -37,17 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const renderResults = (agents) => {
         if (!agentResultsTable) return;
+
         let data = [];
         for (const agent of agents) {
-            if (resultIds.values.includes(agent.id)) {
-                continue;
-            }
+            if (resultIds.values.includes(agent.id)) continue;
+
             resultIds.push(agent.id);
-            let buttonHtml = agent.assigned
-                ? `<button class="btn btn-default" onclick="unassignQuota(${agent.assigned_id}, 1, ${agent.id}, this)">Remover cota</button>`
-                : `<button class="btn btn-primary" onclick="assignQuota(1, ${agent.id}, this)">Atribuir cota racial</button>`;
+
+            let buttonHtml = `<button class="btn btn-primary" single-assign-btn agent-id="${agent.id}">Atribuir cota</button>`;
             data.push([agent.cpf, agent.name, buttonHtml]);
         }
+        quotas.setAgentsIdsSearched(resultIds.values);
         agentResultsTable.rows.add(data).draw();
     };
 
@@ -55,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $.ajax({
             url: `/api/agent/allWithQuotas`,
             success: (response) => {
+                quotas.setAgents(response)
                 renderAssignedAgents(response);
             }
         });
@@ -77,30 +104,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>até ${new Date(quota.end_date).toLocaleDateString('pt-br', {year: 'numeric', month: 'short', day: 'numeric'})}</span>
                 </div>`;
             }).join('');
-            let buttonHtml = hasRacial
-                ? `<button class="btn btn-default" onclick="unassignQuota(${agent.quotas_policy[0].id}, 1, ${agent.id}, this)">Remover cota</button>`
-                : '';
+            let buttonHtml = `<button class="btn btn-default" remove-single-quota data-agent-id="${agent.id}">Remover cota</button>`
             data.push([agent.cpf, agent.name, quotasHtml, periodHtml, buttonHtml]);
         }
         assignedAgentsTable.rows.add(data).draw();
     };
 
-    const assignQuota = (quotaId, agentId, target) => {
+    const assignQuota = (quotaId, agentId, target, typeAssign = 'single') => {
+        if (!quotaId) {
+            swalSimple("Cota não atribuída", "Selecione uma cota para atribuir", "error")
+            return
+        }
+        const startDate = $('#quota-start-date').val()
+
         $.ajax({
             url: `/api/agent/assignQuota`,
             method: 'POST',
             data: JSON.stringify({
                 agent_id: agentId,
                 quota_id: quotaId,
-                start_date: new Date().toISOString().split('T')[0]
+                start_date: startDate ? startDate : new Date().toISOString().split('T')[0]
             }),
             contentType: "application/json",
-            success: (response) => {
-                target.classList.remove('btn-primary');
-                target.classList.add('btn-default');
-                target.innerText = 'Remover cota';
-                target.onclick = () => unassignQuota(response.id, quotaId, agentId, target);
-
+            success: () => {
                 const row = $(target).closest('tr');
                 if (agentResultsTable) {
                     agentResultsTable.row(row).remove().draw();
@@ -108,28 +134,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 findAssignedAgents();
             },
-            error: (error) => {
+            error: () => {
                 if (typeof MapasCulturais !== 'undefined' && MapasCulturais.Messages) {
                     MapasCulturais.Messages.error('Erro inesperado ao associar cota.');
                 }
             }
         });
+
+        if (typeAssign === 'batch') searchValues.clear()
     };
 
-    const bulkAssignQuota = (target) => {
-        $(target).after('<img id="bulk-spinner" src="/assets/img/spinner.gif" alt="Spinner" style="margin-left:1rem;">');
-
-        $('#agent-results-table button[onclick^="assignQuota"]').each(function() {
-            $(this).click();
-        });
-         
-        setTimeout(() => {
-            $('#bulk-spinner').remove();
-        }, 500);
-        searchValues.clear();
-    };
-    
-    const unassignQuota = (agentQuotaId, quotaId, agentId, target) => {
+    const unassignQuota = (agentQuotaId) => {
         $.ajax({
             url: `/api/agent/unassignQuota`,
             method: 'POST',
@@ -137,14 +152,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 agent_quota_id: agentQuotaId
             }),
             contentType: "application/json",
-            success: (response) => {
-                target.classList.remove('btn-default');
-                target.classList.add('btn-primary');
-                target.innerText = 'Atribuir cota racial';
-                target.onclick = () => assignQuota(quotaId, agentId, target);
+            success: () => {
                 clearRendered();
             },
-            error: (error) => {
+            error: () => {
                 if (typeof MapasCulturais !== 'undefined' && MapasCulturais.Messages) {
                     MapasCulturais.Messages.error('Erro inesperado ao desassociar.');
                 }
@@ -326,6 +337,90 @@ document.addEventListener('DOMContentLoaded', function () {
         findAssignedAgents();
     });
 
+    $('#bulk-assign-button').on('click', function () {
+        Swal.fire(swalConfigAssignQuota()).then(res => {
+            if (res.isConfirmed) {
+                const quotaType = $('#type-quota').val()
+
+                $('#agent-results-table [single-assign-btn]').each(function () {
+                    const agentId = this.attributes['agent-id'].value
+
+                    assignQuota(quotaType, agentId, this, 'batch')
+                })
+            }
+        })
+    })
+
+    $('#bulk-remove-button').on('click', function () {
+        if (!quotas.getAgents().length) {
+            swalSimple("Cota não removida", "Nenhum agente com cota encontrado", "error")
+            return
+        }
+
+        Swal.fire(swalConfigRemoveQuotaInBatch()).then(res => {
+            if (res.isConfirmed) {
+                const typeQuota = $('#type-quota').val()
+                if (!typeQuota) {
+                    swalSimple("Cota não removida", "Selecione uma cota para remover", "error")
+                    return
+                }
+
+                Swal.fire(swalConfigConfirmQuotaRemoval()).then(res => {
+                    if (res.isConfirmed) {
+                        quotas.getAgentsIdsSearched().forEach(agentId => {
+                            const agent = quotas.getAgents().find(agent => agent.id === agentId)
+                            const assignedQuota = agent.quotas_policy.find(quota => quota.quotas_policy_id == typeQuota)
+
+                            if (assignedQuota) unassignQuota(assignedQuota.id)
+                        })
+                        searchValues.clear()
+                    }
+                })
+            }
+        })
+    })
+
+    $('#agent-results-table').on('click', '[single-assign-btn]', function () {
+        Swal.fire(swalConfigAssignQuota()).then(res => {
+            if (res.isConfirmed) {
+                const quotaType = $('#type-quota').val()
+                const agentId = this.attributes['agent-id'].value
+
+                assignQuota(quotaType, agentId, this)
+            }
+        })
+    })
+
+    $('#assigned-agents-table').on('click', '[remove-single-quota]', function () {
+        const agentId = parseInt(this.dataset.agentId)
+        const agent = quotas.getAgents().find(agent => agent.id === agentId)
+
+        if (agent.quotas_policy.length > 1) {
+            Swal.fire(swalConfigRemoveQuota(agent.quotas_policy)).then(res => {
+                if (res.isConfirmed) {
+                    const checkedQuotas = $('#checkboxes-remove-quota input[type="checkbox"]:checked')
+
+                    if (checkedQuotas.length) {
+                        Swal.fire(swalConfigConfirmQuotaRemoval()).then(res => {
+                            if (res.isConfirmed) {
+                                checkedQuotas.each((index, checkbox) => {
+                                    const quotaId = parseInt(checkbox.value)
+                                    unassignQuota(quotaId)
+                                })
+                            }
+                        })
+                    } else {
+                        swalSimple("Cota não removida", "Selecione uma cota para remover", "error")
+                    }
+                }
+            })
+        } else {
+            Swal.fire(swalConfigConfirmQuotaRemoval()).then(res => {
+                if (res.isConfirmed) unassignQuota(agent.quotas_policy[0].id)
+            })
+        }
+    })
+
     if (clearButton) {
         clearButton.addEventListener('click', () => {
             $('.input-entry').remove();
@@ -364,6 +459,106 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.assignQuota = assignQuota;
-    window.bulkAssignQuota = bulkAssignQuota;
     window.unassignQuota = unassignQuota;
 });
+
+const getQuotaTypes = () => {
+    $.ajax({
+        url: `/api/agent/quotaTypes`,
+        success(res) {
+            quotas.setTypes(res)
+        }
+    })
+}
+
+const swalConfigAssignQuota = () => {
+    return {
+        title: "Atribuir cota",
+        html: htmlAssignQuota(),
+        showCancelButton: true,
+        confirmButtonText: 'Atribuir',
+        cancelButtonText: 'Cancelar',
+    }
+}
+
+const htmlAssignQuota = () => {
+    return `
+        <p class="sweetalert-plain-text">Selecione qual cota deseja atribuir e a data de início da validade.</p>
+        ${htmlSelectQuota()}
+        <div class="form-group">
+            <label class="sweetalert-label">Data de Início:</label>
+            <input type="date" id="quota-start-date" class="form-control">
+        </div>
+    `
+}
+
+const htmlSelectQuota = () => {
+    return `
+        <div class="form-group">
+            <label class="sweetalert-label">Cota:</label>
+            <select id="type-quota" class="form-control">
+                <option disabled selected>-- Selecione a cota --</option>
+                ${quotas.getTypes().map(type => `<option value="${type.id}">${type.name}</option>`).join('')}
+            </select>
+        </div>
+    `
+}
+
+const swalConfigRemoveQuotaInBatch = () => {
+    return {
+        title: "Remover cota em lote",
+        html: htmlRemoveQuotaInBatch(),
+        showCancelButton: true,
+        confirmButtonText: 'Remover',
+        cancelButtonText: 'Cancelar',
+    }
+}
+
+const htmlRemoveQuotaInBatch = () => {
+    return `
+        <p class="sweetalert-plain-text">Selecione qual cota deseja remover dos agentes</p>
+        ${htmlSelectQuota()}
+    `
+}
+
+const swalConfigRemoveQuota = (assignedQuotas) => {
+    return {
+        title: "Remover cota",
+        html: htmlRemoveQuota(assignedQuotas),
+        showCancelButton: true,
+        confirmButtonText: 'Remover',
+        cancelButtonText: 'Cancelar',
+    }
+}
+
+const htmlRemoveQuota = (assignedQuotas) => {
+    return `
+        <p class="sweetalert-plain-text">Selecione qual cota deseja remover do agente</p>
+        
+        <div id="checkboxes-remove-quota" style="margin-left: 17px;">
+            ${assignedQuotas.map(quota => `
+                <div class="sweetalert-checkbox">
+                    <label>
+                        <input type="checkbox" value="${quota.id}">
+                        ${quota.quotas_policy.name}
+                    </label>
+                </div>
+            `).join('')}
+        </div>
+    `
+}
+
+const swalConfigConfirmQuotaRemoval = () => {
+    return {
+        title: "Confirmar remoção de cota(s)",
+        text: "Tem certeza que deseja remover esta(s) cota(s)?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, remover",
+        cancelButtonText: "Cancelar"
+    }
+}
+
+const swalSimple = (title, text, icon) => {
+    Swal.fire({ icon, title, text })
+}
