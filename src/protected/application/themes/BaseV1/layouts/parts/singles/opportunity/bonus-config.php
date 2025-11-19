@@ -14,6 +14,7 @@ use MapasCulturais\i;
                 <tr>
                     <th class="bonus-field"><?php i::_e('Campo') ?></th>
                     <th class="bonus-value"><?php i::_e('Valor') ?></th>
+                    <th class="bonus-value"><?php i::_e('Atribuição pelo avaliador?') ?></th>
                     <th>
                         <button ng-click="addBonusField()" class="btn btn-default add" title="<?php i::_e('Adicionar campo de bonificação') ?>"></button>
                     </th>
@@ -29,7 +30,7 @@ use MapasCulturais\i;
                             <select ng-model="data.bonusFields[bonusFieldConfig.id].value">
                                 <option value=""> Selecione </option>
                                 <option value="true"> Sim </option>
-                                <option value="false"> Não </option>
+                                <option value="false" selected> Não </option>
                             </select>
                         </div>
 
@@ -41,6 +42,12 @@ use MapasCulturais\i;
                                 </label>
                             </span>
                         </div>
+                    </td>
+                    <td>
+                        <select ng-model="data.bonusFields[bonusFieldConfig.id].assignmentByTheEvaluator" ng-change="saveConfigBonusFields()">
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                        </select>
                     </td>
                     <td>
                         <button ng-click="removeBonusFieldConfig(bonusFieldConfig)" class="btn btn-danger delete" title="<?php i::_e('Remover') ?>"></button>

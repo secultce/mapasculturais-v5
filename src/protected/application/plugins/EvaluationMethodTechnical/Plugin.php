@@ -347,17 +347,17 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
             $empty = true;
             $errors[] = i::__('Informe sobre a exequibilidade orçamentária desta inscrição!');
         }
-
+        
         foreach($data as $key => $val){
             if ($key === 'viability' && empty($val)) {
                 $empty = true;
             } else if($key === 'obs' && !trim($val)) {
                 $empty = true;
-            } else if($key !== 'obs' && $key !== 'viability' && !is_numeric($val)){
+            } else if($key !== 'obs' && $key !== 'viability' && !is_numeric($val) && !str_contains($key, 'b2_') ){
                 $empty = true;
-            }
+            } 
         }
-
+        
         if($empty){
             $errors[] = i::__('Todos os campos devem ser preenchidos');
         }
