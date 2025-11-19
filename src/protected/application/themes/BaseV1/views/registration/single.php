@@ -1,4 +1,5 @@
 <?php
+use MapasCulturais\App;
 $action = preg_replace("#^(\w+/)#", "", $this->template);
 
 $this->bodyProperties['ng-app'] = "entity.app";
@@ -76,9 +77,57 @@ $_params = [
         
         <?php endif ?>
 
-        <?php if ($entity->opportunity->canUser("@control")) {
-            $this->part('singles/registration/fields-for-bonus');
+        <?php if(App::i()->repo($entity->getClassName())->find($entity->id)->canUser('evaluate')){
+            $canEvaluate= App::i()->repo($entity->getClassName())->find($entity->id)->canUser('evaluate');
+            $registrationEvaluation =App::i()->repo('RegistrationEvaluation')->findBy([
+                'registration' => $entity,
+                'user' => App::i()->user
+            ]);
+            $evaluationData = !empty($registrationEvaluation) ? $registrationEvaluation[0]->evaluationData : [];
+            $this->part('singles/bonus-single',['canEvaluate'=>$canEvaluate,'evaluationData'=>$evaluationData]);
         } ?>
+               
+        <?php if ($entity->opportunity->canUser("@control")): ?>
+            <?php
+                $registrationEvaluations = $app->repo('RegistrationEvaluation')->findBy(['registration' => $entity->id]);
+                $b2FieldIds = []; 
+                $b2Fields   = [];   
+
+                array_walk($registrationEvaluations, function($evaluation) use (&$b2FieldIds, &$b2Fields){
+                    array_walk($evaluation->evaluationData, function($value, $key) use (&$b2FieldIds, &$b2Fields){
+                        if (str_starts_with($key, 'b2_')) {
+                            $id = (int) substr($key, 3);
+                            $b2FieldIds[] = $id;
+                            $b2Fields[$id] = ['value' => $value];
+                        }
+                    });
+                });
+
+                $b2FieldIds = array_unique($b2FieldIds);
+
+                if (!empty($b2FieldIds)) {
+                    $fieldConfigs = $app->repo('RegistrationFieldConfiguration')
+                                        ->findBy(['id' => $b2FieldIds]);
+                    $b2Fields = array_map(function($fieldConfig) use ($b2Fields){
+                        $id = $fieldConfig->id;
+                        if(!isset($b2Fields[$id])){
+                            return null;
+                        }
+                        return [
+                            'id'    => $id,
+                            'title' => $fieldConfig->title,
+                            'value' => $b2Fields[$id]['value']
+                        ];
+                    }, $fieldConfigs);
+
+                    $b2Fields = array_filter($b2Fields);
+                }
+
+            ?>
+            <?php $this->part('singles/registration/fields-for-bonus', [
+                'b2Fields' => array_values($b2Fields)
+            ]); ?>
+        <?php endif; ?>
 
         <?php $this->part('singles/registration-single--fields', $_params) ?>
 
