@@ -202,7 +202,7 @@
             $scope.addBonusField = function () {
                 const date = new Date;
                 const new_id = 'p-' + date.getTime();
-                $scope.data.bonusFieldsConfig.push({ id: new_id, field: '', value: ''});
+                $scope.data.bonusFieldsConfig.push({ id: new_id, field: '', value: '',assignmentByTheEvaluator: 'false'});
             }
 
             $scope.addSessionAffirmativePolice = function(){
@@ -234,6 +234,7 @@
                     Object.keys(new_val).forEach(function (id, index) {
                         $scope.data.bonusFieldsConfig[index].value = $scope.data.bonusFields[id].value;
                         $scope.data.bonusFieldsConfig[index].field = $scope.data.bonusFields[id].field;
+                        $scope.data.bonusFieldsConfig[index].assignmentByTheEvaluator = $scope.data.bonusFields[id].assignmentByTheEvaluator;
                     })
 
                     $scope.saveConfigBonusFields();
