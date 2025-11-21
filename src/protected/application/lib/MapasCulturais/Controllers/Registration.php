@@ -606,7 +606,33 @@ class Registration extends EntityController {
         $regMeta->save(true);
         App::i()->enableAccessControl();
     }
+    function PATCH_removeBonus()
+    {
 
+        $registrationId = (int)$this->data["registration_id"];
+        $registration = App::i()->repo('Registration')->find($registrationId);
+        $bonusAmount = (float)$this->data["bonus_amount"];
+        $fieldName = "bonus_field_{$this->data["field_id"]}";
+
+        $consolidatedWithoutBonus = (float)$registration->consolidatedResult - $bonusAmount;
+        $registration->consolidatedResult = number_format($consolidatedWithoutBonus, 2);
+
+        $regMeta = App::i()->repo('RegistrationMeta')->findOneBy([
+            'owner' => $registration,
+            'key' => $fieldName
+        ]);
+
+        App::i()->disableAccessControl();
+        
+        if ($regMeta) {
+            $regMeta->delete(true);
+        }
+        
+        $registration->save(true);
+        
+        App::i()->enableAccessControl();
+    }
+    
     public function PATCH_single($data = null): void
     {
         $maxRequestSize = (int)rtrim(ini_get('post_max_size'), "M");
