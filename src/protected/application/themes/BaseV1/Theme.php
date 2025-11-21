@@ -1096,20 +1096,20 @@ class Theme extends MapasCulturais\Theme {
          */
         $app->hook('repo(Agent).getIdsByKeywordDQL.join', function (&$joins, $keyword) {
             $joins .= "
-                LEFT JOIN 
-                    e.__metadata nomeCompleto 
+                LEFT JOIN
+                    e.__metadata nomeCompleto
                 WITH nomeCompleto.key = 'nomeCompleto'
-                
-                LEFT JOIN 
-                    e.__metadata nomeSocial 
+
+                LEFT JOIN
+                    e.__metadata nomeSocial
                 WITH nomeSocial.key = 'nomeSocial'
-                
+
                 ";
 
             if (strlen(preg_replace("/\D/", '', $keyword)) >= 11) {
                 $joins .= "
-                    LEFT JOIN 
-                        e.__metadata doc 
+                    LEFT JOIN
+                        e.__metadata doc
                     WITH doc.key = 'documento'";
             }
         });
@@ -1493,7 +1493,7 @@ class Theme extends MapasCulturais\Theme {
             'location',
 
         ];
-        
+
         $props = [
             'agent' => \MapasCulturais\Entities\Agent::getPropertiesMetadata(),
             'space' => \MapasCulturais\Entities\Space::getPropertiesMetadata(),
@@ -1509,7 +1509,7 @@ class Theme extends MapasCulturais\Theme {
         }
 
         return $_fields;
-        
+
     }
 
     function head() {
@@ -1666,6 +1666,7 @@ class Theme extends MapasCulturais\Theme {
         // Quill
         $this->enqueueScript('vendor', 'quill-js', '/vendor/quill/quill.js');
         $this->enqueueStyle ('vendor', 'quill-css', '/vendor/quill/quill.css');
+        $this->enqueueScript('vendor', 'quill-editor', '/vendor/quill/quillEditor.js');
 
     }
 
@@ -1722,6 +1723,9 @@ class Theme extends MapasCulturais\Theme {
 
         if (App::i()->config('mode') == 'staging')
             $this->enqueueStyle('app', 'staging', 'css/staging.css', array('main'));
+
+        // Mensagens com base no SweetAlert2
+        $this->enqueueScript('app', 'mc-messages', 'js/mcMessages.js', array('mapasculturais'));
     }
 
     function includeIbgeJS() {
@@ -1887,7 +1891,7 @@ class Theme extends MapasCulturais\Theme {
         $this->jsObject['geoDivisionsHierarchy'] = $app->config['app.geoDivisionsHierarchy'];
 
         $this->jsObject['defaultCountry'] = $app->config['app.defaultCountry'];
-        
+
         $this->enqueueScript('app', 'map', 'js/map.js');
     }
 
@@ -1976,7 +1980,7 @@ class Theme extends MapasCulturais\Theme {
         ]);
 
         $this->jsObject['registrationAutosaveTimeout'] = $app->config['registration.autosaveTimeout'];
-        
+
         $this->enqueueScript('app', 'entity.module.opportunity', 'js/ng.entity.module.opportunity.js', array('ng-mapasculturais'));
         $this->localizeScript('moduleOpportunity', [
             'unexpectedError'    => i::__('Um erro inesperado aconteceu.'),
@@ -2887,11 +2891,11 @@ class Theme extends MapasCulturais\Theme {
 
     public function renderModalFor($entity_name, $show_icon = true, $label = "", $classes = "", $use_modal = true) {
         $app = App::i();
-        
+
         if($app->user->is('guest')){
             return;
         }
-        
+
         $entity_classname = $app->controller($entity_name)->entityClassName;
 
         $current_entity_classname = $this->controller->entityClassName;
@@ -2989,7 +2993,7 @@ class Theme extends MapasCulturais\Theme {
                 } else if ($definition['type'] === 'string') {
 
                     $this->part('modal/field--input-text', ['entity_classname' => $entity_classname, 'field' => $field, 'definition' => $definition, 'modal_id' => $modal_id]);
-                    
+
                 } else if ($definition['type'] === 'text'){
                     $this->part("modal/field--textarea", ['entity_classname' => $entity_classname, 'field' => $field, 'definition' => $definition, 'modal_id' => $modal_id]);
 

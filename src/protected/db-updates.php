@@ -53,7 +53,7 @@ function __exec($sql){
         $conn->executeQuery($sql);
     } catch (Exception $ex) {
         echo "
-SQL ========================= 
+SQL =========================
 $sql
 -----------------------------
 ";
@@ -94,23 +94,23 @@ foreach($registered_taxonomies as $def){
 return [
     'UPDATING ENUM TYPES' => function() use($conn) {
         $reg = \Acelaya\Doctrine\Type\PhpEnumType::getTypeRegistry();
-        
+
         foreach ($reg->getMap() as $enum_type => $type){
             if(get_class($type) == 'Acelaya\Doctrine\Type\PhpEnumType') {
                 $values = $conn->fetchAll("
                     SELECT e.enumlabel AS value
-                    FROM pg_type t 
-                        JOIN pg_enum e ON t.oid = e.enumtypid  
-                        JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace 
+                    FROM pg_type t
+                        JOIN pg_enum e ON t.oid = e.enumtypid
+                        JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
                     WHERE t.typname = '{$enum_type}'");
 
                 $actual_values = array_map(function($item) { return $item['value']; }, $values);
-                
+
                 $reflection = new \ReflectionObject($type);
                 $property = $reflection->getProperty('enumClass');
                 $property->setAccessible (true);
                 $class = $property->getValue($type);
-                
+
                 foreach($class::toArray() as $value){
                     if(!in_array($value, $actual_values)) {
                         echo "\n- ALTER TYPE {$enum_type} ADD VALUE '$value'\n";
@@ -380,7 +380,7 @@ return [
         if(__column_exists('role', 'subsite_id')){
             return true;
         }
-        
+
     	$conn->executeQuery("ALTER TABLE role DROP CONSTRAINT IF EXISTS role_user_fk;");
     	$conn->executeQuery("ALTER TABLE role DROP CONSTRAINT IF EXISTS role_unique;");
         $conn->executeQuery("ALTER TABLE role ADD subsite_id INT DEFAULT NULL;");
@@ -443,7 +443,7 @@ return [
         if(!__column_exists('subsite', 'slug')){
             return true;
         }
-        
+
         $conn->executeQuery("ALTER TABLE subsite DROP COLUMN slug;");
     },
 
@@ -706,10 +706,10 @@ return [
         }
 
         $conn->executeQuery("CREATE TABLE permission_cache_pending (
-            id INT NOT NULL, 
-            object_id INT NOT NULL, 
-            object_type VARCHAR(255) NOT NULL, 
-            
+            id INT NOT NULL,
+            object_id INT NOT NULL,
+            object_type VARCHAR(255) NOT NULL,
+
             PRIMARY KEY(id)
         );");
     },
@@ -766,7 +766,7 @@ return [
             __exec("DELETE FROM registration WHERE agent_id NOT IN (SELECT id FROM agent)");
 
             __exec("ALTER TABLE registration DROP CONSTRAINT fk_62a8a7a7c79c849a;");
-            
+
             __exec("ALTER TABLE registration RENAME COLUMN project_id TO opportunity_id;");
             __exec("ALTER TABLE registration ALTER id SET DEFAULT pseudo_random_id_generator();");
             __exec("ALTER TABLE registration ALTER status TYPE SMALLINT;");
@@ -790,7 +790,7 @@ return [
 
         }
     },
-    
+
     'DROP CONSTRAINT registration_project_fk");' => function() {
         __exec("ALTER TABLE registration DROP CONSTRAINT IF EXISTS registration_project_fk ;");
     },
@@ -805,7 +805,7 @@ return [
     'fix opportunity type 35' => function(){
         __exec("UPDATE opportunity SET type = 45 WHERE type = 35");
     },
-            
+
     'create opportunity sequence' => function () use ($conn) {
         if(__sequence_exists('opportunity_id_seq')){
             return true;
@@ -820,31 +820,31 @@ return [
                                 CACHE 1;");
 
         $conn->executeQuery("ALTER TABLE ONLY opportunity ALTER COLUMN id SET DEFAULT nextval('opportunity_id_seq'::regclass);");
-        
+
     },
-            
+
     'update opportunity_meta_id sequence' => function() use ($conn){
         $last_id = $conn->fetchColumn ('SELECT max(id) FROM opportunity_meta;');
         $last_id++;
-        
+
         $conn->executeQuery("ALTER SEQUENCE opportunity_meta_id_seq START {$last_id} RESTART");
-        
+
         $conn->executeQuery("ALTER TABLE ONLY opportunity_meta ALTER COLUMN id SET DEFAULT nextval('opportunity_meta_id_seq'::regclass);");
     },
 
     'rename opportunity_meta key isProjectPhase to isOpportunityPhase' => function() {
         __exec("UPDATE opportunity_meta SET key = 'isOpportunityPhase' WHERE key = 'isProjectPhase'");
     },
-            
+
     'migrate introInscricoes value to shortDescription' => function() use($conn) {
         $values = $conn->fetchAll("SELECT * from opportunity_meta WHERE key = 'introInscricoes'");
         foreach($values as $value){
             $conn->executeQuery("UPDATE opportunity SET short_description = :desc WHERE id = :id", ['id' => $value['object_id'], 'desc' => $value['value']]);
         }
     },
-    
-    
-    
+
+
+
     'ALTER TABLE registration ADD consolidated_result' => function () {
         if(!__column_exists('registration', 'consolidated_result')){
             __exec("ALTER TABLE registration ADD consolidated_result VARCHAR(255) DEFAULT NULL;");
@@ -896,11 +896,11 @@ return [
         __exec("ALTER TABLE registration_evaluation ADD CONSTRAINT FK_2E186C5C833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
         __exec("ALTER TABLE registration_evaluation ADD CONSTRAINT FK_2E186C5CA76ED395 FOREIGN KEY (user_id) REFERENCES usr (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
     },
-            
+
     'ALTER TABLE opportunity ALTER type DROP NOT NULL;' => function() use($conn){
         $conn->executeUpdate('ALTER TABLE opportunity ALTER type DROP NOT NULL;');
     },
-    
+
     'ALTER TABLE registration ADD consolidated_result' => function () {
         if(!__column_exists('registration', 'consolidated_result')){
             __exec("ALTER TABLE registration ADD consolidated_result VARCHAR(255) DEFAULT NULL;");
@@ -922,12 +922,12 @@ return [
 
         $conn->executeQuery("ALTER TABLE seal_relation ADD COLUMN validate_date DATE;");
     },
-        
+
     'update seal_relation set validate_date' => function() use ($conn) {
-        
+
         $conn->executeQuery("UPDATE seal_relation SET validate_date = seal_relation.create_timestamp + cast(cast(s.valid_period as text) || 'month' as interval) FROM (SELECT id, valid_period FROM seal) AS s WHERE s.id = seal_id AND validate_date IS NULL;");
     },
-            
+
     'refactor of entity meta keky value indexes' => function() use ($conn){
         $__try = function($sql) use ($conn){
             try{
@@ -966,8 +966,8 @@ return [
     },
 
     'CREATE TABLE spacerelation' => function() use($conn){
-        $conn->executeQuery("CREATE TABLE space_relation (id INT NOT NULL, space_id INT DEFAULT NULL, object_id INT NOT NULL, 
-                             create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, status SMALLINT DEFAULT NULL, 
+        $conn->executeQuery("CREATE TABLE space_relation (id INT NOT NULL, space_id INT DEFAULT NULL, object_id INT NOT NULL,
+                             create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, status SMALLINT DEFAULT NULL,
                              object_type VARCHAR(255) NOT NULL, PRIMARY KEY(id));");
 
         $conn->executeQuery("CREATE INDEX IDX_1A0E9A3023575340 ON space_relation (space_id);");
@@ -981,15 +981,15 @@ return [
         $conn->executeQuery("ALTER TABLE registration ADD space_data text DEFAULT NULL;");
     },
 
-    
-    
+
+
     'altertable registration_file_and_files_add_order' => function () use($conn){
         if(__column_exists('registration_file_configuration', 'order')){
             echo "ALREADY APPLIED";
         } else {
             $conn->executeQuery("ALTER TABLE registration_file_configuration ADD COLUMN display_order SMALLINT DEFAULT 255;");
         }
-        
+
         if(__column_exists('registration_field_configuration', 'order')){
             echo "ALREADY APPLIED";
         } else {
@@ -1000,7 +1000,7 @@ return [
 
     'replace subsite entidades_habilitadas values' => function () use($conn) {
         $rs = $conn->fetchAll("SELECT * FROM subsite_meta WHERE key = 'entidades_habilitadas'");
-        
+
         foreach($rs as $r){
             $r = (object) $r;
             $value = preg_replace(['#Espa[^;]+os#i', '#Eventos#i', '#Agentes#i', '#Projetos#i', '#Oportunidades"i'], ['Spaces', 'Events', 'Agents', 'Projects', 'Opportunities'], $r->value);
@@ -1021,9 +1021,9 @@ return [
         }
 
         $conn->executeQuery("ALTER TABLE file ADD private BOOLEAN NOT NULL DEFAULT FALSE;");
-        
+
         $conn->executeQuery("UPDATE file SET private = true WHERE grp LIKE 'rfc_%' OR grp = 'zipArchive'");
-        
+
     },
 
     'fix subsite verifiedSeals array' => function() use($app){
@@ -1035,44 +1035,44 @@ return [
 
         return false;
     },
-    
+
     'move private files' => function () use ($conn) {
-        
-        
+
+
         $files = App::i()->repo('File')->findBy(['private' => true]);
-        
+
         $StorageConfig = App::i()->storage->config;
-        
+
         foreach($files as $file) {
-            
-            
+
+
             // vou pegar a info de path direto do banco, sem usar o metodo do storage
             // para evitar erro com inconsistencias no banco
             $relative_path = $file->getRelativePath(false);
-            
+
             if (!$relative_path) {
                 echo "ATENCAO: Seu banco possui arquivos que não tem a informação de path' \n";
                 continue;
             }
-            
+
             $targetPath = str_replace('\\', '-', $StorageConfig['private_dir'] . $relative_path);
-            
+
             $oldPath = str_replace('\\', '-', $StorageConfig['dir'] . $relative_path);
-            
+
             if (file_exists($oldPath)) {
-            
+
                 if(!is_dir(dirname($targetPath)))
                     mkdir (dirname($targetPath), 0755, true);
-                
+
                 rename($oldPath, $targetPath);
-            
+
             }
-            
-            
+
+
         }
-        
-        
-        
+
+
+
     },
 
     'create permission cache sequence' => function() use ($conn) {
@@ -1084,7 +1084,7 @@ return [
                                 NO MAXVALUE
                                 CACHE 1;");
     },
-	
+
 	'create evaluation methods sequence' => function (){
         if(__sequence_exists('evaluation_method_configuration_id_seq')){
             echo "evaluation_method_configuration_id_seq sequence already exists";
@@ -1093,7 +1093,7 @@ return [
         __exec("CREATE SEQUENCE evaluation_method_configuration_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
         __exec("ALTER SEQUENCE evaluation_method_configuration_id_seq OWNED BY evaluation_method_configuration.id;");
         __exec("ALTER TABLE ONLY evaluation_method_configuration ALTER COLUMN id SET DEFAULT nextval('evaluation_method_configuration_id_seq'::regclass);");
-		
+
 		__exec("SELECT setval('evaluation_method_configuration_id_seq', (select max(id) from evaluation_method_configuration), true);");
     },
 
@@ -1111,10 +1111,10 @@ return [
         echo "\nsalvando número da inscrição para oportunidades de uma só fase ou para a primeira fase das inscrições\n";
         $conn->executeQuery("UPDATE registration SET number = CONCAT('on-', id) WHERE opportunity_id IN (SELECT id FROM opportunity WHERE parent_id IS NULL)");
         $regs = $conn->fetchAll("
-            SELECT r.id, m.value AS previous 
-            FROM registration r 
+            SELECT r.id, m.value AS previous
+            FROM registration r
             LEFT JOIN registration_meta m ON m.object_id = r.id AND m.key = 'previousPhaseRegistrationId'");
-        
+
         echo "\nsalvando número da inscrição para demais fases das oportunidades\n";
 
         $registrations = [];
@@ -1130,7 +1130,7 @@ return [
             }
 
             $current = $reg;
-            
+
             while($current->previous){
                 print_r($current);
                 $current = $registrations[$current->previous];
@@ -1151,16 +1151,16 @@ return [
         if(!__table_exists('event_attendance')){
             $conn->executeQuery("
                 CREATE TABLE event_attendance (
-                    id INT NOT NULL, 
-                    user_id INT NOT NULL, 
-                    event_occurrence_id INT NOT NULL, 
-                    event_id INT NOT NULL, 
-                    space_id INT NOT NULL, 
-                    type VARCHAR(255) NOT NULL, 
-                    reccurrence_string TEXT DEFAULT NULL, 
-                    start_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
-                    end_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
-                    create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+                    id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    event_occurrence_id INT NOT NULL,
+                    event_id INT NOT NULL,
+                    space_id INT NOT NULL,
+                    type VARCHAR(255) NOT NULL,
+                    reccurrence_string TEXT DEFAULT NULL,
+                    start_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                    end_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                    create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                     PRIMARY KEY(id));");
 
             $conn->executeQuery("CREATE INDEX IDX_350DD4BEA76ED395 ON event_attendance (user_id);");
@@ -1180,26 +1180,26 @@ return [
         if(!__table_exists('procuration')){
             $conn->executeQuery("
                 CREATE TABLE procuration (
-                    token VARCHAR(32) NOT NULL, 
-                    usr_id INT NOT NULL, 
-                    attorney_user_id INT NOT NULL, 
-                    action VARCHAR(255) NOT NULL, 
-                    create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+                    token VARCHAR(32) NOT NULL,
+                    usr_id INT NOT NULL,
+                    attorney_user_id INT NOT NULL,
+                    action VARCHAR(255) NOT NULL,
+                    create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                     valid_until_timestamp TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
                     PRIMARY KEY(token));");
-                
+
             $conn->executeQuery("CREATE INDEX procuration_usr_idx ON procuration (usr_id);");
             $conn->executeQuery("CREATE INDEX procuration_attorney_idx ON procuration (attorney_user_id);");
             $conn->executeQuery("ALTER TABLE procuration ADD CONSTRAINT FK_D7BAE7FC69D3FB FOREIGN KEY (usr_id) REFERENCES usr (id) NOT DEFERRABLE INITIALLY IMMEDIATE;");
             $conn->executeQuery("ALTER TABLE procuration ADD CONSTRAINT FK_D7BAE7F3AEB2ED7 FOREIGN KEY (attorney_user_id) REFERENCES usr (id) NOT DEFERRABLE INITIALLY IMMEDIATE;");
-            
+
         }
     },
 
     'alter table registration_field_configuration add column config' => function() use($conn){
         if(!__column_exists('registration_field_configuration', 'config')){
             __exec("
-                ALTER TABLE registration_field_configuration 
+                ALTER TABLE registration_field_configuration
                 ADD config TEXT;
             ");
         }
@@ -1286,7 +1286,7 @@ $$
         __exec("ALTER TABLE notification_meta ADD CONSTRAINT FK_6FCE5F0F232D562B FOREIGN KEY (object_id) REFERENCES notification (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
         __exec("ALTER TABLE registration_evaluation ADD CONSTRAINT FK_2E186C5C833D8F43 FOREIGN KEY (registration_id) REFERENCES registration (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;");
         __exec("ALTER TABLE registration_evaluation ADD CONSTRAINT FK_2E186C5CA76ED395 FOREIGN KEY (user_id) REFERENCES usr (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE;        ");
-        
+
     },
 
     'create object_type enum type' => function () {
@@ -1295,7 +1295,7 @@ $$
         }, DoctrineEnumTypes\ObjectType::values()));
 
         __exec("CREATE TYPE object_type AS ENUM($object_types)");
-    }, 
+    },
 
     'create permission_action enum type' => function () {
         $permission_actions = implode(',', array_map(function($el) {
@@ -1303,7 +1303,7 @@ $$
         }, DoctrineEnumTypes\PermissionAction::values()));
 
         __exec("CREATE TYPE permission_action AS ENUM($permission_actions)");
-    }, 
+    },
 
     'alter tables to use enum types' => function() {
         __exec("ALTER TABLE pcache ALTER COLUMN object_type TYPE object_type USING object_type::object_type");
@@ -1328,7 +1328,7 @@ $$
 
         $conn->executeQuery("
             CREATE VIEW evaluations AS (
-                SELECT 
+                SELECT
                     registration_id,
                     registration_sent_timestamp,
                     registration_number,
@@ -1341,50 +1341,50 @@ $$
                     max(evaluation_result) AS evaluation_result,
                     max(evaluation_status) AS evaluation_status
                 FROM (
-                    SELECT 
-                        r.id AS registration_id, 
+                    SELECT
+                        r.id AS registration_id,
                         r.sent_timestamp AS registration_sent_timestamp,
-                        r.number AS registration_number, 
-                        r.category AS registration_category, 
-                        r.agent_id AS registration_agent_id, 
-                        re.user_id AS valuer_user_id, 
-                        u.profile_id AS valuer_agent_id, 
+                        r.number AS registration_number,
+                        r.category AS registration_category,
+                        r.agent_id AS registration_agent_id,
+                        re.user_id AS valuer_user_id,
+                        u.profile_id AS valuer_agent_id,
                         r.opportunity_id,
                         re.id AS evaluation_id,
                         re.result AS evaluation_result,
                         re.status AS evaluation_status
-                    FROM registration r 
-                        JOIN registration_evaluation re 
-                            ON re.registration_id = r.id 
-                        JOIN usr u 
+                    FROM registration r
+                        JOIN registration_evaluation re
+                            ON re.registration_id = r.id
+                        JOIN usr u
                             ON u.id = re.user_id
-                        where 
+                        where
                             r.status > 0
                     UNION
-                    SELECT 
-                        r2.id AS registration_id, 
+                    SELECT
+                        r2.id AS registration_id,
                         r2.sent_timestamp AS registration_sent_timestamp,
-                        r2.number AS registration_number, 
+                        r2.number AS registration_number,
                         r2.category AS registration_category,
-                        r2.agent_id AS registration_agent_id, 
-                        p2.user_id AS valuer_user_id, 
-                        u2.profile_id AS valuer_agent_id, 
+                        r2.agent_id AS registration_agent_id,
+                        p2.user_id AS valuer_user_id,
+                        u2.profile_id AS valuer_agent_id,
                         r2.opportunity_id,
                         NULL AS evaluation_id,
                         NULL AS evaluation_result,
                         NULL AS evaluation_status
-                    FROM registration r2 
-                        JOIN pcache p2 
+                    FROM registration r2
+                        JOIN pcache p2
                             ON  p2.object_id = r2.id AND
-                                p2.object_type = 'MapasCulturais\Entities\Registration' AND 
-                                p2.action = 'evaluateOnTime'  
-                        JOIN usr u2 
+                                p2.object_type = 'MapasCulturais\Entities\Registration' AND
+                                p2.action = 'evaluateOnTime'
+                        JOIN usr u2
                             ON u2.id = p2.user_id
                         JOIN evaluation_method_configuration emc
                             ON emc.opportunity_id = r2.opportunity_id
-                        WHERE                          
+                        WHERE
                             r2.status > 0
-                ) AS evaluations_view 
+                ) AS evaluations_view
                 GROUP BY
                     registration_id,
                     registration_sent_timestamp,
@@ -1408,7 +1408,7 @@ $$
                     object_id,
                     status
                 ) VALUES (
-                    nextval('permission_cache_pending_seq'::regclass), 
+                    nextval('permission_cache_pending_seq'::regclass),
                     'MapasCulturais\Entities\Opportunity',
                     {$em['id']},
                     0
@@ -1416,7 +1416,7 @@ $$
         }
     },
 
-    'adiciona novos indices a tabela agent_relation' => function ()  { 
+    'adiciona novos indices a tabela agent_relation' => function ()  {
         __try("DROP INDEX agent_relation_all;");
         __try("CREATE INDEX agent_relation_owner_type ON agent_relation (object_type);");
         __try("CREATE INDEX agent_relation_owner_id ON agent_relation (object_id);");
@@ -1429,11 +1429,11 @@ $$
 
     'valuer disabling refactor' => function() use($conn) {
         $conn->executeQuery("
-            UPDATE 
-                agent_relation 
-            SET 
-                status = 8, 
-                has_control = true 
+            UPDATE
+                agent_relation
+            SET
+                status = 8,
+                has_control = true
             WHERE
                 object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration' AND
                 has_control IS false");
@@ -1570,16 +1570,16 @@ $$
 
     'create table job' => function () use($conn) {
         __exec("CREATE TABLE IF NOT EXISTS job (
-                    id VARCHAR(255) NOT NULL, 
-                    name VARCHAR(32) NOT NULL, 
-                    iterations INT NOT NULL, 
-                    iterations_count INT NOT NULL, 
-                    interval_string VARCHAR(255) NOT NULL, 
+                    id VARCHAR(255) NOT NULL,
+                    name VARCHAR(32) NOT NULL,
+                    iterations INT NOT NULL,
+                    iterations_count INT NOT NULL,
+                    interval_string VARCHAR(255) NOT NULL,
                     create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                     next_execution_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                     last_execution_timestamp TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
-                    metadata JSON NOT NULL, 
-                    status SMALLINT NOT NULL, 
+                    metadata JSON NOT NULL,
+                    status SMALLINT NOT NULL,
                     PRIMARY KEY(id)
                 );");
 
@@ -1657,7 +1657,7 @@ $$
                         DELETE FROM agent_relation WHERE
                             object_type::varchar=_p_type AND object_id=OLD.id;
                         DELETE FROM seal_relation WHERE
-                            object_type=_p_type AND object_id=OLD.id;   
+                            object_type=_p_type AND object_id=OLD.id;
                         DELETE FROM space_relation WHERE
                             object_type=_p_type AND object_id=OLD.id;
                         DELETE FROM term_relation WHERE
@@ -1745,13 +1745,13 @@ $$
 
         $metas = $conn->fetchAll("SELECT * FROM registration_meta WHERE value LIKE '%\$\$hashKey%'");
         foreach($metas as $i => $meta){
-            $raw_value = json_decode($meta['value']);            
+            $raw_value = json_decode($meta['value']);
             $value = json_encode($clean_meta($raw_value, $clean_meta));
 
             $meta['value'] = ($value == "[{}]") ? "[]" : $value;
 
             $conn->update("registration_meta", $meta, ['id' => $meta['id']]);
-            
+
             echo "\nRemovido hashKey registration_meta id {$meta['id']}";
         }
     },
@@ -1763,7 +1763,7 @@ $$
 
         $fields = [];
         foreach($opportunity_ids as $key => $id){
-            
+
             $cont = $key+1;
 
             $opp = $app->repo("Opportunity")->findOneBy(['id' => $id['id']]);
@@ -1799,7 +1799,7 @@ $$
                 $app->em->clear();
                 $app->log->debug("{$cont} - Configuração de permissão dos avaliadores fetuada na oportunidade {$opp->id}");
             }
-        
+
         }
 
     },
@@ -1807,20 +1807,20 @@ $$
         $opp_ids = $conn->fetchAll("SELECT id FROM opportunity WHERE parent_id IS NOT NULL");
         foreach ($opp_ids as $opportunity) {
             $opportunity_id = $opportunity['id'];
-            
+
             $conn->exec("
-                UPDATE registration_meta 
-                SET key = CONCAT('__BKP__', key) 
-                WHERE 
-                    key LIKE 'field_%' AND 
+                UPDATE registration_meta
+                SET key = CONCAT('__BKP__', key)
+                WHERE
+                    key LIKE 'field_%' AND
                     key NOT IN (
-                        SELECT concat('field_',id) 
-                        FROM registration_field_configuration 
+                        SELECT concat('field_',id)
+                        FROM registration_field_configuration
                         WHERE opportunity_id = {$opportunity_id}
-                    ) AND 
+                    ) AND
                     object_id IN (
-                        SELECT id 
-                        FROM registration 
+                        SELECT id
+                        FROM registration
                         WHERE opportunity_id = {$opportunity_id}
                     );");
         }
@@ -1842,9 +1842,9 @@ $$
             }
         }
         $_field_types = implode(",", $field_types);
-    
+
         $fields = $conn->fetchAll("SELECT * FROM registration_field_configuration WHERE field_type NOT IN ({$_field_types}) AND config LIKE '%entityField%'");
-        
+
         $txt = "";
         foreach($fields as $field){
             $_field = $app->repo("RegistrationFieldConfiguration")->find($field['id']);
@@ -1903,22 +1903,22 @@ $$
 
     'limpeza da tabela de pcache' => function() use($conn) {
         __exec("
-            DELETE FROM pcache p1 
-                USING pcache p2 
-            WHERE 
-                p1.id > p2.id AND 
-                p1.user_id = p2.user_id AND 
-                p1.object_type = p2.object_type AND 
-                p1.object_id = p2.object_id AND 
+            DELETE FROM pcache p1
+                USING pcache p2
+            WHERE
+                p1.id > p2.id AND
+                p1.user_id = p2.user_id AND
+                p1.object_type = p2.object_type AND
+                p1.object_id = p2.object_id AND
                 p1.action = p2.action;");
     },
     'create table diligence' => function(){
         __exec("CREATE SEQUENCE diligence_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
 
         __exec("CREATE TABLE IF NOT EXISTS diligence (
-            id INT NOT NULL, 
-            registration_id INT NOT NULL, 
-            open_agent_id INT NOT NULL, 
+            id INT NOT NULL,
+            registration_id INT NOT NULL,
+            open_agent_id INT NOT NULL,
             agent_id VARCHAR(32) NOT NULL,
             create_timestamp timestamp,
             description TEXT,
@@ -1941,11 +1941,11 @@ $$
     'create table answer_diligence' => function() {
         __exec("CREATE SEQUENCE answer_diligence_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
         __exec("CREATE TABLE answer_diligence (
-            id INT NOT NULL, 
-            diligence_id INT NOT NULL, 
-            answer TEXT NOT NULL, 
-            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
-            status INT NOT NULL, 
+            id INT NOT NULL,
+            diligence_id INT NOT NULL,
+            answer TEXT NOT NULL,
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+            status INT NOT NULL,
             PRIMARY KEY(id))"
             );
         __exec("CREATE INDEX IDX_609B3FB63A3758E0 ON answer_diligence (diligence_id)");
@@ -1965,21 +1965,21 @@ $$
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','11-15','Feriado')");
         __exec("INSERT INTO term(taxonomy,term,description) VALUES ('holiday','12-25','Feriado')");
     },
-    
+
     'create table tado' => function() {
         __exec("CREATE SEQUENCE tado_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
         __exec("CREATE TABLE tado (
-            id INT NOT NULL, 
-            agent_id INT DEFAULT NULL, 
-            registration_id INT NOT NULL, 
-            agent_signature INT DEFAULT NULL, 
-            number VARCHAR(24) DEFAULT NULL, 
-            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
-            period_from TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+            id INT NOT NULL,
+            agent_id INT DEFAULT NULL,
+            registration_id INT NOT NULL,
+            agent_signature INT DEFAULT NULL,
+            number VARCHAR(24) DEFAULT NULL,
+            create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+            period_from TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
             period_to TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-            object VARCHAR(255) NOT NULL, 
+            object VARCHAR(255) NOT NULL,
             conclusion TEXT DEFAULT NULL,
-            status SMALLINT NOT NULL, 
+            status SMALLINT NOT NULL,
             PRIMARY KEY(id));");
         __exec("CREATE INDEX IDX_50909BAA3414710B ON tado (agent_id);");
         __exec("CREATE INDEX IDX_50909BAA833D8F43 ON tado (registration_id);");
@@ -2069,9 +2069,43 @@ $$
                 update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
                 PRIMARY KEY(id),
                 FOREIGN KEY (agent_id) REFERENCES agent(id),
-                FOREIGN KEY (registration_id) REFERENCES registration(id)
+                FOREIGN KEY (registration_id) REFERENCES registration(id)1
             );"
         );
     },
+
+    'create table counter_reason' => function() {
+        __exec("CREATE SEQUENCE counter_reason_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec("CREATE TABLE counter_reason (
+            id INT NOT NULL,
+            text TEXT NULL,
+            send timestamp,
+            status VARCHAR(32) NOT NULL,
+            reply TEXT NULL,
+            date_reply timestamp,
+            registration_id integer NOT NULL,
+            opportunity_id integer NOT NULL,
+            agent_id integer NOT NULL,
+            reply_agent_id integer NULL,
+            reply_publish boolean NULL default false,
+            create_timestamp timestamp,
+            PRIMARY KEY(id));"
+        );
+        __exec("ALTER TABLE counter_reason ADD
+        CONSTRAINT counter_reason_registration_fk
+        FOREIGN KEY (registration_id) REFERENCES registration (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+
+            __exec("ALTER TABLE counter_reason ADD
+        CONSTRAINT counter_reason_opportunity_fk
+        FOREIGN KEY (opportunity_id) REFERENCES opportunity (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+
+            __exec("ALTER TABLE counter_reason ADD
+        CONSTRAINT counter_reason_agent_fk
+        FOREIGN KEY (agent_id) REFERENCES agent (id)
+        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
+    },
+
 
 ] + $updates ;
