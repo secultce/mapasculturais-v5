@@ -4,6 +4,14 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.11.2] - 2025-11-21
+### Adicionado
+- Criado possibilidade de bonificar um agente através dos avaliadores
+- Remoção de bonificação manual
+-
+### Melhorias
+- Melhoria em estrutura de arquivos javascript
+
 ## [5.11.1] - 2025-10-21
 ### Corrigido
 - Correção para buscar agente ao se inscrever em uma oportunidade
