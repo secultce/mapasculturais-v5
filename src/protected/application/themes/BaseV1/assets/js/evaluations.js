@@ -139,4 +139,48 @@ $(function(){
             })
         }
     });
+    $('body').on('click', '.remove-bonus-btn', function (event) {
+        const removeBonusBtn = event.currentTarget;
+        const disabledBtn = $(removeBonusBtn).hasClass('disabled');
+
+        if (!disabledBtn) {
+            const bonusAmount = MapasCulturais.evaluationConfiguration.bonusAmount;
+
+            Swal.fire({
+                title: "Você confirma a remoção?",
+                text: `A bonificação será removida e ${bonusAmount} ponto(s) será(ão) subtraído(s) da nota do proponente.`,
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonText: "Não, cancelar",
+                confirmButtonText: "Confirmar remoção",
+                confirmButtonColor: '#d33',
+                reverseButtons: true
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const fieldId = removeBonusBtn.dataset.fieldId;
+
+                    $.ajax({
+                        type: "PATCH",
+                        url: MapasCulturais.createUrl('registration', 'removeBonus'),
+                        data: {
+                            registration_id: MapasCulturais.entity.id,
+                            bonus_amount: bonusAmount,
+                            field_id: fieldId
+                        },
+                        success() {
+                            MapasCulturais.Messages.success('A bonificação foi removida do proponente');
+
+                            const assignBtn = $(removeBonusBtn).siblings('.assign-bonus-btn');
+                            $(assignBtn).removeClass('disabled');
+
+                            $(removeBonusBtn).addClass('disabled');
+                        },
+                        error() {
+                            MapasCulturais.Messages.error('Erro ao remover bonificação. Verifique e tente novamente.');
+                        }
+                    })
+                }
+            })
+        }
+    });
 });
