@@ -33,6 +33,7 @@ var QuillEditor = (function () {
             html: `
                 <div id="${selectorId}" style="min-height: 200px;"></div>
                 <input type="hidden" id="entity-id" value="${entityId || ''}">
+                <input id="edit-recourse-file-${entityId}" type="file" multiple max="2" class="swal2-file">
             `,
             width: '800px',
             showCancelButton: true,
