@@ -17,7 +17,9 @@ var QuillEditor = (function () {
      * @param {string} [options.placeholder] - Placeholder do editor
      * @param {string} [options.initialHtml] - HTML inicial (opcional)
      * @param {string} [options.entityId] - ID da entidade (opcional, capturado de input)
-     * @returns {Promise} - Resolvido com { conteudo: string, entityId: string }
+     * @param {string} [options.html] - HTML customizado com inputs/selects (opcional)
+     * @param {Function} [options.onOpen] - Callback executado após abertura do modal (opcional)
+     * @returns {Promise} - Resolvido com { conteudo: string, entityId: string, customFields: object }
      */
     function openEditor(options = {}) {
         const {
@@ -25,7 +27,10 @@ var QuillEditor = (function () {
             placeholder = 'Digite seu texto aqui...',
             initialHtml = '',
             entityId = null,
-            selectorId = 'quill-editor'
+            selectorId = 'quill-editor',
+            html = '',
+            showFile = true,
+            onOpen = null
         } = options;
 
         return Swal.fire({
@@ -33,7 +38,8 @@ var QuillEditor = (function () {
             html: `
                 <div id="${selectorId}" style="min-height: 200px;"></div>
                 <input type="hidden" id="entity-id" value="${entityId || ''}">
-                <input id="edit-recourse-file-${entityId}" type="file" multiple max="2" class="swal2-file">
+                ${html ? `<div id="custom-fields-container">${html}</div>` : ''}
+                ${showFile ? `<input id="edit-recourse-file-${entityId}" type="file" multiple max="2" class="swal2-file">`: ''}
             `,
             width: '800px',
             showCancelButton: true,
@@ -62,6 +68,11 @@ var QuillEditor = (function () {
                 }
 
                 container.quillInstance = quill;
+
+                // Executa callback customizado se fornecido
+                if (onOpen && typeof onOpen === 'function') {
+                    onOpen(quill, container);
+                }
             },
             preConfirm: () => {
                 const editorContainer = document.querySelector('#'+selectorId);
@@ -91,7 +102,25 @@ var QuillEditor = (function () {
                     return false;
                 }
 
-                return { conteudo, entityId };
+                // Captura valores dos campos customizados
+                const customFields = {};
+                const customContainer = document.getElementById('custom-fields-container');
+
+                if (customContainer) {
+                    // Captura todos os inputs (text, hidden, radio, checkbox)
+                    const inputs = customContainer.querySelectorAll('input, select, textarea','select-one');
+                    inputs.forEach(input => {
+                        if (input.type === 'radio' || input.type === 'checkbox' ) {
+                            if (input.checked) {
+                                customFields[input.name || input.id] = input.value;
+                            }
+                        } else {
+                            customFields[input.name || input.id] = input.value;
+                        }
+                    });
+                }
+
+                return { conteudo, entityId, customFields };
             }
         });
     }
