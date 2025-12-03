@@ -867,11 +867,10 @@ MapasCulturais.AjaxUploader = {
 
                 
                 if (!file.type || allowedMimeTypes.indexOf(file.type) === -1) {
-                    alert(
-                        "Arquivo não permitido.\n\n" +
-                        "Tipos aceitos:\n" +
-                        allowedMimeTypes.join("\n")
-                    );
+                    McMessages.error(`
+                        <p><strong>Tipos de arquivo permitidos:</strong></p>
+                        <p>${allowedMimeTypes.join("</p><p>")}</p>
+                    `);
 
                     this.value = "";
                 }
