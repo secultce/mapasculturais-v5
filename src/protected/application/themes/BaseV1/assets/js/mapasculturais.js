@@ -848,6 +848,33 @@ MapasCulturais.AjaxUploader = {
 
     },
     animationTime: 100,
+     bindFileValidation: function ($form) {
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "application/pdf"
+        ];
+
+        const allowedExt = ["jpg", "jpeg", "png", "pdf"];
+
+        $form.find('input[type="file"]').off("change.fileValidation").on("change.fileValidation", function () {
+
+            const file = this.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (
+                !allowedTypes.includes(file.type) ||
+                !allowedExt.includes(ext)
+            ) {
+                alert("Tipo de arquivo não permitido. Tipos permitidos: " + allowedExt.join(", "));
+                this.value = ""; 
+            }
+
+        });
+    },
     init: function (selector, extraOptions) {
         selector = selector || '.js-ajax-upload';
         extraOptions = extraOptions || {};
@@ -866,6 +893,7 @@ MapasCulturais.AjaxUploader = {
             MapasCulturais.AjaxUploader.resetProgressBar($(this).parent(), false);
             var $this = $(this);
             // bind form using 'ajaxForm'
+            MapasCulturais.AjaxUploader.bindFileValidation($this);
             $(this).ajaxForm(Object.assign({
                 beforeSend: function (xhr) {
                     $this.data('xhr', xhr);
@@ -989,8 +1017,11 @@ MapasCulturais.AjaxUploader = {
         });
 
 
-    }
+    },
+   
+    
 };
+
 
 MapasCulturais.Video = {
     collection: {},
