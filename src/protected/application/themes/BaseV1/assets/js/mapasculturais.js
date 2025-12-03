@@ -848,32 +848,35 @@ MapasCulturais.AjaxUploader = {
 
     },
     animationTime: 100,
-     bindFileValidation: function ($form) {
+    bindFileValidation: function ($form) {
 
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "application/pdf"
-        ];
+        let allowedMimeTypes;
 
-        const allowedExt = ["jpg", "jpeg", "png", "pdf"];
+        const rawAllowedMimeTypes = $form.attr("data-allowed-mime");
+        if (!rawAllowedMimeTypes) return;
 
-        $form.find('input[type="file"]').off("change.fileValidation").on("change.fileValidation", function () {
+        allowedMimeTypes = JSON.parse(rawAllowedMimeTypes);
+        if (!Array.isArray(allowedMimeTypes) || !allowedMimeTypes.length) return;
 
-            const file = this.files[0];
-            if (!file) return;
+        $form.find('input[type="file"]')
+            .off("change.fileValidation")
+            .on("change.fileValidation", function () {
 
-            const ext = file.name.split('.').pop().toLowerCase();
+                const file = this.files && this.files.length ? this.files[0] : null;
+                if (!file) return;
 
-            if (
-                !allowedTypes.includes(file.type) ||
-                !allowedExt.includes(ext)
-            ) {
-                alert("Tipo de arquivo não permitido. Tipos permitidos: " + allowedExt.join(", "));
-                this.value = ""; 
-            }
+                
+                if (!file.type || allowedMimeTypes.indexOf(file.type) === -1) {
+                    alert(
+                        "Arquivo não permitido.\n\n" +
+                        "Tipos aceitos:\n" +
+                        allowedMimeTypes.join("\n")
+                    );
 
-        });
+                    this.value = "";
+                }
+
+            });
     },
     init: function (selector, extraOptions) {
         selector = selector || '.js-ajax-upload';

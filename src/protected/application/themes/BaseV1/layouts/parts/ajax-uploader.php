@@ -2,6 +2,7 @@
     <span class='js-dialog-disabled' data-message="<?php \MapasCulturais\i::esc_attr_e('Para subir arquivos você primeiro deve salvar.'); ?>" ></span>
 <?php else: ?>
     <form class="js-ajax-upload" id="upload-<?php echo $file_group ?>" 
+        data-allowed-mime='<?= json_encode($app->getAllowedUploadMimeTypes()) ?>'
         data-action="<?php echo $response_action ?>"
         data-target="<?php echo $response_target ?>"
         data-group="<?php echo $file_group ?>"

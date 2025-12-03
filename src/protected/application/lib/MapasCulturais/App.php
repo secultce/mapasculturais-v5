@@ -1357,6 +1357,16 @@ class App extends \Slim\Slim{
      *
      * @return string The sanitized filename.
      */
+
+    //single source of truth for file uppload allowed mime types
+    public function getAllowedUploadMimeTypes() {
+        return [
+            'image/jpeg',
+            'image/png',
+            'application/pdf'
+        ];
+    }
+
     function sanitizeFilename($filename, $mimetype = false){
         $filename = str_replace(' ','_', strtolower($filename));
         if(is_callable($this->_config['app.sanitize_filename_function'])){
