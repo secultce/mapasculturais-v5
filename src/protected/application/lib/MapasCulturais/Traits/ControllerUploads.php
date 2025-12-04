@@ -5,6 +5,7 @@ use Exception;
 use \MapasCulturais\App;
 use \MapasCulturais\Exceptions;
 use \MapasCulturais\Entities\Metadata;
+use \MapasCulturais\Utils;
 
 /**
  * Defines that the controller has uploads.
@@ -78,7 +79,7 @@ trait ControllerUploads{
             return;
         }
 
-        $allowedMimeTypes = $app->getAllowedUploadMimeTypes();
+        $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         foreach ($_FILES as $file) {
