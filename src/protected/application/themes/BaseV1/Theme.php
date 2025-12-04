@@ -975,6 +975,10 @@ class Theme extends MapasCulturais\Theme {
                 }
             }
         });
+        //
+        $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:before', function() {
+            dump($app);die;
+        });
 
         // sempre que insere uma imagem cria o avatarSmall
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(avatar).insert:after', function() {
