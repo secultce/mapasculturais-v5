@@ -1348,6 +1348,41 @@ class App extends \Slim\Slim{
         }
     }
 
+    
+    /**
+     * single source of truth for file uppload allowed mime types
+     * @todo get from config 
+     * @return array
+     */
+    public function getAllowedUploadMimeTypes() {
+        return [
+            'application/msword',
+            'application/pdf',
+            'application/vnd.ms-excel',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.oasis.opendocument.spreadsheet',
+            'application/vnd.oasis.opendocument.text',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'audio/mid',
+            'audio/mp3',
+            'audio/mpeg',
+            'audio/ogg',
+            'audio/wav',
+            'image/bmp',
+            'image/gif',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'image/tiff',
+            'image/webp',
+            'text/csv',
+            'text/plain',
+            'video/mp4',
+            'video/quicktime',
+        ];
+    }
     /**
      * Sanitizes the uploaded files names replaceing spaces with underscores and setting the name to lower case.
      *
@@ -1358,14 +1393,7 @@ class App extends \Slim\Slim{
      * @return string The sanitized filename.
      */
 
-    //single source of truth for file uppload allowed mime types
-    public function getAllowedUploadMimeTypes() {
-        return [
-            'image/jpeg',
-            'image/png',
-            'application/pdf'
-        ];
-    }
+    
 
     function sanitizeFilename($filename, $mimetype = false){
         $filename = str_replace(' ','_', strtolower($filename));

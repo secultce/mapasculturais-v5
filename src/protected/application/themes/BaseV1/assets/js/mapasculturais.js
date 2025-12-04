@@ -849,7 +849,7 @@ MapasCulturais.AjaxUploader = {
     },
     animationTime: 100,
     bindFileValidation: function ($form) {
-
+       
         let allowedMimeTypes;
 
         const rawAllowedMimeTypes = $form.attr("data-allowed-mime");

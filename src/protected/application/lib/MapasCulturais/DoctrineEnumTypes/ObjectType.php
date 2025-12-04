@@ -15,10 +15,12 @@ class ObjectType extends DoctrineEnumType
     {
         return [
             'Agent' => 'MapasCulturais\Entities\Agent',
+            'AgentFile' => 'MapasCulturais\Entities\AgentFile',
             'ChatMessage' => 'MapasCulturais\Entities\ChatMessage',
             'ChatThread' => 'MapasCulturais\Entities\ChatThread',
             'EvaluationMethodConfiguration' => 'MapasCulturais\Entities\EvaluationMethodConfiguration',
             'Event' => 'MapasCulturais\Entities\Event',
+            'File' => 'MapasCulturais\Entities\File',
             'Notification' => 'MapasCulturais\Entities\Notification',
             'Opportunity' => 'MapasCulturais\Entities\Opportunity',
             'Project' => 'MapasCulturais\Entities\Project',
