@@ -20,7 +20,7 @@
 
         <?php if($file_types): ?><p class="form-help"><?php \MapasCulturais\i::_e("Tipos de arquivos suportados: ");?><?php echo $file_types; ?></p><?php endif; ?>
         <p class="form-help"><?php \MapasCulturais\i::_e("Tamanho máximo do arquivo: ");?><?php echo $app->maxUploadSize; ?></p>
-        <input type="file" name="<?php echo $file_group ?>" <?php if(false !== $human_crop) echo " class=\"human_crop\" " ?> accept="image/jpeg, image/png, application/pdf" />
+        <input type="file" name="<?php echo $file_group ?>" <?php if(false !== $human_crop) echo " class=\"human_crop\" " ?> />
         <div class="consent-box">
             <input type="checkbox" class="consent_file_upload" name="consent_file_upload" value="1"/>
             <label for="consent_file_upload" class="consent_label">
