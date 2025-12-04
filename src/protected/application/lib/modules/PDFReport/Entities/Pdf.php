@@ -60,7 +60,7 @@ class Pdf extends \MapasCulturais\Entity
 
     public static function verifyResource($idOportunidade)
     {
-        $opp = App::i()->repo('OpportunityMeta')->findBy(['owner' => $idOportunidade, 'key' => 'claimDisabled']);
+        $opp = App::i()->repo('OpportunityMeta')->findBy(['owner' => $idOportunidade, 'key' => 'appealEnabled']);
 
         return $opp;
     }
@@ -95,7 +95,7 @@ class Pdf extends \MapasCulturais\Entity
 
         $verifyResource = self::verifyResource($getData['idopportunityReport']);
         if (isset($verifyResource[0])) {
-            $array['claimDisabled'] = $verifyResource[0]->value;
+            $array['appealEnabled'] = $verifyResource[0]->value;
         }
         $array['title'] = 'Resultado Preliminar do Certame';
         $array['template'] = 'pdf/preliminary';
@@ -173,13 +173,13 @@ class Pdf extends \MapasCulturais\Entity
                 $verifyResource = self::verifyResource($getData['idopportunityReport']);
 
                 if (isset($verifyResource[0])) {
-                    $array['claimDisabled'] = $verifyResource[0]->value;
+                    $array['appealEnabled'] = $verifyResource[0]->value;
                 }
 
-                if (isset($regs['regs'][0]) && empty($verifyResource) || $array['claimDisabled'] == 1) {
+                if (isset($regs['regs'][0]) && empty($verifyResource) || $array['appealEnabled'] === 'Não') {
                     $array['title'] = 'Resultado Definitivo do Certame';
                     $array['template'] = 'pdf/definitive';
-                } else if (isset($regs['regs'][0]) && empty($verifyResource) || $array['claimDisabled'] == 0) {
+                } else if (isset($regs['regs'][0]) && empty($verifyResource) || $array['appealEnabled'] === 'Sim') {
                     $array['title'] = 'Resultado Definitivo do Certame';
                     $array['template'] = 'pdf/definitive';
                 } else {

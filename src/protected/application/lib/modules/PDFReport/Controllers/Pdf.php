@@ -70,7 +70,7 @@ class Pdf extends \MapasCulturais\Controller
             'regs' => '',
             'title' => '',
             'template' => '',
-            'claimDisabled' => null,
+            'appealEnabled' => null,
             'pluginConf' => [
                 'tempDir' => '/tmp',
                 'mode' => 'utf-8',
@@ -93,7 +93,7 @@ class Pdf extends \MapasCulturais\Controller
 
         $app->view->jsObject['subscribers'] = $array['regs']['regs'];
         $app->view->jsObject['opp'] = $array['regs']['opp'];
-        $app->view->jsObject['claimDisabled'] = $array['claimDisabled'];
+        $app->view->jsObject['appealEnabled'] = $array['appealEnabled'];
         $app->view->jsObject['title'] = $array['title'];
 
         $content = $app->view->fetch($array['template']);
