@@ -19,7 +19,6 @@ var EventDelegator = (function () {
             }
 
             if (!config) return;
-
             const entityId = btn.getAttribute('data-entity-id-cr');
 
             // NOVO: Extrai TODOS os data-* como objeto extraData
