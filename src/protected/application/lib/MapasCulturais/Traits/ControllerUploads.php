@@ -4,8 +4,6 @@ namespace MapasCulturais\Traits;
 use Exception;
 use \MapasCulturais\App;
 use \MapasCulturais\Exceptions;
-use \MapasCulturais\Entities\Metadata;
-use \MapasCulturais\Utils;
 
 /**
  * Defines that the controller has uploads.
@@ -66,58 +64,16 @@ trait ControllerUploads{
         $file_class_name = $owner->getFileClassName();
         
         $app = App::i();
-        
+       
         // if no files uploaded or no id in request data, return an error
         if(empty($_FILES) || !$this->data['id']){
             $this->errorJson(\MapasCulturais\i::__('Nenhum arquivo enviado'));
             return ;
         }
-        
-        //if consent checkbox is not checked, return an error
-        if (empty($_POST['consent_file_upload'])) {
-            $this->errorJson(\MapasCulturais\i::__('É necessário aceitar os termos para enviar arquivos.'));
-            return;
-        }
 
-        $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
-
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        foreach ($_FILES as $file) {
-
-            // Normalize if array upload
-            if (is_array($file['tmp_name'])) {
-                $tmpNames = $file['tmp_name'];
-                $names = $file['name'];
-                $sizes = $file['size'];
-            } else {
-                $tmpNames = [$file['tmp_name']];
-                $names = [$file['name']];
-                $sizes = [$file['size']];
-            }
-
-            foreach ($tmpNames as $index => $tmpPath) {
-                if (!file_exists($tmpPath)) {
-                    $this->errorJson(\MapasCulturais\i::__('Upload inválido.'));
-                    return;
-                }
-
-                // Detect real MIME type
-                $mime = $finfo->file($tmpPath);
-
-                if (!in_array($mime, $allowedMimeTypes, true)) {
-                    $this->errorJson(\MapasCulturais\i::__(
-                        'Arquivo não permitido: ' . $names[$index]
-                    ));
-                    return;
-                }
-            }
-        }
-        
-      
-     
         $result = [];
         $files = [];
-        
+      
         // the group of the files is the key in $_FILES array
         foreach(array_keys($_FILES) as $group_name){
           
@@ -212,7 +168,7 @@ trait ControllerUploads{
             $upload_group = $app->getRegisteredFileGroup($this->id, $file->group);
 
             $file->owner = $owner;
-            
+
             // if this group is unique, deletes the existent file
             if($upload_group->unique){
                 $old_file = $app->repo($file_class_name)->findOneBy(['owner' => $owner, 'group' => $file->group]);
@@ -221,9 +177,8 @@ trait ControllerUploads{
             }
 
             $file->save();
-            
             $file_group = $file->group;
-           
+
             if($upload_group->unique){
                 $result[$file_group] = $file;
             }else{
@@ -231,16 +186,8 @@ trait ControllerUploads{
                         $result[$file->group] = [];
                 $result[$file_group][] = $file;
             }
-            //save consent metadata
-            $consentBool = !empty($_POST['consent_file_upload']);
-            $metaRepo = $app->repo('Metadata');
-            $meta = new Metadata();
-            $meta->setOwner($file);
-            $meta->key  =  'consetimentoArquivoPublico';
-            $meta->value = $consentBool;
-            $meta->save();
         }
-            
+
         $app->em->flush();
         $this->json($result);
         return;
