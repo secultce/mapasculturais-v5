@@ -799,17 +799,20 @@ class Theme extends MapasCulturais\Theme {
 
         $app->hook('mapasculturais.body:before', function() use($app) {
             if($this->controller && ($this->controller->action == 'single' || $this->controller->action == 'edit' )): ?>
-                <!--facebook compartilhar-->
-                    <div id="fb-root"></div>
-                    <script>(function(d, s, id) {
-                      var js, fjs = d.getElementsByTagName(s)[0];
-                      if (d.getElementById(id)) return;
-                      js = d.createElement(s); js.id = id;
-                      js.src = "//connect.facebook.net/<?php echo i::get_locale(); ?>/all.js#xfbml=1";
-                      fjs.parentNode.insertBefore(js, fjs);
-                    }(document, 'script', 'facebook-jssdk'));</script>
-                <!--fim do facebook-->
-                <?php
+<!--facebook compartilhar-->
+<div id="fb-root"></div>
+<script>
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/<?php echo i::get_locale(); ?>/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+<!--fim do facebook-->
+<?php
             endif;
         });
 
@@ -1664,6 +1667,7 @@ class Theme extends MapasCulturais\Theme {
         $this->enqueueStyle ('vendor', 'cropbox', '/vendor/cropbox/jquery.cropbox.css');
 
         // Quill
+        $this->enqueueScript('vendor', 'event-delegator', '/vendor/quill/eventDelegator.js');
         $this->enqueueScript('vendor', 'quill-js', '/vendor/quill/quill.js');
         $this->enqueueStyle ('vendor', 'quill-css', '/vendor/quill/quill.css');
         $this->enqueueScript('vendor', 'quill-editor', '/vendor/quill/quillEditor.js');
