@@ -1035,7 +1035,6 @@ class Theme extends MapasCulturais\Theme {
 
         //salva o consentimento na tabela metadata
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:after', function() {
-                // Save consent flag
             if (!empty($_POST['consent_file_upload'])) {
                 $meta = new \MapasCulturais\Entities\Metadata();
                 $meta->owner = $this;
