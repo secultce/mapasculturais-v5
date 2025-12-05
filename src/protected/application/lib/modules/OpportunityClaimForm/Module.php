@@ -32,11 +32,6 @@ class Module extends \MapasCulturais\Module{
             }
         });
 
-        // adiciona seção de configuração do formulário de recurso
-        $app->hook("view.partial(singles/opportunity-registrations--export):after", function(){
-            $this->part('claim-configuration', ['opportunity' => $this->controller->requestedEntity]);
-        });
-
         // adiciona o botão de recurso na lista de
         $app->hook("template(opportunity.<<*>>.user-registration-table--registration--status):end", function ($registration, $opportunity){
             if($registration->canUser('sendClaimMessage')){

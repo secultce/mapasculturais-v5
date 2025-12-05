@@ -34,7 +34,7 @@ class ObjectType extends DoctrineEnumType
             'Diligence' => 'Diligence\Entities\Diligence',
             'AnswerDiligence' => 'Diligence\Entities\AnswerDiligence',
             'Tado' => 'Diligence\Entities\Tado',
-
+            'CounterArgument' => 'MapasCulturais\Entities\CounterArgument',
         ];
     }
 }
