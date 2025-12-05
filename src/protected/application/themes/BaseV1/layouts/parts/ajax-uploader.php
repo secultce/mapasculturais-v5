@@ -26,7 +26,7 @@
             <label for="consent_file_upload" class="consent_label">
                 <?php \MapasCulturais\i::_e(
                     "Declaro que estou ciente de que os arquivos enviados ao Mapa Cultural serão públicos e de minha total responsabilidade.
-                    Não enviarei dados pessoais, sensíveis ou confidenciais.*"
+                    Não enviarei dados pessoais, sensíveis ou confidenciais."
                 );?>
             </label>
         </div>
