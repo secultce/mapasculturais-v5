@@ -976,9 +976,64 @@ class Theme extends MapasCulturais\Theme {
             }
         });
         //
+
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:before', function() {
-            dump($app);die;
+           
+            $app = App::i();
+
+            $consent = $app->request->post('consent_file_upload');
+            
+            if (!$consent) {
+                return $app->halt(200, json_encode([
+                    'error' => true,
+                    'data' => 'É necessário aceitar os termos antes de enviar o arquivo.'
+                ]));
+            }
+
+            //Validando tipo de arquivo no backend
+            $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
+
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+          
+            foreach ($_FILES as $file) {
+               
+                // Normalizando array (multiple upload)
+                if (is_array($file['tmp_name'])) {
+                    $tmpNames = $file['tmp_name'];
+                    $names = $file['name'];
+                } else {
+                    $tmpNames = [$file['tmp_name']];
+                    $names = [$file['name']];
+                }
+
+                foreach ($tmpNames as $index => $tmpPath) {
+
+                    if (!file_exists($tmpPath)) {
+                        return $app->halt(200, json_encode([
+                            'error' => true,
+                            'data' => 'Arquivo inválido.'
+                        ]));
+                       
+                    }
+
+                    // Detectando mime type real
+                    $mime = $finfo->file($tmpPath);
+                     
+                    if (!in_array($mime, $allowedMimeTypes, true)) {
+                        return $app->halt(200, json_encode([
+                            'error' => true,
+                            'data' => 'Tipo de Arquivo não permitido: ' . $names[$index] . '.'
+                        ]));
+                       
+                    }
+                }
+            }
+
+
+
         });
+
+
 
         // sempre que insere uma imagem cria o avatarSmall
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(avatar).insert:after', function() {
