@@ -975,7 +975,7 @@ class Theme extends MapasCulturais\Theme {
                 }
             }
         });
-        //
+        
         //valida arquivos enviados por essas entidades(verifica consentimento e mime type)
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:before', function() {
            
@@ -986,7 +986,7 @@ class Theme extends MapasCulturais\Theme {
             if (!$consent) {
                 return $app->halt(200, json_encode([
                     'error' => true,
-                    'data' => 'É necessário aceitar os termos antes de enviar o arquivo.'
+                    'data' => 'É necessário aceitar a declaração antes de enviar o arquivo.'
                 ]));
             }
 

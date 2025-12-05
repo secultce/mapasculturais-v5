@@ -867,7 +867,9 @@ MapasCulturais.AjaxUploader = {
 
                 
                 if (!file.type || allowedMimeTypes.indexOf(file.type) === -1) {
-                    McMessages.error('Tipo de arquivo inválido.', 'Somente é permitido enviar arquivos de: Imagem (JPG, PNG, GIF, WEBP, BMP, TIFF), Documentos ( PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ODS, ODT), Texto (TXT, CSV),Áudio (MP3, MPEG, WAV, OGG, MID), Vídeo (MP4, MOV).');
+                    McMessages.error(
+                        `<h2 style="color:#f27474;">Tipo de arquivo inválido</h2> <p>Leia Atentamente!</p><p style="text-align:justify;font-size:1em">Somente é permitido enviar arquivos de: Imagem (JPG, PNG, GIF, WEBP, BMP, TIFF), Documentos ( PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ODS, ODT), Texto (TXT, CSV),Áudio (MP3, MPEG, WAV, OGG, MID), Vídeo (MP4, MOV).</p>`
+                    );
                     this.value = "";
                 }
 
