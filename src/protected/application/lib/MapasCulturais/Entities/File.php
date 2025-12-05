@@ -44,6 +44,7 @@ use \MapasCulturais\i;
         "MapasCulturais\Entities\RegistrationFileConfiguration" = "\MapasCulturais\Entities\RegistrationFileConfigurationFile",
         "MapasCulturais\Entities\Subsite"                       = "\MapasCulturais\Entities\SubsiteFile",
         "Diligence\Entities\Diligence"                          = "\Diligence\Entities\DiligenceFile",
+        "MapasCulturais\Entities\CounterArgument"               = "\MapasCulturais\Entities\CounterArgumentFile",
    })
  */
 abstract class File extends \MapasCulturais\Entity
