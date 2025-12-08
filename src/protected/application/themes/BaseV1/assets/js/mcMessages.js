@@ -109,6 +109,7 @@ var McMessages = (function () {
             confirmButtonText: `<i class="fa fa-thumbs-up"></i> OK, ciente`,
         });
     }
+    
     function custom(title ,type, html = null){
         swal.fire({
             title: title,
