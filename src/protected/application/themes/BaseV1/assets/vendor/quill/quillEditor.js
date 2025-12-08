@@ -21,6 +21,18 @@ var QuillEditor = (function () {
      * @param {Function} [options.onOpen] - Callback executado após abertura do modal (opcional)
      * @returns {Promise} - Resolvido com { conteudo: string, entityId: string, customFields: object }
      */
+
+    function validateContent(html, message = 'O texto não pode estar vazio!') {
+        const cleanText = html.replace(/<[^>]*>/g, '').trim();
+
+        if (!cleanText) {
+            Swal.showValidationMessage(message);
+            setTimeout(() => Swal.resetValidationMessage(), 2000);
+            return false;
+        }
+
+        return true;
+    }
     function openEditor(options = {}) {
         const {
             title = 'Editor de Texto Rico',
@@ -87,20 +99,8 @@ var QuillEditor = (function () {
                 const conteudo = quill.root.innerHTML.trim();
                 const entityId = entityInput ? entityInput.value : null;
 
-                if (!conteudo || conteudo === '<p><br></p>') {
-                    Swal.showValidationMessage('O texto não pode estar vazio!');
+                if (!validateContent(conteudo)) return false;
 
-                    setTimeout(() => {
-                        const msg = document.querySelector('.swal2-validation-message');
-                        if (msg) {
-                            msg.style.transition = 'opacity 0.3s ease';
-                            msg.style.opacity = '0';
-                            setTimeout(() => Swal.resetValidationMessage(), 300);
-                        }
-                    }, 2000);
-
-                    return false;
-                }
 
                 // Captura valores dos campos customizados
                 const customFields = {};
