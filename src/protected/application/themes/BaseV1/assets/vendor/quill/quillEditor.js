@@ -22,18 +22,6 @@ var QuillEditor = (function () {
      * @returns {Promise} - Resolvido com { conteudo: string, entityId: string, customFields: object }
      */
 
-    function validateContent(html, message = 'O texto não pode estar vazio!') {
-        const cleanText = html.replace(/<[^>]*>/g, '').trim();
-
-        if (!cleanText) {
-            Swal.showValidationMessage(message);
-            setTimeout(() => Swal.resetValidationMessage(), 2000);
-            return false;
-        }
-
-        return true;
-    }
-
     function openEditor(options = {}) {
         const {
             title = 'Editor de Texto Rico',
@@ -99,8 +87,13 @@ var QuillEditor = (function () {
                 const quill = editorContainer.quillInstance;
                 const conteudo = quill.root.innerHTML.trim();
                 const entityId = entityInput ? entityInput.value : null;
+                const cleanText = conteudo.replace(/<[^>]*>/g, '').trim();
 
-                if (!validateContent(conteudo)) return false;
+                if (!cleanText) {
+                    Swal.showValidationMessage('O texto não pode estar vazio!');
+                    setTimeout(() => Swal.resetValidationMessage(), 2000);
+                    return false;
+                }
 
                 // Captura valores dos campos customizados
                 const customFields = {};
