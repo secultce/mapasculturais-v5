@@ -33,7 +33,7 @@ var QuillEditor = (function () {
 
         return true;
     }
-    
+
     function openEditor(options = {}) {
         const {
             title = 'Editor de Texto Rico',
@@ -101,7 +101,6 @@ var QuillEditor = (function () {
                 const entityId = entityInput ? entityInput.value : null;
 
                 if (!validateContent(conteudo)) return false;
-
 
                 // Captura valores dos campos customizados
                 const customFields = {};
