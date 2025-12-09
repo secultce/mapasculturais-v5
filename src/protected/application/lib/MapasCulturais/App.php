@@ -1347,7 +1347,7 @@ class App extends \Slim\Slim{
             return null;
         }
     }
-
+    
     /**
      * Sanitizes the uploaded files names replaceing spaces with underscores and setting the name to lower case.
      *
@@ -1357,6 +1357,9 @@ class App extends \Slim\Slim{
      *
      * @return string The sanitized filename.
      */
+
+    
+
     function sanitizeFilename($filename, $mimetype = false){
         $filename = str_replace(' ','_', strtolower($filename));
         if(is_callable($this->_config['app.sanitize_filename_function'])){

@@ -848,6 +848,33 @@ MapasCulturais.AjaxUploader = {
 
     },
     animationTime: 100,
+    bindFileValidation: function ($form) {
+
+        let allowedMimeTypes;
+        
+        const rawAllowedMimeTypes = $form.attr("data-allowed-mime");
+        if (!rawAllowedMimeTypes) return;
+
+        allowedMimeTypes = JSON.parse(rawAllowedMimeTypes);
+        if (!Array.isArray(allowedMimeTypes) || !allowedMimeTypes.length) return;
+
+        $form.find('input[type="file"]')
+            .off("change.fileValidation")
+            .on("change.fileValidation", function () {
+
+                const file = this.files && this.files.length ? this.files[0] : null;
+                if (!file) return;
+
+                
+                if (!file.type || allowedMimeTypes.indexOf(file.type) === -1) {
+                    McMessages.error(
+                        `<h2 style="color:#f27474;">Tipo de arquivo inválido</h2> <p>Leia Atentamente!</p><p style="text-align:justify;font-size:1em">Somente é permitido enviar arquivos de: Imagem (JPG, PNG, GIF, WEBP, BMP, TIFF), Documentos ( PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ODS, ODT), Texto (TXT, CSV),Áudio (MP3, MPEG, WAV, OGG, MID), Vídeo (MP4, MOV).</p>`
+                    );
+                    this.value = "";
+                }
+
+            });
+    },
     init: function (selector, extraOptions) {
         selector = selector || '.js-ajax-upload';
         extraOptions = extraOptions || {};
@@ -866,6 +893,7 @@ MapasCulturais.AjaxUploader = {
             MapasCulturais.AjaxUploader.resetProgressBar($(this).parent(), false);
             var $this = $(this);
             // bind form using 'ajaxForm'
+            MapasCulturais.AjaxUploader.bindFileValidation($this);
             $(this).ajaxForm(Object.assign({
                 beforeSend: function (xhr) {
                     $this.data('xhr', xhr);
@@ -989,8 +1017,11 @@ MapasCulturais.AjaxUploader = {
         });
 
 
-    }
+    },
+   
+    
 };
+
 
 MapasCulturais.Video = {
     collection: {},
