@@ -33,6 +33,7 @@ var QuillEditor = (function () {
 
         return true;
     }
+    
     function openEditor(options = {}) {
         const {
             title = 'Editor de Texto Rico',
