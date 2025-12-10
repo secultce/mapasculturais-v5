@@ -28,3 +28,21 @@
 .js-ajax-upload-progress .inactive .bar {
     display: none;
 }
+.consent-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 6px;
+
+  input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  label {   
+    display: block;
+    line-height: 1.4;
+    text-align: justify;
+    hyphens: auto;
+  }
+}

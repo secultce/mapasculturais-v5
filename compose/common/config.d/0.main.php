@@ -16,7 +16,7 @@ return [
     'app.lcode' => env('APP_LCODE', 'pt_BR'),
 
     'app.enabled.apps' => false,
-    
+
     'app.verifiedSealsIds' => [2],
 
     'module.CompliantSuggestion' => [
@@ -25,5 +25,6 @@ return [
         'suggestion' => true,
 
     ],
-	
+    'app.namespace' => ['Controllers','Definitions','DoctrineEnumTypes','Entities','Exceptions','Middlewares','Repositories','Service','Traits'],
+
 ];

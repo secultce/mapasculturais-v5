@@ -3,10 +3,11 @@
 namespace MapasCulturais\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
+use MapasCulturais\App;
 
 /**
  * Metadata
- *
+ *'
  * @property-read \MapasCulturais\Entity $owner the owner of this metadata
  *
  * @ORM\Table(name="metadata")
@@ -77,6 +78,8 @@ class Metadata extends \MapasCulturais\Entity
      */
     public function setOwner(\MapasCulturais\Entity $owner){
         $this->_owner = $owner;
+        $this->ownerType = $owner->className;
+        $this->ownerId = $owner->id;
         $this->objectType = $owner->className;
         $this->objectId = $owner->id;
     }

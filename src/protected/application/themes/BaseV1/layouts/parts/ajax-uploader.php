@@ -2,6 +2,7 @@
     <span class='js-dialog-disabled' data-message="<?php \MapasCulturais\i::esc_attr_e('Para subir arquivos você primeiro deve salvar.'); ?>" ></span>
 <?php else: ?>
     <form class="js-ajax-upload" id="upload-<?php echo $file_group ?>" 
+        data-allowed-mime='<?= json_encode(\MapasCulturais\Utils::getAllowedUploadMimeTypes()) ?>'
         data-action="<?php echo $response_action ?>"
         data-target="<?php echo $response_target ?>"
         data-group="<?php echo $file_group ?>"
@@ -19,8 +20,18 @@
 
         <?php if($file_types): ?><p class="form-help"><?php \MapasCulturais\i::_e("Tipos de arquivos suportados: ");?><?php echo $file_types; ?></p><?php endif; ?>
         <p class="form-help"><?php \MapasCulturais\i::_e("Tamanho máximo do arquivo: ");?><?php echo $app->maxUploadSize; ?></p>
-        <input type="file" name="<?php echo $file_group ?>" <?php if(false !== $human_crop) echo " class=\"human_crop\" " ?>  />
-
+        <input type="file" name="<?php echo $file_group ?>" <?php if(false !== $human_crop) echo " class=\"human_crop\" " ?> />
+        <div class="consent-box">
+            <input type="checkbox" class="consent_file_upload" name="consent_file_upload" value="1"/>
+            <label for="consent_file_upload" class="consent_label">
+                <?php \MapasCulturais\i::_e(
+                    "Declaro que estou ciente de que os arquivos enviados ao Mapa Cultural serão públicos e de minha total responsabilidade.
+                    Não enviarei dados pessoais, sensíveis ou confidenciais."
+                );?>
+            </label>
+        </div>
+       
+        
     </form>
 
     <div class="js-ajax-upload-progress">
