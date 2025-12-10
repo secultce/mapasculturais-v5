@@ -181,7 +181,7 @@ function showSaveContent(status) {
             "A sua diligência foi enviada!",
             "Desfazer envio",
             "OK",
-            "btn btn-success",
+            "btn btn-primary",
             "btn btn-secondary",
             true,
             10000,
@@ -242,7 +242,7 @@ function cancelSend() {
         dataType: "json",
         success: function (res) {
             if (res.status == 400) {
-                McMessages.error('Ops! Ocorreu um erro.', res?.data?.message ?? 'Tente novamente mais tarde.');
+                McMessages.error("Ops! Ocorreu um erro.", res?.data?.message ?? "Tente novamente mais tarde.");
             }
         }
     });
@@ -277,6 +277,7 @@ function saveDiligence(status, st, idDiligence) {
             "Você pode desfazer o envio em até 10 segundos. Revise sua diligência com cuidado.",
             "Não, enviar depois",
             "Enviar agora",
+            "btn btn-primary",
         ).then(result => {
             if (result.isConfirmed) {
                 sendAjaxDiligence(status, idDiligence);
