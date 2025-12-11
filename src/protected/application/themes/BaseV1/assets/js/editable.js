@@ -894,11 +894,11 @@ MapasCulturais.MetalistManager = {
                 var $linkField = $form.find('input.js-metalist-value');
                 var $errorTag = $form.find('.alert.danger');
                 $errorTag.html('');
+                
+                const title = $.trim($form.find('input.js-metalist-title').val());
+                const url   = $.trim($linkField.val());
 
                 if (group === 'videos') {
-                    const title = $.trim($form.find('input.js-metalist-title').val());
-                    const url   = $.trim($linkField.val());
-                    
                     if (!McValidations.requireHttps(url, 'insertVideoUrl', $errorTag, labels)) return false;
                     if (!McValidations.requireField(url, 'insertVideoUrl', $errorTag, labels)) return false;
                     if (!McValidations.requireField(title, 'insertVideoTitle', $errorTag, labels)) return false;
@@ -912,17 +912,9 @@ MapasCulturais.MetalistManager = {
                         return false;
                     }
                 }else if (group === 'links'){
-
-                    if($.trim($form.find('input.js-metalist-title').val()) === ''){
-                        $errorTag.html(labels['insertLinkTitle']).show();
-                        return false;
-                    }
-
-                    var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                    if (!pattern.test($linkField.val())){
-                        $errorTag.html(labels['insertLinkUrl']).show();
-                        return false;
-                    }
+                    if (!McValidations.requireHttps(url, 'insertLinkUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(url, 'insertLinkUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(title, 'insertLinkTitle', $errorTag, labels)) return false;
                 }
             },
             success: function (response, statusText, xhr, $form)  {
