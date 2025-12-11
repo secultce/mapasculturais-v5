@@ -895,16 +895,20 @@ MapasCulturais.MetalistManager = {
                 var $errorTag = $form.find('.alert.danger');
                 $errorTag.html('');
 
-                if(group === 'videos'){
-                    if($.trim($form.find('input.js-metalist-title').val()) === ''){
-                        $errorTag.html(labels['insertVideoTitle']).show();
-                        return false;
-                    }
+                if (group === 'videos') {
+                    const title = $.trim($form.find('input.js-metalist-title').val());
+                    const url   = $.trim($linkField.val());
+                    
+                    if (!McValidations.requireHttps(url, 'insertVideoUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(url, 'insertVideoUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(title, 'insertVideoTitle', $errorTag, labels)) return false;
+                    if (!McValidations.isValidUrl(url, 'insertVideoUrl', $errorTag, labels)) return false;    
+                
+                    const isValidYouTube = McValidations.isValidYouTube(url, 'insertVideoUrl', $errorTag, labels);
+                    const isValidVimeo   = McValidations.isValidVimeo(url, 'insertVideoUrl', $errorTag, labels);
 
-                    var parsedURL = purl($linkField.val());
-                    if (parsedURL.attr('host').indexOf('youtube') === -1 && parsedURL.attr('host').indexOf('vimeo')  === -1){
+                    if (!isValidYouTube && !isValidVimeo) {
                         $errorTag.html(labels['insertVideoUrl']).show();
-
                         return false;
                     }
                 }else if (group === 'links'){
