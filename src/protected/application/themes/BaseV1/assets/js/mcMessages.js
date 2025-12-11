@@ -97,7 +97,6 @@ var McMessages = (function () {
             },
             buttonsStyling: false,
             focusConfirm: false,
-            allowOutsideClick: false,
             timerProgressBar: timerProgressBar,
             timer:timer,
             allowOutsideClick: allowOutsideClick
