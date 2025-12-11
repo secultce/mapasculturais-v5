@@ -21,6 +21,7 @@ var QuillEditor = (function () {
      * @param {Function} [options.onOpen] - Callback executado após abertura do modal (opcional)
      * @returns {Promise} - Resolvido com { conteudo: string, entityId: string, customFields: object }
      */
+
     function openEditor(options = {}) {
         const {
             title = 'Editor de Texto Rico',
@@ -86,19 +87,11 @@ var QuillEditor = (function () {
                 const quill = editorContainer.quillInstance;
                 const conteudo = quill.root.innerHTML.trim();
                 const entityId = entityInput ? entityInput.value : null;
+                const cleanText = conteudo.replace(/<[^>]*>/g, '').trim();
 
-                if (!conteudo || conteudo === '<p><br></p>') {
+                if (!cleanText) {
                     Swal.showValidationMessage('O texto não pode estar vazio!');
-
-                    setTimeout(() => {
-                        const msg = document.querySelector('.swal2-validation-message');
-                        if (msg) {
-                            msg.style.transition = 'opacity 0.3s ease';
-                            msg.style.opacity = '0';
-                            setTimeout(() => Swal.resetValidationMessage(), 300);
-                        }
-                    }, 2000);
-
+                    setTimeout(() => Swal.resetValidationMessage(), 2000);
                     return false;
                 }
 

@@ -302,7 +302,13 @@ class Utils {
 
         return ($code == 200);
     }
-
+    
+    public static function isEmptyHtmlContent(?string $value): bool
+    {
+        // valida se o texto enviado dentro das tags html veio vazio
+        return !trim(strip_tags(html_entity_decode($value ?? '')));
+    }
+    
      /**
      * single source of truth for file uppload allowed mime types
      * @todo get from config 
