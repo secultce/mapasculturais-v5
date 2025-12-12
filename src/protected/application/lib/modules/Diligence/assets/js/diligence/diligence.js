@@ -93,14 +93,10 @@ $(document).ready(function () {
     })
 
     $('.publish-opinion-accountability-btn').on('click', function () {
-        Swal.fire({
-            title: "Deseja publicar o parecer?",
-            text: "Essa ação não poderá ser desfeita.",
-            showCancelButton: true,
-            cancelButtonText: "Cancelar",
-            confirmButtonText: "Confirmar",
-            reverseButtons: true
-        }).then(res => {
+        McMessages.messageConfirm(
+            "Deseja publicar o parecer?",
+            "Essa ação não poderá ser desfeita.",
+        ).then(res => {
             if (res.isConfirmed) {
                 saveOrPublishOpinion('publish')
             }
@@ -180,29 +176,17 @@ function showSaveContent(status) {
     }, 2000);
 
     if (status == 3) {
-        Swal.fire({
-            title: "<strong>Sucesso!</strong>",
-            html: `
-              A sua diligência foi enviada!
-            `,
-            focusConfirm: false,
-            timer: 10000,
-            timerProgressBar: true,
-            didOpen: () => {
-                const timer = Swal.getPopup().querySelector("b");
-                timerInterval = setInterval(() => {
-                }, 100);
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            },
-            confirmButtonAriaLabel: "Thumbs up, great!",
-            allowOutsideClick: false,
-            showCancelButton: true,
-            reverseButtons: true,
-            cancelButtonText: 'Desfazer envio',
-            confirmButtonText: "OK",
-        }).then((result) => {
+        McMessages.messageConfirm(
+            "Sucesso!",
+            "A sua diligência foi enviada!",
+            "Desfazer envio",
+            "OK",
+            "btn btn-primary",
+            "btn btn-secondary",
+            true,
+            10000,
+            false
+        ).then((result) => {
             if (result.isConfirmed) {
                 sendNotification();
                 hideAfterSend();
@@ -258,7 +242,7 @@ function cancelSend() {
         dataType: "json",
         success: function (res) {
             if (res.status == 400) {
-                Swal.fire("Ops! Ocorreu um erro.");
+                McMessages.error("Ops! Ocorreu um erro.", res?.data?.message ?? "Tente novamente mais tarde.");
             }
         }
     });
@@ -288,19 +272,13 @@ function saveDiligence(status, st, idDiligence) {
     }, 1000); 
 
     if (status === 3) {
-        Swal.fire({
-            title: "Confirmar o envio da diligência?",
-            text: "Você pode desfazer o envio em até 10 segundos. Revise sua diligência com cuidado.",
-            showCancelButton: true,
-            showConfirmButton: true,
-            reverseButtons: true,
-            cancelButtonText: "Não, enviar depois",
-            confirmButtonText: "Enviar agora",
-            customClass: {
-                confirmButton: "btn-success-rec",
-                cancelButton: "btn-warning-rec"
-            }
-        }).then(result => {
+        McMessages.messageConfirm(
+            "Confirmar o envio da diligência?",
+            "Você pode desfazer o envio em até 10 segundos. Revise sua diligência com cuidado.",
+            "Não, enviar depois",
+            "Enviar agora",
+            "btn btn-primary",
+        ).then(result => {
             if (result.isConfirmed) {
                 sendAjaxDiligence(status, idDiligence);
             }

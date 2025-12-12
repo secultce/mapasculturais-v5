@@ -77,7 +77,10 @@ var McMessages = (function () {
         titleCancel = 'Cancelar',
         titleConfirm = 'Confirmar',
         classBtnConfirm = 'btn btn-success',
-        classBtnCancel = 'btn btn-secondary'
+        classBtnCancel = 'btn btn-secondary',
+        timerProgressBar = false,
+        timer = null,
+        allowOutsideClick = true
     ) {
         return Swal.fire({
             title: titleQuestion,
@@ -94,7 +97,9 @@ var McMessages = (function () {
             },
             buttonsStyling: false,
             focusConfirm: false,
-            allowOutsideClick: false
+            timerProgressBar: timerProgressBar,
+            timer:timer,
+            allowOutsideClick: allowOutsideClick
         });
     }
 

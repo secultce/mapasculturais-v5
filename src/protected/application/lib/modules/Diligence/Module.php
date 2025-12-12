@@ -13,7 +13,7 @@ use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
-    use \Diligence\Traits\DiligenceSingle;
+    
     function _init () {
 
         $app = App::i();
