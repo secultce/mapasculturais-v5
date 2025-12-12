@@ -2069,43 +2069,25 @@ $$
                 update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
                 PRIMARY KEY(id),
                 FOREIGN KEY (agent_id) REFERENCES agent(id),
-                FOREIGN KEY (registration_id) REFERENCES registration(id)1
+                FOREIGN KEY (registration_id) REFERENCES registration(id)
             );"
         );
     },
 
-    'create table counter_reason' => function() {
-        __exec("CREATE SEQUENCE counter_reason_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
-        __exec("CREATE TABLE counter_reason (
-            id INT NOT NULL,
-            text TEXT NULL,
-            send timestamp,
-            status VARCHAR(32) NOT NULL,
-            reply TEXT NULL,
-            date_reply timestamp,
-            registration_id integer NOT NULL,
-            opportunity_id integer NOT NULL,
-            agent_id integer NOT NULL,
-            reply_agent_id integer NULL,
-            reply_publish boolean NULL default false,
-            create_timestamp timestamp,
-            PRIMARY KEY(id));"
+    'create table counter_argument' => function () {
+        __exec("CREATE SEQUENCE counter_argument_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec(
+            "CREATE TABLE counter_argument (
+                id INT NOT NULL,
+                text TEXT NOT NULL,
+                status SMALLINT NOT NULL,
+                registration_id INT NOT NULL,
+                create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
+                PRIMARY KEY(id),
+                FOREIGN KEY (registration_id) REFERENCES registration(id)
+            );"
         );
-        __exec("ALTER TABLE counter_reason ADD
-        CONSTRAINT counter_reason_registration_fk
-        FOREIGN KEY (registration_id) REFERENCES registration (id)
-        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
-
-            __exec("ALTER TABLE counter_reason ADD
-        CONSTRAINT counter_reason_opportunity_fk
-        FOREIGN KEY (opportunity_id) REFERENCES opportunity (id)
-        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
-
-            __exec("ALTER TABLE counter_reason ADD
-        CONSTRAINT counter_reason_agent_fk
-        FOREIGN KEY (agent_id) REFERENCES agent (id)
-        ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE");
     },
-
 
 ] + $updates ;

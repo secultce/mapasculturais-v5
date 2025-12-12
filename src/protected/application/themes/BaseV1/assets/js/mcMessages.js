@@ -77,7 +77,10 @@ var McMessages = (function () {
         titleCancel = 'Cancelar',
         titleConfirm = 'Confirmar',
         classBtnConfirm = 'btn btn-success',
-        classBtnCancel = 'btn btn-secondary'
+        classBtnCancel = 'btn btn-secondary',
+        timerProgressBar = false,
+        timer = null,
+        allowOutsideClick = true
     ) {
         return Swal.fire({
             title: titleQuestion,
@@ -94,7 +97,9 @@ var McMessages = (function () {
             },
             buttonsStyling: false,
             focusConfirm: false,
-            allowOutsideClick: false
+            timerProgressBar: timerProgressBar,
+            timer:timer,
+            allowOutsideClick: allowOutsideClick
         });
     }
 
@@ -109,6 +114,15 @@ var McMessages = (function () {
             confirmButtonText: `<i class="fa fa-thumbs-up"></i> OK, ciente`,
         });
     }
+    
+    function custom(title ,type, html = null){
+        swal.fire({
+            title: title,
+            icon: type,
+            html: html,
+            showConfirmButton: false,
+        })
+    }
 
     return {
         basic,
@@ -116,7 +130,8 @@ var McMessages = (function () {
         loading,
         error,
         messageConfirm: messageConfirm,
-        info
+        info,
+        custom
     };
 
 })();

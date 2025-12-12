@@ -7,22 +7,13 @@ use MapasCulturais\App,
     MapasCulturais\i,
     MapasCulturais\Entities,
     MapasCulturais\Definitions;
-    
-require __DIR__.'/Traits/DiligenceSingle.php';
-require __DIR__.'/Service/DiligenceInterface.php';
-require __DIR__.'/Repositories/Diligence.php';
-require __DIR__.'/Entities/Diligence.php';
-require __DIR__.'/Entities/DiligenceFile.php';
-require __DIR__.'/Entities/AnswerDiligence.php';
-require __DIR__.'/Entities/NotificationDiligence.php';
-require __DIR__.'/Service/NotificationInterface.php';
 
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use Diligence\Entities\Diligence as EntityDiligence;
 use Diligence\Entities\AnswerDiligence;
 
 class Module extends \MapasCulturais\Module {
-    use \Diligence\Traits\DiligenceSingle;
+    
     function _init () {
 
         $app = App::i();
@@ -191,7 +182,7 @@ class Module extends \MapasCulturais\Module {
         $app->hook('template(registration.view.registration-sidebar-rigth):end', function() use ($app, $module){
             Module::publishAssets();
             $entity = $this->controller->requestedEntity;
-            //A pessoa dona da inscrição tem acesso a visualizar o TADO    
+            //A pessoa dona da inscrição tem acesso a visualizar o TADO
             $ownerRegistration = $app->user->profile == $entity->owner ? true : false;
             //Se é avaliador
             $isEvaluation = $module->isEvaluator($entity->opportunity, $entity);
@@ -283,7 +274,7 @@ class Module extends \MapasCulturais\Module {
         $this->registerOpportunityMetadata('diligence_days', [
             'label' => i::__('Dias para resposta da diligência'),
             'type' => 'string',
-            'default' => 3,           
+            'default' => 3,
             'validations' => [
                 'v::intVal()->positive()->between(1, 365)' => 'O valor deve ser um número inteiro positivo'
             ]
@@ -317,7 +308,7 @@ class Module extends \MapasCulturais\Module {
                 "v::positive()" => "a meta de itens deve ser um número positivo"
             ]
         ]);
-        
+
         $this->registerRegistrationMetadata('option_authorized', [
             'label' =>  i::__('Projeto Autorizado?'),
             'type' => 'string',

@@ -302,4 +302,45 @@ class Utils {
 
         return ($code == 200);
     }
+    
+    public static function isEmptyHtmlContent(?string $value): bool
+    {
+        // valida se o texto enviado dentro das tags html veio vazio
+        return !trim(strip_tags(html_entity_decode($value ?? '')));
+    }
+    
+     /**
+     * single source of truth for file uppload allowed mime types
+     * @todo get from config 
+     * @return array
+     */
+    static function getAllowedUploadMimeTypes() {
+        return [
+            'application/msword',
+            'application/pdf',
+            'application/vnd.ms-excel',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.oasis.opendocument.spreadsheet',
+            'application/vnd.oasis.opendocument.text',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'audio/mid',
+            'audio/mp3',
+            'audio/mpeg',
+            'audio/ogg',
+            'audio/wav',
+            'image/bmp',
+            'image/gif',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'image/tiff',
+            'image/webp',
+            'text/csv',
+            'text/plain',
+            'video/mp4',
+            'video/quicktime',
+        ];
+    }
 }
