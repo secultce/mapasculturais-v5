@@ -894,31 +894,27 @@ MapasCulturais.MetalistManager = {
                 var $linkField = $form.find('input.js-metalist-value');
                 var $errorTag = $form.find('.alert.danger');
                 $errorTag.html('');
+                
+                const title = $.trim($form.find('input.js-metalist-title').val());
+                const url   = $.trim($linkField.val());
 
-                if(group === 'videos'){
-                    if($.trim($form.find('input.js-metalist-title').val()) === ''){
-                        $errorTag.html(labels['insertVideoTitle']).show();
-                        return false;
-                    }
+                if (group === 'videos') {
+                    if (!McValidations.requireHttps(url, 'insertVideoUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(url, 'insertVideoUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(title, 'insertVideoTitle', $errorTag, labels)) return false;
+                    if (!McValidations.isValidUrl(url, 'insertVideoUrl', $errorTag, labels)) return false;    
+                
+                    const isValidYouTube = McValidations.isValidYouTube(url, 'insertVideoUrl', $errorTag, labels);
+                    const isValidVimeo   = McValidations.isValidVimeo(url, 'insertVideoUrl', $errorTag, labels);
 
-                    var parsedURL = purl($linkField.val());
-                    if (parsedURL.attr('host').indexOf('youtube') === -1 && parsedURL.attr('host').indexOf('vimeo')  === -1){
+                    if (!isValidYouTube && !isValidVimeo) {
                         $errorTag.html(labels['insertVideoUrl']).show();
-
                         return false;
                     }
                 }else if (group === 'links'){
-
-                    if($.trim($form.find('input.js-metalist-title').val()) === ''){
-                        $errorTag.html(labels['insertLinkTitle']).show();
-                        return false;
-                    }
-
-                    var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                    if (!pattern.test($linkField.val())){
-                        $errorTag.html(labels['insertLinkUrl']).show();
-                        return false;
-                    }
+                    if (!McValidations.requireHttps(url, 'insertLinkUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(url, 'insertLinkUrl', $errorTag, labels)) return false;
+                    if (!McValidations.requireField(title, 'insertLinkTitle', $errorTag, labels)) return false;
                 }
             },
             success: function (response, statusText, xhr, $form)  {

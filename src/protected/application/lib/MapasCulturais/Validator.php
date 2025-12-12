@@ -25,7 +25,7 @@ class Validator extends \Respect\Validation\Validator{
         return self::call(
                 'parse_url',
                 self::arrayType()
-                    ->key('scheme', self::startsWith('http'))
+                    ->key('scheme', self::startsWith('https'))
                     ->key('host', $domain ? self::domain()->endsWith($domain) : self::domain())
                 );
 
