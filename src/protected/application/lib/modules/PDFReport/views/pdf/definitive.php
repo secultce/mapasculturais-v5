@@ -5,7 +5,7 @@ $sub = $app->view->jsObject['subscribers'];
 $nameOpportunity = $sub[0]->opportunity->name;
 $opp = $app->view->jsObject['opp'];
 $verifyResource = \PDFReport\Entities\Pdf::verifyResource($this->postData['idopportunityReport']);
-$claimDisabled = $app->view->jsObject['claimDisabled'];
+$appealEnabled = $app->view->jsObject['appealEnabled'];
 
 include_once('header-pdf.php');
 
@@ -23,7 +23,7 @@ include_once('header-pdf.php');
     // REDIRECIONA PARA OPORTUNIDADE CASO NÃO HAJA CATEGORIA        
     $type = $opp->evaluationMethodConfiguration->type->id;
     // NÃO TEM RECURSO OU DESABILITADO
-    if (empty($claimDisabled) || $claimDisabled == 1) {
+    if (empty($appealEnabled) || $appealEnabled === 'Não') {
         // Não tem categoria, técnica e não tem recurso
         if ($opp->registrationCategories == "" &&  ($type == 'technical' || $type == 'technicalna' || $type == 'homolog')) {
             $preliminary = false;

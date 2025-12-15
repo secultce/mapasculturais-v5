@@ -188,11 +188,10 @@ function saveAnswerProponente(status) {
     if ($btn.prop("disabled")) return;
 
     if($("#descriptionDiligence").val() == '') {
-        Swal.fire({
-            title: "Ops!",
-            html: `<i class="fa fa-times-circle"></i> Para enviar a resposta, você deve preencher o formulário, tente novamente.`,
-            color: "#dc3545",
-        })
+        McMessages.error(
+            "Ops! Ocorreu um erro.",
+            "Para enviar a resposta, você deve preencher o formulário, tente novamente."
+        )
         return false;
     }
     const originalHtml = $btn.html();
@@ -209,36 +208,28 @@ function saveAnswerProponente(status) {
     }, 1000);
 
     if (status == 3) {
-        Swal.fire({
-            title: "Confirmar o envio da sua resposta?",
-            text: "Essa ação não pode ser desfeita. Por isso, revise sua resposta com cuidado.",
-            showDenyButton: true,
-            showCancelButton: false,
-            denyButtonText: `Não, enviar depois`,
-            confirmButtonText: "Enviar agora",
-            reverseButtons: true
-        }).then((result) => {
+        McMessages.messageConfirm(
+            "Confirmar o envio da sua resposta?",
+            "Essa ação não pode ser desfeita. Por isso, revise sua resposta com cuidado.",
+            "Não, enviar depois",
+            "Enviar agora",
+            "btn btn-primary",
+        ).then((result) => {
             //Formatando a view
             hideViewActions();
             if (result.isConfirmed) {
                 saveRequestAnswer(status);
-                Swal.fire({
-                    title: "<strong>Sucesso!</strong>",
-                    html: `
-                      A sua resposta foi enviada!
-                    `,
-                    focusConfirm: false,
-                    confirmButtonText: `
-                      <i class="fa fa-thumbs-up"></i> OK!
-                    `,
-                    timer: 10000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                    showCancelButton: true,
-                    reverseButtons: true,
-                    confirmButtonText: "OK",
-                    cancelButtonText: 'Desfazer envio',
-                }).then((successResult) => {
+                McMessages.messageConfirm(
+                    "Sucesso!",
+                    "A sua resposta foi enviada!",
+                    "Desfazer envio",
+                    "OK",
+                    "btn btn-primary",
+                    "btn btn-secondary",
+                    true,
+                    10000,
+                    false
+                ).then((successResult) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (successResult.isConfirmed) {
                         sendNofificationAnswer();
@@ -260,8 +251,7 @@ function saveAnswerProponente(status) {
                     MapasCulturais.Messages.error('Ocorreu um erro ao confirmar.');
                 });
             }
-
-            if (result.isDenied) {
+            if (result.isDismissed && result.dismiss === 'cancel') {
                 $("#div-btn-actions-proponent").show();
                 $("#descriptionDiligence").show();
                 $("#div-content-all-diligence-send").show();
@@ -318,11 +308,11 @@ function saveRequestAnswer(status)
             Swal.close();
             showViewActions();
             cancelAnswer();
-            Swal.fire({
-                title: err.responseJSON.data.message,
-                reverseButtons: true,
-                timer: 2500
-            });
+            McMessages.error(
+                "Ops! Ocorreu um erro.",
+                err?.responseJSON?.data?.message,
+                2500
+            )
             return false;
         }
     });

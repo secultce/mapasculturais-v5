@@ -799,17 +799,20 @@ class Theme extends MapasCulturais\Theme {
 
         $app->hook('mapasculturais.body:before', function() use($app) {
             if($this->controller && ($this->controller->action == 'single' || $this->controller->action == 'edit' )): ?>
-                <!--facebook compartilhar-->
-                    <div id="fb-root"></div>
-                    <script>(function(d, s, id) {
-                      var js, fjs = d.getElementsByTagName(s)[0];
-                      if (d.getElementById(id)) return;
-                      js = d.createElement(s); js.id = id;
-                      js.src = "//connect.facebook.net/<?php echo i::get_locale(); ?>/all.js#xfbml=1";
-                      fjs.parentNode.insertBefore(js, fjs);
-                    }(document, 'script', 'facebook-jssdk'));</script>
-                <!--fim do facebook-->
-                <?php
+<!--facebook compartilhar-->
+<div id="fb-root"></div>
+<script>
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/<?php echo i::get_locale(); ?>/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+<!--fim do facebook-->
+<?php
             endif;
         });
 
@@ -975,7 +978,74 @@ class Theme extends MapasCulturais\Theme {
                 }
             }
         });
+        
+        //valida arquivos enviados por essas entidades(verifica consentimento e mime type)
+        $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:before', function() {
+           
+            $app = App::i();
 
+            $consent = $app->request->post('consent_file_upload');
+            
+            if (!$consent) {
+                return $app->halt(200, json_encode([
+                    'error' => true,
+                    'data' => 'É necessário aceitar a declaração antes de enviar o arquivo.'
+                ]));
+            }
+
+            //Validando tipo de arquivo no backend
+            $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
+
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+          
+            foreach ($_FILES as $file) {
+               
+                // Normalizando array (multiple upload)
+                if (is_array($file['tmp_name'])) {
+                    $tmpNames = $file['tmp_name'];
+                    $names = $file['name'];
+                } else {
+                    $tmpNames = [$file['tmp_name']];
+                    $names = [$file['name']];
+                }
+
+                foreach ($tmpNames as $index => $tmpPath) {
+
+                    if (!file_exists($tmpPath)) {
+                        return $app->halt(200, json_encode([
+                            'error' => true,
+                            'data' => 'Arquivo inválido.'
+                        ]));
+                       
+                    }
+
+                    // Detectando mime type real
+                    $mime = $finfo->file($tmpPath);
+                     
+                    if (!in_array($mime, $allowedMimeTypes, true)) {
+                        return $app->halt(200, json_encode([
+                            'error' => true,
+                            'data' => 'Tipo de Arquivo não permitido: ' . $names[$index] . '.'
+                        ]));
+                       
+                    }
+                }
+            }
+
+
+
+        });
+
+        //salva o consentimento na tabela metadata
+        $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:after', function() {
+            if (!empty($_POST['consent_file_upload'])) {
+                $meta = new \MapasCulturais\Entities\Metadata();
+                $meta->owner = $this;
+                $meta->key   = 'consentimentoArquivoPublico';
+                $meta->value = $_POST['consent_file_upload'];
+                $meta->save();
+            }
+        });
         // sempre que insere uma imagem cria o avatarSmall
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(avatar).insert:after', function() {
             $this->transform('avatarSmall');
@@ -1096,20 +1166,20 @@ class Theme extends MapasCulturais\Theme {
          */
         $app->hook('repo(Agent).getIdsByKeywordDQL.join', function (&$joins, $keyword) {
             $joins .= "
-                LEFT JOIN 
-                    e.__metadata nomeCompleto 
+                LEFT JOIN
+                    e.__metadata nomeCompleto
                 WITH nomeCompleto.key = 'nomeCompleto'
-                
-                LEFT JOIN 
-                    e.__metadata nomeSocial 
+
+                LEFT JOIN
+                    e.__metadata nomeSocial
                 WITH nomeSocial.key = 'nomeSocial'
-                
+
                 ";
 
             if (strlen(preg_replace("/\D/", '', $keyword)) >= 11) {
                 $joins .= "
-                    LEFT JOIN 
-                        e.__metadata doc 
+                    LEFT JOIN
+                        e.__metadata doc
                     WITH doc.key = 'documento'";
             }
         });
@@ -1493,7 +1563,7 @@ class Theme extends MapasCulturais\Theme {
             'location',
 
         ];
-        
+
         $props = [
             'agent' => \MapasCulturais\Entities\Agent::getPropertiesMetadata(),
             'space' => \MapasCulturais\Entities\Space::getPropertiesMetadata(),
@@ -1509,7 +1579,7 @@ class Theme extends MapasCulturais\Theme {
         }
 
         return $_fields;
-        
+
     }
 
     function head() {
@@ -1664,8 +1734,10 @@ class Theme extends MapasCulturais\Theme {
         $this->enqueueStyle ('vendor', 'cropbox', '/vendor/cropbox/jquery.cropbox.css');
 
         // Quill
+        $this->enqueueScript('vendor', 'event-delegator', '/vendor/quill/eventDelegator.js');
         $this->enqueueScript('vendor', 'quill-js', '/vendor/quill/quill.js');
         $this->enqueueStyle ('vendor', 'quill-css', '/vendor/quill/quill.css');
+        $this->enqueueScript('vendor', 'quill-editor', '/vendor/quill/quillEditor.js');
 
     }
 
@@ -1722,6 +1794,9 @@ class Theme extends MapasCulturais\Theme {
 
         if (App::i()->config('mode') == 'staging')
             $this->enqueueStyle('app', 'staging', 'css/staging.css', array('main'));
+
+        // Mensagens com base no SweetAlert2
+        $this->enqueueScript('app', 'mc-messages', 'js/mcMessages.js', array('mapasculturais'));
     }
 
     function includeIbgeJS() {
@@ -1887,7 +1962,7 @@ class Theme extends MapasCulturais\Theme {
         $this->jsObject['geoDivisionsHierarchy'] = $app->config['app.geoDivisionsHierarchy'];
 
         $this->jsObject['defaultCountry'] = $app->config['app.defaultCountry'];
-        
+
         $this->enqueueScript('app', 'map', 'js/map.js');
     }
 
@@ -1976,7 +2051,7 @@ class Theme extends MapasCulturais\Theme {
         ]);
 
         $this->jsObject['registrationAutosaveTimeout'] = $app->config['registration.autosaveTimeout'];
-        
+
         $this->enqueueScript('app', 'entity.module.opportunity', 'js/ng.entity.module.opportunity.js', array('ng-mapasculturais'));
         $this->localizeScript('moduleOpportunity', [
             'unexpectedError'    => i::__('Um erro inesperado aconteceu.'),
@@ -2887,11 +2962,11 @@ class Theme extends MapasCulturais\Theme {
 
     public function renderModalFor($entity_name, $show_icon = true, $label = "", $classes = "", $use_modal = true) {
         $app = App::i();
-        
+
         if($app->user->is('guest')){
             return;
         }
-        
+
         $entity_classname = $app->controller($entity_name)->entityClassName;
 
         $current_entity_classname = $this->controller->entityClassName;
@@ -2989,7 +3064,7 @@ class Theme extends MapasCulturais\Theme {
                 } else if ($definition['type'] === 'string') {
 
                     $this->part('modal/field--input-text', ['entity_classname' => $entity_classname, 'field' => $field, 'definition' => $definition, 'modal_id' => $modal_id]);
-                    
+
                 } else if ($definition['type'] === 'text'){
                     $this->part("modal/field--textarea", ['entity_classname' => $entity_classname, 'field' => $field, 'definition' => $definition, 'modal_id' => $modal_id]);
 

@@ -4,6 +4,26 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.11.3] - 2025-12-12
+### Adicionado
+- Organização de autoload para uso correto do namespace
+- Criado componente
+- Adicionar confirmação para documentos pessoais
+
+### Melhorias
+- Componente McMessages
+- Validação de upload e arquivo das entidades
+- Melhorias no plugin de recursos
+- Em funcionalidades, metodos e classes
+
+## [5.11.2] - 2025-11-21
+### Adicionado
+- Criado possibilidade de bonificar um agente através dos avaliadores
+- Remoção de bonificação manual
+
+### Melhorias
+- Melhoria em estrutura de arquivos javascript
+
 ## [5.11.1] - 2025-10-21
 ### Corrigido
 - Correção para buscar agente ao se inscrever em uma oportunidade

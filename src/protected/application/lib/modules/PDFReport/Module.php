@@ -18,11 +18,11 @@ class Module extends \MapasCulturais\Module
             $resource = false;
 
             // VERIFICANDO SE TEM A INDICAÇÃO DE RECURSO
-            $isResource = array_key_exists('claimDisabled', $entity->metadata);
+            $isResource = array_key_exists('appealEnabled', $entity->metadata);
             if ($isResource) {
                 foreach ($entity->metadata as $key => $value) {
                     // SE O CAMPO EXISTIR E TIVER RECURSO HABILITADO
-                    if ($key == 'claimDisabled' && $value == 0) {
+                    if ($key == 'appealEnabled' && $value === 'Sim') {
                         $resource = true;
                     }
                 }

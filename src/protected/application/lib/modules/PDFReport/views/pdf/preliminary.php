@@ -4,7 +4,7 @@ $this->layout = 'nolayout-pdf';
 $sub = $app->view->jsObject['subscribers'];
 $nameOpportunity = $sub[0]->opportunity->name;
 $opportunity = $app->view->jsObject['opp'];
-$claimDisabled = $app->view->jsObject['claimDisabled'];
+$appealEnabled = $app->view->jsObject['appealEnabled'];
 
 include_once('header-pdf.php');
 

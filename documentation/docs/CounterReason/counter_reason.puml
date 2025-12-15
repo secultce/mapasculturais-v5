@@ -1,0 +1,51 @@
+@startuml
+
+!define PK_COLOR #0D1E0E
+!define FK_COLOR #2C6530
+
+class counter_reason {
+  {field} <color:PK_COLOR>+id: INT <<PK>></color>
+  {field} text: TEXT
+  {field} send: TIMESTAMP
+  {field} status: VARCHAR(32)
+  {field} reply: TEXT
+  {field} date_reply: TIMESTAMP
+  {field} <color:FK_COLOR>registration_id: INTEGER <<FK>></color>
+  {field} <color:FK_COLOR>opportunity_id: INTEGER <<FK>></color>
+  {field} <color:FK_COLOR>agent_id: INTEGER <<FK>></color>
+  {field} <color:FK_COLOR>reply_agent_id: INTEGER <<FK>></color>
+  {field} reply_publish: BOOLEAN = false
+  {field} create_timestamp: TIMESTAMP
+}
+
+class registration {
+  {field} <color:PK_COLOR>+id: INTEGER <<PK>></color>
+}
+
+class opportunity {
+  {field} <color:PK_COLOR>+id: INTEGER <<PK>></color>
+}
+
+class agent {
+  {field} <color:PK_COLOR>+id: INTEGER <<PK>></color>
+}
+
+counter_reason "N" --> "1" registration : registration_id
+counter_reason "N" --> "1" opportunity : opportunity_id
+counter_reason "N" --> "1" agent : agent_id (author)
+counter_reason "N" --> "0..1" agent : reply_agent_id
+
+note right of counter_reason
+  **Campos obrigatórios (NOT NULL):**
+  - id, status, registration_id
+  - opportunity_id, agent_id
+
+  **Campos opcionais (NULL):**
+  - text, reply, date_reply
+  - reply_agent_id
+
+  **Valor padrão:**
+  - reply_publish: false
+end note
+
+@enduml
