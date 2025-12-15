@@ -69,7 +69,8 @@ return [
             'agente'        => 'agent',
             'evento'        => 'event',
             'inscricao'     => 'registration',
-            'prestacoes-de-contas' => 'accountability'
+            'prestacoes-de-contas' => 'accountability',
+            'contrarrazoes' => 'counterArguments',
         ],
 
         'readableNames' => [
