@@ -924,59 +924,6 @@ class Theme extends MapasCulturais\Theme {
 
 
         });
-        
-        
-        $app->hook('entity(Agent).meta(cpf).<<insert|update|save>>:before', function () {
-            $app = App::i();
-            $meta = $this;
-            $agent = $meta->owner;
-            $cpf = $meta->value;
-
-            if (!$agent || !$agent->id) {
-                return;
-            }
-
-            if (!$cpf) {
-                return;
-            }
-
-            if(!Utils::isUniqueMeta('cpf', $cpf, $agent)) {
-                 return $app->halt(200, json_encode([
-                    'error' => true,
-                    'data' => [
-                            'cpf' => ["O número de CPF já está cadastrado."]
-                        ]
-                    ])
-                );
-            }
-
-        });
-
-        $app->hook('entity(Agent).meta(cnpj).<<insert|update>>:before', function () {
-            $app = App::i();
-            $meta = $this;
-            $agent = $meta->owner;
-            $cnpj = $meta->value;
-
-            if (!$agent || !$agent->id) {
-                return;
-            }
-
-            if (!$cnpj) {
-                return;
-            }
-
-            if(!Utils::isUniqueMeta('cnpj', $cnpj, $agent)) {
-                 return $app->halt(200, json_encode([
-                    'error' => true,
-                    'data' => [
-                            'cnpj' => ["O número de CNPJ já está cadastrado."]
-                        ]
-                    ])
-                );
-            }
-
-        });
 
         $app->hook('entity(<<agent|space>>).<<insert|update>>:before', function() use ($app) {
 
