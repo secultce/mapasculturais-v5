@@ -48,6 +48,14 @@
             <li><a <?php if($this->template == 'panel/registrations') echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'registrations') ?>"><span class="icon icon-opportunity"></span> <?php \MapasCulturais\i::_e("Minhas Inscrições");?></a></li>
             <?php $this->applyTemplateHook('nav.panel.registrations','after'); ?>
 
+            <?php $this->applyTemplateHook('nav.panel.counterArguments','before'); ?>
+            <li>
+                <a <?php if ($this->template == 'panel/counter-arguments') echo 'class="active"'; ?> href="<?= $app->createUrl('panel', 'counterArguments') ?>">
+                    <span class="icon icon-opportunity"></span> Minhas Contrarrazões
+                </a>
+            </li>
+            <?php $this->applyTemplateHook('nav.panel.counterArguments','after'); ?>
+
             <?php $this->applyTemplateHook('nav.panel.accountability', 'before'); ?>
             <li>
                 <a <?php if ($this->template == 'panel/accountability') echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'accountability') ?>">

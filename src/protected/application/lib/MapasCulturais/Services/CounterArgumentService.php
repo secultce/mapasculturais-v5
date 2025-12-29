@@ -33,7 +33,10 @@ class CounterArgumentService
 
     public function send(array $data)
     {
-        $this->counterArgumentEntity->send($data);
+        $registration = App::i()->repo('Registration')->find($data['registration']);
+        $this->counterArgumentEntity->text = $data['text'];
+        $this->counterArgumentEntity->registration = $registration;
+        $this->counterArgumentEntity->save();
 
         foreach ($_FILES as $file) {
             App::i()->disableAccessControl();

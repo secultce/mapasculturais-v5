@@ -27,6 +27,10 @@ class Module extends \MapasCulturais\Module
                 'registration' => $registration,
             ]);
         });
+
+        App::i()->hook('template(panel.counterArguments.view):before', function () {
+            App::i()->view->enqueueScript('app', 'counter-argument', 'counter-argument/js/proponent.js');
+        });
     }
 
     public function register()
@@ -51,7 +55,7 @@ class Module extends \MapasCulturais\Module
         ]);
 
         App::i()->registerFileGroup(
-            'counter-argument',
+            'contrarrazao',
             new \MapasCulturais\Definitions\FileGroup(
                 'counter-argument-attachment',
                 [

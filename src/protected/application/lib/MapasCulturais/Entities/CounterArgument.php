@@ -3,18 +3,24 @@
 namespace MapasCulturais\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
-use MapasCulturais\App;
+use MapasCulturais\Traits;
 
 /**
  * CounterArgument
  * 
  * @ORM\Table(name="counter_argument")
  * @ORM\Entity
- * @ORM\entity(repositoryClass="MapasCulturais\Repository")
+ * @ORM\entity(repositoryClass="MapasCulturais\Repositories\CounterArgument")
  */
 class CounterArgument extends \MapasCulturais\Entity
 {
+    use Traits\EntityFiles;
+
     const STATUS_SEND = self::STATUS_ENABLED;
+
+    const STATUSES = [
+        self::STATUS_SEND => 'Enviado',
+    ];
 
     /**
      * @var integer
@@ -43,12 +49,20 @@ class CounterArgument extends \MapasCulturais\Entity
     /**
      * @var \MapasCulturais\Entities\Registration
      *
-     * @ORM\OneToOne(targetEntity="MapasCulturais\Entities\Registration", inversedBy="CounterArgument\Entities\CounterArgument", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="MapasCulturais\Entities\Registration", cascade={"persist"})
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="registration_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $registration;
+
+    /**
+     * @var \MapasCulturais\Entities\CounterArgumentFile[] Files
+     *
+     * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\CounterArgumentFile", fetch="EXTRA_LAZY", mappedBy="owner", cascade="remove", orphanRemoval=true)
+     * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
+     */
+    protected $__files;
 
     /**
      * @var \DateTime
@@ -63,11 +77,4 @@ class CounterArgument extends \MapasCulturais\Entity
      * @ORM\Column(name="update_timestamp", type="datetime", nullable=true)
      */
     protected $updateTimestamp;
-
-    public function send(array $data)
-    {
-        $this->text = $data['text'];
-        $this->registration = App::i()->repo('Registration')->find($data['registration']);
-        $this->save();
-    }
 }
