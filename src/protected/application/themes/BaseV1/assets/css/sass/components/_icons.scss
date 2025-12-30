@@ -103,6 +103,26 @@ h1 .icon {
         content: $unicode-opportunity;
     }
 }
+.icon-registrations {
+    &:before {
+        content: $unicode-registrations;
+    }
+}
+.icon-recourses {
+    &:before {
+        content: $unicode-recourses;
+    }
+}
+.icon-counter-arguments {
+    &:before {
+        content: $unicode-counter-arguments;
+    }
+}
+.icon-accountability {
+    &:before {
+        content: $unicode-accountability;
+    }
+}
 .icon-download {
     &:before {
         content: $unicode-download;
@@ -263,3 +283,4 @@ h1 .icon {
         right: -1px;
     }
 }
+
