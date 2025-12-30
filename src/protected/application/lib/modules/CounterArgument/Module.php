@@ -21,15 +21,18 @@ class Module extends \MapasCulturais\Module
 
             $counterArgumentService = new CounterArgumentService();
             $isCounterArgumentPeriod = $counterArgumentService->isCounterArgumentPeriod($registration->opportunity);
+            $hasCounterArgument = App::i()->repo('CounterArgument')->findOneBy(['registration' => $registration]);
 
             $this->part('counter-argument/send-btn', [
                 'isCounterArgumentPeriod' => $isCounterArgumentPeriod,
                 'registration' => $registration,
+                'hasCounterArgument' => $hasCounterArgument
             ]);
         });
 
         App::i()->hook('template(panel.counterArguments.view):before', function () {
             App::i()->view->enqueueScript('app', 'counter-argument', 'counter-argument/js/proponent.js');
+            App::i()->view->enqueueStyle('app', 'counter-argument', 'counter-argument/css/panel.css');
         });
     }
 

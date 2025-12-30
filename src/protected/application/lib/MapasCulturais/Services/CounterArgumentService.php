@@ -6,6 +6,7 @@ use DateTime;
 use MapasCulturais\App;
 use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Entities\CounterArgumentFile;
+use MapasCulturais\Entities\Registration;
 
 class CounterArgumentService
 {
@@ -31,25 +32,47 @@ class CounterArgumentService
         return false;
     }
 
-    public function send(array $data)
+    public function send(string $text, Registration $registration)
     {
-        $registration = App::i()->repo('Registration')->find($data['registration']);
-        $this->counterArgumentEntity->text = $data['text'];
+        $this->counterArgumentEntity->text = $text;
         $this->counterArgumentEntity->registration = $registration;
         $this->counterArgumentEntity->save();
 
-        foreach ($_FILES as $file) {
+        $this->saveFiles($_FILES, $this->counterArgumentEntity);
+
+        App::i()->em->flush();
+    }
+
+    public function update(array $data)
+    {
+        $counterArgument = App::i()->repo('CounterArgument')->find($data['id']);
+        $counterArgument->text = $data['text'];
+        $counterArgument->updateTimestamp = new DateTime();
+
+        $this->saveFiles($_FILES, $counterArgument);
+
+        $counterArgument->save(true);
+        App::i()->em->flush();
+    }
+
+    private function saveFiles($files, $counterArgument)
+    {
+        foreach ($files as $file) {
             App::i()->disableAccessControl();
 
             $counterArgumentFile = new CounterArgumentFile($file);
             $counterArgumentFile->setGroup('counter-argument-attachment');
-            $counterArgumentFile->owner = $this->counterArgumentEntity;
+            $counterArgumentFile->owner = $counterArgument;
             $counterArgumentFile->private = true;
             $counterArgumentFile->save();
 
             App::i()->enableAccessControl();
         }
+    }
 
-        App::i()->em->flush();
+    public function removeFile(int $fileId)
+    {
+        $counterArgumentFile = App::i()->repo('CounterArgumentFile')->find($fileId);
+        $counterArgumentFile->delete(true);
     }
 }
