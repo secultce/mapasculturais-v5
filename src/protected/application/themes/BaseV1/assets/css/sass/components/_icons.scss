@@ -123,6 +123,16 @@ h1 .icon {
         content: $unicode-accountability;
     }
 }
+.icon-public-consultation {
+    &:before {
+        content: $unicode-public-consultation;
+    }
+}
+.icon-afirmative-politics {
+    &:before {
+        content: $unicode-afirmative-politics;
+    }
+}
 .icon-download {
     &:before {
         content: $unicode-download;
