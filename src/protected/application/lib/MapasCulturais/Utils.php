@@ -343,4 +343,36 @@ class Utils {
             'video/quicktime',
         ];
     }
+
+    public static function validateFilesMimeType(array $files, array $allowedMimeTypes): void
+    {
+        if (empty($files) || empty($allowedMimeTypes)) {
+            return;
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+
+        foreach ($files as $file) {
+            $tmpName = $file['tmp_name'] ?? null;
+            $name    = $file['name'] ?? '';
+
+            if (!$tmpName || !is_uploaded_file($tmpName)) {
+                continue;
+            }
+
+            $mimeType = $finfo->file($tmpName);
+            $extension = strtolower(
+                pathinfo($name, PATHINFO_EXTENSION)
+            ) ?: 'desconhecido';
+
+            if (!in_array($mimeType, $allowedMimeTypes, true)) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Tipo de arquivo não permitido: .%s',
+                        $extension
+                    )
+                );
+            }
+        }
+    }
 }

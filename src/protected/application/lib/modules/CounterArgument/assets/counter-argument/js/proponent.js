@@ -43,9 +43,10 @@ const counterArgument = {
                 })
             },
             error(err) {
+                console.log(err)
                 Swal.fire({
                     title: 'Contrarrazão não enviada',
-                    text: 'Erro ao enviar contrarrazão. Tente novamente.',
+                    text: err?.responseJSON?.message || 'Erro ao enviar contrarrazão. Tente novamente.',
                     icon: 'error',
                 })
             }
