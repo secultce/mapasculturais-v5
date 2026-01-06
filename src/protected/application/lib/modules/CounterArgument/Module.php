@@ -31,8 +31,22 @@ class Module extends \MapasCulturais\Module
         });
 
         App::i()->hook('template(panel.counterArguments.view):before', function () {
+            App::i()->view->enqueueScript('app', 'counter-argument-common', 'counter-argument/js/common.js');
             App::i()->view->enqueueScript('app', 'counter-argument', 'counter-argument/js/proponent.js');
             App::i()->view->enqueueStyle('app', 'counter-argument', 'counter-argument/css/panel.css');
+        });
+
+        App::i()->hook('template(opportunity.single.opportunity-recourse--tab):after', function () {
+            $this->part('counter-argument/opportunity--tab');
+        });
+
+        App::i()->hook('template(opportunity.single.tabs-content):end', function () {
+            App::i()->view->enqueueScript('app', 'counter-argument', 'counter-argument/js/common.js');
+
+            $opportunity = $this->controller->requestedEntity;
+            $counterArguments = App::i()->repo('CounterArgument')->getAllByOpportunityId($opportunity->id);
+
+            $this->part('counter-argument/opportunity', ['counterArguments' => $counterArguments]);
         });
     }
 

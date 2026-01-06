@@ -51,13 +51,6 @@ const counterArgument = {
             }
         })
     },
-    view(text) {
-        Swal.fire({
-            title: 'Contrarrazão',
-            html: text,
-            width: 700,
-        })
-    },
     update(id) {
         const formData = new FormData()
         formData.append('id', id)
@@ -165,11 +158,6 @@ $(() => {
                 counterArgument.send(registration)
             }
         })
-    })
-
-    $('[btn-view-counter-argument]').on('click', function (event) {
-        const text = event.currentTarget.dataset.text
-        counterArgument.view(text)
     })
 
     $('[edit-counter-argument-btn]').on('click', function (event) {

@@ -18,4 +18,16 @@ class CounterArgument extends \MapasCulturais\Repository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getAllByOpportunityId($opportunityId): array
+    {
+        $qb = App::i()->em->createQueryBuilder();
+        $qb->select('ca')
+            ->from(CounterArgumentEntity::class, 'ca')
+            ->innerJoin('ca.registration', 'r')
+            ->where('r.opportunity = :opportunityId')
+            ->setParameter('opportunityId', $opportunityId);
+
+        return $qb->getQuery()->getResult();
+    }
 }
