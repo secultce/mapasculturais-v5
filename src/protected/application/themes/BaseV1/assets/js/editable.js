@@ -899,11 +899,12 @@ MapasCulturais.MetalistManager = {
                 const url   = $.trim($linkField.val());
 
                 if (group === 'videos') {
-                    if (!McValidations.requireHttps(url, 'insertVideoUrl', $errorTag, labels)) return false;
-                    if (!McValidations.requireField(url, 'insertVideoUrl', $errorTag, labels)) return false;
-                    if (!McValidations.requireField(title, 'insertVideoTitle', $errorTag, labels)) return false;
-                    if (!McValidations.isValidUrl(url, 'insertVideoUrl', $errorTag, labels)) return false;    
-                
+                    if (
+                        !McValidations.requireHttps(url, 'insertVideoUrl', $errorTag, labels) ||
+                        !McValidations.requireField(url, 'insertVideoUrl', $errorTag, labels) ||
+                        !McValidations.requireField(title, 'insertVideoTitle', $errorTag, labels) ||
+                        !McValidations.isValidUrl(url, 'insertVideoUrl', $errorTag, labels)
+                    ) return false;
                     const isValidYouTube = McValidations.isValidYouTube(url, 'insertVideoUrl', $errorTag, labels);
                     const isValidVimeo   = McValidations.isValidVimeo(url, 'insertVideoUrl', $errorTag, labels);
 
@@ -912,9 +913,11 @@ MapasCulturais.MetalistManager = {
                         return false;
                     }
                 }else if (group === 'links'){
-                    if (!McValidations.requireHttps(url, 'insertLinkUrl', $errorTag, labels)) return false;
-                    if (!McValidations.requireField(url, 'insertLinkUrl', $errorTag, labels)) return false;
-                    if (!McValidations.requireField(title, 'insertLinkTitle', $errorTag, labels)) return false;
+                    if (
+                        !McValidations.requireHttps(url, 'insertLinkUrl', $errorTag, labels) ||
+                        !McValidations.requireField(url, 'insertLinkUrl', $errorTag, labels) ||
+                        !McValidations.requireField(title, 'insertLinkTitle', $errorTag, labels)
+                    ) return false;
                 }
             },
             success: function (response, statusText, xhr, $form)  {
