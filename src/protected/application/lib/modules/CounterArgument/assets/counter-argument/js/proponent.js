@@ -90,7 +90,7 @@ const counterArgument = {
             error(err) {
                 Swal.fire({
                     title: 'Contrarrazão não atualizada',
-                    text: 'Erro ao atualizar contrarrazão. Tente novamente.',
+                    text: err?.responseJSON?.message || 'Erro ao atualizar contrarrazão. Tente novamente.',
                     icon: 'error',
                 })
             }
