@@ -8,10 +8,12 @@ $opportunity = $registration->opportunity;
 ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    //organizes registration action buttons and badges into rows
-    //add the appropriate classes to your buttons/badges:
-    //.registration-panel-button for buttons
-    //.registration-panel-badge for badges
+    /*
+        organizes registration action buttons and badges into rows
+        add the appropriate classes to your buttons/badges:
+        .resgistration-panel-button for buttons
+        .registration-panel-badge for badges
+    */
     document.querySelectorAll('.registration-actions').forEach(container => {
 
         const badges = Array.from(
