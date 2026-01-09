@@ -2,3 +2,33 @@
     margin-left: 5px;
     cursor: pointer;
 }
+
+.btn-counter-arguments {
+    border: 1px solid #c3c3c3;
+    border-radius: 5px;
+    margin: 2px;
+    background-color: transparent;
+    color:black;
+    cursor: pointer;
+}
+
+.truncate-file {
+    display: inline-block;
+    max-width: 10em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.file-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.icon-remove-counter-argument-file {
+    flex-shrink: 0;
+    cursor: pointer;
+}
