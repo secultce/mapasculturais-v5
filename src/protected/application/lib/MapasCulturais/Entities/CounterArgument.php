@@ -16,10 +16,14 @@ class CounterArgument extends \MapasCulturais\Entity
 {
     use Traits\EntityFiles;
 
-    const STATUS_SEND = self::STATUS_ENABLED;
+    const STATUS_WAITING = self::STATUS_ENABLED;
+    const STATUS_DEFERRED = 10;
+    const STATUS_REJECTED = 3;
 
     const STATUSES = [
-        self::STATUS_SEND => 'Enviado',
+        self::STATUS_WAITING => 'Aguardando resposta',
+        self::STATUS_DEFERRED => 'Deferida',
+        self::STATUS_REJECTED => 'Indeferida',
     ];
 
     /**
@@ -44,7 +48,7 @@ class CounterArgument extends \MapasCulturais\Entity
      *
      * @ORM\Column(name="status", type="smallint", nullable=false)
      */
-    protected $status = self::STATUS_SEND;
+    protected $status = self::STATUS_WAITING;
 
     /**
      * @var \MapasCulturais\Entities\Registration
@@ -63,6 +67,13 @@ class CounterArgument extends \MapasCulturais\Entity
      * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
      */
     protected $__files;
+
+    /**
+     * @var \MapasCulturais\Entities\CounterArgumentResponse|null
+     *
+     * @ORM\OneToOne(targetEntity="MapasCulturais\Entities\CounterArgumentResponse", mappedBy="counterArgument", fetch="LAZY")
+     */
+    protected $response;
 
     /**
      * @var \DateTime

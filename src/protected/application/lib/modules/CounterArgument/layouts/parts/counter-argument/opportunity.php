@@ -16,6 +16,7 @@ use MapasCulturais\Entities\CounterArgument;
                     <th>Contrarrazão</th>
                     <th>Situação</th>
                     <th>Data do envio</th>
+                    <th>Resposta</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,6 +51,16 @@ use MapasCulturais\Entities\CounterArgument;
                         </td>
                         <td>
                             <?= $counterArgument->createTimestamp->format('d/m/Y H:i') ?>
+                        </td>
+                        <td>
+                            <button
+                                type="button"
+                                data-id="<?= $counterArgument->id ?>"
+                                data-text="<?= $counterArgument->response->text ?? '' ?>"
+                                data-status="<?= $counterArgument->status ?>"
+                                btn-view-counter-argument-response>
+                                <i class='fas fa-edit'></i>
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
