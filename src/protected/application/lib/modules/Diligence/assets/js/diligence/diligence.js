@@ -43,9 +43,7 @@ $(document).ready(function () {
             if (res.message === 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
-                $("#subject_info_status_diligence").hide();//Oculta o assunto da diligencia
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
-
             }
             if (res.message === 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -55,7 +53,6 @@ $(document).ready(function () {
                         $("#paragraph_loading_content").hide();
                     }
                 });
-                $("#subject_info_status_diligence").hide();
             }
             if (res.message !== 'sem_diligencia') {
                 EntityDiligence.hideBtnOpenDiligence();
@@ -67,8 +64,12 @@ $(document).ready(function () {
                 if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence === 'Sim') {
                     showBtnActionsDiligence();
                 }
+                if(message !== 'diligencia_aberta'){
+                    $("#subject_info_status_diligence").show();
+                }
             }
             $("#paragraph_loading_content").hide();
+            
         })
         .catch(() => {
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');

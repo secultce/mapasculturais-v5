@@ -1,8 +1,8 @@
 <?php
 $function = "";
-if($isProponent){
+if ($isProponent) {
     $function = "saveAnswerProponente(0)";
-}else{
+} else {
     $function = "saveDiligence(0, 0, $('#id-input-diligence').val())";
 }
 ?>

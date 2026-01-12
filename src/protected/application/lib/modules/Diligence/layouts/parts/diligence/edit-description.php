@@ -5,8 +5,12 @@
         <div>
         <?php if($titleButton !== 'expirou') : ?>
             <a class='btn btn-primary' 
-                onclick='editDescription(<?php echo json_encode($resultsDraft); ?>,<?= $id; ?>)'>
-                <?= $titleButton; ?>
+                onclick="editDescription(
+                    <?= htmlspecialchars(json_encode($resultsDraft), ENT_QUOTES, 'UTF-8'); ?>,
+                    <?= (int)$id ?>
+                )"
+            >
+                    <?= $titleButton; ?>
             </a>
         <?php endif; ?>
         <?php if ($type !== 'proponent') : ?>
