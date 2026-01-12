@@ -51,4 +51,16 @@ class Controller extends \MapasCulturais\Controller
             SentryService::captureExceptions($th);
         }
     }
+
+    public function POST_respond()
+    {
+        $data = $this->getPostData();
+
+        try {
+            $this->counterArgumentService->saveResponse($data);
+            $this->json(['message' => 'Sua resposta para a contrarrazão foi salva com sucesso.']);
+        } catch (\Throwable $th) {
+            SentryService::captureExceptions($th);
+        }
+    }
 }

@@ -41,7 +41,8 @@ class Module extends \MapasCulturais\Module
         });
 
         App::i()->hook('template(opportunity.single.tabs-content):end', function () {
-            App::i()->view->enqueueScript('app', 'counter-argument', 'counter-argument/js/common.js');
+            App::i()->view->enqueueScript('app', 'counter-argument-common', 'counter-argument/js/common.js');
+            App::i()->view->enqueueScript('app', 'counter-argument-admin', 'counter-argument/js/admin.js');
 
             $opportunity = $this->controller->requestedEntity;
             $counterArguments = App::i()->repo('CounterArgument')->getAllByOpportunityId($opportunity->id);

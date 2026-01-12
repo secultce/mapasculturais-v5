@@ -6,15 +6,18 @@ use DateTime;
 use MapasCulturais\App;
 use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Entities\CounterArgumentFile;
+use MapasCulturais\Entities\CounterArgumentResponse;
 use MapasCulturais\Entities\Registration;
 
 class CounterArgumentService
 {
     private $counterArgumentEntity;
+    private $counterArgumentResponseEntity;
 
     public function __construct()
     {
         $this->counterArgumentEntity = new CounterArgument();
+        $this->counterArgumentResponseEntity = new CounterArgumentResponse();
     }
 
     public function isCounterArgumentPeriod($opportunity)
@@ -74,5 +77,25 @@ class CounterArgumentService
     {
         $counterArgumentFile = App::i()->repo('CounterArgumentFile')->find($fileId);
         $counterArgumentFile->delete(true);
+    }
+
+    public function saveResponse(array $data)
+    {
+        $counterArgument = App::i()->repo('CounterArgument')->find($data['counterArgumentId']);
+        $counterArgumentResponse = App::i()->repo('CounterArgumentResponse')->findOneBy(['counterArgument' => $counterArgument->id]);
+
+        if ($counterArgumentResponse) {
+            $counterArgumentResponse->text = $data['text'];
+            $counterArgumentResponse->updateTimestamp = new DateTime();
+            $counterArgumentResponse->save(true);
+        } else {
+            $this->counterArgumentResponseEntity->text = $data['text'];
+            $this->counterArgumentResponseEntity->owner = App::i()->getUser()->profile;
+            $this->counterArgumentResponseEntity->counterArgument = $counterArgument;
+            $this->counterArgumentResponseEntity->save(true);
+        }
+
+        $counterArgument->status = (int)$data['status'];
+        $counterArgument->save(true);
     }
 }
