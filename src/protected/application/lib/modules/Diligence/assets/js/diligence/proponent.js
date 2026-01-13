@@ -23,6 +23,8 @@ $(document).ready(function () {
     .then((res) => {
         const draftStatus = 0;
         const diligences = res.data;
+        $("#proponent-multi-body").removeAttr("hidden");
+        $("#draft-description-diligence").removeAttr("hidden")
         const diligenceSent = diligences?.filter(diligence => {
             return diligence?.status > draftStatus;
         });
@@ -47,7 +49,7 @@ $(document).ready(function () {
             }
         }
 
-        if(res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
+        if (res.message !== 'sem_diligencia' &&  MapasCulturais.isEvaluator === false) {
             hideAnswerDraft();
             let idsDiligences = [];
             res.data.forEach((answer, index) => {
@@ -92,7 +94,10 @@ $(document).ready(function () {
                 $("#descriptionDiligence").show();
             }
         }
-
+        if (res.message === 'diligencia_aberta' && !res.data[0].answer) {
+            $("#descriptionDiligence").removeAttr("hidden");
+            $("#attachment-info").removeAttr("hidden");
+        }
         $("#upload-file-diligence").submit(() => {
             const numberSavedFiles = MapasCulturais.countFileUpload + 1;
             const useMultiDiligence = MapasCulturais.entity.object.opportunity.use_multiple_diligence;
@@ -342,6 +347,8 @@ function hideViewActions()
     $("#descriptionDiligence").hide();
     $("#div-content-all-diligence-send").show();
     $("#answer_diligence").show();
+    $("#div-btn-actions-proponent").attr("hidden");
+    $("#attachment-info").attr("hidden");
     $(".footer-btn-delete-file-diligence").hide();
 }
 

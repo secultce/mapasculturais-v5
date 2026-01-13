@@ -1,5 +1,5 @@
 
-<div id='draft-description-diligence' class='div-draft-description-diligence'>
+<div id='draft-description-diligence' class='div-draft-description-diligence' hidden>
     <div style='display: flex; justify-content: space-between; align-items: center;'>
         <span style='font-size: medium; color: #000'><?= $titleDraft; ?> <br /></span>
         <div>

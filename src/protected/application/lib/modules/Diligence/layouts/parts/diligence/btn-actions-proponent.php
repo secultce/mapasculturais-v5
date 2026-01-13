@@ -19,7 +19,7 @@ $files = DiligenceRepo::getFilesDiligence($diligenceId);
 $this->jsObject['countFileUpload'] = count($files);
 ?>
 
-<div class="widget flex-items" id="div-btn-actions-proponent">
+<div class="widget flex-items" id="div-btn-actions-proponent" hidden>
     <div style="width: 50%; float: left;">
         <span class="title-send-file">ENVIAR ARQUIVO</span><br>
         <?php if ($showText) { ?>
@@ -59,7 +59,7 @@ $this->jsObject['countFileUpload'] = count($files);
     </div>
 </div>
 
-<div style="width: 100%" id="attachment-info">
+<div style="width: 100%" id="attachment-info" hidden>
     <span>Informações sobre o anexo:</span>
     <ul style="color: #505050;">
         <?php if (is_null($entity->opportunity->use_multiple_diligence) || $entity->opportunity->use_multiple_diligence == 'Não') : ?>

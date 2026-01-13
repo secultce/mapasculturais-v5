@@ -40,9 +40,14 @@ $(document).ready(function () {
     EntityDiligence.showContentDiligence()
         .then((res) => {
             let actions = true;
+            $("#diligence-diligent-body").removeAttr("hidden");
+            $("#li-btn-opend-diligence").removeAttr("hidden");
             if (res.message === 'sem_diligencia') {
                 $("#paragraph_loading_content").hide();
                 $("#paragraph_info_status_diligence").html('A sua diligência ainda não foi enviada');
+                if(res.data[0]?.status == 0){
+                    $("#draft-description-diligence").removeAttr("hidden");
+                }
                 if (res.data && res.data[0]?.status == 0) EntityDiligence.hideBtnOpenDiligence();
             }
             if (res.message === 'diligencia_aberta') {
@@ -64,14 +69,13 @@ $(document).ready(function () {
                 if (actions && MapasCulturais.entity.object.opportunity.use_multiple_diligence === 'Sim') {
                     showBtnActionsDiligence();
                 }
-                if(message !== 'diligencia_aberta'){
-                    $("#subject_info_status_diligence").show();
-                }
+                
             }
             $("#paragraph_loading_content").hide();
             
         })
-        .catch(() => {
+        .catch((err) => {
+            console.log(err)
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
         });
 
@@ -112,12 +116,11 @@ function openDiligence(status) {
     //Load
     diligenceMessage.loadSimple();
     //Mostra opção do assunto
-    $("#subject_info_status_diligence").show();
-
     setTimeout(() => {
         Swal.close();
     }, 1000);
-    $("#descriptionDiligence").show();
+    $("#subject_info_status_diligence").removeAttr("hidden");
+    $("#descriptionDiligence").removeAttr("hidden");
     showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
     EntityDiligence.hideRegistration();
@@ -128,7 +131,7 @@ function editDescription(description, id) {
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
     //Mostrando itens de assunto
-    $("#subject_info_status_diligence").show();
+    $("#subject_info_status_diligence").removeAttr("hidden");
 }
 
 //Mostrar os botões de ação da diligência
