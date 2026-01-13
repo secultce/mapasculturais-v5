@@ -75,7 +75,6 @@ $(document).ready(function () {
             
         })
         .catch((err) => {
-            console.log(err)
             MapasCulturais.Messages.error('Ocorreu um erro ao carregar um conteúdo');
         });
 
