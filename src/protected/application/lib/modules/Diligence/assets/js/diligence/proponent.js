@@ -96,6 +96,7 @@ $(document).ready(function () {
         }
         if (res.message === 'diligencia_aberta' && !res.data[0].answer) {
             $("#descriptionDiligence").removeAttr("hidden");
+            $("#div-btn-actions-proponent").removeAttr("hidden");
             $("#attachment-info").removeAttr("hidden");
         }
         $("#upload-file-diligence").submit(() => {
@@ -346,9 +347,9 @@ function hideViewActions()
     $("#div-btn-actions-proponent").hide();
     $("#descriptionDiligence").hide();
     $("#div-content-all-diligence-send").show();
+    $("#div-btn-actions-proponent").attr("hidden",true);
+    $("#attachment-info").attr("hidden",true);
     $("#answer_diligence").show();
-    $("#div-btn-actions-proponent").attr("hidden");
-    $("#attachment-info").attr("hidden");
     $(".footer-btn-delete-file-diligence").hide();
 }
 
