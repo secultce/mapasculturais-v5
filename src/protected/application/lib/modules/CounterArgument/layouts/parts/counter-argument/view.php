@@ -38,17 +38,19 @@ use MapasCulturais\Entities\CounterArgument;
                             </a>
                         </td>
                         <td>
-                            <button type="button" data-text="<?= $counterArgument->text ?>" btn-view-counter-argument>
+                            <button type="button"  class="btn-counter-arguments" data-text="<?= htmlspecialchars($counterArgument->text, ENT_QUOTES, 'UTF-8') ?>" btn-view-counter-argument>
                                 <i class='fas fa-eye'></i>
                             </button>
                             <?php if ($counterArgument->getFiles('counter-argument-attachment')) : ?>
                                 <div>
                                     <?php foreach ($counterArgument->getFiles('counter-argument-attachment') as $file) : ?>
                                         <div>
-                                            <a href="<?= $file->url ?>"><?= $file->name ?></a>
-                                            <span class="icon-remove-counter-argument-file" remove-counter-argument-file data-file-id="<?= $file->id ?>" title="Remover arquivo">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </span>
+                                            <p class="file-row">
+                                                <a href="<?= $file->url ?>"  class="truncate-file" title="<?= $file->name ?>"><?= $file->name ?></a>
+                                                <span class="icon-remove-counter-argument-file" remove-counter-argument-file data-file-id="<?= $file->id ?>" title="Remover arquivo">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            </p>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -66,7 +68,7 @@ use MapasCulturais\Entities\CounterArgument;
                             </button>
                         </td>
                         <td>
-                            <button type="button" data-id="<?= $counterArgument->id ?>" data-text="<?= $counterArgument->text ?>" edit-counter-argument-btn>
+                            <button type="button" class="btn-counter-arguments" data-id="<?= $counterArgument->id ?>" data-text="<?= htmlspecialchars($counterArgument->text, ENT_QUOTES, 'UTF-8') ?>" edit-counter-argument-btn>
                                 <i class='fas fa-edit'></i>
                             </button>
                         </td>
