@@ -63,7 +63,7 @@ use MapasCulturais\Entities\CounterArgument;
                             <?= $counterArgument->createTimestamp->format('d/m/Y H:i') ?>
                         </td>
                         <td>
-                            <button type="button" data-text="<?= $counterArgument->response ?>" btn-view-counter-argument-response>
+                            <button type="button" class="btn-counter-arguments" data-text="<?= $counterArgument->response ?>" btn-view-counter-argument-response>
                                 <i class='fas fa-eye'></i>
                             </button>
                         </td>
