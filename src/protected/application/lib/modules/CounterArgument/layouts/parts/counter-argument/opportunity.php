@@ -42,9 +42,6 @@ use MapasCulturais\Entities\CounterArgument;
                                         <?php foreach ($counterArgument->getFiles('counter-argument-attachment') as $file) : ?>
                                             <div>
                                                 <a href="<?= $file->url ?>"  class="truncate-file" title="<?= $file->name ?>"><?= $file->name ?></a>
-                                                <span class="icon-remove-counter-argument-file" remove-counter-argument-file data-file-id="<?= $file->id ?>" title="Remover arquivo">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </span>
                                             </div>
                                         <?php endforeach; ?>
                                     </p>
