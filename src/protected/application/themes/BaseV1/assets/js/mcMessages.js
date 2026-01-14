@@ -11,7 +11,7 @@ var McMessages = (function () {
     }
 
     function success(title, text, time = null) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'success',
@@ -116,7 +116,7 @@ var McMessages = (function () {
     }
 
     function custom(title, type, html = null, showConfirmButton = false) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             icon: type,
             html: html,

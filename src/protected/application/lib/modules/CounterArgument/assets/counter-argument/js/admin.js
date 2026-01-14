@@ -24,23 +24,14 @@ const counterArgumentAdmin = {
             },
             dataType: "json",
             success(res) {
-                Swal.fire({
-                    title: 'Resposta salva',
-                    text: res.message,
-                    icon: 'success',
-                    allowOutsideClick: false,
-                }).then(res => {
+                McMessages.success('Resposta salva', res.message).then((res) => {
                     if (res.isConfirmed) {
                         window.location.reload()
                     }
                 })
             },
             error(err) {
-                Swal.fire({
-                    title: 'Sua resposta não foi salva',
-                    text: 'Erro ao salvar resposta da contrarrazão. Tente novamente.',
-                    icon: 'error',
-                })
+                McMessages.error('Sua resposta não foi salva', 'Erro ao salvar resposta da contrarrazão. Tente novamente.')
             }
         })
     },
@@ -54,48 +45,54 @@ $(() => {
 
         let quillEditor
 
-        Swal.fire({
+        QuillEditor.open({
             title: 'Responder Contrarrazão',
+            initialHtml: text,
+            entityId: counterArgumentId,
             html: `
-                <p class="sweetalert-plain-text">Digite sua resposta para esta contrarrazão</p>
-                <div>
-                    <div counter-argument-response-text class="form-group">${text}</div>
-                    <div class="form-group">
-                        <label for="counter-argument-status" class="sweetalert-label">Situação:</label>
-                        <select class="form-control" id="counter-argument-status">
-                            <option selected disabled>--- Selecione uma situação ---</option>
-                            <option ${status == 10 ? 'selected' : ''} value="10">Deferida</option>
-                            <option ${status == 3 ? 'selected' : ''} value="3">Indeferida</option>
-                        </select>
-                    </div>
-                </div>`,
-            width: 700,
-            confirmButtonText: 'Salvar',
-            cancelButtonText: 'Cancelar',
-            showCancelButton: true,
-            allowOutsideClick: false,
-            didOpen() {
-                quillEditor = new Quill('[counter-argument-response-text]', {
-                    theme: 'snow'
-                })
-            },
-            willClose() {
-                counterArgumentAdmin.setText(quillEditor.getSemanticHTML())
-                counterArgumentAdmin.setStatus($('#counter-argument-status').val())
-            },
-        }).then(res => {
-            if (res.isConfirmed) {
-                if (!quillEditor.getText().trim() || counterArgumentAdmin.getStatus() === null) {
-                    Swal.fire({
-                        title: 'Sua resposta não foi salva',
-                        text: 'Digite o texto da resposta e selecione uma situação',
-                        icon: 'warning',
-                    })
-                    return
-                }
+                <p class="sweetalert-plain-text">
+                    Digite sua resposta para esta contrarrazão
+                </p>
 
-                counterArgumentAdmin.respond(counterArgumentId)
+                <div class="form-group">
+                    <label for="counter-argument-status" class="sweetalert-label">
+                        Situação:
+                    </label>
+                    <select
+                        class="form-control"
+                        id="counter-argument-status"
+                        name="status"
+                    >
+                        <option value="" disabled selected>
+                            --- Selecione uma situação ---
+                        </option>
+                        <option value="10" ${status == 10 ? 'selected' : ''}>Deferida</option>
+                        <option value="3"  ${status == 3  ? 'selected' : ''}>Indeferida</option>
+                    </select>
+                </div>
+            `,
+            showFile: false,
+
+            onOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const statusSelect = document.getElementById('counter-argument-status');
+
+                // Disable confirm initially
+                confirmBtn.disabled = !statusSelect.value;
+
+                // Enable when a valid status is selected
+                statusSelect.addEventListener('change', () => {
+                    confirmBtn.disabled = !statusSelect.value;
+                });
             }
-        })
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            const { conteudo, entityId, customFields } = result.value;
+
+            counterArgumentAdmin.setText(conteudo);
+            counterArgumentAdmin.setStatus(customFields.status);
+            counterArgumentAdmin.respond(entityId);
+        });
     })
 })

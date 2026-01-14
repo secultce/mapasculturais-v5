@@ -37,7 +37,7 @@ var QuillEditor = (function () {
         return Swal.fire({
             title: title,
             html: `
-                <div id="${selectorId}" style="min-height: 200px;"></div>
+                <div id="${selectorId}" style="min-height: 200px;height:auto;"></div>
                 <input type="hidden" id="entity-id" value="${entityId || ''}">
                 ${html ? `<div id="custom-fields-container">${html}</div>` : ''}
                 ${showFile ? `<input id="edit-recourse-file-${entityId}" type="file" multiple max="2" class="swal2-file">`: ''}
