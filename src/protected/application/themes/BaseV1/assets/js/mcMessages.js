@@ -114,13 +114,13 @@ var McMessages = (function () {
             confirmButtonText: `<i class="fa fa-thumbs-up"></i> OK, ciente`,
         });
     }
-    
-    function custom(title ,type, html = null){
-        swal.fire({
+
+    function custom(title, type, html = null, showConfirmButton = false) {
+        Swal.fire({
             title: title,
             icon: type,
             html: html,
-            showConfirmButton: false,
+            showConfirmButton: showConfirmButton,
         })
     }
 
