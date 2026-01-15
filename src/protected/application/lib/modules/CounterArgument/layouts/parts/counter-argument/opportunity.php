@@ -33,16 +33,18 @@ use MapasCulturais\Entities\CounterArgument;
                             </a>
                         </td>
                         <td>
-                            <button type="button" data-text="<?= $counterArgument->text ?>" btn-view-counter-argument>
+                            <button type="button" class="btn-counter-arguments" data-text="<?= htmlspecialchars($counterArgument->text, ENT_QUOTES, 'UTF-8') ?>" btn-view-counter-argument>
                                 <i class='fas fa-eye'></i>
                             </button>
                             <?php if ($counterArgument->getFiles('counter-argument-attachment')) : ?>
                                 <div>
-                                    <?php foreach ($counterArgument->getFiles('counter-argument-attachment') as $file) : ?>
-                                        <div>
-                                            <a href="<?= $file->url ?>"><?= $file->name ?></a>
-                                        </div>
-                                    <?php endforeach; ?>
+                                     <p class="file-row">
+                                        <?php foreach ($counterArgument->getFiles('counter-argument-attachment') as $file) : ?>
+                                            <div>
+                                                <a href="<?= $file->url ?>"  class="truncate-file" title="<?= $file->name ?>"><?= $file->name ?></a>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </p>
                                 </div>
                             <?php endif; ?>
                         </td>
@@ -56,9 +58,11 @@ use MapasCulturais\Entities\CounterArgument;
                             <button
                                 type="button"
                                 data-id="<?= $counterArgument->id ?>"
-                                data-text="<?= $counterArgument->response->text ?? '' ?>"
+                                data-text="<?= htmlspecialchars($counterArgument->response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                 data-status="<?= $counterArgument->status ?>"
-                                btn-view-counter-argument-response>
+                                class="btn-counter-arguments"
+                                btn-view-counter-argument-response
+                            >               
                                 <i class='fas fa-edit'></i>
                             </button>
                         </td>
