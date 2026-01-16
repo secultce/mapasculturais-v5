@@ -1,34 +1,42 @@
-.icon-remove-counter-argument-file {
-    margin-left: 5px;
-    cursor: pointer;
+.info-text {
+    margin-bottom: 30px;
 }
 
-.btn-counter-arguments {
+.counter-argument-btn {
     border: 1px solid #c3c3c3;
     border-radius: 5px;
     margin: 2px;
     background-color: transparent;
-    color:black;
+    color: black;
     cursor: pointer;
 }
 
-.truncate-file {
+.counter-argument-btn:disabled {
+    border: 1px solid #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.counter-argument-file-wrapper {
+    margin-top: 10px;
+}
+
+.counter-argument-file {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.counter-argument-file a {
     display: inline-block;
-    max-width: 10em;
+    max-width: 150px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;
-}
-
-.file-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
+    margin: 0 5px;
 }
 
 .icon-remove-counter-argument-file {
-    flex-shrink: 0;
     cursor: pointer;
 }

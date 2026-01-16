@@ -48,7 +48,13 @@ class Module extends \MapasCulturais\Module
             $opportunity = $this->controller->requestedEntity;
             $counterArguments = App::i()->repo('CounterArgument')->getAllByOpportunityId($opportunity->id);
 
-            $this->part('counter-argument/opportunity', ['counterArguments' => $counterArguments]);
+            $counterArgumentService = new CounterArgumentService();
+            $isResponsePeriod = $counterArgumentService->isResponsePeriod($opportunity);
+
+            $this->part('counter-argument/opportunity', [
+                'isResponsePeriod' => $isResponsePeriod,
+                'counterArguments' => $counterArguments
+            ]);
         });
     }
 

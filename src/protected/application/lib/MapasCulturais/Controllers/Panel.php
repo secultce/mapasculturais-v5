@@ -434,8 +434,8 @@ class Panel extends \MapasCulturais\Controller {
     {
         $this->requireAuthentication();
 
-        $agentId = App::i()->getUser()->profile->id;
-        $counterArguments = App::i()->repo('CounterArgument')->getAllByAgentId($agentId);
+        $userId = App::i()->getUser()->id;
+        $counterArguments = App::i()->repo('CounterArgument')->getAllByUserId($userId);
 
         $this->render('counter-arguments', ['counterArguments' => $counterArguments]);
     }

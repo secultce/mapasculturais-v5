@@ -43,9 +43,21 @@ const counterArgument = {
                 })
             },
             error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Contrarrazão não enviada',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
                 Swal.fire({
-                    title: 'Contrarrazão não enviada',
-                    text: 'Erro ao enviar contrarrazão. Tente novamente.',
+                    title: 'Erro ao enviar contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
                     icon: 'error',
                 })
             }
@@ -80,9 +92,21 @@ const counterArgument = {
                 })
             },
             error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Contrarrazão não atualizada',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
                 Swal.fire({
-                    title: 'Contrarrazão não atualizada',
-                    text: 'Erro ao atualizar contrarrazão. Tente novamente.',
+                    title: 'Erro ao atualizar contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
                     icon: 'error',
                 })
             }
@@ -101,15 +125,25 @@ const counterArgument = {
                     icon: 'success',
                     allowOutsideClick: false,
                 }).then(res => {
-                    if (res.isConfirmed) {
-                        window.location.reload()
-                    }
+                    if (res.isConfirmed) window.location.reload()
                 })
             },
             error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Arquivo não removido',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
                 Swal.fire({
-                    title: 'Arquivo não removido',
-                    text: 'Erro ao remover arquivo da contrarrazão. Tente novamente.',
+                    title: 'Erro ao remover arquivo da contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
                     icon: 'error',
                 })
             }
@@ -170,6 +204,9 @@ $(() => {
             title: 'Editar Contrarrazão',
             html: `
                 <p class="sweetalert-plain-text">Você pode editar o texto da sua contrarrazão e anexar mais arquivos</p>
+                <p class="sweetalert-plain-text">
+                    <small>Você poderá editar até o final do período de envio de contrarrazões</small>
+                </p>
                 <div>
                     <div counter-argument-text class="form-group">${text}</div>
                     <input type="file" counter-argument-attachments multiple>
