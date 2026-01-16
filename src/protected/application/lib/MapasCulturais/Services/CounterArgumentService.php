@@ -35,6 +35,19 @@ class CounterArgumentService
         return false;
     }
 
+    public function isResponsePeriod($opportunity)
+    {
+        $finalStr = $opportunity->finalDateCounterArgument . ' ' . $opportunity->finalTimeCounterArgument;
+        $final = new DateTime($finalStr);
+        $now = new DateTime();
+
+        $appealEnabled = $opportunity->appealEnabled === 'Sim' ? true : false;
+
+        if ($appealEnabled && $now > $final) return true;
+
+        return false;
+    }
+
     public function send(string $text, Registration $registration)
     {
         $this->counterArgumentEntity->text = $text;
@@ -46,10 +59,9 @@ class CounterArgumentService
         App::i()->em->flush();
     }
 
-    public function update(array $data)
+    public function update(string $text, CounterArgument $counterArgument)
     {
-        $counterArgument = App::i()->repo('CounterArgument')->find($data['id']);
-        $counterArgument->text = $data['text'];
+        $counterArgument->text = $text;
         $counterArgument->updateTimestamp = new DateTime();
 
         $this->saveFiles($_FILES, $counterArgument);
@@ -73,9 +85,8 @@ class CounterArgumentService
         }
     }
 
-    public function removeFile(int $fileId)
+    public function removeFile(CounterArgumentFile $counterArgumentFile)
     {
-        $counterArgumentFile = App::i()->repo('CounterArgumentFile')->find($fileId);
         $counterArgumentFile->delete(true);
     }
 
