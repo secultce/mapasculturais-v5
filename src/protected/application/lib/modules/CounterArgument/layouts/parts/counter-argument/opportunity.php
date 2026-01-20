@@ -21,6 +21,9 @@ use MapasCulturais\Entities\CounterArgument;
             </thead>
             <tbody>
                 <?php foreach ($counterArguments as $counterArgument) : ?>
+                    <?php
+                    $response = $counterArgument->response;
+                    ?>
                     <tr>
                         <td>
                             <a href="<?= $app->createUrl('inscricao', $counterArgument->registration->id) ?>">
@@ -51,20 +54,44 @@ use MapasCulturais\Entities\CounterArgument;
                             <?= CounterArgument::STATUSES[$counterArgument->status] ?>
                         </td>
                         <td>
-                            <?= $counterArgument->createTimestamp->format('d/m/Y H:i') ?>
+                            <?= ($counterArgument->updateTimestamp ?? $counterArgument->createTimestamp)->format('d/m/Y H:i') ?>
                         </td>
                         <td>
-                            <button
-                                type="button"
-                                data-id="<?= $counterArgument->id ?>"
-                                data-text="<?= htmlspecialchars($counterArgument->response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                data-status="<?= $counterArgument->status ?>"
-                                class="counter-argument-btn"
-                                btn-view-counter-argument-response
-                                <?= $isResponsePeriod ? '' : 'disabled' ?>
-                                title="<?= $isResponsePeriod ? 'Responder Contrarrazão' : 'Fora do período de resposta. Aguarde o fim do período de envio das contrarrazões.' ?>">
-                                <i class='fas fa-edit'></i>
-                            </button>
+                            <div>
+                                <?php if (($response && $response->owner->canUser('@control')) || !$response) : ?>
+                                    <button
+                                        type="button"
+                                        data-id="<?= $counterArgument->id ?>"
+                                        data-text="<?= htmlspecialchars($response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-status="<?= $counterArgument->status ?>"
+                                        class="counter-argument-btn"
+                                        btn-counter-argument-response
+                                        <?= $isResponsePeriod ? '' : 'disabled' ?>
+                                        title="<?= $isResponsePeriod ? 'Responder Contrarrazão' : 'Fora do período de resposta. Aguarde o fim do período de envio das contrarrazões.' ?>">
+                                        <i class='fas fa-edit'></i>
+                                    </button>
+                                <?php elseif ($response && !$response->owner->canUser('@control')) : ?>
+                                    <button
+                                        type="button"
+                                        data-text="<?= htmlspecialchars($response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-status="<?= $counterArgument->status ?>"
+                                        class="counter-argument-btn"
+                                        btn-view-counter-argument-response
+                                        title="Visualizar resposta">
+                                        <i class='fas fa-eye'></i>
+                                    </button>
+                                <?php endif; ?>
+                                <?php if ($response) : ?>
+                                    <div>
+                                        <div>
+                                            <small><?= $response->owner->name ?></small>
+                                        </div>
+                                        <div>
+                                            <small><?= ($response->updateTimestamp ?? $response->createTimestamp)->format('d/m/Y H:i') ?></small>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>

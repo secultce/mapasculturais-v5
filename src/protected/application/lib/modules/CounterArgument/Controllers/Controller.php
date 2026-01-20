@@ -3,6 +3,7 @@
 namespace CounterArgument\Controllers;
 
 use MapasCulturais\App;
+use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Services\CounterArgumentService;
 use MapasCulturais\Services\SentryService;
@@ -78,14 +79,30 @@ class Controller extends \MapasCulturais\Controller
 
     public function POST_respond()
     {
+        $this->requireAuthentication();
+
         $data = $this->getPostData();
+        $counterArgument = App::i()->repo('CounterArgument')->find($data['counterArgumentId']);
+
+        $this->verifyResponsePermission($counterArgument->registration);
+        $this->validateResponsePeriod($counterArgument->registration->opportunity);
+        $this->verifyResponseOwner($counterArgument->response);
 
         try {
             $this->counterArgumentService->saveResponse($data);
-            $this->json(['message' => 'Sua resposta para a contrarrazão foi salva com sucesso.']);
         } catch (\Throwable $th) {
             SentryService::captureExceptions($th);
+            return;
         }
+
+        $this->json(['message' => 'Sua resposta para a contrarrazão foi salva com sucesso.']);
+    }
+
+    public function GET_getStatuses()
+    {
+        $this->requireAuthentication();
+
+        $this->json(['statuses' => CounterArgument::STATUSES]);
     }
 
     private function validateRegistrationOwner($registration)
@@ -97,6 +114,29 @@ class Controller extends \MapasCulturais\Controller
     {
         if (!$this->counterArgumentService->isCounterArgumentPeriod($opportunity)) {
             $this->json(['message' => $message], 403);
+            return;
+        }
+    }
+
+    private function verifyResponsePermission($registration)
+    {
+        if (!$registration->canUser('evaluate') && !$registration->opportunity->canUser('@control')) {
+            throw new PermissionDenied(App::i()->getUser(), $registration, 'respondCounterArgument');
+        }
+    }
+
+    private function validateResponsePeriod($opportunity)
+    {
+        if (!$this->counterArgumentService->isResponsePeriod($opportunity)) {
+            $this->json(['message' => 'Fora do período de resposta. Aguarde o fim do período de envio das contrarrazões.'], 403);
+            return;
+        }
+    }
+
+    private function verifyResponseOwner($response)
+    {
+        if ($response && !$response->owner->canUser('@control')) {
+            $this->json(['message' => "Essa contrarrazão já foi respondida por {$response->owner->name}"], 403);
             return;
         }
     }
