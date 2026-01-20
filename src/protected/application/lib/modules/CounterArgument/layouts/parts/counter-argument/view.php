@@ -68,7 +68,7 @@ $counterArgumentService = new CounterArgumentService();
                             <?= CounterArgument::STATUSES[$counterArgument->status] ?>
                         </td>
                         <td>
-                            <?= $counterArgument->createTimestamp->format('d/m/Y H:i') ?>
+                            <?= ($counterArgument->updateTimestamp ?? $counterArgument->createTimestamp)->format('d/m/Y H:i') ?>
                         </td>
                         <td>
                             <button type="button" class="counter-argument-btn" data-text="<?= $counterArgument->response ?>" btn-view-counter-argument-response>

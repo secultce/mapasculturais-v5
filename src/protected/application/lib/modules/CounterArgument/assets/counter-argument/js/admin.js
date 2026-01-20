@@ -1,6 +1,7 @@
 const counterArgumentAdmin = {
     text: '',
     status: null,
+    statuses: null,
     getText() {
         return this.text
     },
@@ -12,6 +13,22 @@ const counterArgumentAdmin = {
     },
     setStatus(status) {
         this.status = status
+    },
+    getStatuses() {
+        $.ajax({
+            type: "GET",
+            url: MapasCulturais.createUrl('contrarrazao', 'getStatuses'),
+            dataType: "json",
+            success(res) {
+                counterArgumentAdmin.setStatuses(res.statuses)
+            },
+            error(err) {
+                console.log(err)
+            }
+        })
+    },
+    setStatuses(statuses) {
+        this.statuses = statuses
     },
     respond(counterArgumentId) {
         $.ajax({
@@ -36,9 +53,21 @@ const counterArgumentAdmin = {
                 })
             },
             error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Sua resposta não foi salva',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
                 Swal.fire({
-                    title: 'Sua resposta não foi salva',
-                    text: 'Erro ao salvar resposta da contrarrazão. Tente novamente.',
+                    title: 'Erro ao responder contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
                     icon: 'error',
                 })
             }
@@ -47,7 +76,9 @@ const counterArgumentAdmin = {
 }
 
 $(() => {
-    $('[btn-view-counter-argument-response]').on('click', function (event) {
+    counterArgumentAdmin.getStatuses()
+
+    $('[btn-counter-argument-response]').on('click', function (event) {
         const counterArgumentId = event.currentTarget.dataset.id
         const text = event.currentTarget.dataset.text
         const status = event.currentTarget.dataset.status
@@ -57,7 +88,7 @@ $(() => {
         Swal.fire({
             title: 'Responder Contrarrazão',
             html: `
-                <p class="sweetalert-plain-text">Digite sua resposta para esta contrarrazão</p>
+                <p class="sweetalert-plain-text">Digite sua resposta para esta contrarrazão e selecione sua situação</p>
                 <div>
                     <div counter-argument-response-text class="form-group">${text}</div>
                     <div class="form-group">
@@ -68,7 +99,10 @@ $(() => {
                             <option ${status == 3 ? 'selected' : ''} value="3">Indeferida</option>
                         </select>
                     </div>
-                </div>`,
+                </div>
+                <p>
+                    <small><b>Atenção!</b> Ao salvar a resposta, somente você poderá editá-la.</small>
+                </p>`,
             width: 700,
             confirmButtonText: 'Salvar',
             cancelButtonText: 'Cancelar',
@@ -96,6 +130,22 @@ $(() => {
 
                 counterArgumentAdmin.respond(counterArgumentId)
             }
+        })
+    })
+
+    $('[btn-view-counter-argument-response]').on('click', function (event) {
+        const text = event.currentTarget.dataset.text
+        const status = event.currentTarget.dataset.status
+
+        Swal.fire({
+            title: 'Resposta da Contrarrazão',
+            html: `
+                <div>${text}</div>
+                <hr style="margin: 25px 50px;">
+                <div>
+                    Situação: <span><b>${counterArgumentAdmin.statuses[status]}</b></span>
+                </div>`,
+            width: 700,
         })
     })
 })
