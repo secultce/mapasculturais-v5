@@ -27,7 +27,9 @@ $counterArgumentService = new CounterArgumentService();
             <tbody>
                 <?php foreach ($counterArguments as $counterArgument) : ?>
                     <?php
-                    $isCounterArgumentPeriod = $counterArgumentService->isCounterArgumentPeriod($counterArgument->registration->opportunity)
+                    $isCounterArgumentPeriod = $counterArgumentService->isCounterArgumentPeriod($counterArgument->registration->opportunity);
+                    $response = $counterArgument->response;
+                    $publishedResponse = $response && $response->published;
                     ?>
                     <tr>
                         <td>
@@ -55,7 +57,7 @@ $counterArgumentService = new CounterArgumentService();
                                             <span><i class="fas fa-paperclip"></i></span>
                                             <a href="<?= $file->url ?>" title="<?= $file->name ?>"><?= $file->name ?></a>
                                             <?php if ($isCounterArgumentPeriod) : ?>
-                                                <span class="icon-remove-counter-argument-file" remove-counter-argument-file data-file-id="<?= $file->id ?>" title="Remover arquivo">
+                                                <span style="cursor: pointer;" remove-counter-argument-file data-file-id="<?= $file->id ?>" title="Remover arquivo">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </span>
                                             <?php endif; ?>
@@ -65,13 +67,19 @@ $counterArgumentService = new CounterArgumentService();
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?= CounterArgument::STATUSES[$counterArgument->status] ?>
+                            <?= CounterArgument::STATUSES[$publishedResponse ? $counterArgument->status : CounterArgument::STATUS_WAITING] ?>
                         </td>
                         <td>
                             <?= ($counterArgument->updateTimestamp ?? $counterArgument->createTimestamp)->format('d/m/Y H:i') ?>
                         </td>
                         <td>
-                            <button type="button" class="counter-argument-btn" data-text="<?= $counterArgument->response ?>" btn-view-counter-argument-response>
+                            <button
+                                type="button"
+                                data-text="<?= htmlspecialchars($response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                title="<?= $publishedResponse ? 'Visualizar resposta' : 'A resposta para sua contrarrazão ainda não foi publicada' ?>"
+                                <?= $publishedResponse ? '' : 'disabled' ?>
+                                btn-view-counter-argument-response
+                                class="counter-argument-btn">
                                 <i class='fas fa-eye'></i>
                             </button>
                         </td>

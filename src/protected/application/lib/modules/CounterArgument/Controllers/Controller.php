@@ -98,6 +98,27 @@ class Controller extends \MapasCulturais\Controller
         $this->json(['message' => 'Sua resposta para a contrarrazão foi salva com sucesso.']);
     }
 
+    public function POST_publishResponses()
+    {
+        $this->requireAuthentication();
+
+        $data = $this->getPostData();
+        $opportunity = App::i()->repo('Opportunity')->find($data['opportunityId']);
+        $counterArguments = App::i()->repo('CounterArgument')->getAllByOpportunityId($opportunity->id);
+
+        $this->verifyPublishPermission($opportunity);
+        $this->verifyCounterArgumentsWithoutResponse($counterArguments);
+
+        try {
+            $this->counterArgumentService->publishResponses($counterArguments);
+        } catch (\Throwable $th) {
+            SentryService::captureExceptions($th);
+            return;
+        }
+
+        $this->json(['message' => 'As respostas foram publicadas com sucesso.']);
+    }
+
     public function GET_getStatuses()
     {
         $this->requireAuthentication();
@@ -137,6 +158,21 @@ class Controller extends \MapasCulturais\Controller
     {
         if ($response && !$response->owner->canUser('@control')) {
             $this->json(['message' => "Essa contrarrazão já foi respondida por {$response->owner->name}"], 403);
+            return;
+        }
+    }
+
+    private function verifyPublishPermission($opportunity)
+    {
+        if (!$opportunity->canUser('@control')) throw new PermissionDenied(App::i()->getUser(), $opportunity, 'publishCounterArgumentResponses');
+    }
+
+    private function verifyCounterArgumentsWithoutResponse($counterArguments)
+    {
+        $counterArgumentsWithoutResponse = $this->counterArgumentService->getCounterArgumentsWithoutResponse($counterArguments);
+
+        if ($counterArgumentsWithoutResponse) {
+            $this->json(['message' => 'Existem contrarrazões sem resposta. Por favor, responda todas as contrarrazões antes de publicar as respostas.'], 403);
             return;
         }
     }

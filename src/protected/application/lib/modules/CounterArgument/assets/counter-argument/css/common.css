@@ -11,7 +11,7 @@
     cursor: pointer;
 }
 
-.counter-argument-btn:disabled {
+:is(.counter-argument-btn, .btn-publish-responses-counter-arguments):disabled {
     border: 1px solid #e0e0e0;
     color: #a0a0a0;
     cursor: not-allowed;
@@ -35,8 +35,4 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     margin: 0 5px;
-}
-
-.icon-remove-counter-argument-file {
-    cursor: pointer;
 }

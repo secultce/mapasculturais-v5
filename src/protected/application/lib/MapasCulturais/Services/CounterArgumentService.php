@@ -48,6 +48,15 @@ class CounterArgumentService
         return false;
     }
 
+    public function getCounterArgumentsWithoutResponse($counterArguments)
+    {
+        $counterArgumentsWithoutResponse = array_filter($counterArguments, function ($counterArgument) {
+            return !$counterArgument->response;
+        });
+
+        return $counterArgumentsWithoutResponse;
+    }
+
     public function send(string $text, Registration $registration)
     {
         $this->counterArgumentEntity->text = $text;
@@ -108,5 +117,18 @@ class CounterArgumentService
 
         $counterArgument->status = (int)$data['status'];
         $counterArgument->save(true);
+    }
+
+    public function publishResponses($counterArguments)
+    {
+        foreach ($counterArguments as $counterArgument) {
+            $response = $counterArgument->response;
+            if ($response && !$response->published) {
+                App::i()->disableAccessControl();
+                $response->published = true;
+                $response->save(true);
+                App::i()->enableAccessControl();
+            }
+        }
     }
 }
