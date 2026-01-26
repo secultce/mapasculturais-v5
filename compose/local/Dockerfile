@@ -11,8 +11,8 @@ RUN apt-get install -y --no-install-recommends \
         libfreetype6-dev libjpeg62-turbo-dev libpng-dev less vim \
         sudo procps
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get install -y nodejs
+RUN curl -fsSL https://nodejs.org/dist/v14.21.3/node-v14.21.3-linux-x64.tar.xz \
+ | tar -xJ -C /usr/local --strip-components=1
 
 RUN rm -rf /var/lib/apt/lists
 
