@@ -73,6 +73,40 @@ const counterArgumentAdmin = {
             }
         })
     },
+    publishResponses(opportunityId) {
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('contrarrazao', 'publishResponses'),
+            data: { opportunityId },
+            dataType: "json",
+            success(res) {
+                Swal.fire({
+                    title: 'Respostas publicadas',
+                    text: res.message,
+                    icon: 'success',
+                    allowOutsideClick: false,
+                }).then(res => {
+                    if (res.isConfirmed) window.location.reload()
+                })
+            },
+            error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Respostas não publicadas',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                    })
+                    return
+                }
+
+                Swal.fire({
+                    title: 'Erro ao publicar respostas',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
+                    icon: 'error',
+                })
+            }
+        })
+    },
 }
 
 $(() => {
@@ -133,19 +167,17 @@ $(() => {
         })
     })
 
-    $('[btn-view-counter-argument-response]').on('click', function (event) {
-        const text = event.currentTarget.dataset.text
-        const status = event.currentTarget.dataset.status
+    $('#btn-publish-responses-counter-arguments').on('click', function (event) {
+        const opportunityId = event.currentTarget.dataset.opportunityId
 
         Swal.fire({
-            title: 'Resposta da Contrarrazão',
-            html: `
-                <div>${text}</div>
-                <hr style="margin: 25px 50px;">
-                <div>
-                    Situação: <span><b>${counterArgumentAdmin.statuses[status]}</b></span>
-                </div>`,
-            width: 700,
+            title: 'Publicar respostas',
+            text: 'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?',
+            confirmButtonText: 'Publicar',
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+        }).then(res => {
+            if (res.isConfirmed) counterArgumentAdmin.publishResponses(opportunityId)
         })
     })
 })

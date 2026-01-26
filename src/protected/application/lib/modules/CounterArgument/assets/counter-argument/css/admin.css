@@ -1,0 +1,9 @@
+.btn-publish-responses-counter-arguments {
+    color: #fff;
+    background-color: #085E55;
+    border: 1px solid #042f2b;
+}
+
+.btn-publish-responses-counter-arguments:hover {
+    background-color: #0a766a;
+}

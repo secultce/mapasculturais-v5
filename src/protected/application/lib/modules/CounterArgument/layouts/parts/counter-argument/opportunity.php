@@ -2,6 +2,9 @@
 
 use MapasCulturais\Entities\CounterArgument;
 
+$opportunity = $this->controller->requestedEntity;
+$unpublishedResponses = [];
+
 ?>
 
 <div class="aba-content" id="contrarrazao">
@@ -23,6 +26,9 @@ use MapasCulturais\Entities\CounterArgument;
                 <?php foreach ($counterArguments as $counterArgument) : ?>
                     <?php
                     $response = $counterArgument->response;
+                    if (!$response || !$response->published) {
+                        $unpublishedResponses[] = $response;
+                    }
                     ?>
                     <tr>
                         <td>
@@ -58,7 +64,16 @@ use MapasCulturais\Entities\CounterArgument;
                         </td>
                         <td>
                             <div>
-                                <?php if (($response && $response->owner->canUser('@control')) || !$response) : ?>
+                                <?php if ($response && (!$response->owner->canUser('@control') || $response->published)) : ?>
+                                    <button
+                                        type="button"
+                                        data-text="<?= htmlspecialchars($response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        class="counter-argument-btn"
+                                        btn-view-counter-argument-response
+                                        title="Visualizar resposta">
+                                        <i class='fas fa-eye'></i>
+                                    </button>
+                                <?php elseif (($response && $response->owner->canUser('@control')) || !$response) : ?>
                                     <button
                                         type="button"
                                         data-id="<?= $counterArgument->id ?>"
@@ -69,16 +84,6 @@ use MapasCulturais\Entities\CounterArgument;
                                         <?= $isResponsePeriod ? '' : 'disabled' ?>
                                         title="<?= $isResponsePeriod ? 'Responder Contrarrazão' : 'Fora do período de resposta. Aguarde o fim do período de envio das contrarrazões.' ?>">
                                         <i class='fas fa-edit'></i>
-                                    </button>
-                                <?php elseif ($response && !$response->owner->canUser('@control')) : ?>
-                                    <button
-                                        type="button"
-                                        data-text="<?= htmlspecialchars($response->text ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                        data-status="<?= $counterArgument->status ?>"
-                                        class="counter-argument-btn"
-                                        btn-view-counter-argument-response
-                                        title="Visualizar resposta">
-                                        <i class='fas fa-eye'></i>
                                     </button>
                                 <?php endif; ?>
                                 <?php if ($response) : ?>
@@ -97,6 +102,18 @@ use MapasCulturais\Entities\CounterArgument;
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ($opportunity->canUser('@control')) : ?>
+            <button
+                type="button"
+                data-opportunity-id="<?= $opportunity->id ?>"
+                id="btn-publish-responses-counter-arguments"
+                <?= $unpublishedResponses ? '' : 'disabled' ?>
+                title="<?= $unpublishedResponses ? 'Publicar respostas' : 'Todas as respostas estão publicadas' ?>"
+                class="btn btn-publish-responses-counter-arguments">
+                <i class="fas fa-paper-plane"></i> Publicar respostas
+            </button>
+        <?php endif; ?>
     <?php else : ?>
         <div class="alert info">Ainda não foram enviadas contrarrazões nesta oportunidade.</div>
     <?php endif; ?>
