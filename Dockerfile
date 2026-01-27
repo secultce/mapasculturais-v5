@@ -26,8 +26,8 @@ RUN echo "deb http://archive.debian.org/debian buster main contrib non-free" > /
     ruby ruby-dev libpq-dev gnupg git \
     libfreetype6-dev libjpeg62-turbo-dev libpng-dev sudo procps \
     #instalação do node 14 
-    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get install -y nodejs \
+    && curl -fsSL https://nodejs.org/dist/v14.21.3/node-v14.21.3-linux-x64.tar.xz \
+    | tar -xJ -C /usr/local --strip-components=1 \
     # Install uglify and terser
     && npm install -g \
     terser \
