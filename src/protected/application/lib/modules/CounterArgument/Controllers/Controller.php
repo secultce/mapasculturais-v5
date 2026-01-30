@@ -124,7 +124,10 @@ class Controller extends \MapasCulturais\Controller
     {
         $this->requireAuthentication();
 
-        $this->json(['statuses' => CounterArgument::STATUSES]);
+        $statuses = CounterArgument::STATUSES;
+        unset($statuses[CounterArgument::STATUS_WAITING]);
+
+        $this->json(['statuses' => $statuses]);
     }
 
     private function validateRegistrationOwner($registration)
