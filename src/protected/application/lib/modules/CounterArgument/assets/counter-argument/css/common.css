@@ -1,0 +1,38 @@
+.info-text {
+    margin-bottom: 30px;
+}
+
+.counter-argument-btn {
+    border: 1px solid #c3c3c3;
+    border-radius: 5px;
+    margin: 2px;
+    background-color: transparent;
+    color: black;
+    cursor: pointer;
+}
+
+:is(.counter-argument-btn, .btn-publish-responses-counter-arguments):disabled {
+    border: 1px solid #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.counter-argument-file-wrapper {
+    margin-top: 10px;
+}
+
+.counter-argument-file {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.counter-argument-file a {
+    display: inline-block;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    margin: 0 5px;
+}

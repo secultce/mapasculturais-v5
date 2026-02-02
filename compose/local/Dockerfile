@@ -6,21 +6,21 @@ RUN sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list \
     && apt-get update
 
 RUN apt-get install -y --no-install-recommends \
-        curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip unzip \
-        ruby ruby-dev libpq-dev gnupg nano iputils-ping git \
-        libfreetype6-dev libjpeg62-turbo-dev libpng-dev less vim \
-        sudo procps
+    curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip unzip \
+    ruby ruby-dev libpq-dev gnupg nano iputils-ping git \
+    libfreetype6-dev libjpeg62-turbo-dev libpng-dev less vim \
+    sudo procps
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get install -y nodejs
+RUN curl -fsSL https://nodejs.org/dist/v14.21.3/node-v14.21.3-linux-x64.tar.xz \
+    | tar -xJ -C /usr/local --strip-components=1
 
 RUN rm -rf /var/lib/apt/lists
 
 # Install uglify and terser
 RUN npm install -g \
-        terser \
-        uglifycss \
-        autoprefixer
+    terser \
+    uglifycss \
+    autoprefixer
 
 # Install sass
 RUN gem install sass -v 3.4.22
@@ -52,7 +52,7 @@ RUN yes | pecl install xdebug-2.9.8 \
 RUN docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd
-    
+
 # Install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
     php composer-setup.php --version=1.10.16 --install-dir=/usr/local/bin && \

@@ -35,6 +35,28 @@ class CounterArgumentService
         return false;
     }
 
+    public function isResponsePeriod($opportunity)
+    {
+        $finalStr = $opportunity->finalDateCounterArgument . ' ' . $opportunity->finalTimeCounterArgument;
+        $final = new DateTime($finalStr);
+        $now = new DateTime();
+
+        $appealEnabled = $opportunity->appealEnabled === 'Sim' ? true : false;
+
+        if ($appealEnabled && $now > $final) return true;
+
+        return false;
+    }
+
+    public function getCounterArgumentsWithoutResponse($counterArguments)
+    {
+        $counterArgumentsWithoutResponse = array_filter($counterArguments, function ($counterArgument) {
+            return !$counterArgument->response;
+        });
+
+        return $counterArgumentsWithoutResponse;
+    }
+
     public function send(string $text, Registration $registration)
     {
         $this->counterArgumentEntity->text = $text;
@@ -46,10 +68,9 @@ class CounterArgumentService
         App::i()->em->flush();
     }
 
-    public function update(array $data)
+    public function update(string $text, CounterArgument $counterArgument)
     {
-        $counterArgument = App::i()->repo('CounterArgument')->find($data['id']);
-        $counterArgument->text = $data['text'];
+        $counterArgument->text = $text;
         $counterArgument->updateTimestamp = new DateTime();
 
         $this->saveFiles($_FILES, $counterArgument);
@@ -73,9 +94,8 @@ class CounterArgumentService
         }
     }
 
-    public function removeFile(int $fileId)
+    public function removeFile(CounterArgumentFile $counterArgumentFile)
     {
-        $counterArgumentFile = App::i()->repo('CounterArgumentFile')->find($fileId);
         $counterArgumentFile->delete(true);
     }
 
@@ -97,5 +117,18 @@ class CounterArgumentService
 
         $counterArgument->status = (int)$data['status'];
         $counterArgument->save(true);
+    }
+
+    public function publishResponses($counterArguments)
+    {
+        foreach ($counterArguments as $counterArgument) {
+            $response = $counterArgument->response;
+            if ($response && !$response->published) {
+                App::i()->disableAccessControl();
+                $response->published = true;
+                $response->save(true);
+                App::i()->enableAccessControl();
+            }
+        }
     }
 }

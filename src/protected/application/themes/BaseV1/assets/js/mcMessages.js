@@ -50,7 +50,7 @@ var McMessages = (function () {
      * @param {number} [time] - Tempo em ms (opcional)
      */
     function error(title, text, time = null) {
-        Swal.fire({
+        return Swal.fire({
             icon: 'error',
             title: title,
             text: text,

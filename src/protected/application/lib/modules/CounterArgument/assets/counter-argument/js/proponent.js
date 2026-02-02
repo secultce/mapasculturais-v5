@@ -47,7 +47,14 @@ const counterArgument = {
                 })
             },
             error(err) {
-                McMessages.error('Sua contrarrazão não foi enviada!', 'Erro ao enviar contrarrazão. Tente novamente.')
+                if (err.status === 403) {
+                    McMessages.error('Contrarrazão não enviada', err.responseJSON.message)
+                    .then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+                McMessages.error('Erro ao enviar contrarrazão', 'Entre em contato com o suporte ou tente novamente mais tarde.')
             }
         })
     },
@@ -75,8 +82,17 @@ const counterArgument = {
                 })
             },
             error(err) {
+                 if (err.status === 403) {
+                    McMessages.error(
+                        'Contrarrazão não atualizada', 
+                        err.responseJSON.message
+                    ).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
                 McMessages.error('Sua contrarrazão não foi atualizada!', 'Erro ao atualizar contrarrazão. Tente novamente.')
-            }
+            },
         })
     },
     removeFile(fileId) {
@@ -93,8 +109,17 @@ const counterArgument = {
                 })
             },
             error(err) {
-                McMessages.error('Arquivo não removido', 'Erro ao remover arquivo da contrarrazão. Tente novamente.')
-            }
+                if (err.status === 403) {
+                    McMessages.error(
+                        'Arquivo não removido',
+                        err.responseJSON.message
+                    ).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+                McMessages.error('Erro ao remover arquivo da contrarrazão', 'Entre em contato com o suporte ou tente novamente mais tarde.')
+            },
         })
     }
 }
@@ -103,7 +128,9 @@ $(() => {
     $('[open-counter-argument]').on('click', function (event) {
         const registration = event.currentTarget.dataset.registration
 
-        QuillEditor.open({
+        let quillEditor
+
+        Swal.fire({
             title: 'Abrir Contrarrazão',
             placeholder: 'Digite o texto da sua contrarrazão...',
             entityId: registration,
@@ -132,21 +159,40 @@ $(() => {
     $('[edit-counter-argument-btn]').on('click', function (event) {
         const id = event.currentTarget.dataset.id
         const text = event.currentTarget.dataset.text
-
+        
         QuillEditor.open({
             title: 'Editar Contrarrazão',
             initialHtml: text,
             entityId: id,
-            html: `
-                <p class="sweetalert-plain-text">
-                    Você pode editar o texto da sua contrarrazão e anexar mais arquivos
-                </p>
-            `,
-            showFile: true
-        }).then(result => {
-            if (!result.isConfirmed) return;
+            html: 
+                `
+                    <p class="sweetalert-plain-text">Você pode editar o texto da sua contrarrazão e anexar mais arquivos</p>
+                    <p class="sweetalert-plain-text">
+                        <small>Você poderá editar até o final do período de envio de contrarrazões</small>
+                    </p>
+               `,
+            width: 700,
+            confirmButtonText: 'Atualizar',
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            didOpen() {
+                quillEditor = new Quill('[counter-argument-text]', {
+                    theme: 'snow'
+                })
+            },
+            willClose() {
+                counterArgument.setText(quillEditor.getSemanticHTML())
+                counterArgument.setFiles($('[counter-argument-attachments]')[0].files)
+            },
+        }).then(res => {
+            const { conteudo, entityId } = res.value;
 
-            const { conteudo, entityId, customFields } = result.value;
+            if (res.isConfirmed) {
+                if (!conteudo.trim()) {
+                    McMessages.error('Sua contrarrazão não foi atualizada', 'O texto não pode estar vazio')
+                    return
+                }
 
             counterArgument.setText(conteudo);
 
@@ -156,7 +202,7 @@ $(() => {
             }
 
             counterArgument.update(entityId);
-        });
+        }})
     })
 
     $('[remove-counter-argument-file]').on('click', function (event) {
