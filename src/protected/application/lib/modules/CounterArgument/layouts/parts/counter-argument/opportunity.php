@@ -11,9 +11,9 @@ $unpublishedResponses = [];
     <p class="info-text">Nesta seção são listadas todas as contrarrazões enviadas pelos agentes para esta oportunidade.</p>
 
     <?php if ($counterArguments) : ?>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
+        <table class="table table-striped table-hover" id="counter-reason-admin-table">
+            <thead >
+                <tr class="counter-reason-table-header">
                     <th>Inscrição</th>
                     <th>Agente</th>
                     <th>Contrarrazão</th>

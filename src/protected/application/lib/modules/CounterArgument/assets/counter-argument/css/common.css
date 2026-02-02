@@ -36,3 +36,12 @@
     vertical-align: middle;
     margin: 0 5px;
 }
+
+.counter-reason-table-header{
+    background-color: #e2e2e2;
+    color: white;
+    color: black; 
+}
+.counter-reason-table-header th{
+    text-align:center!important;
+}
