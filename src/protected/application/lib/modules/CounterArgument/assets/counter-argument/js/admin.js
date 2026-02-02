@@ -68,30 +68,25 @@ const counterArgumentAdmin = {
             data: { opportunityId },
             dataType: "json",
             success(res) {
-                Swal.fire({
-                    title: 'Respostas publicadas',
-                    text: res.message,
-                    icon: 'success',
-                    allowOutsideClick: false,
-                }).then(res => {
+                McMessages.success(
+                    'Respostas publicadas',
+                    res.message,
+                ).then(res => {
                     if (res.isConfirmed) window.location.reload()
                 })
             },
             error(err) {
                 if (err.status === 403) {
-                    Swal.fire({
-                        title: 'Respostas não publicadas',
-                        text: err.responseJSON.message,
-                        icon: 'warning',
-                    })
+                    McMessages.error(
+                        'Respostas não publicadas',
+                        err.responseJSON.message,
+                    )
                     return
                 }
-
-                Swal.fire({
-                    title: 'Erro ao publicar respostas',
-                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
-                    icon: 'error',
-                })
+                McMessages.error(
+                    'Erro ao publicar respostas',
+                    'Entre em contato com o suporte ou tente novamente mais tarde.'
+                )
             }
         })
     },
@@ -155,19 +150,13 @@ $(() => {
     $('#btn-publish-responses-counter-arguments').on('click', function (event) {
         const opportunityId = event.currentTarget.dataset.opportunityId
 
-        Swal.fire({
-            title: 'Publicar respostas',
-            text: 'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?',
-            confirmButtonText: 'Publicar',
-            cancelButtonText: 'Cancelar',
-            showCancelButton: true,
-        }).then(res => {
-            if (res.isConfirmed) counterArgumentAdmin.publishResponses(opportunityId)
-        })
-
         McMessages.messageConfirm(
             'Publicar respostas',
-            'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?'
-        )
+            'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?',
+            'Cancelar',
+            'Publicar',
+        ).then(res => {
+            if (res.isConfirmed) counterArgumentAdmin.publishResponses(opportunityId)
+        })
     })
 })

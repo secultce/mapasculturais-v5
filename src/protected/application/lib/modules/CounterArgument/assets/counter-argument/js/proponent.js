@@ -130,7 +130,7 @@ $(() => {
 
         let quillEditor
 
-        Swal.fire({
+        QuillEditor.open({
             title: 'Abrir Contrarrazão',
             placeholder: 'Digite o texto da sua contrarrazão...',
             entityId: registration,
@@ -159,7 +159,7 @@ $(() => {
     $('[edit-counter-argument-btn]').on('click', function (event) {
         const id = event.currentTarget.dataset.id
         const text = event.currentTarget.dataset.text
-        
+
         QuillEditor.open({
             title: 'Editar Contrarrazão',
             initialHtml: text,
