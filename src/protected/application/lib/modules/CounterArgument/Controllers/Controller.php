@@ -7,6 +7,10 @@ use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Services\CounterArgumentService;
 use MapasCulturais\Services\SentryService;
+use MapasCulturais\entities\CounterArgument as EntityCounterArgument;
+use MapasCulturais\Utils;
+use Mpdf\Mpdf;
+use Mpdf\HTMLParserMode;
 
 class Controller extends \MapasCulturais\Controller
 {
@@ -128,6 +132,81 @@ class Controller extends \MapasCulturais\Controller
         unset($statuses[CounterArgument::STATUS_WAITING]);
 
         $this->json(['statuses' => $statuses]);
+    }
+
+    public function GET_printCounterArgument(): void
+    {
+        $this->requireAuthentication();
+
+        $counterArgument = App::i()->repo(EntityCounterArgument::class)->find($this->data['counterArgumentId']);
+
+        $counterArgument->registration->checkPermission('@control');
+       
+        $mpdf = new Mpdf([
+            'tempDir' => '/tmp',
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'pagenumPrefix' => 'Página ',
+            'pagenumSuffix' => '  ',
+            'nbpgPrefix' => ' de ',
+            'nbpgSuffix' => '',
+            'margin_top' => 45,
+            'margin_bottom' => 30,
+        ]);
+
+        $content = App::i()->view->fetch('counter-argument/print-counter-argument');
+        
+        $stylesheet = file_get_contents(MODULES_PATH . 'CounterArgument/assets/counter-argument/css/print.css');
+
+        $mpdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
+       
+        $mpdf->WriteHTML($content);
+        $mpdf->WriteHTML(ob_get_clean());
+        
+        $this->addAttachmentsToCounterArgumentPDF($mpdf, $counterArgument->files);
+        
+        $mpdf->Output();
+    }
+
+    private function addAttachmentsToCounterArgumentPDF($mpdf, $files)
+    {
+        $mpdf->WriteHTML('@page { odd-header-name: none; odd-footer-name: none; }', \Mpdf\HTMLParserMode::HEADER_CSS);
+
+        foreach ($files as $file) {
+          
+            if (is_array($file)) {
+                $filePath = $file['path'] ?? $file['tmp_name'] ?? null; 
+                $fileName = $file['name'] ?? 'Unknown File';
+            } else {
+                $filePath = $file->getPath();
+                $fileName = $file->name;
+            }
+
+            if (!$filePath) {
+                continue; 
+            }
+
+            try {
+                $pageCount = $mpdf->SetSourceFile($filePath);
+
+                for ($i = 1; $i <= $pageCount; $i++) {
+                    $templateId = $mpdf->ImportPage($i);
+                    $size = $mpdf->GetTemplateSize($templateId);
+                    $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
+
+                    $mpdf->AddPageByArray([
+                        'orientation' => $orientation,
+                        'newformat' => [$size['width'], $size['height']],
+                    ]);
+                    $mpdf->UseTemplate($templateId);
+                }
+            } catch (\Throwable $e) {
+                error_log("Erro ao renderizar anexo: " . $filePath . " - " . $e->getMessage());
+
+                $mpdf->AddPage();
+                $mpdf->WriteHTML('<p style="color:red; text-align: center;">Erro ao renderizar anexo: ' . htmlspecialchars($fileName) . '</p>');
+            }
+        }
     }
 
     private function validateRegistrationOwner($registration)
