@@ -346,30 +346,4 @@ class Utils {
             'video/quicktime',
         ];
     }
-
-    static function isUniqueMeta(string $key, string $value, Agent $agent): bool
-    {
-        if (!$value) {
-            return true;
-        }
-
-        $app = App::i();
-
-        $qb = $app->em->createQueryBuilder();
-        $qb->select('m.id')
-        ->from(AgentMeta::class, 'm')
-        ->where('m.key = :key')
-        ->andWhere('m.value = :value')
-        ->setParameter('key', $key)
-        ->setParameter('value', $value)
-        ->setMaxResults(1);
-
-        // Exclude the current agent
-        if (!empty($agent->id)) {
-            $qb->andWhere('m.owner != :agent')
-            ->setParameter('agent', $agent);
-        }
-
-        return $qb->getQuery()->getOneOrNullResult() === null;
-    }
 }
