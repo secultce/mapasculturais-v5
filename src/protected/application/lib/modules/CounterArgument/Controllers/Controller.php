@@ -141,7 +141,7 @@ class Controller extends \MapasCulturais\Controller
         $counterArgument = App::i()->repo(EntityCounterArgument::class)->find($this->data['counterArgumentId']);
 
         $counterArgument->registration->checkPermission('@control');
-       
+
         $mpdf = new Mpdf([
             'tempDir' => '/tmp',
             'mode' => 'utf-8',
@@ -155,16 +155,16 @@ class Controller extends \MapasCulturais\Controller
         ]);
 
         $content = App::i()->view->fetch('counter-argument/print-counter-argument');
-        
+
         $stylesheet = file_get_contents(MODULES_PATH . 'CounterArgument/assets/counter-argument/css/print.css');
 
         $mpdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
-       
+
         $mpdf->WriteHTML($content);
         $mpdf->WriteHTML(ob_get_clean());
-        
+
         $this->addAttachmentsToCounterArgumentPDF($mpdf, $counterArgument->files);
-        
+
         $mpdf->Output();
     }
 
@@ -173,17 +173,17 @@ class Controller extends \MapasCulturais\Controller
         $mpdf->WriteHTML('@page { odd-header-name: none; odd-footer-name: none; }', \Mpdf\HTMLParserMode::HEADER_CSS);
 
         foreach ($files as $file) {
-          
+
             if (is_array($file)) {
-                $filePath = $file['path'] ?? $file['tmp_name'] ?? null; 
-                $fileName = $file['name'] ?? 'Unknown File';
+                $filePath = $file[0]->path;
+                $fileName = $file[0]->name;
             } else {
                 $filePath = $file->getPath();
                 $fileName = $file->name;
             }
 
             if (!$filePath) {
-                continue; 
+                continue;
             }
 
             try {
@@ -211,7 +211,9 @@ class Controller extends \MapasCulturais\Controller
 
     private function validateRegistrationOwner($registration)
     {
-        if (!$registration->owner->canUser('@control')) throw new PermissionDenied(App::i()->getUser(), $registration, 'sendCounterArgument');
+        if (!$registration->owner->canUser('@control')) {
+            throw new PermissionDenied(App::i()->getUser(), $registration, 'sendCounterArgument');
+        }
     }
 
     private function validatePeriod($opportunity, $message)
@@ -247,7 +249,9 @@ class Controller extends \MapasCulturais\Controller
 
     private function verifyPublishPermission($opportunity)
     {
-        if (!$opportunity->canUser('@control')) throw new PermissionDenied(App::i()->getUser(), $opportunity, 'publishCounterArgumentResponses');
+        if (!$opportunity->canUser('@control')) {
+            throw new PermissionDenied(App::i()->getUser(), $opportunity, 'publishCounterArgumentResponses');
+        }
     }
 
     private function verifyCounterArgumentsWithoutResponse($counterArguments)
