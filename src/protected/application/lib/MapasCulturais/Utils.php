@@ -3,9 +3,6 @@
 namespace MapasCulturais;
 
 use Curl\Curl;
-use MapasCulturais\App;
-use MapasCulturais\Entities\Agent;
-use MapasCulturais\Entities\AgentMeta;
 
 class Utils {
     static function removeAccents($string) {
