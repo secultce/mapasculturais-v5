@@ -178,7 +178,7 @@ class Controller extends \MapasCulturais\Controller
                 $filePath = $file[0]->path;
                 $fileName = $file[0]->name;
             } else {
-                $filePath = $file->getPath();
+                $filePath = $file->path;
                 $fileName = $file->name;
             }
 
