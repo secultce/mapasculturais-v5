@@ -94,13 +94,6 @@ $counterArgumentService = new CounterArgumentService();
                                 title="<?= $isCounterArgumentPeriod ? 'Editar Contrarrazão' : 'O período para edição da contrarrazão está encerrado' ?>">
                                 <i class='fas fa-edit'></i>
                             </button>
-                             <a
-                                href="<?= $app->createUrl('contrarrazao', 'printCounterArgument', ['counterArgumentId' => $counterArgument->id]) ?>"
-                                class="btn counter-argument-btn"
-                                title="Imprimir contrarrazão"
-                                target="_blank">
-                                <i class="fas fa-print"></i>
-                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
