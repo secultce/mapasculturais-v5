@@ -20,6 +20,7 @@ $unpublishedResponses = [];
                     <th>Situação</th>
                     <th>Data do envio</th>
                     <th>Resposta</th>
+                    <th>Dados da Resposta</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,7 +88,7 @@ $unpublishedResponses = [];
                                     </button>
                                 <?php endif; ?>
                                 <?php if ($response) : ?>
-                                    <div>
+                                    <div class="counter-argument-response-info">
                                         <div>
                                             <small><?= $response->owner->name ?></small>
                                         </div>
@@ -97,6 +98,11 @@ $unpublishedResponses = [];
                                     </div>
                                 <?php endif; ?>
                             </div>
+                        </td>
+                        <td>
+                            <?php if ($response) : ?>
+                                <?= $response->owner->name ?> - <?= ($response->updateTimestamp ?? $response->createTimestamp)->format('d/m/Y H:i') ?>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
