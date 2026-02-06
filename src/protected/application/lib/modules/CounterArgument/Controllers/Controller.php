@@ -3,14 +3,13 @@
 namespace CounterArgument\Controllers;
 
 use MapasCulturais\App;
-use MapasCulturais\Utils;
 use MapasCulturais\Services\CounterArgumentService;
 use MapasCulturais\Services\SentryService;
 
 class Controller extends \MapasCulturais\Controller
 {
     private $counterArgumentService;
-    
+
     public function __construct()
     {
         $this->counterArgumentService = new CounterArgumentService();
@@ -20,14 +19,12 @@ class Controller extends \MapasCulturais\Controller
     {
         $data = $this->getPostData();
         $registration = App::i()->repo('Registration')->find($data['registration']);
-        $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
 
         try {
-            Utils::validateFilesMimeType($_FILES, $allowedMimeTypes);
             $this->counterArgumentService->send($data['text'], $registration);
             $this->json(['message' => 'Contrarrazão enviada com sucesso. Aguarde a resposta.'], 201);
         } catch (\Slim\Exception\Stop $e) {
-            throw $e; 
+            throw $e;
         } catch (\Throwable $th) {
             SentryService::captureExceptions($th);
             $this->json(['message' => $th->getMessage()], 400);
@@ -37,10 +34,8 @@ class Controller extends \MapasCulturais\Controller
     public function POST_update()
     {
         $data = $this->getPostData();
-        $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
 
         try {
-            Utils::validateFilesMimeType($_FILES, $allowedMimeTypes);
             $this->counterArgumentService->update($data);
             $this->json(['message' => 'Contrarrazão atualizada com sucesso. Aguarde a resposta.'], 201);
         } catch (\Slim\Exception\Stop $e) {

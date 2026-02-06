@@ -7,6 +7,7 @@ use MapasCulturais\App;
 use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Entities\CounterArgumentFile;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Utils;
 
 class CounterArgumentService
 {
@@ -62,6 +63,19 @@ class CounterArgumentService
 
             $counterArgumentFile = new CounterArgumentFile($file);
             $counterArgumentFile->setGroup('counter-argument-attachment');
+
+            $fileGroup = App::i()->getRegisteredFileGroup('contrarrazao', 'counter-argument-attachment');
+
+            if ($fileGroup) {
+                $error = $fileGroup->getError($counterArgumentFile);
+                if ($error) {
+                    App::i()->enableAccessControl();
+                    throw new \RuntimeException($error);
+                }
+            } else {
+                Utils::validateFilesMimeType([$file], Utils::getAllowedUploadMimeTypes());
+            }
+
             $counterArgumentFile->owner = $counterArgument;
             $counterArgumentFile->private = true;
             $counterArgumentFile->save();
