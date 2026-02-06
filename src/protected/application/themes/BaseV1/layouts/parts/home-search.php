@@ -1,4 +1,4 @@
-<section id="home-intro" class="js-page-menu-item home-entity clearfix">
+<section id="home-intro" style="background-image:url('<?= $this->subsiteInstance && $this->subsiteInstance->background ? $this->subsiteInstance->background->url : '' ?>'); background-size: cover;" class="js-page-menu-item home-entity clearfix">
     <?php $this->applyTemplateHook('home-search','begin'); ?>
     <div class="box">
         <h1><?php echo $app->view->renderMarkdown($this->dict('home: title',false)); ?></h1>
