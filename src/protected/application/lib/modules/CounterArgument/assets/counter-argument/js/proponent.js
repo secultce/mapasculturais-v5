@@ -86,9 +86,7 @@ const counterArgument = {
                     icon: 'success',
                     allowOutsideClick: false,
                 }).then(res => {
-                    if (res.isConfirmed) {
-                        window.location.reload()
-                    }
+                    if (res.isConfirmed) window.location.reload()
                 })
             },
             error(err) {
@@ -153,8 +151,9 @@ const counterArgument = {
 
 $(() => {
     $('[open-counter-argument]').on('click', function (event) {
-        let quillEditor
         const registration = event.currentTarget.dataset.registration
+
+        let quillEditor
 
         Swal.fire({
             title: 'Abrir Contrarrazão',
@@ -253,9 +252,7 @@ $(() => {
             showCancelButton: true,
             allowOutsideClick: false,
         }).then(res => {
-            if (res.isConfirmed) {
-                counterArgument.removeFile(fileId)
-            }
+            if (res.isConfirmed) counterArgument.removeFile(fileId)
         })
     })
 })

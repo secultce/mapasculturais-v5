@@ -47,9 +47,7 @@ const counterArgumentAdmin = {
                     icon: 'success',
                     allowOutsideClick: false,
                 }).then(res => {
-                    if (res.isConfirmed) {
-                        window.location.reload()
-                    }
+                    if (res.isConfirmed) window.location.reload()
                 })
             },
             error(err) {
@@ -116,6 +114,7 @@ $(() => {
         const counterArgumentId = event.currentTarget.dataset.id
         const text = event.currentTarget.dataset.text
         const status = event.currentTarget.dataset.status
+        const statuses = new Map(Object.entries(counterArgumentAdmin.statuses).sort((a, b) => a[1].localeCompare(b[1])))
 
         let quillEditor
 
@@ -129,8 +128,7 @@ $(() => {
                         <label for="counter-argument-status" class="sweetalert-label">Situação:</label>
                         <select class="form-control" id="counter-argument-status">
                             <option selected disabled>--- Selecione uma situação ---</option>
-                            <option ${status == 10 ? 'selected' : ''} value="10">Deferida</option>
-                            <option ${status == 3 ? 'selected' : ''} value="3">Indeferida</option>
+                            ${Array.from(statuses.entries()).map(([key, value]) => `<option value="${key}" ${key == status ? 'selected' : ''}>${value}</option>`).join('')}
                         </select>
                     </div>
                 </div>

@@ -87,6 +87,7 @@ class Controller extends \MapasCulturais\Controller
         $this->verifyResponsePermission($counterArgument->registration);
         $this->validateResponsePeriod($counterArgument->registration->opportunity);
         $this->verifyResponseOwner($counterArgument->response);
+        $this->verifyPublishedResponse($counterArgument->response);
 
         try {
             $this->counterArgumentService->saveResponse($data);
@@ -123,7 +124,10 @@ class Controller extends \MapasCulturais\Controller
     {
         $this->requireAuthentication();
 
-        $this->json(['statuses' => CounterArgument::STATUSES]);
+        $statuses = CounterArgument::STATUSES;
+        unset($statuses[CounterArgument::STATUS_WAITING]);
+
+        $this->json(['statuses' => $statuses]);
     }
 
     private function validateRegistrationOwner($registration)
@@ -173,6 +177,14 @@ class Controller extends \MapasCulturais\Controller
 
         if ($counterArgumentsWithoutResponse) {
             $this->json(['message' => 'Existem contrarrazões sem resposta. Por favor, responda todas as contrarrazões antes de publicar as respostas.'], 403);
+            return;
+        }
+    }
+
+    private function verifyPublishedResponse($response)
+    {
+        if ($response && $response->published) {
+            $this->json(['message' => 'Esta resposta já foi publicada e não pode mais ser editada.'], 403);
             return;
         }
     }

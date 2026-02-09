@@ -119,7 +119,8 @@ return array(
                 return Utils::formatCnpjCpf($value);
             },
             'validations' => array(
-                'v::cnpj()' => \MapasCulturais\i::__('O número de CNPJ informado é inválido.')
+                'v::cnpj()' => \MapasCulturais\i::__('O número de CNPJ informado é inválido.'),
+                'unique' => 'Este CNPJ já está cadastrado em nosso sistema.',
              ),
             'available_for_opportunities' => true,
         ),
@@ -145,7 +146,8 @@ return array(
                 return Utils::formatCnpjCpf($value);
             },
             'validations' => array(
-                'v::cpf()' => \MapasCulturais\i::__('O número de CPF informado é inválido.')
+                'v::cpf()' => \MapasCulturais\i::__('O número de CPF informado é inválido.'),
+                'unique' => 'Este CPF já está cadastrado em nosso sistema.',
              ),
             'available_for_opportunities' => true,
         ),
