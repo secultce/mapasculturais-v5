@@ -13,7 +13,7 @@
     }]);
 
     function getOpportunityId(){
-        if(MapasCulturais.entity.object.opportunity){
+        if(MapasCulturais.entity.object?.opportunity){
             return MapasCulturais.entity.object.opportunity.id;
         } 
         if (MapasCulturais.evaluationConfiguration) {
