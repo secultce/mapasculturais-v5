@@ -29,12 +29,13 @@ class Controller extends \MapasCulturais\Controller
 
         try {
             $this->counterArgumentService->send($data['text'], $registration);
+            $this->json(['message' => 'Contrarrazão enviada com sucesso. Aguarde a resposta.'], 201);
+        } catch (\Slim\Exception\Stop $e) {
+            throw $e;
         } catch (\Throwable $th) {
             SentryService::captureExceptions($th);
-            return;
+            $this->json(['message' => $th->getMessage()], 403);
         }
-
-        $this->json(['message' => 'Contrarrazão enviada com sucesso. Aguarde a resposta.'], 201);
     }
 
     public function POST_update()
@@ -48,13 +49,14 @@ class Controller extends \MapasCulturais\Controller
         $this->validatePeriod($counterArgument->registration->opportunity, 'O período para editar a contrarrazão está encerrado.');
 
         try {
-            $this->counterArgumentService->update($data['text'], $counterArgument);
+            $this->counterArgumentService->send($data['text'], $counterArgument);
+            $this->json(['message' => 'Contrarrazão enviada com sucesso. Aguarde a resposta.'], 201);
+        } catch (\Slim\Exception\Stop $e) {
+            throw $e;
         } catch (\Throwable $th) {
             SentryService::captureExceptions($th);
-            return;
+            $this->json(['message' => $th->getMessage()], 400);
         }
-
-        $this->json(['message' => 'Contrarrazão atualizada com sucesso. Aguarde a resposta.']);
     }
 
     public function POST_removeFile()

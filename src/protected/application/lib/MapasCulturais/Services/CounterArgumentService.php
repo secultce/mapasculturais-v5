@@ -8,6 +8,8 @@ use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Entities\CounterArgumentFile;
 use MapasCulturais\Entities\CounterArgumentResponse;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Services\SentryService;
+use MapasCulturais\Utils;
 
 class CounterArgumentService
 {
@@ -81,17 +83,31 @@ class CounterArgumentService
 
     private function saveFiles($files, $counterArgument)
     {
-        foreach ($files as $file) {
-            App::i()->disableAccessControl();
+        App::i()->disableAccessControl();
 
-            $counterArgumentFile = new CounterArgumentFile($file);
-            $counterArgumentFile->setGroup('counter-argument-attachment');
-            $counterArgumentFile->owner = $counterArgument;
-            $counterArgumentFile->private = true;
-            $counterArgumentFile->save();
+        try {
+            foreach ($files as $file) {
+                $counterArgumentFile = new CounterArgumentFile($file);
+                $counterArgumentFile->setGroup('counter-argument-attachment');
+                $fileGroup = App::i()->getRegisteredFileGroup('contrarrazao', 'counter-argument-attachment');
 
+                if ($fileGroup) {
+                    $error = $fileGroup->getError($counterArgumentFile);
+                    if ($error) {
+                        throw new \RuntimeException($error);
+                        SentryService::captureExceptions($e);
+                    }
+                } else {
+                    Utils::validateFilesMimeType([$file], Utils::getAllowedUploadMimeTypes());
+                }
+                $counterArgumentFile->owner = $counterArgument;
+                $counterArgumentFile->pridvate = true;
+                $counterArgumentFile->save();
+            }
+        } finally {
             App::i()->enableAccessControl();
         }
+
     }
 
     public function removeFile(CounterArgumentFile $counterArgumentFile)
