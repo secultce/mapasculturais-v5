@@ -63,25 +63,29 @@ class Tado extends \MapasCulturais\Controller
     function POST_saveTado()
     {
         $request = $this;
-        $tado = new EntityTado();
+        $app = App::i();
 
         //Recebendo data preenchida ou data e hora atual
         $dateDay = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["dateDay"]} 00:00");
         if($dateDay == ""){
             $dateDay = Carbon::now()->setTimezone('America/Fortaleza')->format('Y-m-d H:i');
         }
-        //Validando para o Frontend
-        $validateBack = $tado->validateForm($request);
-        //Se tiver campo obrigatório vazio então dispara mensagem
-        !empty($validateBack) ? $this->json(['data' => $validateBack, 'status' => 403]) : null;
-     
-        $app = App::i();
 
         if (intval($request->data['idTado']) > 0) {
-            self::update($request);           
-        } else {
+            self::update($request);
+            return;
+        }
+
+        $tado = new EntityTado();
+        $errors = $this->validateTadoData($request, $tado);
+
+        if (!empty($errors)) {
+            $this->json(['data' => $errors, 'status' => 400]);
+            return;
+        }
+
+        try {
             $reg = $app->repo('Registration')->find($this->data['id']);
-            $tado = new EntityTado();
             $tado->number           = $this->data['numbertec'];
             $tado->createTimestamp  = $dateDay;
             $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
@@ -96,17 +100,23 @@ class Tado extends \MapasCulturais\Controller
             $tado->cpfManager       = $this->data['cpfManager'];
 
             $entity = self::saveEntity($tado);
-            if ($entity["entityId"]) {
-                if ($this->data['status'] == 1) {
-                    Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
-                    self::returnRequestJson(
-                        'O seu documento foi gerado!',
-                        'TADO finalizado e realizado o download para o seu computador.',
-                        200
-                    );
-                }
-                self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
+        } catch (\Throwable $th) {
+            self::returnRequestJson('Ops!', 'Ocorreu um erro ao salvar o TADO: ' . $th->getMessage(), 500);
+            return;
+        }
+
+        if ($entity["entityId"]) {
+            if ($this->data['status'] == 1) {
+                Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
+                self::returnRequestJson(
+                    'O seu documento foi gerado!',
+                    'TADO finalizado e realizado o download para o seu computador.',
+                    200
+                );
             }
+            self::returnRequestJson('Sucesso!', 'Rascunho criado com sucesso.', 200);
+        } else {
+            self::returnRequestJson('Ops!', 'Ocorreu um erro inesperado', 401);
         }
     }
 
@@ -115,17 +125,35 @@ class Tado extends \MapasCulturais\Controller
     {
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->find($request->data['idTado']);
-        $app->repo('Registration')->find($request->data['id']);
-        $tado->number           = $request->data['numbertec'];
-        $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
-        $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
-        $tado->object           = $request->data['object'];
-        $tado->conclusion       = $request->data['conclusion'];
-        $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
-        $tado->status           = $request->data['status'];
-        $tado->nameManager      = $request->data['nameManager'];
-        $tado->cpfManager       = $request->data['cpfManager'];
-        $entity = self::saveEntity($tado);
+
+        if (!$tado) {
+            self::returnRequestJson('Ops!', 'TADO não encontrado.', 404);
+            return;
+        }
+
+        $errors = $this->validateTadoData($request, $tado);
+
+        if (!empty($errors)) {
+            $this->json(['data' => $errors, 'status' => 400]);
+            return;
+        }
+
+        try {
+            $app->repo('Registration')->find($request->data['id']);
+            $tado->number           = $request->data['numbertec'];
+            $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
+            $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
+            $tado->object           = $request->data['object'];
+            $tado->conclusion       = $request->data['conclusion'];
+            $tado->agentSignature   = $app->auth->getAuthenticatedUser()->profile;
+            $tado->status           = $request->data['status'];
+            $tado->nameManager      = $request->data['nameManager'];
+            $tado->cpfManager       = $request->data['cpfManager'];
+            $entity = self::saveEntity($tado);
+        } catch (\Throwable $th) {
+            self::returnRequestJson('Ops!', 'Ocorreu um erro ao atualizar o TADO: ' . $th->getMessage(), 500);
+            return;
+        }
 
         self::sendNotificationTagoGeneration();
 
@@ -139,11 +167,11 @@ class Tado extends \MapasCulturais\Controller
                 );
             }else{
                 self::returnRequestJson('Sucesso!', 'Tado alterado com sucesso', 200);
-            }            
+            }
         }else{
             self::returnRequestJson('Ops!', 'Ocorreu um erro inesperado', 401);
         }
-        
+
     }
 
     /**
@@ -177,5 +205,25 @@ class Tado extends \MapasCulturais\Controller
 
         $class->data = $notifi;
         $notification->create($class, EntityDiligence::TYPE_NOTIFICATION_TADO);
+    }
+
+    private function validateTadoData($request, $tado): array
+    {
+        $errors = $tado->validateForm($request);
+
+        $maxLengthRules = [
+            'object'      => ['max' => 255, 'label' => 'Objeto'],
+            'nameManager' => ['max' => 255, 'label' => 'Nome do Gestor'],
+            'cpfManager'  => ['max' => 255, 'label' => 'CPF do Gestor'],
+            'numbertec'   => ['max' => 24,  'label' => 'Número'],
+        ];
+
+        foreach ($maxLengthRules as $field => $rule) {
+            if (isset($request->data[$field]) && mb_strlen($request->data[$field]) > $rule['max']) {
+                $errors[] = "O campo {$rule['label']} não pode ter mais de {$rule['max']} caracteres.";
+            }
+        }
+
+        return $errors;
     }
 }

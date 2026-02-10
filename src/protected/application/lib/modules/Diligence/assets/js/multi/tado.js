@@ -101,7 +101,7 @@ function save(postDataTado)
         data: postDataTado,
         dataType: "json",
         success: function (res) {
-          
+            console.log({res})
             if(res.status == 200){
                 //"O seu documento foi gerado"
                 //"Após baixar o documento, você pode editar e baixá-lo novamente enquanto estiver dentro do prazo"
@@ -144,13 +144,28 @@ function save(postDataTado)
                     icon: "error"
                 });
             }
+
+            if(res.status == 400){
+                let msgErro = '';
+                res.data.forEach(element => {
+                    msgErro = element;
+                    console.log({element});
+                });
+                Swal.fire({
+                    title: 'Ocorreu um erro!',
+                    text: msgErro,
+                    icon: "error"
+                });
+            }
+
+
         },
         error: function(err) {
-            Swal.fire({
-                title: res.title,
-                text: res.message,
-                icon: "error"
-            });
+            console.log(err.data)
+            if(err.status == 400){
+                console.log({err})
+            }
+
         }
     });
 }
