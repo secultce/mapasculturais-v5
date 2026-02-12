@@ -1375,10 +1375,10 @@ class Registration extends \MapasCulturais\Entity
             $user = $app->user;
         }
 
-        if($registration->opportunity->canUser('control')){
+        if($registration->opportunity->canUser('@control')){
             $user = $app->repo('User')->find($data['uid']);
         }
-        
+
         $evaluation = $this->getUserEvaluation($user);
         
         if(!$evaluation){
