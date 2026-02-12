@@ -1369,13 +1369,18 @@ class Registration extends \MapasCulturais\Entity
         $evaluation->save(true);
     }
 
-    function saveUserEvaluation(array $data, User $user = null, $evaluation_status = null){
+    function saveUserEvaluation(array $data, User $user = null, $evaluation_status = null, $registration = null){
         $app = App::i();
         if(is_null($user)){
             $user = $app->user;
         }
 
+        if($registration->opportunity->canUser('control')){
+            $user = $app->repo('User')->find($data['uid']);
+        }
+        
         $evaluation = $this->getUserEvaluation($user);
+        
         if(!$evaluation){
             $evaluation = new RegistrationEvaluation;
             $evaluation->user = $user;
