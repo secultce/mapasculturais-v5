@@ -140,7 +140,7 @@ class Controller extends \MapasCulturais\Controller
 
         $counterArgument = App::i()->repo(EntityCounterArgument::class)->find($this->data['counterArgumentId']);
 
-        $counterArgument->registration->checkPermission('@control');
+        $counterArgument->opportunity->checkPermission('@control');
 
         $mpdf = new Mpdf([
             'tempDir' => '/tmp',
