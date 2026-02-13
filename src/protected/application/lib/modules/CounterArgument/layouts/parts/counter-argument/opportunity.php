@@ -104,7 +104,7 @@ $entity = $opportunity->ownerEntity;
                             <?php if ($entity->canUser('@control')): ?>
                                 <a
                                     href="<?= $app->createUrl('contrarrazao', 'printCounterArgument', ['counterArgumentId' => $counterArgument->id]) ?>"
-                                    class="btn btn-recourse"
+                                    class="btn counter-argument-btn"
                                     title="Imprimir contrarrazão"
                                     target="_blank">
                                     <i class="fas fa-print"></i>
