@@ -20,6 +20,7 @@ $unpublishedResponses = [];
                     <th>Situação</th>
                     <th>Data do envio</th>
                     <th>Resposta</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,11 +99,21 @@ $unpublishedResponses = [];
                                 <?php endif; ?>
                             </div>
                         </td>
+                        <td>
+                            <?php if ($opportunity->canUser('@control')): ?>
+                                <a
+                                    href="<?= $app->createUrl('contrarrazao', 'printCounterArgument', ['counterArgumentId' => $counterArgument->id]) ?>"
+                                    class="btn counter-argument-btn"
+                                    title="Imprimir contrarrazão"
+                                    target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-
         <?php if ($opportunity->canUser('@control')) : ?>
             <button
                 type="button"
