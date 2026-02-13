@@ -4,7 +4,6 @@ use MapasCulturais\Entities\CounterArgument;
 
 $opportunity = $this->controller->requestedEntity;
 $unpublishedResponses = [];
-$entity = $opportunity->ownerEntity;
 
 ?>
 
@@ -101,7 +100,7 @@ $entity = $opportunity->ownerEntity;
                             </div>
                         </td>
                         <td>
-                            <?php if ($entity->canUser('@control')): ?>
+                            <?php if ($opportunity->canUser('@control')): ?>
                                 <a
                                     href="<?= $app->createUrl('contrarrazao', 'printCounterArgument', ['counterArgumentId' => $counterArgument->id]) ?>"
                                     class="btn counter-argument-btn"
