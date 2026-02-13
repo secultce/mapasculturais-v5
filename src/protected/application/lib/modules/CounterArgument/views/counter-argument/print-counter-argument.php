@@ -1,7 +1,7 @@
 <?php
 
 use MapasCulturais\App;
-use MapasCulturais\entities\CounterArgument as EntityCounterArgument;
+use MapasCulturais\Entities\CounterArgument as EntityCounterArgument;
 
 $counterArgument = App::i()->repo(EntityCounterArgument::class)->find($this->controller->data["counterArgumentId"]);
 
@@ -10,7 +10,7 @@ require THEMES_PATH . 'BaseV1/layouts/headpdf.php';
 ?>
 
 <main>
-    <h4><?= $counterArgument->registration->name ?></h4>
+    <h4><?= $counterArgument->registration->opportunity->name ?></h4>
     <h4>PEDIDO DE CONTRARRAZÃO</h4>
 
     <table>
@@ -46,7 +46,7 @@ require THEMES_PATH . 'BaseV1/layouts/headpdf.php';
             <th colspan="2"><b>RESPOSTA DA COMISSÃO</b></th>
         </tr>
     </table>
-    <div class="counter-argument-text"><?= $counterArgument->response ?? 'Sem resposta' ?></div>
+    <div class="counter-argument-text"><?= $counterArgument->response ? $counterArgument->response->text : 'Sem resposta' ?></div>
     <table style="margin-bottom: 50px;">
         <tr>
             <td><b>RESULTADO</b></td>

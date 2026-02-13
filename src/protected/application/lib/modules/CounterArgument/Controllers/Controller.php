@@ -7,7 +7,7 @@ use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Services\CounterArgumentService;
 use MapasCulturais\Services\SentryService;
-use MapasCulturais\entities\CounterArgument as EntityCounterArgument;
+use MapasCulturais\Entities\CounterArgument as EntityCounterArgument;
 use MapasCulturais\Utils;
 use Mpdf\Mpdf;
 use Mpdf\HTMLParserMode;
