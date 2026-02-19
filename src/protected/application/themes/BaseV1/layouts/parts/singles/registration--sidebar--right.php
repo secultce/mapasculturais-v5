@@ -22,7 +22,10 @@ foreach ($opportunity->getEvaluationCommittee() as $evaluation_user) {
 <?= $this->applyTemplateHook('registration-sidebar-rigth','before')?>
 <div class="sidebar registration sidebar-right">
     <?= $this->applyTemplateHook('registration-sidebar-rigth','begin')?>
-    <?php if($action === 'single' && $entity->canUser('viewUserEvaluation')): ?>
+    <?php if(
+            ($evaluationAgent && $action === 'single' && $entity->canUser('viewUserEvaluation')) ||
+            ($evaluation && $evaluation->user->id && $action === 'single' && $opportunity->canUser('@control'))
+        ): ?>
         <div id="registration-evaluation-form" class="evaluation-form evaluation-form--<?php echo $evaluationMethod->getSlug(); ?>">
             <?php if($evaluationAgent && $entity->canUser('evaluate') || $opportunity->canUser('@control')): ?>
                 <?php if($infos): ?>
