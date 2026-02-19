@@ -461,7 +461,7 @@ class Registration extends EntityController {
             }
             $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status, $registration);
         } else {
-            $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user, $registration);
+            $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user, null, $registration);
         }
         $this->json($evaluation);
     }
