@@ -52,6 +52,7 @@ $(document).ready(function () {
             }
             if (res.message === 'diligencia_aberta') {
                 EntityDiligence.hideBtnOpenDiligence();
+                $("#subject_info_status_diligence").hide();
                 res.data.forEach((element, index) => {
                     if (element?.status == 0) {
                         $("#descriptionDiligence").hide();
@@ -118,8 +119,6 @@ function openDiligence(status) {
     setTimeout(() => {
         Swal.close();
     }, 1000);
-    $("#subject_info_status_diligence").removeAttr("hidden");
-    $("#descriptionDiligence").removeAttr("hidden");
     showBtnActionsDiligence();
     EntityDiligence.hideBtnOpenDiligence();
     EntityDiligence.hideRegistration();
@@ -129,8 +128,6 @@ function openDiligence(status) {
 function editDescription(description, id) {
     EntityDiligence.editDescription(description, id);
     showBtnActionsDiligence();
-    //Mostrando itens de assunto
-    $("#subject_info_status_diligence").removeAttr("hidden");
 }
 
 //Mostrar os botões de ação da diligência
@@ -138,6 +135,8 @@ function showBtnActionsDiligence() {
     $('#btn-actions-diligence').removeClass('d-none');
     $("#btn-save-diligence").show();
     $("#btn-send-diligence").show();
+    $("#descriptionDiligence").removeAttr("hidden");
+    $("#subject_info_status_diligence").removeAttr("hidden");
 }
 
 //Salvando a autorização e o valor do projeto
@@ -370,6 +369,7 @@ function hideAfterSend() {
     $("#div-diligence").hide();
     $("#btn-actions-diligence").hide();
     $("#descriptionDiligence").hide();
+    $("#subject_info_status_diligence").hide();
 }
 
 function trashDraftDiligence(idDiligence, titleQuestion, textTrash, titleCancel, titleConfirm, classBtnConfirm, classBtnCancel) {
