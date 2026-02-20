@@ -10,7 +10,7 @@ $(function(){
         /* $formContainer.css('margin-top', top);
         $list.css('margin-top', top); */
     });
-
+    
     $formContainer.find('.js-evaluation-submit').on('click', function (e) {
         e.preventDefault();
 
@@ -182,5 +182,8 @@ $(function(){
                 }
             })
         }
+    });
+    $('input[type="number"]').on('wheel', function (e) {
+        $(this).blur(); // remove foco e evita alteração
     });
 });
