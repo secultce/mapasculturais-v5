@@ -139,6 +139,7 @@ $(function(){
             })
         }
     });
+
     $('body').on('click', '.remove-bonus-btn', function (event) {
         const removeBonusBtn = event.currentTarget;
         const disabledBtn = $(removeBonusBtn).hasClass('disabled');
@@ -183,7 +184,8 @@ $(function(){
             })
         }
     });
+
     $('input[type="number"]').on('wheel', function (e) {
-        $(this).blur(); // remove foco e evita alteração
+        $(this).blur();
     });
 });
