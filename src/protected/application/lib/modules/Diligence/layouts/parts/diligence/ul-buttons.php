@@ -10,7 +10,7 @@
             <a href="#opinion-accountability" rel="noopener noreferrer" onclick="hideRegistration()">Parecer</a>
         </li>
     <?php endif; ?>
-    <li class="" id="li-btn-opend-diligence" style="float: right;">
+    <li class="" id="li-btn-opend-diligence" style="float: right;" hidden>
         <a href="#diligence-diligence" rel="noopener noreferrer" class="btn btn-primary btn-diligence-open-active" id="btn-open-diligence" onclick="openDiligence(0)">
             Abrir Diligência
         </a>

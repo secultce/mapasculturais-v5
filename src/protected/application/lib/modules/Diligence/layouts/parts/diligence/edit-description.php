@@ -1,12 +1,16 @@
 
-<div id='draft-description-diligence' class='div-draft-description-diligence'>
+<div id='draft-description-diligence' class='div-draft-description-diligence' hidden>
     <div style='display: flex; justify-content: space-between; align-items: center;'>
         <span style='font-size: medium; color: #000'><?= $titleDraft; ?> <br /></span>
         <div>
         <?php if($titleButton !== 'expirou') : ?>
             <a class='btn btn-primary' 
-                onclick='editDescription(<?php echo json_encode($resultsDraft); ?>,<?= $id; ?>)'>
-                <?= $titleButton; ?>
+                onclick="editDescription(
+                    <?= htmlspecialchars(json_encode($resultsDraft), ENT_QUOTES, 'UTF-8'); ?>,
+                    <?= (int)$id ?>
+                )"
+            >
+                    <?= $titleButton; ?>
             </a>
         <?php endif; ?>
         <?php if ($type !== 'proponent') : ?>
