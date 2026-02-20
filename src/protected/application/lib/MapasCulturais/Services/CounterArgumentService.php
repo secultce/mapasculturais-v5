@@ -98,7 +98,7 @@ class CounterArgumentService
                         SentryService::captureExceptions($e);
                     }
                 } else {
-                    Utils::validateFilesMimeType([$file], Utils::getAllowedUploadMimeTypes());
+                     Utils::getAllowedUploadMimeTypes();
                 }
                 $counterArgumentFile->owner = $counterArgument;
                 $counterArgumentFile->pridvate = true;

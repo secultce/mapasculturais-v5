@@ -49,8 +49,8 @@ class Controller extends \MapasCulturais\Controller
         $this->validatePeriod($counterArgument->registration->opportunity, 'O período para editar a contrarrazão está encerrado.');
 
         try {
-            $this->counterArgumentService->send($data['text'], $counterArgument);
-            $this->json(['message' => 'Contrarrazão enviada com sucesso. Aguarde a resposta.'], 201);
+            $this->counterArgumentService->update($data['text'], $counterArgument);
+            $this->json(['message' => 'Contrarrazão atualizada com sucesso. Aguarde a resposta.'], 201);
         } catch (\Slim\Exception\Stop $e) {
             throw $e;
         } catch (\Throwable $th) {
