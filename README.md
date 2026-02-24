@@ -7,7 +7,7 @@ A plataforma já está em uso em diversos municípios, estados, no governo feder
 | Projeto Original | [Github](https://github.com/mapasculturais/mapasculturais)  |
 |--|--|
 | Instalações| [Aqui](%7CInstala%C3%A7%C3%B5es%20Estaduais%7C%20%5BAqui%5D%28https://github.com/mapasculturais/mapasculturais?tab=readme-ov-file#instala%C3%A7%C3%B5es-estaduais%29%20%7C) |
-
+##
 # Este Fork
 Atualmente a [Secreatria da Cultura do Estado do Ceará](https://www.secult.ce.gov.br/) tem realizado um trabalho em cima deste fork com novos modulos, plugins e atualizações que ficam disponível para toda e qualquer colaboração de desenvolvedor ou mesmo de governança. 
 A COTIG dispõe de algumas diretrizes e instruções para colaboração do projeto, tais como:
