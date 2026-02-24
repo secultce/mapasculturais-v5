@@ -7,16 +7,28 @@ if (file_exists($_SERVER['SCRIPT_FILENAME']) && strtolower(substr($_SERVER['SCRI
     header("Pragma: public");
     header("Cache-Control: maxage=" . $expires);
     header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-    if(strtolower(substr($filename, -3)) == '.js'){
-        $mime = 'text/javascript';
-    }elseif(strtolower(substr($filename, -4)) == '.css'){
-
-        $mime = 'text/css';
-    }else{
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $_SERVER['SCRIPT_FILENAME']);
-        finfo_close($finfo);
+    switch ($ext) {
+        case 'js':
+            $mime = 'text/javascript';
+            break;
+        case 'css':
+            $mime = 'text/css';
+            break;
+        case 'woff2':
+            $mime = 'font/woff2';
+            break;
+        case 'woff':
+            $mime = 'font/woff';
+            break;
+        case 'ttf':
+            $mime = 'font/ttf';
+            break;
+        default:
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $filename);
+            finfo_close($finfo);
     }
     header('Content-type: ' . $mime);
 
