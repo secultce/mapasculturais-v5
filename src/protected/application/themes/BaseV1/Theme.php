@@ -1745,7 +1745,7 @@ class Theme extends MapasCulturais\Theme {
         $this->getAssetManager()->publishFolder('fonts/');
 
         $this->enqueueStyle('app', 'main', 'css/main.css');
-        $this->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
+        $this->enqueueStyle('app', 'fontawesome', 'css/fontawesome/all.css');
 
 
         $this->enqueueScript('app', 'tim', 'js/tim.js');
