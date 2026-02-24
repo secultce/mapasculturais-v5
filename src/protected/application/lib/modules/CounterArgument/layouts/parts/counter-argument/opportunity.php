@@ -11,15 +11,17 @@ $unpublishedResponses = [];
     <p class="info-text">Nesta seção são listadas todas as contrarrazões enviadas pelos agentes para esta oportunidade.</p>
 
     <?php if ($counterArguments) : ?>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
+        <table class="table table-striped table-hover" id="counter-reason-admin-table">
+            <thead >
+                <tr class="counter-reason-table-header">
                     <th>Inscrição</th>
                     <th>Agente</th>
                     <th>Contrarrazão</th>
                     <th>Situação</th>
                     <th>Data do envio</th>
                     <th>Resposta</th>
+                    <th>Dados da Resposta</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,7 +89,7 @@ $unpublishedResponses = [];
                                     </button>
                                 <?php endif; ?>
                                 <?php if ($response) : ?>
-                                    <div>
+                                    <div class="counter-argument-response-info">
                                         <div>
                                             <small><?= $response->owner->name ?></small>
                                         </div>
@@ -98,11 +100,26 @@ $unpublishedResponses = [];
                                 <?php endif; ?>
                             </div>
                         </td>
+                        <td>
+                            <?php if ($response) : ?>
+                                <?= $response->owner->name ?> - <?= ($response->updateTimestamp ?? $response->createTimestamp)->format('d/m/Y H:i') ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($opportunity->canUser('@control')): ?>
+                                <a
+                                    href="<?= $app->createUrl('contrarrazao', 'printCounterArgument', ['counterArgumentId' => $counterArgument->id]) ?>"
+                                    class="btn counter-argument-btn"
+                                    title="Imprimir contrarrazão"
+                                    target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-
         <?php if ($opportunity->canUser('@control')) : ?>
             <button
                 type="button"

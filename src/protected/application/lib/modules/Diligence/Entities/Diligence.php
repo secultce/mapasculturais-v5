@@ -193,7 +193,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
 
         if(isset($diligenceAgentId[0]) && count($diligenceAgentId) > 0){
             if(
-                ($app->user->profile->id == $diligenceAgentId[0]->agent->id) && 
+                ($entity->getOwnerUser() == $app->user) && 
                 new DateTime() <= $diligenceDays
             ){
                 $simpleMsg = "Você tem até {$diligenceDays->format('d/m/Y H:i')} para responder essa diligência";
@@ -221,21 +221,7 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
      */
     static public function isProponent(array $diligences, $entity) : bool
     {
-        $app = App::i();
-        //Em caso de não ter diligencia aberta, então verifica o dono da inscrição com o usuario logado
-        if(empty($diligences)){
-            if($entity->getOwnerUser() == $app->user)
-            {
-                return true;
-            }
-        }
-
-        if(isset($diligences[0]) && count($diligences) > 0){
-            if($app->user->profile->id == $diligences[0]->agent->id){
-                return true;
-            }
-        }
-        return false;
+        return $entity->getOwnerUser() === App::i()->user;
     }
 
     static public function isEvaluate($entity, $user): bool

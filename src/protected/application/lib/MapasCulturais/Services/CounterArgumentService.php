@@ -8,6 +8,8 @@ use MapasCulturais\Entities\CounterArgument;
 use MapasCulturais\Entities\CounterArgumentFile;
 use MapasCulturais\Entities\CounterArgumentResponse;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Services\SentryService;
+use MapasCulturais\Utils;
 
 class CounterArgumentService
 {
@@ -79,18 +81,43 @@ class CounterArgumentService
         App::i()->em->flush();
     }
 
-    private function saveFiles($files, $counterArgument)
+    private function saveFiles(array $files, $counterArgument): void
     {
-        foreach ($files as $file) {
-            App::i()->disableAccessControl();
+        App::i()->disableAccessControl();
 
-            $counterArgumentFile = new CounterArgumentFile($file);
-            $counterArgumentFile->setGroup('counter-argument-attachment');
-            $counterArgumentFile->owner = $counterArgument;
-            $counterArgumentFile->private = true;
-            $counterArgumentFile->save();
+        $fileGroup = App::i()->getRegisteredFileGroup('contrarrazao', 'counter-argument-attachment');
 
+        try {
+            foreach ($files as $file) {
+                $counterArgumentFile = new CounterArgumentFile($file);
+                $counterArgumentFile->setGroup('counter-argument-attachment');
+
+                $this->validateFile($counterArgumentFile, $fileGroup);
+
+                $counterArgumentFile->owner = $counterArgument;
+                $counterArgumentFile->private = true;
+                $counterArgumentFile->save();
+            }
+        } catch (\Throwable $th) {
+            SentryService::captureExceptions($th);
+            throw $th;
+        } finally {
             App::i()->enableAccessControl();
+        }
+    }
+
+    private function validateFile(CounterArgumentFile $counterArgumentFile, $fileGroup): void
+    {
+        if ($fileGroup) {
+            $error = $fileGroup->getError($counterArgumentFile);
+            if ($error) {
+                throw new \RuntimeException($error);
+            }
+            return;
+        }
+
+        if (!in_array($counterArgumentFile->mimeType, Utils::getAllowedUploadMimeTypes())) {
+            throw new \RuntimeException('Tipo de arquivo não permitido.');
         }
     }
 

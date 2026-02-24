@@ -18,6 +18,20 @@ foreach ($opportunity->getEvaluationCommittee() as $evaluation_user) {
     if($evaluation_user->agent === \MapasCulturais\App::i()->user->profile)
         $evaluationAgent = true;
 }
+
+$canSubmit =
+    (
+        $evaluation && //usuario está em uma avaliação 
+        $evaluation->user->id && //pagina tem uid
+        $action === 'single' && 
+        $opportunity->canUser('@control') // usuario tem permissão de controle sobre a oportunidade
+    )
+    ||
+    (
+        $evaluationAgent && // é avaliador
+        $action === 'single' && 
+        $entity->canUser('viewUserEvaluation') //tem permissão de ver avaliação do usuário
+    );
 ?>
 <?= $this->applyTemplateHook('registration-sidebar-rigth','before')?>
 <div class="sidebar registration sidebar-right">
@@ -63,8 +77,12 @@ foreach ($opportunity->getEvaluationCommittee() as $evaluation_user) {
                 <hr>
                 <div style="text-align: right;">
                     <button 
-                        class="btn btn-primary js-evaluation-submit js-next"
+                        class="btn btn-primary js-evaluation-submit js-next <?= $canSubmit ? '' : 'is-disabled' ?>"
                         id="btn-submit-evaluation"
+                        <?php if (!$canSubmit): ?>
+                            disabled style="opacity:.5; cursor:not-allowed;"
+                            title="Você não tem permissão para finalizar esta avaliação"
+                        <?php endif; ?>
                     >
                         <?php i::_e('Finalizar Avaliação e Avançar'); ?> &gt;&gt;
                     </button>
