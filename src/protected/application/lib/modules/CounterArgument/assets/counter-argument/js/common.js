@@ -34,7 +34,7 @@ $(() => {
         paging: true,
         ordering: true,
         pageLength: 10,
-        order: [[3, 'desc']],
+        order: [[4, 'asc']],
         columnDefs: [
             { orderable: false, targets: [5, 6] },
             { visible: false, targets: 6 } 
