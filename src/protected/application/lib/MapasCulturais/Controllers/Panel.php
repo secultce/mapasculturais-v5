@@ -429,4 +429,14 @@ class Panel extends \MapasCulturais\Controller {
             'isFiscal' => $oppAsFiscal ? true : false,
         ]);
     }
+
+    public function GET_counterArguments()
+    {
+        $this->requireAuthentication();
+
+        $userId = App::i()->getUser()->id;
+        $counterArguments = App::i()->repo('CounterArgument')->getAllByUserId($userId);
+
+        $this->render('counter-arguments', ['counterArguments' => $counterArguments]);
+    }
 }

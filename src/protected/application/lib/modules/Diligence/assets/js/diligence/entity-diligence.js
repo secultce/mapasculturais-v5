@@ -75,14 +75,12 @@ var EntityDiligence = (function(){
 
         }
         $("#img-loading-content").attr('src', MapasCulturais.spinnerUrl)
-        $("#descriptionDiligence").hide()
         $("#btn-save-diligence-proponent").hide()
         $("#btn-send-diligence-proponente").hide()        
         $("#btn-save-diligence").hide();
         $("#label-save-content-diligence").hide();
         $("#div-info-send").hide();
         $("#div-content-all-diligence-send").hide();
-        $("#descriptionDiligence").show();
         $("#answer_diligence").hide();
     }
     /**
@@ -163,7 +161,9 @@ var EntityDiligence = (function(){
 
     function editDescription(description, id)
     {
-        $("#descriptionDiligence").show();
+        $("#descriptionDiligence").removeAttr("hidden");
+        $("#div-btn-actions-proponent").removeAttr("hidden");
+        $("#attachment-info").removeAttr("hidden");
         $("#descriptionDiligence").html(description);
         $("#id-input-diligence").val(id);
         $("#draft-description-diligence").remove();

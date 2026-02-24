@@ -2090,4 +2090,22 @@ $$
         );
     },
 
+    'create table counter_argument_response' => function () {
+        __exec("CREATE SEQUENCE counter_argument_response_id_seq INCREMENT BY 1 MINVALUE 1 START 1;");
+        __exec(
+            "CREATE TABLE counter_argument_response (
+                id INT NOT NULL,
+                text TEXT NOT NULL,
+                published BOOLEAN NOT NULL,
+                agent_id INT NOT NULL,
+                counter_argument_id INT NOT NULL,
+                create_timestamp TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                update_timestamp TIMESTAMP(0) WITHOUT TIME ZONE,
+                PRIMARY KEY(id),
+                FOREIGN KEY (agent_id) REFERENCES agent(id),
+                FOREIGN KEY (counter_argument_id) REFERENCES counter_argument(id)
+            );"
+        );
+    },
+
 ] + $updates ;

@@ -1125,19 +1125,18 @@ MapasCulturais.Video = {
                 callback(videoData, $element);
                 return videoData;
             });
-        } else if (videoData.parsedURL.attr('host').indexOf('vimeo') != -1) {
+        } else if (videoData.parsedURL.attr('host').indexOf('vimeo') !== -1) {
             videoData.provider = 'vimeo';
-            var tmpArray = videoData.parsedURL.attr('path').split('/');
-            videoData.videoID = tmpArray[tmpArray.length - 1];
-            $.getJSON('http://www.vimeo.com/api/v2/video/' + videoData.videoID + '.json?callback=?', { format: "json" }, function (data) {
-                videoData.details = data[0];
-                videoData.thumbnailURL = data[0].thumbnail_small;
-                videoData.playerURL = '//player.vimeo.com/video/' + videoData.videoID + '';
-                videoData.videoTitle = data[0].title;
-                callback(videoData, $element);
-                MapasCulturais.Video.collection[videoURL] = videoData;
-                return videoData;
-            });
+
+            const tmpArray = videoData.parsedURL.attr('path').split('/');
+            videoData.videoID = tmpArray.pop();
+
+            videoData.playerURL = '//player.vimeo.com/video/' + videoData.videoID;
+            videoData.thumbnailURL = 'https://vumbnail.com/' + videoData.videoID + '.jpg';
+            videoData.videoTitle = '';
+
+            MapasCulturais.Video.collection[videoURL] = videoData;
+            callback(videoData, $element);
         } else {
             //no valid provider
             videoData.thumbnailURL = 'http://www.bizreport.com/images/shutterstock/2013/04/onlinevideo_135877229-thumb-380xauto-2057.jpg';

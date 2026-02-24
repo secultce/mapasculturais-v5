@@ -101,18 +101,6 @@ class Theme extends BaseV1\Theme{
                     }";
                 }
 
-                if($bg = $this->subsiteInstance->background){
-                    $main_scss .= "
-                    #home-watermark {
-                        background-image: url({$bg->url});
-                    }";
-                } else {
-                    $main_scss .= "
-                    #home-watermark {
-                        background-image: url('');
-                    }";
-                }
-
                 $main_scss .= "
                     nav#about-nav{
                         padding: 0.45rem 1.5rem

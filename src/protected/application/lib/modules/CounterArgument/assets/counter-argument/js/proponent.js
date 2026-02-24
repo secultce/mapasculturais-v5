@@ -34,12 +34,114 @@ const counterArgument = {
                     title: 'Contrarrazão enviada',
                     text: res.message,
                     icon: 'success',
+                    confirmButtonText: 'Ir para o painel',
+                    allowOutsideClick: false,
+                }).then(res => {
+                    if (res.isConfirmed) {
+                        window.location.href = MapasCulturais.createUrl('panel', 'counterArguments')
+                    }
                 })
             },
             error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Contrarrazão não enviada',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
                 Swal.fire({
-                    title: 'Contrarrazão não enviada',
-                    text: 'Erro ao enviar contrarrazão. Tente novamente.',
+                    title: 'Erro ao enviar contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
+                    icon: 'error',
+                })
+            }
+        })
+    },
+    update(id) {
+        const formData = new FormData()
+        formData.append('id', id)
+        formData.append('text', this.getText())
+
+        Array.from(this.getFiles()).forEach((file, index) => {
+            formData.append(index, file)
+        })
+
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('contrarrazao', 'update'),
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            success(res) {
+                Swal.fire({
+                    title: 'Contrarrazão atualizada',
+                    text: res.message,
+                    icon: 'success',
+                    allowOutsideClick: false,
+                }).then(res => {
+                    if (res.isConfirmed) window.location.reload()
+                })
+            },
+            error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Contrarrazão não atualizada',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
+                Swal.fire({
+                    title: 'Erro ao atualizar contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
+                    icon: 'error',
+                })
+            }
+        })
+    },
+    removeFile(fileId) {
+        $.ajax({
+            type: "POST",
+            url: MapasCulturais.createUrl('contrarrazao', 'removeFile'),
+            data: { fileId },
+            dataType: "json",
+            success(res) {
+                Swal.fire({
+                    title: 'Arquivo removido',
+                    text: res.message,
+                    icon: 'success',
+                    allowOutsideClick: false,
+                }).then(res => {
+                    if (res.isConfirmed) window.location.reload()
+                })
+            },
+            error(err) {
+                if (err.status === 403) {
+                    Swal.fire({
+                        title: 'Arquivo não removido',
+                        text: err.responseJSON.message,
+                        icon: 'warning',
+                        allowOutsideClick: false,
+                    }).then(res => {
+                        if (res.isConfirmed) window.location.reload()
+                    })
+                    return
+                }
+
+                Swal.fire({
+                    title: 'Erro ao remover arquivo da contrarrazão',
+                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
                     icon: 'error',
                 })
             }
@@ -49,8 +151,9 @@ const counterArgument = {
 
 $(() => {
     $('[open-counter-argument]').on('click', function (event) {
-        let quillEditor
         const registration = event.currentTarget.dataset.registration
+
+        let quillEditor
 
         Swal.fire({
             title: 'Abrir Contrarrazão',
@@ -87,6 +190,69 @@ $(() => {
 
                 counterArgument.send(registration)
             }
+        })
+    })
+
+    $('[edit-counter-argument-btn]').on('click', function (event) {
+        const id = event.currentTarget.dataset.id
+        const text = event.currentTarget.dataset.text
+
+        let quillEditor
+
+        Swal.fire({
+            title: 'Editar Contrarrazão',
+            html: `
+                <p class="sweetalert-plain-text">Você pode editar o texto da sua contrarrazão e anexar mais arquivos</p>
+                <p class="sweetalert-plain-text">
+                    <small>Você poderá editar até o final do período de envio de contrarrazões</small>
+                </p>
+                <div>
+                    <div counter-argument-text class="form-group">${text}</div>
+                    <input type="file" counter-argument-attachments multiple>
+                </div>`,
+            width: 700,
+            confirmButtonText: 'Atualizar',
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            didOpen() {
+                quillEditor = new Quill('[counter-argument-text]', {
+                    theme: 'snow'
+                })
+            },
+            willClose() {
+                counterArgument.setText(quillEditor.getSemanticHTML())
+                counterArgument.setFiles($('[counter-argument-attachments]')[0].files)
+            },
+        }).then(res => {
+            if (res.isConfirmed) {
+                if (!quillEditor.getText().trim()) {
+                    Swal.fire({
+                        title: 'Sua contrarrazão não foi atualizada',
+                        text: 'O texto não pode estar vazio',
+                        icon: 'warning',
+                    })
+                    return
+                }
+
+                counterArgument.update(id)
+            }
+        })
+    })
+
+    $('[remove-counter-argument-file]').on('click', function (event) {
+        const fileId = event.currentTarget.dataset.fileId
+
+        Swal.fire({
+            title: 'Remover arquivo da contrarrazão',
+            text: 'Deseja realmente remover este arquivo da contrarrazão?',
+            icon: 'warning',
+            confirmButtonText: 'Remover',
+            cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            allowOutsideClick: false,
+        }).then(res => {
+            if (res.isConfirmed) counterArgument.removeFile(fileId)
         })
     })
 })

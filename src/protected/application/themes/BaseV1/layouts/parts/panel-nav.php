@@ -45,13 +45,21 @@
             <?php $this->applyTemplateHook('nav.panel.opportunities','after'); ?>
 
             <?php $this->applyTemplateHook('nav.panel.registrations','before'); ?>
-            <li><a <?php if($this->template == 'panel/registrations') echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'registrations') ?>"><span class="icon icon-opportunity"></span> <?php \MapasCulturais\i::_e("Minhas Inscrições");?></a></li>
+            <li><a <?php if($this->template == 'panel/registrations') echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'registrations') ?>"><span class="icon icon-registrations"></span> <?php \MapasCulturais\i::_e("Minhas Inscrições");?></a></li>
             <?php $this->applyTemplateHook('nav.panel.registrations','after'); ?>
+
+            <?php $this->applyTemplateHook('nav.panel.counterArguments','before'); ?>
+            <li>
+                <a <?php if ($this->template == 'panel/counter-arguments') echo 'class="active"'; ?> href="<?= $app->createUrl('panel', 'counterArguments') ?>">
+                    <span class="icon icon-counter-arguments"></span> Minhas Contrarrazões
+                </a>
+            </li>
+            <?php $this->applyTemplateHook('nav.panel.counterArguments','after'); ?>
 
             <?php $this->applyTemplateHook('nav.panel.accountability', 'before'); ?>
             <li>
                 <a <?php if ($this->template == 'panel/accountability') echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'accountability') ?>">
-                    <span class="icon icon-opportunity"></span> <?php \MapasCulturais\i::_e("Prestações de Contas"); ?>
+                    <span class="icon icon-accountability"></span> <?php \MapasCulturais\i::_e("Prestações de Contas"); ?>
                 </a>
             </li>
             <?php $this->applyTemplateHook('nav.panel.accountability', 'after'); ?>
@@ -77,17 +85,7 @@
                 </a>
             </li>
             <?php $this->applyTemplateHook('nav.panel.userManagement','after'); ?>
-        <?php endif; ?>
-
-        <?php if($app->user->is('superAdmin')): ?>
-            <?php $this->applyTemplateHook('nav.panel.adminManagement','before'); ?>
-            <li>
-                <a <?php if ($this->template == 'panel/user-management' && isset($_GET['admin'])) echo 'class="active"'; ?> href="<?php echo $app->createUrl('panel', 'userManagement')?>?admin">
-                    <span class="icon icon-group"></span> <?php \MapasCulturais\i::_e("Administradores");?>
-                </a>
-            </li>
-            <?php $this->applyTemplateHook('nav.panel.adminManagement','after'); ?>
-        <?php endif; ?>
+        <?php endif; ?>        
 
         <?php $app->applyHookBoundTo($this, 'panel.menu:after') ?>
     </ul>

@@ -1745,7 +1745,7 @@ class Theme extends MapasCulturais\Theme {
         $this->getAssetManager()->publishFolder('fonts/');
 
         $this->enqueueStyle('app', 'main', 'css/main.css');
-        $this->enqueueStyle('app', 'fontawesome', 'https://use.fontawesome.com/releases/v5.8.2/css/all.css');
+        $this->enqueueStyle('app', 'fontawesome', 'css/fontawesome/all.css');
 
 
         $this->enqueueScript('app', 'tim', 'js/tim.js');
@@ -1797,6 +1797,9 @@ class Theme extends MapasCulturais\Theme {
 
         // Mensagens com base no SweetAlert2
         $this->enqueueScript('app', 'mc-messages', 'js/mcMessages.js', array('mapasculturais'));
+
+        // helpers para validação
+        $this->enqueueScript('app', 'mc-validations', 'js/mcValidations.js', array('mapasculturais'));
     }
 
     function includeIbgeJS() {
@@ -1853,9 +1856,9 @@ class Theme extends MapasCulturais\Theme {
             'changesSaved'    => i::__('Edições salvas.'),
             'unexpectedError'    => i::__('Um erro inesperado aconteceu.'),
             'insertVideoTitle'    => i::__('Insira um título para seu vídeo.'),
-            'insertVideoUrl'    => i::__('Insira uma url de um vídeo do YouTube ou do Vimeo.'),
+            'insertVideoUrl'    => i::__('Insira uma url válida de um vídeo do YouTube ou do Vimeo.'),
             'insertLinkTitle'    => i::__('Insira um título para seu link.'),
-            'insertLinkUrl'    => i::__('A url do link é inválida, insira uma url completa como http://www.google.com/.'),
+            'insertLinkUrl'    => i::__('A url do link é inválida, insira uma url completa como https://www.google.com/.'),
             'Limpar'    => i::__('Limpar'),
             'Crop'    => i::__('Recortar'),
             'CropHelp'    => i::__('Arraste para recortar'),
