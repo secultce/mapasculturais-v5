@@ -10,6 +10,7 @@ services:
       - lab
     volumes:
       - ../src/protected:/var/www/html/protected
+      - ../src/router.php:/var/www/html/router.php
       - ../scripts:/var/www/scripts
       - ../compose/config.php:/var/www/html/protected/application/conf/config.php
       - ../compose/local/config.d:/var/www/html/protected/application/conf/config.d
