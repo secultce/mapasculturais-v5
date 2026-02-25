@@ -8,12 +8,19 @@ if (file_exists($_SERVER['SCRIPT_FILENAME']) && strtolower(substr($_SERVER['SCRI
     header("Cache-Control: maxage=" . $expires);
     header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
 
-    if(strtolower(substr($filename, -3)) == '.js'){
-        $mime = 'text/javascript';
-    }elseif(strtolower(substr($filename, -4)) == '.css'){
-
-        $mime = 'text/css';
-    }else{
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    $mimeMap = [
+        'js'   => 'text/javascript',
+        'css'  => 'text/css',
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf'   => 'font/ttf',
+        'eot'   => 'application/vnd.ms-fontobject',
+        'svg'   => 'image/svg+xml',
+    ];
+    if (isset($mimeMap[$ext])) {
+        $mime = $mimeMap[$ext];
+    } else {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mime = finfo_file($finfo, $_SERVER['SCRIPT_FILENAME']);
         finfo_close($finfo);
@@ -28,5 +35,3 @@ if (file_exists($_SERVER['SCRIPT_FILENAME']) && strtolower(substr($_SERVER['SCRI
 }else{
     return false;
 }
-
-
