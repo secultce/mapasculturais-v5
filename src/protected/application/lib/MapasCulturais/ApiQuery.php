@@ -1124,7 +1124,70 @@ class ApiQuery {
                     ];
                         
                     $cfg['selected'] = true;
-                } else {
+                }else if($prop === 'ownerEntity' && is_a($this->entityClassName, 'MapasCulturais\Entities\Opportunity', true)) {
+                    // Tratamento especial para a relação polimórfica ownerEntity de Opportunity.
+                    // ownerEntity é definida apenas nas subclasses (ProjectOpportunity, EventOpportunity, etc.),
+                    // por isso não aparece no entityRelations da classe base. Usamos SQL nativo para
+                    // obter object_id e object_type de cada oportunidade e fazemos subqueries por tipo.
+
+                    $entityIds = array_filter(array_column($entities, 'id'));
+                    if (empty($entityIds)) {
+                        continue;
+                    }
+
+                    $classMetadata = $this->em->getClassMetadata($this->entityClassName);
+                    $tableName     = $classMetadata->getTableName();
+                    $discColName   = $classMetadata->discriminatorColumn['name'];
+
+                    $conn         = $this->em->getConnection();
+                    $placeholders = implode(',', array_fill(0, count($entityIds), '?'));
+                    $rows         = $conn->fetchAll(
+                        "SELECT id, object_id, {$discColName} AS entity_type FROM {$tableName} WHERE id IN ({$placeholders})",
+                        array_values($entityIds)
+                    );
+
+                    // Agrupa por tipo (= classe da entidade dona)
+                    $idIndex = [];   // entity_id  → ['object_id', 'entity_type']
+                    $grouped = [];   // entity_type → [object_ids]
+                    foreach ($rows as $row) {
+                        $idIndex[$row['id']] = $row;
+                        $grouped[$row['entity_type']][] = $row['object_id'];
+                    }
+
+                    // Subquery por tipo de entidade
+                    $selectFields    = implode(',', $cfg['select']);
+                    $userRequestedId = in_array('id', $cfg['select']);
+                    $subSelect       = 'id,' . $selectFields;
+
+                    $typeResults = []; // object_id → dados da entidade dona
+                    foreach ($grouped as $targetClass => $objectIds) {
+                        $idsStr = implode(',', array_unique($objectIds));
+                        $query  = new ApiQuery($targetClass, ['@select' => $subSelect], false, $cfg['selectAll'], !$this->_accessControlEnabled, $this);
+                        $query->where = "e.id IN ({$idsStr})";
+                        $subresult = $query->getFindResult();
+                        foreach ($subresult as &$r) {
+                            $resultId = $r['id'];
+                            if (!$userRequestedId) {
+                                unset($r['id']);
+                            }
+                            $typeResults[$resultId] = $r;
+                        }
+                        unset($r);
+                    }
+
+                    // Mapeia os resultados de volta às entidades
+                    foreach ($entities as &$entity) {
+                        $entityId = $entity['id'];
+                        if (isset($idIndex[$entityId])) {
+                            $objectId = $idIndex[$entityId]['object_id'];
+                            $entity['ownerEntity'] = $typeResults[$objectId] ?? null;
+                        } else {
+                            $entity['ownerEntity'] = null;
+                        }
+                    }
+                    unset($entity);
+                    continue;
+                }else {
                     continue;
                 }
                 $skip = isset($cfg['skip']) && $cfg['skip'];
