@@ -13,8 +13,6 @@ COPY compose/config.d /var/www/html/protected/application/conf/config.d
 COPY compose/common/config.php /var/www/html/protected/application/conf/config.php
 COPY compose/common/config.d /var/www/html/protected/application/conf/conf-common.d
 COPY compose/production/config.d /var/www/html/protected/application/conf/config.d
-## WEBFONTES
-COPY src/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/webfonts
 
 COPY version.txt /var/www/version.txt
 COPY compose/jobs-cron.sh /jobs-cron.sh
@@ -65,6 +63,7 @@ RUN echo "deb https://archive.debian.org/debian buster main contrib non-free" > 
     && ln -s /var/www/html/protected/application/lib/postgis-restful-web-service-framework /var/www/html/geojson \
     && ln -s /var/www/html /var/www/src \
     && chown -R www-data:www-data /var/www/ \
+    && cp -r /var/www/html/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets \
     && apt-get clean && rm -rf /var/lib/apt/lists
 
 RUN echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/www.conf && \
