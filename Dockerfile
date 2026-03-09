@@ -14,7 +14,7 @@ COPY compose/common/config.php /var/www/html/protected/application/conf/config.p
 COPY compose/common/config.d /var/www/html/protected/application/conf/conf-common.d
 COPY compose/production/config.d /var/www/html/protected/application/conf/config.d
 ## WEBFONTES
-COPY src/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/
+COPY src/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/webfonts
 
 COPY version.txt /var/www/version.txt
 COPY compose/jobs-cron.sh /jobs-cron.sh
