@@ -1370,9 +1370,16 @@ class Theme extends MapasCulturais\Theme {
             $revision = new Revision($data, $this, Revision::ACTION_DELETED, 'Registro deletado.');
             $revision->save(true);
         };
-
         $app->hook('entity(registration).fieldConfiguration(<<*>>).remove:before', $logRemoveField);
         $app->hook('entity(RegistrationFileConfiguration).remove:before', $logRemoveField);
+
+        $addSubsiteFilter = function (&$api_params) use ($app) {
+            if ($subsite = $app->getCurrentSubsite()) {
+                $api_params['_subsiteId'] = "EQ({$subsite->id})";
+            }
+        };
+        $app->hook("API.find(<<opportunity|project>>).params", $addSubsiteFilter);
+        $app->hook("API.(<<opportunity|project>>).params", $addSubsiteFilter);
     }
 
     /**
