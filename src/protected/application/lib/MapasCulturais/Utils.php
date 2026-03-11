@@ -3,6 +3,8 @@
 namespace MapasCulturais;
 
 use Curl\Curl;
+use DOMDocument;
+use DOMXPath;
 
 class Utils {
     static function removeAccents($string) {
@@ -342,5 +344,45 @@ class Utils {
             'video/mp4',
             'video/quicktime',
         ];
+    }
+
+    public static function htmlToReadableText(?string $html): string
+    {
+        if (!$html) {
+            return '';
+        }
+
+        libxml_use_internal_errors(true);
+
+        $dom = new DOMDocument();
+
+        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+
+        $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        $xpath = new DOMXPath($dom);
+
+        foreach ($xpath->query('//p|//div') as $node) {
+            $node->appendChild($dom->createTextNode("\n"));
+        }
+
+        foreach ($xpath->query('//br') as $node) {
+            $node->parentNode->replaceChild($dom->createTextNode("\n"), $node);
+        }
+
+        foreach ($xpath->query('//li') as $node) {
+            $node->insertBefore($dom->createTextNode("- "), $node->firstChild);
+            $node->appendChild($dom->createTextNode("\n"));
+        }
+
+        $text = $dom->textContent;
+
+        libxml_clear_errors();
+
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace("/[ \t]+/", " ", $text);
+        $text = preg_replace("/\n{3,}/", "\n\n", $text);
+
+        return trim($text);
     }
 }
