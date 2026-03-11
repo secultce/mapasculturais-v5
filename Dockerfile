@@ -18,7 +18,7 @@ COPY version.txt /var/www/version.txt
 COPY compose/jobs-cron.sh /jobs-cron.sh
 COPY compose/recreate-pending-pcache-cron.sh /recreate-pending-pcache-cron.sh
 COPY compose/entrypoint.sh /entrypoint.sh
-
+## Listando arquivos
 RUN ls /var/www/html/protected/application/themes/BaseV1/assets/webfonts
 
 RUN echo "deb https://archive.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
