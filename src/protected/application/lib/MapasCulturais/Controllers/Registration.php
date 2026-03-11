@@ -146,9 +146,9 @@ class Registration extends EntityController {
 
         parent::__construct();
     }
-
+    
      /**
-     * metodo vindo da edição da oportunidade, no campo de ESPAÇO CULTURAL tem que fazer a
+     * metodo vindo da edição da oportunidade, no campo de ESPAÇO CULTURAL tem que fazer a 
      * verificação se já tem registro na tabela, se tiver deve fazer um update para o novo
      * registro, caso contrário, deve fazer o registro
      */
@@ -175,7 +175,7 @@ class Registration extends EntityController {
     }
     function POST_createSpaceRelation(){
         $this->requireAuthentication();
-
+        
         $app = App::i();
 
         $space = $app->repo('Space')->find($this->postData['id']);
@@ -184,15 +184,15 @@ class Registration extends EntityController {
         $relation = new RegistrationSpaceRelationEntity();
         $relation->space = $space;
         $relation->owner = $registration;
-
+        
         $this->_finishRequest($relation, true);
     }
 
     /**
      * Removes the space relation with the given id.
-     *
+     * 
      * This action requires authentication.
-     *
+     * 
      * @WriteAPI POST removeSpaceRelation
      */
     public function POST_removeSpaceRelation(){
@@ -204,39 +204,39 @@ class Registration extends EntityController {
 
         $registrationEntity = $this->repository->find($this->data['id']);
         $space = $app->repo('Space')->find($this->postData['id']);
-
+        
         if(is_object($registrationEntity) && !is_null($space)){
             $spaceRelation = $app->repo('SpaceRelation')->findOneBy(array('objectId'=>$registrationEntity->id, 'space'=>(array('id'=>$space->id))));
             $spaceRelation->delete(true);
-
+            
             $this->refresh();
             $this->deleteUsersWithControlCache();
             $this->usesPermissionCache();
-
+            
             $this->json(true);
-        }
-    }
+        }        
+    }   
 
     public function createUrl($actionName, array $data = array()) {
         if($actionName == 'single' || $actionName == 'edit'){
             $actionName = 'view';
         }
-
+        
         return parent::createUrl($actionName, $data);
     }
 
     function registerRegistrationMetadata(\MapasCulturais\Entities\Opportunity $opportunity){
         $opportunity->registerRegistrationMetadata();
     }
-
+    
     function getPreviewEntity(){
-
+       
         $registration = new $this->entityClassName;
-
+        
         $registration->id = -1;
 
         $registration->preview = true;
-
+        
         return $registration;
     }
 
@@ -245,7 +245,7 @@ class Registration extends EntityController {
      */
     function getRequestedEntity() {
         $preview_entity = $this->getPreviewEntity();
-
+       
         if(isset($this->urlData['id']) && $this->urlData['id'] == $preview_entity->id){
             if(!App::i()->request->isGet()){
                 $this->errorJson(['message' => [\MapasCulturais\i::__('Este formulário é um pré-visualização da da ficha de inscrição.')]]);
@@ -262,13 +262,13 @@ class Registration extends EntityController {
      */
     function getRequestedOpportunity(){
         $app = App::i();
-
+       
         if(!isset($this->urlData['opportunityId']) || !intval($this->urlData['opportunityId'])){
             $app->pass();
         }
 
         $opportunity = $app->repo('Opportunity')->find(intval($this->urlData['opportunityId']));
-
+       
         if(!$opportunity){
             $this->pass();
         }
@@ -286,9 +286,9 @@ class Registration extends EntityController {
         $registration = $this->getPreviewEntity();
 
         $registration->opportunity = $opportunity;
-
+        
         $this->_requestedEntity = $registration;
-
+        
         $this->render('edit', ['entity' => $registration, 'preview' => true]);
     }
 
@@ -308,12 +308,12 @@ class Registration extends EntityController {
 
     function GET_view(){
         $this->requireAuthentication();
-
+       
         $entity = $this->requestedEntity;
         if(!$entity){
             App::i()->pass();
         }
-
+       
         $entity->checkPermission('view');
 
         $valuersUsers = array_map(function ($agentRelation) {
@@ -414,7 +414,7 @@ class Registration extends EntityController {
         $app = App::i();
 
         $registration = $this->requestedEntity;
-
+        
         if(!$registration){
             $app->pass();
         }
@@ -526,14 +526,14 @@ class Registration extends EntityController {
         $include = (array) @$this->data['valuersIncludeList'];
 
         $registration->checkPermission('modifyValuers');
-
+        
         $registration->setValuersExcludeList($exclude);
         $registration->setValuersIncludeList($include);
         $app = App::i();
         $app->disableAccessControl();
         $this->_finishRequest($registration);
         $app->enableAccessControl();
-
+    
     }
 
     function POST_validateEntity() {
@@ -544,11 +544,11 @@ class Registration extends EntityController {
         }
 
         $entity->checkPermission('validate');
-
+        
         foreach ($this->postData as $field => $value) {
             $entity->$field = $value;
         }
-
+        
         if ($errors = $entity->getSendValidationErrors()) {
             $this->errorJson($errors);
         } else {
@@ -564,7 +564,7 @@ class Registration extends EntityController {
         }
 
         $entity->checkPermission('validate');
-
+        
         foreach ($this->postData as $field => $value) {
             App::i()->log->debug("$field $value");
             $entity->$field = $value;
@@ -581,8 +581,8 @@ class Registration extends EntityController {
             if($errors){
                 $this->errorJson($errors);
             }
-        }
-
+        } 
+        
         $this->json(true);
     }
 
@@ -623,46 +623,16 @@ class Registration extends EntityController {
         ]);
 
         App::i()->disableAccessControl();
-
+        
         if ($regMeta) {
             $regMeta->delete(true);
         }
-
+        
         $registration->save(true);
-
+        
         App::i()->enableAccessControl();
     }
-
-    public function GET_fullData(): void
-    {
-        $app = App::i();
-        $registration = $this->requestedEntity;
-
-        if (!$registration) {
-            $app->halt(404, 'Registration not found');
-        }
-
-        if (
-            !$registration->canUser('view') &&
-            !$registration->opportunity->canUser('@control')
-        ) {
-            $app->halt(403, 'Forbidden');
-        }
-
-        $fileConfigs = (array) $registration->opportunity->registrationFileConfigurations;
-        foreach ($fileConfigs as &$fileConfig) {
-            $file = $registration->files[$fileConfig->groupName] ?? null;
-            $fileConfig->file = $file ? $file->simplify('id,url,name,deleteUrl') : null;
-        }
-        unset($fileConfig);
-
-        $this->json([
-            'registration'       => $registration->jsonSerialize(),
-            'fields'             => $registration->opportunity->registrationFieldConfigurations,
-            'fileConfigurations' => array_values($fileConfigs),
-        ]);
-    }
-
+    
     public function PATCH_single($data = null): void
     {
         $maxRequestSize = (int)rtrim(ini_get('post_max_size'), "M");
