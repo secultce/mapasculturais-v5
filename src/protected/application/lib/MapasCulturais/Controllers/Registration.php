@@ -594,11 +594,12 @@ class Registration extends EntityController {
         $fieldName = "bonus_field_{$this->data["field_id"]}";
 
         $consolidatedWithBonus = (float)$registration->consolidatedResult + $bonusAmount;
-        $registration->consolidatedResult = number_format($consolidatedWithBonus, 2);
+        $consolidatedWithBonusFormatted = number_format($consolidatedWithBonus, 2);
+        $registration->consolidatedResult = $consolidatedWithBonusFormatted;
 
         $regMeta = new RegistrationMeta();
         $regMeta->key = $fieldName;
-        $regMeta->value = true;
+        $regMeta->value = $consolidatedWithBonusFormatted;
         $regMeta->owner = $registration;
 
         App::i()->disableAccessControl();
@@ -606,6 +607,7 @@ class Registration extends EntityController {
         $regMeta->save(true);
         App::i()->enableAccessControl();
     }
+
     function PATCH_removeBonus()
     {
 
