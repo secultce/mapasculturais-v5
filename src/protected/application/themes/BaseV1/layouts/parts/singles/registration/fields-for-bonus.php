@@ -14,7 +14,7 @@ $canControl = App::i()->user->profile->canUser('@control');
 
         <ul class="attachment-list">
             <li ng-repeat="field in data.bonusFields"
-                ng-if="showField(field)"
+                ng-if="showField(field) && field.assignmentByTheEvaluator === 'false'"
                 id="field_{{::field.id}}"
                 class="ng-scope js-field attachment-list-item registration-view-mode">
 
