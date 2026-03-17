@@ -5,6 +5,7 @@ namespace EvaluationMethodTechnical;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Services\BonificationB2Service;
 
 class Plugin extends \MapasCulturais\EvaluationMethod {
     function __construct(array $config = []) {
@@ -381,9 +382,11 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         return $errors;
     }
 
-    public function _getConsolidatedResult(\MapasCulturais\Entities\Registration $registration) {
+    public function _getConsolidatedResult(\MapasCulturais\Entities\Registration $registration)
+    {
         $app = App::i();
-        $status = [ \MapasCulturais\Entities\RegistrationEvaluation::STATUS_EVALUATED,
+        $status = [
+            \MapasCulturais\Entities\RegistrationEvaluation::STATUS_EVALUATED,
             \MapasCulturais\Entities\RegistrationEvaluation::STATUS_SENT
         ];
 
@@ -396,15 +399,30 @@ class Plugin extends \MapasCulturais\EvaluationMethod {
         $evaluations = $app->repo('RegistrationEvaluation')->findByRegistrationAndUsersAndStatus($registration, $users, $status);
 
         $result = 0;
-        foreach ($evaluations as $eval){
+        foreach ($evaluations as $eval) {
             $result += $this->getEvaluationResult($eval);
         }
 
         $num = count($evaluations);
-        if($num){
-            $_result = number_format($result / $num, 2);
-            return $this->applyAffirmativePolicies($_result, $registration);
+        if ($num) {
+            $consolidated = $result / $num;
+            $bonusAmount = $registration->opportunity->evaluationMethodConfiguration->getMetadata('bonusAmount');
+            $bonusFields = $app->repo('Registration')->getBonusFieldsByRegistration($registration->id);
 
+            if ($bonusFields) {
+                $bonusPointsAmount = count($bonusFields) * (float)$bonusAmount;
+                $consolidated += $bonusPointsAmount;
+            }
+
+            $service = new BonificationB2Service(
+                $registration,
+                $bonusAmount,
+                $consolidated
+            );
+            $generalConsolidated = $service->process($consolidated);
+            $_result = number_format($generalConsolidated, 2);
+
+            return $this->applyAffirmativePolicies($_result, $registration);
         } else {
             return null;
         }

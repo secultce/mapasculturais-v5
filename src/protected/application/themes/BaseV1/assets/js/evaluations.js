@@ -119,6 +119,9 @@ $(function(){
                 if (res.isConfirmed) {
                     const fieldId = assignBonusBtn.dataset.fieldId;
 
+                    $(assignBonusBtn).addClass('disabled');
+                    MapasCulturais.Messages.alert('Aguarde! A bonificação está sendo atribuída.');
+
                     $.ajax({
                         type: "PATCH",
                         url: MapasCulturais.createUrl('registration', 'assignBonus'),
@@ -129,7 +132,9 @@ $(function(){
                         },
                         success() {
                             MapasCulturais.Messages.success('A bonificação foi atribuída ao proponente');
-                            $(assignBonusBtn).addClass('disabled')
+
+                            const removeBonusBtn = $(assignBonusBtn).siblings('.remove-bonus-btn');
+                            $(removeBonusBtn).removeClass('disabled');
                         },
                         error() {
                             MapasCulturais.Messages.error('Erro ao atribuir bonificação. Verifique, e tente novamente.');
@@ -160,6 +165,9 @@ $(function(){
                 if (res.isConfirmed) {
                     const fieldId = removeBonusBtn.dataset.fieldId;
 
+                    $(removeBonusBtn).addClass('disabled');
+                    MapasCulturais.Messages.alert('Aguarde! A bonificação está sendo removida.');
+
                     $.ajax({
                         type: "PATCH",
                         url: MapasCulturais.createUrl('registration', 'removeBonus'),
@@ -173,8 +181,6 @@ $(function(){
 
                             const assignBtn = $(removeBonusBtn).siblings('.assign-bonus-btn');
                             $(assignBtn).removeClass('disabled');
-
-                            $(removeBonusBtn).addClass('disabled');
                         },
                         error() {
                             MapasCulturais.Messages.error('Erro ao remover bonificação. Verifique e tente novamente.');
