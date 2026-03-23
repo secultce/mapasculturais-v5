@@ -65,7 +65,7 @@ RUN echo "deb https://archive.debian.org/debian buster main contrib non-free" > 
     && ln -s /var/www/html/protected/application/lib/postgis-restful-web-service-framework /var/www/html/geojson \
     && ln -s /var/www/html /var/www/src \
     && chown -R www-data:www-data /var/www/ \
-    # && cp -r /var/www/html/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/webfonts \
+    && cp -r /var/www/html/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/webfonts \
     && apt-get clean && rm -rf /var/lib/apt/lists
 
 RUN echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/www.conf && \
