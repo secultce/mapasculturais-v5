@@ -1,8 +1,11 @@
 <?php
+
 namespace MapasCulturais\Repositories;
+
 use MapasCulturais\App;
 use MapasCulturais\Traits;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use MapasCulturais\Entities\RegistrationMeta as RegistrationMetaEntity;
 
 class Registration extends \MapasCulturais\Repository {
     use Traits\RepositoryKeyword;
@@ -167,5 +170,18 @@ class Registration extends \MapasCulturais\Repository {
                 unaccent(lower(o.name)) LIKE unaccent(lower(:keyword))
             )
             $where";
+    }
+
+    public function getBonusFieldsByRegistration($registrationId)
+    {
+        $qb = App::i()->em->createQueryBuilder();
+        $qb->select('rm')
+            ->from(RegistrationMetaEntity::class, 'rm')
+            ->where('rm.owner = :registrationId')
+            ->andWhere('rm.key LIKE :key')
+            ->setParameter('registrationId', $registrationId)
+            ->setParameter('key', 'bonus%');
+
+        return $qb->getQuery()->getResult();
     }
 }

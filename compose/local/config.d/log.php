@@ -5,7 +5,7 @@ return [
 
     // 'app.log.path'          => true,
     // 'app.log.query'         => true,
-    // 'app.log.hook'          => true,
+     'app.log.hook'          => 'registration-single',
     // 'app.log.requestData'   => true,
     // 'app.log.translations'  => true,
     // 'app.log.apiCache'      => true,
@@ -15,7 +15,7 @@ return [
 
     // 'app.log.components'    => true,
     // 'app.log.assetManager'  => true,
-    
+
     // 'app.log.jobs'          => true,
     // 'app.log.pcache'        => true,
     // 'app.log.pcache.users'  => true,

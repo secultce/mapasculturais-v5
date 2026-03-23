@@ -18,9 +18,13 @@ COPY version.txt /var/www/version.txt
 COPY compose/jobs-cron.sh /jobs-cron.sh
 COPY compose/recreate-pending-pcache-cron.sh /recreate-pending-pcache-cron.sh
 COPY compose/entrypoint.sh /entrypoint.sh
+## Listando arquivos
+COPY src/protected/application/themes/BaseV1/assets/webfonts /var/www/html/assets/webfonts
 
-RUN echo "deb http://archive.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
-    echo "deb http://archive.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
+RUN ls /var/www/html/protected/application/themes/BaseV1/assets/webfonts
+
+RUN echo "deb https://archive.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb https://archive.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y --no-install-recommends \
     curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip \
     ruby ruby-dev libpq-dev gnupg git \
@@ -63,6 +67,7 @@ RUN echo "deb http://archive.debian.org/debian buster main contrib non-free" > /
     && ln -s /var/www/html/protected/application/lib/postgis-restful-web-service-framework /var/www/html/geojson \
     && ln -s /var/www/html /var/www/src \
     && chown -R www-data:www-data /var/www/ \
+
     && apt-get clean && rm -rf /var/lib/apt/lists
 
 RUN echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/www.conf && \

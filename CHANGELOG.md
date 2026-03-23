@@ -4,6 +4,22 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.12.0] - 2026-03-17
+### Adicionado
+- Contrar
+- Criado componente
+- Adicionar confirmação para documentos pessoais
+### Melhorias
+- Validação de CPF e CNPJ
+- Ajuste nos icones
+- Atualizado plugins e dependências
+- Contagem de entidades de subsite
+### Corrigido
+- Corrigindo regras de permissão da diligencia
+- Imagem da seção de introdução dos subsites
+- Removendo cdns dos charts e sweetalert2 e Fontawesome
+- Bonificação para B1 e B2
+
 ## [5.11.3] - 2025-12-12
 ### Adicionado
 - Organização de autoload para uso correto do namespace
