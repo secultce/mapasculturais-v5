@@ -635,6 +635,10 @@ class Registration extends EntityController {
         App::i()->enableAccessControl();
     }
 
+    /**
+     * Modo de acessar o endpoint: GET /registration/registration/fullData/1122334455
+     * @return void
+     */
     public function GET_fullData(): void
     {
         $app = App::i();
@@ -665,6 +669,10 @@ class Registration extends EntityController {
         ]);
     }
 
+    /**
+     * Modo de acessar o endpoint: GET /registration/fullDataByNumber?number=on-1122334455
+     * @return void
+     */
     public function GET_fullDataByNumber(): void
     {
         $app = App::i();
