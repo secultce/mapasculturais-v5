@@ -636,7 +636,7 @@ class Registration extends EntityController {
     }
 
     /**
-     * Modo de acessar o endpoint: GET /registration/registration/fullData/1122334455
+     * Modo de acessar o endpoint: GET /registration/fullData/1122334455
      * @return void
      */
     public function GET_fullData(): void
@@ -695,7 +695,7 @@ class Registration extends EntityController {
                 !$registration->canUser('view') &&
                 !$registration->opportunity->canUser('@control')
             ) {
-                continue;
+                $app->halt(403, 'Forbidden');
             }
 
             $fileConfigs = (array) $registration->opportunity->registrationFileConfigurations;
