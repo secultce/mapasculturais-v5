@@ -634,6 +634,86 @@ class Registration extends EntityController {
         
         App::i()->enableAccessControl();
     }
+
+    /**
+     * Modo de acessar o endpoint: GET /registration/fullData/1122334455
+     * @return void
+     */
+    public function GET_fullData(): void
+    {
+        $app = App::i();
+        $registration = $this->requestedEntity;
+
+        if (!$registration) {
+            $app->halt(404, 'Registration not found');
+        }
+
+        if (
+            !$registration->canUser('view') &&
+            !$registration->opportunity->canUser('@control')
+        ) {
+            $app->halt(403, 'Forbidden');
+        }
+
+        $fileConfigs = (array) $registration->opportunity->registrationFileConfigurations;
+        foreach ($fileConfigs as &$fileConfig) {
+            $file = $registration->files[$fileConfig->groupName] ?? null;
+            $fileConfig->file = $file ? $file->simplify('id,url,name,deleteUrl') : null;
+        }
+        unset($fileConfig);
+
+        $this->json([
+            'registration'       => $registration->jsonSerialize(),
+            'fields'             => $registration->opportunity->registrationFieldConfigurations,
+            'fileConfigurations' => array_values($fileConfigs),
+        ]);
+    }
+
+    /**
+     * Modo de acessar o endpoint: GET /registration/fullDataByNumber?number=on-1122334455
+     * @return void
+     */
+    public function GET_fullDataByNumber(): void
+    {
+        $app = App::i();
+
+        $number = $this->data['number'] ?? null;
+
+        if (!$number) {
+            $app->halt(400, 'Missing number parameter');
+        }
+
+        $registrations = $app->repo('Registration')->findBy(['number' => $number]);
+
+        if (!$registrations) {
+            $app->halt(404, 'Registration not found');
+        }
+
+        $result = [];
+        foreach ($registrations as $registration) {
+            if (
+                !$registration->canUser('view') &&
+                !$registration->opportunity->canUser('@control')
+            ) {
+                $app->halt(403, 'Forbidden');
+            }
+
+            $fileConfigs = (array) $registration->opportunity->registrationFileConfigurations;
+            foreach ($fileConfigs as &$fileConfig) {
+                $file = $registration->files[$fileConfig->groupName] ?? null;
+                $fileConfig->file = $file ? $file->simplify('id,url,name,deleteUrl') : null;
+            }
+            unset($fileConfig);
+
+            $result[] = [
+                'registration'       => $registration->jsonSerialize(),
+                'fields'             => $registration->opportunity->registrationFieldConfigurations,
+                'fileConfigurations' => array_values($fileConfigs),
+            ];
+        }
+
+        $this->json($result);
+    }
     
     public function PATCH_single($data = null): void
     {
