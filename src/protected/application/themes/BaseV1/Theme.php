@@ -777,6 +777,17 @@ class Theme extends MapasCulturais\Theme {
     protected function _init() {
         $app = App::i();
 
+        // inscricao/detalhes/{id} → registration/detalhes/{id}
+        // 'inscricao' é shortcut para ['registration', 'view'], então 'detalhes'
+        // e o id chegam como args posicionais {0: 'detalhes', 1: '{id}'}
+        $app->hook('routes.filter', function (&$controller_id, &$action_name, &$args) {
+            if ($controller_id === 'registration' && $action_name === 'view' && ($args[0] ?? null) === 'detalhes') {
+                $action_name = 'detalhes';
+                $args['id'] = $args[1];
+                unset($args[0], $args[1]);
+            }
+        });
+
         $app->hook('template(seal.edit.tabs):end',function(){
             $this->part('tab',['id'=>'locked-fields', 'label'=> i::__('Bloqueio de campos')]);
         });
@@ -978,14 +989,14 @@ class Theme extends MapasCulturais\Theme {
                 }
             }
         });
-        
+
         //valida arquivos enviados por essas entidades(verifica consentimento e mime type)
         $app->hook('entity(<<agent|space|event|project|opportunity|subsite|seal>>).file(downloads).insert:before', function() {
-           
+
             $app = App::i();
 
             $consent = $app->request->post('consent_file_upload');
-            
+
             if (!$consent) {
                 return $app->halt(200, json_encode([
                     'error' => true,
@@ -997,9 +1008,9 @@ class Theme extends MapasCulturais\Theme {
             $allowedMimeTypes = Utils::getAllowedUploadMimeTypes();
 
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
-          
+
             foreach ($_FILES as $file) {
-               
+
                 // Normalizando array (multiple upload)
                 if (is_array($file['tmp_name'])) {
                     $tmpNames = $file['tmp_name'];
@@ -1016,18 +1027,18 @@ class Theme extends MapasCulturais\Theme {
                             'error' => true,
                             'data' => 'Arquivo inválido.'
                         ]));
-                       
+
                     }
 
                     // Detectando mime type real
                     $mime = $finfo->file($tmpPath);
-                     
+
                     if (!in_array($mime, $allowedMimeTypes, true)) {
                         return $app->halt(200, json_encode([
                             'error' => true,
                             'data' => 'Tipo de Arquivo não permitido: ' . $names[$index] . '.'
                         ]));
-                       
+
                     }
                 }
             }
@@ -1380,6 +1391,7 @@ class Theme extends MapasCulturais\Theme {
         };
         $app->hook("API.find(<<opportunity|project>>).params", $addSubsiteFilter);
         $app->hook("API.(<<opportunity|project>>).params", $addSubsiteFilter);
+
     }
 
     /**
