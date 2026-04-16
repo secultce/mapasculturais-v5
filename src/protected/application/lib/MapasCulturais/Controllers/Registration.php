@@ -636,10 +636,11 @@ class Registration extends EntityController {
     }
 
     /**
-     * Modo de acessar o endpoint: GET /registration/fullData/1122334455
+     * Modo de acessar o endpoint: GET /registration/detalhes/{id}
+     *                          ou: GET /inscricao/detalhes/{id}
      * @return void
      */
-    public function GET_fullData(): void
+    public function GET_detalhes(): void
     {
         $app = App::i();
         $registration = $this->requestedEntity;
@@ -655,16 +656,54 @@ class Registration extends EntityController {
             $app->halt(403, 'Forbidden');
         }
 
+        $fileConfigTitles = [];
         $fileConfigs = (array) $registration->opportunity->registrationFileConfigurations;
         foreach ($fileConfigs as &$fileConfig) {
             $file = $registration->files[$fileConfig->groupName] ?? null;
             $fileConfig->file = $file ? $file->simplify('id,url,name,deleteUrl') : null;
+            $fileConfigTitles[$fileConfig->groupName] = $fileConfig->title;
         }
         unset($fileConfig);
+//
+        $metas = $app->repo('RegistrationMeta')->findBy(['owner' => $registration]);
+        $metasByKey = [];
+        foreach ($metas as $meta) {
+            $metasByKey[$meta->key] = $meta->value;
+        }
+//
+        $fields = [];
+        foreach ($registration->opportunity->registrationFieldConfigurations as $fieldConfig) {
+            $fields[] = [
+                'íd'    => $fieldConfig->id,
+                'titleField'  => $fieldConfig->title,
+                'valueField' => $metasByKey['field_' . $fieldConfig->id] ?? null,
+            ];
+        }
+
+//
+        $registrationData = array_filter(
+            $registration->jsonSerialize(),
+            function ($key) { return strpos($key, 'field_') !== 0; },
+            ARRAY_FILTER_USE_KEY
+        );
+
+        $files = [];
+        foreach ($registrationData['files'] ?? [] as $groupName => $fileData) {
+            $fileArray = is_array($fileData) ? $fileData : (array) $fileData;
+            $configId = (int) str_replace('rfc_', '', $groupName);
+            foreach ($fileConfigs as $fileConfig) {
+                if ((int) $fileConfig->id === $configId) {
+                    $fileArray['title'] = $fileConfig->title;
+                    break;
+                }
+            }
+            $files[$groupName] = $fileArray;
+        }
+        $registrationData['files'] = $files;
 
         $this->json([
-            'registration'       => $registration->jsonSerialize(),
-            'fields'             => $registration->opportunity->registrationFieldConfigurations,
+            'registration'       => $registrationData,
+            'fields'             => $fields,
             'fileConfigurations' => array_values($fileConfigs),
         ]);
     }
@@ -714,7 +753,6 @@ class Registration extends EntityController {
 
         $this->json($result);
     }
-
 
     public function PATCH_single($data = null): void
     {
