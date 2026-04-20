@@ -11,7 +11,7 @@ var McMessages = (function () {
     }
 
     function success(title, text, time = null) {
-        Swal.fire({
+        return Swal.fire({
             title: title,
             text: text,
             icon: 'success',
@@ -50,7 +50,7 @@ var McMessages = (function () {
      * @param {number} [time] - Tempo em ms (opcional)
      */
     function error(title, text, time = null) {
-        Swal.fire({
+        return Swal.fire({
             icon: 'error',
             title: title,
             text: text,
@@ -114,13 +114,13 @@ var McMessages = (function () {
             confirmButtonText: `<i class="fa fa-thumbs-up"></i> OK, ciente`,
         });
     }
-    
-    function custom(title ,type, html = null){
-        swal.fire({
+
+    function custom(title, type, html = null, showConfirmButton = false) {
+        return Swal.fire({
             title: title,
             icon: type,
             html: html,
-            showConfirmButton: false,
+            showConfirmButton: showConfirmButton,
         })
     }
 
