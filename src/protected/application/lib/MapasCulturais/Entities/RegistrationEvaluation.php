@@ -20,7 +20,15 @@ use MapasCulturais\App;
  * @property User $user
  * @property integer $status
  *
- * @ORM\Table(name="registration_evaluation")
+ * @ORM\Table(
+ *     name="registration_evaluation",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(
+ *             name="registration_evaluation_registration_user_unique",
+ *             columns={"registration_id", "user_id"}
+ *         )
+ *     }
+ * )
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repositories\RegistrationEvaluation")
  * @ORM\HasLifecycleCallbacks
@@ -97,12 +105,41 @@ class RegistrationEvaluation extends \MapasCulturais\Entity {
     protected $status = self::STATUS_DRAFT;
 
     function save($flush = false){
+        // All persisted evaluation writes use the same lock order, including
+        // legacy bulk-send/reopen flows that save this entity directly.
+        if ($flush && $this->registration && $this->registration->id) {
+            return $this->registration->withOpinionSubmissionLock(function () use ($flush) {
+                return $this->saveEvaluationEntity($flush);
+            });
+        }
+
+        return $this->saveEvaluationEntity($flush);
+    }
+
+    private function saveEvaluationEntity($flush) {
         parent::save($flush);
         $app = App::i();
         $opportunity = $this->registration->opportunity;
         
         // cache utilizado pelo endpoint findEvaluations
         $app->mscache->delete("api:opportunity:{$opportunity->id}:evaluations");
+    }
+
+    function delete($flush = false) {
+        // Removing a valuer deletes their evaluations and postRemove then
+        // reconsolidates the registration. Keep the same parent-before-child
+        // lock order used by saves to avoid a save/delete deadlock.
+        if ($flush && $this->registration && $this->registration->id) {
+            return $this->registration->withOpinionSubmissionLock(function () use ($flush) {
+                return $this->deleteEvaluationEntity($flush);
+            });
+        }
+
+        return $this->deleteEvaluationEntity($flush);
+    }
+
+    private function deleteEvaluationEntity($flush) {
+        return parent::delete($flush);
     }
     
     function getEvaluationData(){

@@ -8,6 +8,10 @@ let objSendDiligence = {
     createTimestamp: moment().format("YYYY-MM-DD")
 }
 
+let opinionRequest = null;
+let opinionPublished = false;
+let opinionConfirmationPending = false;
+
 $(document).ready(function () {
     $("#paragraph_value_project").hide();
 
@@ -93,18 +97,40 @@ $(document).ready(function () {
         saveAuthorizedProject('value_project_diligence', e.target.value)
     });
 
-    $('.save-opinion-accountability-btn').on('click', function () {
+    $('.save-opinion-accountability-btn').on('click', function (event) {
+        event.preventDefault();
+
+        if (opinionRequest || opinionPublished || opinionConfirmationPending) {
+            return;
+        }
+
         saveOrPublishOpinion('save')
     })
 
-    $('.publish-opinion-accountability-btn').on('click', function () {
+    $('.publish-opinion-accountability-btn').on('click', function (event) {
+        event.preventDefault();
+
+        if (opinionRequest || opinionPublished || opinionConfirmationPending) {
+            return;
+        }
+
+        opinionConfirmationPending = true;
+        setOpinionActionsBusy(true);
+
         McMessages.messageConfirm(
             "Deseja publicar o parecer?",
             "Essa ação não poderá ser desfeita.",
         ).then(res => {
+            opinionConfirmationPending = false;
+
             if (res.isConfirmed) {
                 saveOrPublishOpinion('publish')
+            } else {
+                setOpinionActionsBusy(false);
             }
+        }, () => {
+            opinionConfirmationPending = false;
+            setOpinionActionsBusy(false);
         })
     })
 });
@@ -390,26 +416,65 @@ function trashDraftDiligence(idDiligence, titleQuestion, textTrash, titleCancel,
     })
 }
 
+function setOpinionActionsBusy(busy) {
+    $('.save-opinion-accountability-btn, .publish-opinion-accountability-btn')
+        .prop('disabled', busy)
+        .toggleClass('disabled', busy)
+        .attr('aria-busy', busy ? 'true' : 'false');
+    $('.opinion-form #opinion-accountability').prop('disabled', busy);
+    $('.opinion-form').attr('aria-busy', busy ? 'true' : 'false');
+}
+
 function saveOrPublishOpinion(action) {
-    $.ajax({
+    if (opinionRequest || opinionPublished) {
+        return opinionRequest;
+    }
+
+    setOpinionActionsBusy(true);
+
+    const request = $.ajax({
         type: "POST",
         url: MapasCulturais.createUrl('diligence', `${action}Opinion`),
         data: {
             opinion: $('.opinion-form #opinion-accountability').val(),
             registrationId: MapasCulturais.entity.id,
         },
-        dataType: "json",
-        success(res) {
-            MapasCulturais.Messages.success(res.message)
+        dataType: "json"
+    });
 
-            if (action === 'publish') {
-                setTimeout(() => {
-                    location.reload()
-                }, 1500)
-            }
-        },
-        error(err) {
-            MapasCulturais.Messages.error(err.responseJSON.message);
+    opinionRequest = request;
+
+    request.done(function () {
+        if (action === 'publish') {
+            opinionPublished = true;
+            setTimeout(() => {
+                location.reload()
+            }, 1500)
         }
-    })
+    });
+
+    // Unlock before reporting an error so an unexpected error payload cannot
+    // leave the controls permanently disabled.
+    request.always(function () {
+        if (opinionRequest === request) {
+            opinionRequest = null;
+        }
+
+        if (!opinionPublished) {
+            setOpinionActionsBusy(false);
+        }
+    });
+
+    request.done(function (res) {
+        MapasCulturais.Messages.success(res.message)
+    });
+
+    request.fail(function (err) {
+        const message = err.responseJSON && err.responseJSON.message
+            ? err.responseJSON.message
+            : 'Ocorreu um erro ao salvar o parecer';
+        MapasCulturais.Messages.error(message);
+    });
+
+    return request;
 }

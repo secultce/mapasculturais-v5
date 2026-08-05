@@ -145,8 +145,8 @@ $this->part('diligence/ul-buttons', ['entity' => $registration, 'sendEvaluation'
             <div class="opinion-form d-none">
                 <textarea id="opinion-accountability" rows="10" class="textarea-opinion" placeholder="Digite seu parecer aqui..."><?= $opinion ? $opinion->opinion : '' ?></textarea>
                 <div>
-                    <button class="save-opinion-accountability-btn">Salvar</button>
-                    <button class="publish-opinion-accountability-btn">Publicar</button>
+                    <button type="button" class="save-opinion-accountability-btn">Salvar</button>
+                    <button type="button" class="publish-opinion-accountability-btn">Publicar</button>
                 </div>
             </div>
         <?php else : ?>

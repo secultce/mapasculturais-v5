@@ -5,40 +5,38 @@ $(function(){
     var $form = $formContainer.find('form');
     var $list = $('#registrations-list-container');
     var $header = $('#main-header');
-    $(window).scroll(function(){
-        var top = parseInt($header.css('top'));
-        /* $formContainer.css('margin-top', top);
-        $list.css('margin-top', top); */
-    });
-    
-    $formContainer.find('.js-evaluation-submit').on('click', function (e) {
-        e.preventDefault();
+    var __onChangeTimeout = null;
+    var autoSaveRequest = null;
+    var autoSaveQueued = false;
+    var autoSaveCompletionCallbacks = [];
+    var evaluationSubmitRequest = null;
+    var evaluationSubmissionInProgress = false;
+    var evaluationControlStates = null;
 
-        var $button = $(this);
-        var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {
-            '0': MapasCulturais.request.id,
-            'status': 'evaluated'
-        });
-
-        var isValid = true;
-        $('.bonus-select').each(function () {
-            var $select = $(this);
-            var value = $select.val();
-
-            if (value==="?") { 
-
-                    isValid = false;
-                    MapasCulturais.Messages.error('Por favor, selecione uma opção válida em todos os campos de bônus.');
-                    $select.focus();
-                    return false; 
-                }
-
-        });
-
-        if (!isValid) {
-            return;
+    function setEvaluationSubmitBusy($button, busy) {
+        if (busy && !evaluationControlStates) {
+            evaluationControlStates = [];
+            $form.find(':input').each(function () {
+                evaluationControlStates.push({
+                    element: this,
+                    disabled: this.disabled
+                });
+                this.disabled = true;
+            });
+        } else if (!busy && evaluationControlStates) {
+            $.each(evaluationControlStates, function (index, state) {
+                state.element.disabled = state.disabled;
+            });
+            evaluationControlStates = null;
         }
 
+        $button.prop('disabled', busy)
+            .toggleClass('is-disabled', busy)
+            .attr('aria-busy', busy ? 'true' : 'false');
+        $form.attr('aria-busy', busy ? 'true' : 'false');
+    }
+
+    function getEvaluationData() {
         var data = $form.serializeArray();
 
         $('.bonus-select').each(function () {
@@ -58,9 +56,74 @@ $(function(){
             }
         });
 
-        $.post(url, { data: dataObject }, function (r) {
-            MapasCulturais.Messages.success(labels.saveMessage);
+        return dataObject;
+    }
 
+    function autoSaveEvaluation() {
+        if (evaluationSubmissionInProgress) {
+            autoSaveQueued = false;
+            return;
+        }
+
+        if (autoSaveRequest) {
+            autoSaveQueued = true;
+            return;
+        }
+
+        autoSaveQueued = false;
+
+        var data = $form.serialize();
+        var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {'0': MapasCulturais.request.id, 'status': 'evaluated'});
+        var request = $.post(url, data);
+
+        autoSaveRequest = request;
+        request.always(function () {
+            var completionCallbacks = autoSaveCompletionCallbacks;
+            autoSaveCompletionCallbacks = [];
+
+            if (autoSaveRequest === request) {
+                autoSaveRequest = null;
+            }
+
+            if (autoSaveQueued && !evaluationSubmissionInProgress) {
+                autoSaveEvaluation();
+            }
+
+            $.each(completionCallbacks, function (index, callback) {
+                callback();
+            });
+        });
+
+        request.done(function () {
+            MapasCulturais.Messages.success(labels.saveMessage);
+        });
+    }
+
+    function submitEvaluation($button, url, dataObject) {
+        if (evaluationSubmitRequest) {
+            return;
+        }
+
+        var submitted = false;
+        var request = $.post(url, { data: dataObject });
+        evaluationSubmitRequest = request;
+
+        request.done(function () {
+            submitted = true;
+        });
+
+        // Register cleanup before UI callbacks so an unexpected response or
+        // message error cannot leave a failed submission locked.
+        request.always(function () {
+            evaluationSubmitRequest = null;
+
+            if (!submitted) {
+                evaluationSubmissionInProgress = false;
+                setEvaluationSubmitBusy($button, false);
+            }
+        });
+
+        request.done(function () {
             if ($button.hasClass('js-next')) {
                 var $current = $(".current");
                 var $next = $current.nextAll('.visible:first');
@@ -74,7 +137,11 @@ $(function(){
                     document.location = $link.attr('href');
                 }
             }
-        }).fail(function (rs) {
+
+            MapasCulturais.Messages.success(labels.saveMessage);
+        });
+
+        request.fail(function (rs) {
             if (rs.responseJSON && rs.responseJSON.error) {
                 if (rs.responseJSON.data instanceof Array) {
                     rs.responseJSON.data.forEach(function (msg) {
@@ -85,18 +152,78 @@ $(function(){
                 }
             }
         });
+    }
+
+    $(window).scroll(function(){
+        var top = parseInt($header.css('top'));
+        /* $formContainer.css('margin-top', top);
+        $list.css('margin-top', top); */
+    });
+
+    $formContainer.find('.js-evaluation-submit').on('click', function (e) {
+        e.preventDefault();
+
+        if (evaluationSubmissionInProgress) {
+            return;
+        }
+
+        var $button = $(this);
+        var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {
+            '0': MapasCulturais.request.id,
+            'status': 'evaluated'
+        });
+
+        var isValid = true;
+        $('.bonus-select').each(function () {
+            var $select = $(this);
+            var value = $select.val();
+
+            if (value==="?") {
+                isValid = false;
+                MapasCulturais.Messages.error('Por favor, selecione uma opção válida em todos os campos de bônus.');
+                $select.focus();
+                return false;
+            }
+
+        });
+
+        if (!isValid) {
+            return;
+        }
+
+        // Freeze the exact data the evaluator confirmed before disabling the
+        // controls and, if needed, waiting for an in-flight autosave.
+        var dataObject = getEvaluationData();
+
+        clearTimeout(__onChangeTimeout);
+        __onChangeTimeout = null;
+        autoSaveQueued = false;
+        evaluationSubmissionInProgress = true;
+        setEvaluationSubmitBusy($button, true);
+
+        // An autosave already accepted by the server cannot be safely aborted.
+        // Wait for it so the final write is always the last request.
+        if (autoSaveRequest) {
+            autoSaveCompletionCallbacks.push(function () {
+                submitEvaluation($button, url, dataObject);
+            });
+        } else {
+            submitEvaluation($button, url, dataObject);
+        }
     });
 
 
-    var __onChangeTimeout;
     $(".autosave").on('keyup change', function() {
         clearTimeout(__onChangeTimeout);
+
+        if (evaluationSubmissionInProgress) {
+            __onChangeTimeout = null;
+            return;
+        }
+
         __onChangeTimeout = setTimeout(function(){
-            var data = $form.serialize();
-            var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {'0': MapasCulturais.request.id, 'status': 'evaluated'});
-            $.post(url, data, function(r){
-                MapasCulturais.Messages.success(labels.saveMessage);
-            });
+            __onChangeTimeout = null;
+            autoSaveEvaluation();
         },15000);
 
     });

@@ -84,7 +84,7 @@
         return {
             reopen: function (registrationId, evaluationData, uid) {
                 var url = MapasCulturais.createUrl("registration", "saveEvaluation", {id: registrationId, status: "draft"});
-                return $http.post(url, {data: evaluationData, uid});
+                return $http.post(url, {data: evaluationData, uid, reopen: true});
             },
 
             save: function (registrationId, evaluationData, uid) {
@@ -164,28 +164,75 @@
             return;
         });
 
+        $scope.sending = false;
         $scope.obsTimeOut = null;
+
+        var autoSaveRequest = null;
+        var autoSaveQueued = false;
+        var evaluationEditor = null;
+
+        function clearObsAutoSave() {
+            clearTimeout($scope.obsTimeOut);
+            $scope.obsTimeOut = null;
+        }
+
+        function autoSaveEvaluation() {
+            if ($scope.sending) {
+                autoSaveQueued = false;
+                return null;
+            }
+
+            if (autoSaveRequest) {
+                autoSaveQueued = true;
+                return autoSaveRequest;
+            }
+
+            autoSaveQueued = false;
+
+            var request = AccountabilityEvaluationService.autoSave(registrationId, $scope.evaluationData, MapasCulturais.evaluation.user);
+            autoSaveRequest = request;
+
+            request.success(function () {
+                MapasCulturais.Messages.success('Salvo');
+            }).error(function (data) {
+                MapasCulturais.Messages.error(data.data[0]);
+            });
+
+            request.finally(function () {
+                if (autoSaveRequest === request) {
+                    autoSaveRequest = null;
+                }
+
+                if (autoSaveQueued && !$scope.sending) {
+                    autoSaveEvaluation();
+                }
+            });
+
+            return request;
+        }
+
+        $scope.$watch('sending', function (sending) {
+            if (evaluationEditor) {
+                evaluationEditor.enable(!sending);
+            }
+        });
+
         $scope.$watchGroup(['evaluationData.obs'], function(new_val, old_val) {
-            if(new_val != old_val){
-                clearTimeout($scope.obsTimeOut)               
-                $scope.obsTimeOut = setTimeout(() => {
-                    AccountabilityEvaluationService.autoSave(registrationId, $scope.evaluationData, MapasCulturais.evaluation.user).success(function () {
-                        MapasCulturais.Messages.success('Salvo');
-                    }).error(function (data) {
-                        MapasCulturais.Messages.error(data.data[0]);
-                    });
+            if(new_val != old_val && !$scope.sending){
+                clearObsAutoSave();
+                $scope.obsTimeOut = setTimeout(function () {
+                    $scope.obsTimeOut = null;
+                    autoSaveEvaluation();
                 }, 10000);
             }
-            
         });
 
         $scope.$watchGroup(['evaluationData.result'], function(new_val, old_val) {
-            if(new_val != old_val){
-                AccountabilityEvaluationService.autoSave(registrationId, $scope.evaluationData, MapasCulturais.evaluation.user).success(function () {
-                    MapasCulturais.Messages.success('Salvo');
-                }).error(function (data) {
-                    MapasCulturais.Messages.error(data.data[0]);
-                });
+            if(new_val != old_val && !$scope.sending){
+                // The result autosave already contains the current observation, so
+                // a pending observation autosave would only repeat the same write.
+                clearObsAutoSave();
+                autoSaveEvaluation();
             }
         });
 
@@ -267,20 +314,55 @@
         };
 
         $scope.sendEvaluation = function () {
+            if ($scope.sending) {
+                return;
+            }
+
             if (!confirm("Você tem certeza que deseja finalizer o parecer técnico?\n\nApós a finalização não será mais possível modificar o parecer.")) {
                 return;
             }
 
-            AccountabilityEvaluationService.send(registrationId, $scope.evaluationData, MapasCulturais.evaluation.user).success(function () {
-                MapasCulturais.Messages.success('Salvo');
-                setTimeout(function () {
-                    location.reload();
+            var finalEvaluationData = angular.copy($scope.evaluationData);
+            $scope.sending = true;
+            clearObsAutoSave();
+            autoSaveQueued = false;
+
+            var pendingAutoSave = autoSaveRequest;
+            var sendRequestStarted = false;
+
+            function sendEvaluationRequest() {
+                if (sendRequestStarted) {
                     return;
-                }, 500);
-            }).error(function (data) {
-                MapasCulturais.Messages.error(data.data[0]);
-            });
+                }
+
+                sendRequestStarted = true;
+
+                AccountabilityEvaluationService.send(registrationId, finalEvaluationData, MapasCulturais.evaluation.user).success(function () {
+                    setTimeout(function () {
+                        location.reload();
+                        return;
+                    }, 500);
+                    MapasCulturais.Messages.success('Salvo');
+                }).error(function (data) {
+                    $scope.sending = false;
+                    MapasCulturais.Messages.error(data.data[0]);
+                });
+            }
+
+            // Never let a draft autosave finish after the final submission. A
+            // scheduled autosave is cancelled above and an in-flight one is
+            // allowed to settle before the evaluated request is sent.
+            if (pendingAutoSave) {
+                pendingAutoSave.then(sendEvaluationRequest, sendEvaluationRequest);
+            } else {
+                sendEvaluationRequest();
+            }
         }
+
+        $scope.$on('$destroy', function () {
+            clearObsAutoSave();
+            autoSaveQueued = false;
+        });
 
         $scope.reopenAccountability = function () {
 
@@ -308,7 +390,7 @@
                 return;
             }
             
-            var editor = new Quill(container, {
+            evaluationEditor = new Quill(container, {
                 modules: { 
                     toolbar: [
                         ['bold', 'italic', 'underline', 'strike'],
@@ -318,9 +400,10 @@
                 },
                 theme: 'snow'
             });
-            
-            editor.on('text-change', function(){
-                $scope.evaluationData.obs = editor.root.innerHTML;
+
+            evaluationEditor.enable(!$scope.sending);
+            evaluationEditor.on('text-change', function(){
+                $scope.evaluationData.obs = evaluationEditor.root.innerHTML;
                 $scope.$apply();
             });
        },1000);

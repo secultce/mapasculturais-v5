@@ -10,7 +10,15 @@ use MapasCulturais\Traits;
 /**
  * Opinion 
  * 
- * @ORM\Table(name="accountability_opinion")
+ * @ORM\Table(
+ *     name="accountability_opinion",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(
+ *             name="accountability_opinion_registration_unique",
+ *             columns={"registration_id"}
+ *         )
+ *     }
+ * )
  * @ORM\Entity
  * @ORM\entity(repositoryClass="MapasCulturais\Repository")
  */

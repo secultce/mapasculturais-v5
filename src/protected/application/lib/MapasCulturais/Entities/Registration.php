@@ -1369,7 +1369,75 @@ class Registration extends \MapasCulturais\Entity
         $evaluation->save(true);
     }
 
-    function saveUserEvaluation(array $data, User $user = null, $evaluation_status = null){
+    /**
+     * Runs an evaluation write while holding a lock on the registration row.
+     *
+     * The registration is the stable parent shared by all concurrent requests,
+     * including the first request, when no RegistrationEvaluation exists yet.
+     */
+    public function withOpinionSubmissionLock(callable $callback) {
+        $connection = App::i()->em->getConnection();
+        $owns_transaction = !$connection->isTransactionActive();
+
+        if ($owns_transaction) {
+            $connection->beginTransaction();
+        }
+
+        try {
+            // The migration takes the exclusive form of this lock before its
+            // table locks. Writers take the shared form before any row lock,
+            // so deploying the cleanup while requests are active cannot invert
+            // the lock order.
+            $connection->executeQuery(
+                "SELECT pg_advisory_xact_lock_shared(hashtext('MapasCulturais:opinion-submission:migration'))"
+            );
+            $connection->executeQuery(
+                'SELECT id FROM registration WHERE id = ? FOR UPDATE',
+                [$this->id]
+            );
+
+            $result = $callback();
+            if ($owns_transaction) {
+                $connection->commit();
+            }
+
+            return $result;
+        } catch (\Throwable $exception) {
+            if ($owns_transaction && $connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Atomically creates the empty evaluation used when a valuer first opens it.
+     */
+    function initializeUserEvaluation(User $user = null, bool $only_one_per_registration = false) {
+        $app = App::i();
+        $user = $user ?? $app->user;
+
+        return $this->withOpinionSubmissionLock(function () use ($app, $user, $only_one_per_registration) {
+            $evaluation = $only_one_per_registration
+                ? $app->repo('RegistrationEvaluation')->findOneBy(['registration' => $this])
+                : $this->getUserEvaluation($user);
+
+            if ($evaluation) {
+                $app->em->refresh($evaluation);
+                return $evaluation;
+            }
+
+            $evaluation = new RegistrationEvaluation;
+            $evaluation->user = $user;
+            $evaluation->registration = $this;
+            $evaluation->save(true);
+
+            return $evaluation;
+        });
+    }
+
+    function saveUserEvaluation(array $data, User $user = null, $evaluation_status = null, bool $allow_reopen = false){
         $app = App::i();
 
         if ($this->opportunity->canUser('@control') && !empty($data['uid'])) {
@@ -1378,17 +1446,58 @@ class Registration extends \MapasCulturais\Entity
             $user = $user ?? $app->user;
         }
 
-        $evaluation = $this->getUserEvaluation($user);
-        
-        if(!$evaluation){
-            $evaluation = new RegistrationEvaluation;
-            $evaluation->user = $user;
-            $evaluation->registration = $this;
-        }
+        return $this->withOpinionSubmissionLock(function () use ($app, $data, $user, $evaluation_status, $allow_reopen) {
+            // Accountability has one technical opinion for the whole
+            // registration. Other evaluation methods keep one per valuer.
+            $only_one_per_registration = (bool) $this->opportunity->isAccountabilityPhase;
+            $evaluation = $only_one_per_registration
+                ? $app->repo('RegistrationEvaluation')->findOneBy(['registration' => $this])
+                : $this->getUserEvaluation($user);
 
-        $this->saveEvaluation($evaluation, $data, $evaluation_status);
+            if ($evaluation) {
+                // The entity may have been loaded before waiting for the row lock.
+                $app->em->refresh($evaluation);
 
-        return $evaluation;
+                // Entity::save() normally performs this check. No-op returns
+                // must do it explicitly or an unauthorized caller could obtain
+                // the serialized evaluation (including its private data).
+                $evaluation->checkPermission('modify');
+
+                $is_late_draft = $evaluation_status === RegistrationEvaluation::STATUS_DRAFT
+                    && $evaluation->status > RegistrationEvaluation::STATUS_DRAFT;
+                $is_sent = $evaluation->status >= RegistrationEvaluation::STATUS_SENT;
+
+                // Once evaluations are sent to the opportunity owner, no stale
+                // or repeated write may change their status or contents.
+                if ($is_sent) {
+                    return $evaluation;
+                }
+
+                $is_identical_submission = !is_null($evaluation_status)
+                    && (int) $evaluation->status === (int) $evaluation_status
+                    && (array) $evaluation->evaluationData == $data;
+
+                // Repeated final submissions and autosaves are idempotent: do
+                // not create duplicate revisions or run consolidation hooks.
+                if ($is_identical_submission) {
+                    return $evaluation;
+                }
+
+                // A delayed autosave must not overwrite a completed evaluation.
+                // Reopening an evaluated opinion is a separate explicit action.
+                if ($is_late_draft && !$allow_reopen) {
+                    return $evaluation;
+                }
+            } else {
+                $evaluation = new RegistrationEvaluation;
+                $evaluation->user = $user;
+                $evaluation->registration = $this;
+            }
+
+            $this->saveEvaluation($evaluation, $data, $evaluation_status);
+
+            return $evaluation;
+        });
     }
 
     public function evaluationUserChangeStatus($user, Registration $registration, $status) {

@@ -669,15 +669,9 @@ class Module extends \MapasCulturais\Module
             $project = $this->requestedEntity;
             if ($project && $project->isAccountability && $project->canUser('evaluate')) {
                 if ($accountability = $project->registration->accountabilityPhase ?? null) {
-                    $criteria = [
-                        'registration' => $accountability
-                    ];
-                    if (!$app->repo('RegistrationEvaluation')->findOneBy($criteria)) {
-                        $evaluation = new RegistrationEvaluation;
-                        $evaluation->user = $app->user;
-                        $evaluation->registration = $accountability;
-                        $evaluation->save(true);
-                    }
+                    // Accountability has a single technical opinion per
+                    // registration, regardless of who opens the project.
+                    $accountability->initializeUserEvaluation($app->user, true);
                 }
             }
          });

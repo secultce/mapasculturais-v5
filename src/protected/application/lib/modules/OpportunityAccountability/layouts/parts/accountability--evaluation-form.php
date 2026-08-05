@@ -13,17 +13,17 @@ $disable = ($evaluation->status == RegistrationEvaluation::STATUS_EVALUATED) ? "
         <?php if(!$disable && $registration->canUser('evaluate')){?>
         <h4> <?php i::_e('Resultado') ?> </h4>
             <label>
-                <input type="radio" ng-model="evaluationData.result" value="10" <?=$disable?>>
+                <input type="radio" ng-model="evaluationData.result" value="10" ng-disabled="sending" <?=$disable?>>
                 <?php i::_e('Aprovado') ?>
             </label>
 
             <label>
-                <input type="radio" ng-model="evaluationData.result" value="8" <?=$disable?>>
+                <input type="radio" ng-model="evaluationData.result" value="8" ng-disabled="sending" <?=$disable?>>
                 <?php i::_e('Aprovado com ressalvas') ?>
             </label>
 
             <label>
-                <input type="radio" ng-model="evaluationData.result" value="3" <?=$disable?>>
+                <input type="radio" ng-model="evaluationData.result" value="3" ng-disabled="sending" <?=$disable?>>
                 <?php i::_e('Não aprovado') ?>
             </label>
         <?php } ?>
@@ -47,13 +47,13 @@ $disable = ($evaluation->status == RegistrationEvaluation::STATUS_EVALUATED) ? "
         <?php if (!empty($disable)) { ?>
             <span><?php i::_e("Parecer técnico enviado com status") ?> <b>{{resultString}}</b></span>
             <?php if(!$registration->isPublishedResult){?>
-                <button class="btn btn-primary align-right" ng-click="reopenAccountability()"><?php i::_e("Reabrir prestação de contas") ?></button>
+                <button type="button" class="btn btn-primary align-right" ng-click="reopenAccountability()"><?php i::_e("Reabrir prestação de contas") ?></button>
             <?php } else { ?>
-                <button class="btn btn-success align-right"><?php i::_e("Resultado já publicado") ?></button>
+                <button type="button" class="btn btn-success align-right"><?php i::_e("Resultado já publicado") ?></button>
             <?php }?>
             <div class="evaluation-obs" ng-bind-html="::evaluationData.obs"></div>
         <?php } else { ?>
-            <button class="btn btn-primary align-right" ng-click="sendEvaluation()"><?php i::_e("Finalizar e enviar o parecer técnico") ?></button>
+            <button type="button" class="btn btn-primary align-right" ng-click="sendEvaluation()" ng-disabled="sending" ng-attr-aria-busy="{{sending ? 'true' : 'false'}}"><?php i::_e("Finalizar e enviar o parecer técnico") ?></button>
         <?php } ?>
     <?php } ?>
     </section>

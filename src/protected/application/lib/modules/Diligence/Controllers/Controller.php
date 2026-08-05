@@ -520,16 +520,27 @@ class Controller extends \MapasCulturais\Controller implements NotificationInter
     private function createOrUpdateOpinion($data, $publish)
     {
         $registrationId = (int)$data["registrationId"];
-        $registration = App::i()->repo('Registration')->find($registrationId);
-        $opinion = App::i()->repo(OpinionEntity::class)->findOneBy(['registration' => $registration]);
+        $app = App::i();
+        $registration = $app->repo('Registration')->find($registrationId);
 
         $registration->checkPermission('evaluate');
 
-        if ($opinion) {
-            $opinion->update($data["opinion"], $publish);
-        } else {
-            $opinionEntity = new OpinionEntity();
-            $opinionEntity->create($data["opinion"], $registration, $publish);
-        }
+        $registration->withOpinionSubmissionLock(function () use ($app, $registration, $data, $publish) {
+            $opinion = $app->repo(OpinionEntity::class)->findOneBy(['registration' => $registration]);
+
+            if ($opinion) {
+                // It may have been loaded before this request acquired the lock.
+                $app->em->refresh($opinion);
+
+                // Publication is irreversible in the UI. Repeated publication
+                // and a delayed draft save are therefore idempotent no-ops.
+                if ($opinion->status !== OpinionEntity::STATUS_ENABLED) {
+                    $opinion->update($data["opinion"], $publish);
+                }
+            } else {
+                $opinion = new OpinionEntity();
+                $opinion->create($data["opinion"], $registration, $publish);
+            }
+        });
     }
 }

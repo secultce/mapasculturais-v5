@@ -434,7 +434,9 @@ class Registration extends EntityController {
     }
 
     function POST_saveEvaluation(){
+        $this->requireAuthentication();
         $registration = $this->getRequestedEntity();
+        $allow_reopen = filter_var($this->postData['reopen'] ?? false, FILTER_VALIDATE_BOOLEAN);
         if(isset($this->postData['uid'])){
             $user = App::i()->repo('User')->find($this->postData['uid']);
         } else {
@@ -450,8 +452,17 @@ class Registration extends EntityController {
                 $status = Entities\RegistrationEvaluation::STATUS_EVALUATED;
             } else if ($this->urlData['status'] === 'draft') {
                 $evaluation = $registration->getUserEvaluation($user);
-                if (!$evaluation || !$evaluation->canUser('modify', $user)) {
-                    $this->errorJson("User {$user->id} is trying to modify evaluation {$evaluation->id}.", 401);
+                $evaluation_user = $user ?? App::i()->user;
+                $can_save_draft = $evaluation
+                    ? $evaluation->canUser('modify', $evaluation_user)
+                    : $registration->canUser('evaluate', $evaluation_user);
+
+                if (!$can_save_draft) {
+                    $evaluation_id = $evaluation ? $evaluation->id : 'new';
+                    $this->errorJson(
+                        "User {$evaluation_user->id} is trying to modify evaluation {$evaluation_id}.",
+                        401
+                    );
                     return;
                 }
                 $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
@@ -459,7 +470,12 @@ class Registration extends EntityController {
                 $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
                 return;
             }
-            $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
+            $evaluation = $registration->saveUserEvaluation(
+                ($this->postData['data'] ?? []),
+                $user,
+                $status,
+                $allow_reopen
+            );
         } else {
             $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
         }
@@ -493,6 +509,7 @@ class Registration extends EntityController {
     }
 
     function POST_saveEvaluationAndChangeStatus(){
+        $this->requireAuthentication();
         $registration = $this->getRequestedEntity();
 
         if(isset($this->postData['uid'])){

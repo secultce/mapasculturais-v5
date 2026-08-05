@@ -2108,4 +2108,168 @@ $$
         );
     },
 
+    'deduplicate opinions and enforce submission uniqueness' => function () use ($conn) {
+        $app = App::i();
+        $registrationEvaluationType = \MapasCulturais\Entities\RegistrationEvaluation::class;
+        $accountabilityOpinionType = \Diligence\Entities\Opinion::class;
+        $evaluationPartitionUser = "CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM registration registration
+                JOIN opportunity_meta accountability_meta
+                  ON accountability_meta.object_id = registration.opportunity_id
+                 AND accountability_meta.key = 'isAccountabilityPhase'
+                 AND accountability_meta.value = '1'
+                WHERE registration.id = evaluation.registration_id
+            ) THEN NULL
+            ELSE evaluation.user_id
+        END";
+
+        $conn->beginTransaction();
+
+        try {
+            // New writers acquire the shared form before any row lock. Taking
+            // the exclusive form here lets in-flight writers finish, then keeps
+            // new ones from holding a registration while waiting for our table
+            // locks. Table-first ordering also lets pre-deployment writers drain
+            // without a registration/table deadlock.
+            $conn->executeQuery(
+                "SELECT pg_advisory_xact_lock(hashtext('MapasCulturais:opinion-submission:migration'))"
+            );
+            $conn->executeQuery(
+                'LOCK TABLE registration_evaluation, accountability_opinion IN SHARE ROW EXCLUSIVE MODE'
+            );
+
+            // Re-read after acquiring the table lock so the reconsolidation list
+            // includes any write that committed while the migration was waiting.
+            $affectedRows = $conn->fetchAll(
+                "SELECT evaluation.registration_id AS id
+                 FROM registration_evaluation evaluation
+                 GROUP BY evaluation.registration_id, {$evaluationPartitionUser}
+                 HAVING COUNT(*) > 1
+                 ORDER BY evaluation.registration_id"
+            );
+            $affectedRegistrationIds = array_values(array_unique(array_map(
+                'intval',
+                array_column($affectedRows, 'id')
+            )));
+
+            if ($affectedRegistrationIds) {
+                $ids = implode(',', $affectedRegistrationIds);
+                $conn->executeQuery(
+                    "SELECT id FROM registration WHERE id IN ({$ids}) ORDER BY id FOR UPDATE"
+                );
+            }
+
+            // Keep the submitted/published row with the greatest status. Within
+            // the same status, keep the most recently updated row. Evaluation
+            // phases normally keep one row per user; accountability phases have
+            // a single technical opinion for the whole registration. All
+            // revisions and accountability chats are reassigned first.
+            $conn->executeQuery(
+                "CREATE TEMPORARY TABLE duplicate_registration_evaluation_map
+                 ON COMMIT DROP AS
+                 SELECT id AS duplicate_id, canonical_id
+                 FROM (
+                     SELECT
+                         id,
+                         FIRST_VALUE(id) OVER (
+                             PARTITION BY registration_id, {$evaluationPartitionUser}
+                             ORDER BY
+                                 status DESC NULLS LAST,
+                                 COALESCE(update_timestamp, create_timestamp) DESC NULLS LAST,
+                                 id DESC
+                         ) AS canonical_id
+                     FROM registration_evaluation evaluation
+                 ) ranked
+                 WHERE id <> canonical_id"
+            );
+
+            $conn->executeUpdate(
+                'UPDATE entity_revision revision
+                 SET object_id = duplicate.canonical_id
+                 FROM duplicate_registration_evaluation_map duplicate
+                 WHERE revision.object_id = duplicate.duplicate_id
+                   AND revision.object_type::varchar = ?',
+                [$registrationEvaluationType]
+            );
+
+            $conn->executeUpdate(
+                'UPDATE chat_thread thread
+                 SET object_id = duplicate.canonical_id
+                 FROM duplicate_registration_evaluation_map duplicate
+                 WHERE thread.object_id = duplicate.duplicate_id
+                   AND thread.object_type::varchar = ?',
+                [$registrationEvaluationType]
+            );
+
+            $conn->executeUpdate(
+                'DELETE FROM registration_evaluation evaluation
+                 USING duplicate_registration_evaluation_map duplicate
+                 WHERE evaluation.id = duplicate.duplicate_id'
+            );
+
+            $conn->executeQuery(
+                'CREATE TEMPORARY TABLE duplicate_accountability_opinion_map
+                 ON COMMIT DROP AS
+                 SELECT id AS duplicate_id, canonical_id
+                 FROM (
+                     SELECT
+                         id,
+                         FIRST_VALUE(id) OVER (
+                             PARTITION BY registration_id
+                             ORDER BY
+                                 status DESC NULLS LAST,
+                                 COALESCE(update_timestamp, create_timestamp) DESC NULLS LAST,
+                                 id DESC
+                         ) AS canonical_id
+                     FROM accountability_opinion
+                 ) ranked
+                 WHERE id <> canonical_id'
+            );
+
+            $conn->executeUpdate(
+                'UPDATE entity_revision revision
+                 SET object_id = duplicate.canonical_id
+                 FROM duplicate_accountability_opinion_map duplicate
+                 WHERE revision.object_id = duplicate.duplicate_id
+                   AND revision.object_type::varchar = ?',
+                [$accountabilityOpinionType]
+            );
+
+            $conn->executeUpdate(
+                'DELETE FROM accountability_opinion opinion
+                 USING duplicate_accountability_opinion_map duplicate
+                 WHERE opinion.id = duplicate.duplicate_id'
+            );
+
+            $conn->executeQuery(
+                'CREATE UNIQUE INDEX IF NOT EXISTS registration_evaluation_registration_user_unique
+                 ON registration_evaluation (registration_id, user_id)'
+            );
+            $conn->executeQuery(
+                'CREATE UNIQUE INDEX IF NOT EXISTS accountability_opinion_registration_unique
+                 ON accountability_opinion (registration_id)'
+            );
+
+            // Duplicate evaluations may have changed averages or consolidated
+            // statuses. Use each configured evaluation method to restore the
+            // materialized result before making the cleanup visible.
+            foreach ($affectedRegistrationIds as $registrationId) {
+                $registration = $app->repo('Registration')->find($registrationId);
+                if ($registration) {
+                    $registration->consolidateResult(true);
+                }
+            }
+
+            $conn->commit();
+        } catch (\Throwable $exception) {
+            if ($conn->isTransactionActive()) {
+                $conn->rollBack();
+            }
+
+            throw $exception;
+        }
+    },
+
 ] + $updates ;

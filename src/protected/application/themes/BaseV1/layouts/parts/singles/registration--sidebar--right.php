@@ -77,6 +77,7 @@ $canSubmit =
                 <hr>
                 <div style="text-align: right;">
                     <button 
+                        type="button"
                         class="btn btn-primary js-evaluation-submit js-next <?= $canSubmit ? '' : 'is-disabled' ?>"
                         id="btn-submit-evaluation"
                         <?php if (!$canSubmit): ?>
