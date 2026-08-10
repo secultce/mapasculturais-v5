@@ -1,0 +1,81 @@
+@startuml duplicate_record_evaluation
+title Race condition em saveUserEvaluation() - avaliacoes duplicadas
+autonumber
+
+actor "Avaliador\n(Aba 1 / Sessao A)" as ClientA
+actor "Avaliador\n(Aba 2 / Sessao B)" as ClientB
+participant "PHP-FPM\n(Controller::POST_saveEvaluation)" as App
+participant "Redis\n(session lock)" as Redis
+participant "Registration\n(getUserEvaluation /\nsaveUserEvaluation)" as Entity
+database "Postgres\n(registration_evaluation)" as DB
+
+== Sessoes distintas: locks nao concorrem entre si ==
+
+ClientA -> App: POST /saveEvaluation/{id}/status:evaluated\n(data.uid = X)
+activate App
+App -> Redis: session_start() lock(SESSID_A)
+Redis --> App: lock adquirido
+
+ClientB -> App: POST /saveEvaluation/{id}/status:evaluated\n(data.uid = X)
+activate App
+App -> Redis: session_start() lock(SESSID_B)
+Redis --> App: lock adquirido (sessao diferente, sem espera)
+
+== Janela de corrida (check-then-act sem lock de linha) ==
+
+App -> Entity: saveUserEvaluation(data, uid=X)
+activate Entity
+Entity -> DB: SELECT * FROM registration_evaluation\nWHERE registration_id=R AND user_id=X
+DB --> Entity: null (nenhuma linha encontrada)
+note right of Entity #FFDDDD
+  **getUserEvaluation()**
+  Entities/Registration.php:1345
+  findOneBy sem SELECT FOR UPDATE,
+  sem transacao, sem lock
+end note
+
+App -> Entity: saveUserEvaluation(data, uid=X)
+activate Entity #FFAAAA
+Entity -> DB: SELECT * FROM registration_evaluation\nWHERE registration_id=R AND user_id=X
+DB --> Entity: null (linha da 1a requisicao\nainda nao foi commitada)
+note right of Entity #FFDDDD
+  Mesma checagem, mesmo resultado:
+  nenhuma avaliacao encontrada ainda
+end note
+
+Entity -> Entity: new RegistrationEvaluation()
+Entity -> DB: INSERT INTO registration_evaluation (...)\n(saveEvaluation -> save(true))
+DB --> Entity: OK, id = 179973
+Entity --> App: evaluation #1
+deactivate Entity
+App --> ClientA: 200 OK
+deactivate App
+
+Entity -> Entity: new RegistrationEvaluation()
+Entity -> DB: INSERT INTO registration_evaluation (...)\n(saveEvaluation -> save(true))
+DB --> Entity: OK, id = 179974  **<< DUPLICATA**
+Entity --> App: evaluation #2
+deactivate Entity
+App --> ClientB: 200 OK
+deactivate App
+
+note over DB #FFCCCC
+  **Resultado:** 2 linhas para o mesmo
+  (registration_id = R, user_id = X)
+  => nota final calculada com dado duplicado
+  (consolidateResult soma/considera ambas)
+end note
+
+== Por que nao reproduz na mesma sessao ==
+note over ClientA, Redis #EEEEEE
+  Se as 2 requisicoes vierem da MESMA sessao (mesmo PHPSESSID),
+  o segundo session_start() fica bloqueado no lock do Redis ate
+  o primeiro request terminar por completo (nao ha
+  session_write_close() em nenhum lugar do App.php) - por isso
+  o par de requests so serializa (create -> update) em vez de
+  duplicar. Em producao, sob latencia, o lock do phpredis
+  expira as tentativas e libera a 2a requisicao antes da 1a
+  terminar, reabrindo a janela de corrida acima.
+end note
+
+@enduml
