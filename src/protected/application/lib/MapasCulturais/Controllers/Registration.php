@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MapasCulturais\Controllers;
 
+use Doctrine\DBAL\LockMode;
 use MapasCulturais\App;
 use MapasCulturais\Traits;
 use MapasCulturais\Definitions;
@@ -434,35 +435,80 @@ class Registration extends EntityController {
     }
 
     function POST_saveEvaluation(){
+        $app = App::i();
         $registration = $this->getRequestedEntity();
         if(isset($this->postData['uid'])){
-            $user = App::i()->repo('User')->find($this->postData['uid']);
+            $user = $app->repo('User')->find($this->postData['uid']);
         } else {
             $user = null;
         }
 
-        if (isset($this->urlData['status'])) {
-            if ($this->urlData['status'] === 'evaluated') {
-                if ($errors = $registration->getEvaluationMethod()->getValidationErrors($registration->getEvaluationMethodConfiguration(), $this->postData['data'])){
-                    $this->errorJson($errors, 400);
-                    return;
-                }
-                $status = Entities\RegistrationEvaluation::STATUS_EVALUATED;
-            } else if ($this->urlData['status'] === 'draft') {
-                $evaluation = $registration->getUserEvaluation($user);
-                if (!$evaluation || !$evaluation->canUser('modify', $user)) {
-                    $this->errorJson("User {$user->id} is trying to modify evaluation {$evaluation->id}.", 401);
-                    return;
-                }
-                $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
-            } else {
-                $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
-                return;
+        $connection = null;
+        $is_accountability = $registration->getEvaluationMethodDefinition()->slug === 'accountability';
+
+        try {
+            if ($is_accountability) {
+                $connection = $app->em->getConnection();
+                $connection->beginTransaction();
+                $app->em->lock($registration, LockMode::PESSIMISTIC_WRITE);
             }
-            $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
-        } else {
-            $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
+
+            if (isset($this->urlData['status'])) {
+                if ($this->urlData['status'] === 'evaluated') {
+                    $evaluation = $registration->getUserEvaluation($user);
+
+                    // Finalizar o parecer é uma operação idempotente. A trava acima
+                    // garante que requisições concorrentes enxerguem o status salvo
+                    // pela primeira antes de prosseguir.
+                    if ($is_accountability && $evaluation && $evaluation->status >= Entities\RegistrationEvaluation::STATUS_EVALUATED) {
+                        $evaluation->checkPermission('modify');
+                        $connection->commit();
+                        $this->json($evaluation);
+                    }
+
+                    if ($errors = $registration->getEvaluationMethod()->getValidationErrors($registration->getEvaluationMethodConfiguration(), $this->postData['data'])){
+                        $this->errorJson($errors, 400);
+                        return;
+                    }
+                    $status = Entities\RegistrationEvaluation::STATUS_EVALUATED;
+                } else if ($this->urlData['status'] === 'draft') {
+                    $evaluation = $registration->getUserEvaluation($user);
+                    if (!$evaluation || !$evaluation->canUser('modify', $user)) {
+                        $evaluation_id = $evaluation ? $evaluation->id : 'null';
+                        $user_id = $user ? $user->id : 'null';
+                        $this->errorJson("User {$user_id} is trying to modify evaluation {$evaluation_id}.", 401);
+                        return;
+                    }
+
+                    // Um autosave que chegou atrasado não pode reabrir um parecer
+                    // finalizado. Somente a ação explícita de reabertura pode fazer
+                    // essa transição.
+                    $is_reopening = isset($this->urlData['reopen']) && $this->urlData['reopen'];
+                    if ($is_accountability && !$is_reopening && $evaluation->status >= Entities\RegistrationEvaluation::STATUS_EVALUATED) {
+                        $connection->commit();
+                        $this->json($evaluation);
+                    }
+
+                    $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
+                } else {
+                    $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
+                    return;
+                }
+                $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
+            } else {
+                $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
+            }
+
+            if ($connection && $connection->isTransactionActive()) {
+                $connection->commit();
+            }
+        } catch (\Throwable $exception) {
+            if ($connection && $connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+            throw $exception;
         }
+
         $this->json($evaluation);
     }
 

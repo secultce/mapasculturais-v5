@@ -53,7 +53,7 @@ $disable = ($evaluation->status == RegistrationEvaluation::STATUS_EVALUATED) ? "
             <?php }?>
             <div class="evaluation-obs" ng-bind-html="::evaluationData.obs"></div>
         <?php } else { ?>
-            <button class="btn btn-primary align-right" ng-click="sendEvaluation()"><?php i::_e("Finalizar e enviar o parecer técnico") ?></button>
+            <button class="btn btn-primary align-right" ng-click="sendEvaluation()" ng-disabled="sendingEvaluation"><?php i::_e("Finalizar e enviar o parecer técnico") ?></button>
         <?php } ?>
     <?php } ?>
     </section>
