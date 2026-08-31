@@ -1385,7 +1385,7 @@ class Registration extends \MapasCulturais\Entity
             $evaluation->user = $user;
             $evaluation->registration = $this;
         }
-
+        
         $this->saveEvaluation($evaluation, $data, $evaluation_status);
 
         return $evaluation;

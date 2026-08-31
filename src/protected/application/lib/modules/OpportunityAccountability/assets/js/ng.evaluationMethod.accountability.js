@@ -83,7 +83,7 @@
 
         return {
             reopen: function (registrationId, evaluationData, uid) {
-                var url = MapasCulturais.createUrl("registration", "saveEvaluation", {id: registrationId, status: "draft", reopen: 1});
+                var url = MapasCulturais.createUrl("registration", "saveEvaluation", {id: registrationId, status: "draft"});
                 return $http.post(url, {data: evaluationData, uid});
             },
 
@@ -143,8 +143,6 @@
         $scope.accountabilityPermissions = MapasCulturais.accountabilityPermissions;
         $scope.evaluationData = MapasCulturais.evaluation.evaluationData;
         $scope.resultString = MapasCulturais.evaluation.resultString;
-        $scope.sendingEvaluation = false;
-
         $rootScope.closedChats = $rootScope.closedChats || {};
 
         Object.keys($scope.chatThreads).forEach(function(identifier) {
@@ -268,16 +266,9 @@
         };
 
         $scope.sendEvaluation = function () {
-            if ($scope.sendingEvaluation) {
-                return;
-            }
-
             if (!confirm("Você tem certeza que deseja finalizar o parecer técnico?\n\nApós a finalização não será mais possível modificar o parecer.")) {
                 return;
             }
-
-            $scope.sendingEvaluation = true;
-            clearTimeout($scope.obsTimeOut);
 
             AccountabilityEvaluationService.send(registrationId, $scope.evaluationData, MapasCulturais.evaluation.user).success(function () {
                 MapasCulturais.Messages.success('Salvo');
@@ -286,7 +277,6 @@
                     return;
                 }, 500);
             }).error(function (data) {
-                $scope.sendingEvaluation = false;
                 MapasCulturais.Messages.error(data.data[0]);
             });
         }

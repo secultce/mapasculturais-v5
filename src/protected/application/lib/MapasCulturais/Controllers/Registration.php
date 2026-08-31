@@ -443,29 +443,16 @@ class Registration extends EntityController {
             $user = null;
         }
 
-        $connection = null;
-        $is_accountability = $registration->getEvaluationMethodDefinition()->slug === 'accountability';
+        $connection = $app->em->getConnection();
 
         try {
-            if ($is_accountability) {
-                $connection = $app->em->getConnection();
-                $connection->beginTransaction();
-                $app->em->lock($registration, LockMode::PESSIMISTIC_WRITE);
-            }
+            // Serializes the lookup/create operation so concurrent submissions
+            // cannot both conclude that the evaluation does not exist yet.
+            $connection->beginTransaction();
+            $app->em->lock($registration, LockMode::PESSIMISTIC_WRITE);
 
             if (isset($this->urlData['status'])) {
                 if ($this->urlData['status'] === 'evaluated') {
-                    $evaluation = $registration->getUserEvaluation($user);
-
-                    // Finalizar o parecer é uma operação idempotente. A trava acima
-                    // garante que requisições concorrentes enxerguem o status salvo
-                    // pela primeira antes de prosseguir.
-                    if ($is_accountability && $evaluation && $evaluation->status >= Entities\RegistrationEvaluation::STATUS_EVALUATED) {
-                        $evaluation->checkPermission('modify');
-                        $connection->commit();
-                        $this->json($evaluation);
-                    }
-
                     if ($errors = $registration->getEvaluationMethod()->getValidationErrors($registration->getEvaluationMethodConfiguration(), $this->postData['data'])){
                         $this->errorJson($errors, 400);
                         return;
@@ -479,31 +466,35 @@ class Registration extends EntityController {
                         $this->errorJson("User {$user_id} is trying to modify evaluation {$evaluation_id}.", 401);
                         return;
                     }
-
-                    // Um autosave que chegou atrasado não pode reabrir um parecer
-                    // finalizado. Somente a ação explícita de reabertura pode fazer
-                    // essa transição.
-                    $is_reopening = isset($this->urlData['reopen']) && $this->urlData['reopen'];
-                    if ($is_accountability && !$is_reopening && $evaluation->status >= Entities\RegistrationEvaluation::STATUS_EVALUATED) {
-                        $connection->commit();
-                        $this->json($evaluation);
-                    }
-
                     $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
                 } else {
                     $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
                     return;
                 }
-                $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
+
+                $data = $this->postData['data'] ?? [];
+                $evaluation = $registration->getUserEvaluation($user);
+
+                // Repeating the same request is a no-op, but an update with
+                // different data or status continues through the normal flow.
+                if ($evaluation &&
+                    $evaluation->status === $status &&
+                    (array) $evaluation->evaluationData == $data) {
+                    $evaluation->checkPermission('modify');
+                    $connection->commit();
+                    $this->json($evaluation);
+                }
+
+                $evaluation = $registration->saveUserEvaluation($data, $user, $status);
             } else {
                 $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
             }
 
-            if ($connection && $connection->isTransactionActive()) {
+            if ($connection->isTransactionActive()) {
                 $connection->commit();
             }
         } catch (\Throwable $exception) {
-            if ($connection && $connection->isTransactionActive()) {
+            if ($connection->isTransactionActive()) {
                 $connection->rollBack();
             }
             throw $exception;
