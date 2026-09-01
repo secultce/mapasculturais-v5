@@ -143,7 +143,6 @@
         $scope.accountabilityPermissions = MapasCulturais.accountabilityPermissions;
         $scope.evaluationData = MapasCulturais.evaluation.evaluationData;
         $scope.resultString = MapasCulturais.evaluation.resultString;
-
         $rootScope.closedChats = $rootScope.closedChats || {};
 
         Object.keys($scope.chatThreads).forEach(function(identifier) {
@@ -267,7 +266,7 @@
         };
 
         $scope.sendEvaluation = function () {
-            if (!confirm("Você tem certeza que deseja finalizer o parecer técnico?\n\nApós a finalização não será mais possível modificar o parecer.")) {
+            if (!confirm("Você tem certeza que deseja finalizar o parecer técnico?\n\nApós a finalização não será mais possível modificar o parecer.")) {
                 return;
             }
 
