@@ -15,6 +15,12 @@ $(function(){
         e.preventDefault();
 
         var $button = $(this);
+        if ($button.data('submitting')) {
+            return;
+        }
+
+        var originalButtonContent = $button.html();
+
         var url = MapasCulturais.createUrl('registration', 'saveEvaluation', {
             '0': MapasCulturais.request.id,
             'status': 'evaluated'
@@ -58,7 +64,14 @@ $(function(){
             }
         });
 
-        $.post(url, { data: dataObject }, function (r) {
+        $button
+            .data('submitting', true)
+            .prop('disabled', true)
+            .attr('aria-busy', 'true')
+            .addClass('is-disabled')
+            .text(labels.savingMessage);
+
+        $.post(url, { data: dataObject }).done(function (r) {
             MapasCulturais.Messages.success(labels.saveMessage);
 
             if ($button.hasClass('js-next')) {
@@ -72,9 +85,14 @@ $(function(){
 
                 if ($link.attr('href')) {
                     document.location = $link.attr('href');
+                    return;
                 }
             }
+
+            enableSubmitButton();
         }).fail(function (rs) {
+            enableSubmitButton();
+
             if (rs.responseJSON && rs.responseJSON.error) {
                 if (rs.responseJSON.data instanceof Array) {
                     rs.responseJSON.data.forEach(function (msg) {
@@ -85,6 +103,15 @@ $(function(){
                 }
             }
         });
+
+        function enableSubmitButton() {
+            $button
+                .data('submitting', false)
+                .prop('disabled', false)
+                .removeAttr('aria-busy')
+                .removeClass('is-disabled')
+                .html(originalButtonContent);
+        }
     });
 
 

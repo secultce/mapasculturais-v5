@@ -1886,7 +1886,8 @@ class Theme extends MapasCulturais\Theme {
 
         $this->enqueueScript('app', 'evaluations', 'js/evaluations.js');
         $this->localizeScript('evaluations', [
-            'saveMessage' => i::__('A avaliação foi salva')
+            'saveMessage' => i::__('A avaliação foi salva'),
+            'savingMessage' => i::__('Salvando Avaliação...')
         ]);
     }
 

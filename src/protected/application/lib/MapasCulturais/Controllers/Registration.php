@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MapasCulturais\Controllers;
 
+use Doctrine\DBAL\LockMode;
 use MapasCulturais\App;
 use MapasCulturais\Traits;
 use MapasCulturais\Definitions;
@@ -434,35 +435,71 @@ class Registration extends EntityController {
     }
 
     function POST_saveEvaluation(){
+        $app = App::i();
         $registration = $this->getRequestedEntity();
         if(isset($this->postData['uid'])){
-            $user = App::i()->repo('User')->find($this->postData['uid']);
+            $user = $app->repo('User')->find($this->postData['uid']);
         } else {
             $user = null;
         }
 
-        if (isset($this->urlData['status'])) {
-            if ($this->urlData['status'] === 'evaluated') {
-                if ($errors = $registration->getEvaluationMethod()->getValidationErrors($registration->getEvaluationMethodConfiguration(), $this->postData['data'])){
-                    $this->errorJson($errors, 400);
+        $connection = $app->em->getConnection();
+
+        try {
+            // Serializes the lookup/create operation so concurrent submissions
+            // cannot both conclude that the evaluation does not exist yet.
+            $connection->beginTransaction();
+            $app->em->lock($registration, LockMode::PESSIMISTIC_WRITE);
+
+            if (isset($this->urlData['status'])) {
+                if ($this->urlData['status'] === 'evaluated') {
+                    if ($errors = $registration->getEvaluationMethod()->getValidationErrors($registration->getEvaluationMethodConfiguration(), $this->postData['data'])){
+                        $this->errorJson($errors, 400);
+                        return;
+                    }
+                    $status = Entities\RegistrationEvaluation::STATUS_EVALUATED;
+                } else if ($this->urlData['status'] === 'draft') {
+                    $evaluation = $registration->getUserEvaluation($user);
+                    if (!$evaluation || !$evaluation->canUser('modify', $user)) {
+                        $evaluation_id = $evaluation ? $evaluation->id : 'null';
+                        $user_id = $user ? $user->id : 'null';
+                        $this->errorJson("User {$user_id} is trying to modify evaluation {$evaluation_id}.", 401);
+                        return;
+                    }
+                    $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
+                } else {
+                    $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
                     return;
                 }
-                $status = Entities\RegistrationEvaluation::STATUS_EVALUATED;
-            } else if ($this->urlData['status'] === 'draft') {
+
+                $data = $this->postData['data'] ?? [];
                 $evaluation = $registration->getUserEvaluation($user);
-                if (!$evaluation || !$evaluation->canUser('modify', $user)) {
-                    $this->errorJson("User {$user->id} is trying to modify evaluation {$evaluation->id}.", 401);
-                    return;
+
+                // Repeating the same request is a no-op, but an update with
+                // different data or status continues through the normal flow.
+                if ($evaluation &&
+                    $evaluation->status === $status &&
+                    (array) $evaluation->evaluationData == $data) {
+                    $evaluation->checkPermission('modify');
+                    $connection->commit();
+                    $this->json($evaluation);
                 }
-                $status = Entities\RegistrationEvaluation::STATUS_DRAFT;
+
+                $evaluation = $registration->saveUserEvaluation($data, $user, $status);
             } else {
-                $this->errorJson("Invalid evaluation status {$this->urlData["status"]} received from client.", 400);
-                return;
+                $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
             }
-            $evaluation = $registration->saveUserEvaluation(($this->postData['data'] ?? []), $user, $status);
-        } else {
-            $evaluation = $registration->saveUserEvaluation($this->postData['data'], $user);
+
+            if ($connection->isTransactionActive()) {
+                $connection->commit();
+            }
+        } catch (\Throwable $exception) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+            throw $exception;
         }
+
         $this->json($evaluation);
     }
 
