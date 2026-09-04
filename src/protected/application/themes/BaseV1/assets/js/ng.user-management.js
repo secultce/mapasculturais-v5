@@ -379,7 +379,7 @@
                         return;
                     }
                     MapasCulturais.Messages.success('Metadado salvo com sucesso.');
-                    loadEntityMetadata($('#entity-metadata-dialog').data('entity-metadata-request'));
+                    MapasCulturais.Modal.close($('#entity-metadata-dialog'));
                 })
                 .fail(entityMetadataError)
                 .always(function() {
@@ -409,7 +409,7 @@
                         return;
                     }
                     MapasCulturais.Messages.success('Metadado excluído com sucesso.');
-                    loadEntityMetadata($('#entity-metadata-dialog').data('entity-metadata-request'));
+                    MapasCulturais.Modal.close($('#entity-metadata-dialog'));
                 })
                 .fail(entityMetadataError)
                 .always(function() {
