@@ -9,8 +9,7 @@ $canManageMetadata = ($app->user->is('saasSuperAdmin') || $app->user->is('superA
         class="btn btn-small btn-default js-open-entity-metadata"
         data-user-id="<?php echo (int) $entity->getOwnerUser()->id; ?>"
         data-entity-type="<?php echo htmlspecialchars($entityType, ENT_QUOTES, 'UTF-8'); ?>"
-        data-entity-id="<?php echo (int) $entity->id; ?>"
-        data-entity-name="<?php echo htmlspecialchars((string) $entity->name, ENT_QUOTES, 'UTF-8'); ?>">
+        data-entity-id="<?php echo (int) $entity->id; ?>">
         <?php MapasCulturais\i::_e('editar metadados'); ?>
     </button>
 <?php endif; ?>

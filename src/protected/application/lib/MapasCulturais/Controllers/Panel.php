@@ -389,7 +389,9 @@ class Panel extends \MapasCulturais\Controller {
         $app = App::i();
         $data = $this->getData;
         $user = $this->_getManagedMetadataUser($data);
-        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity_type = isset($data['entityType']) && is_scalar($data['entityType'])
+            ? strtolower((string) $data['entityType'])
+            : '';
         $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
         $metadata_class = $entity->getMetadataClassName();
         $metadata = $app->repo($metadata_class)->findBy(
@@ -422,7 +424,9 @@ class Panel extends \MapasCulturais\Controller {
         $app = App::i();
         $data = $this->postData;
         $user = $this->_getManagedMetadataUser($data);
-        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity_type = isset($data['entityType']) && is_scalar($data['entityType'])
+            ? strtolower((string) $data['entityType'])
+            : '';
         $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
         $metadata_class = $entity->getMetadataClassName();
         $meta_id = isset($this->postData['metaId']) ? filter_var($this->postData['metaId'], FILTER_VALIDATE_INT) : false;
@@ -436,7 +440,9 @@ class Panel extends \MapasCulturais\Controller {
             $this->errorJson(i::__('Metadado não encontrado para esta entidade.'), 404);
         }
 
-        if (array_key_exists('key', $this->postData) && (string) $this->postData['key'] !== $metadata->key) {
+        if (array_key_exists('key', $this->postData)
+            && (!is_scalar($this->postData['key']) || (string) $this->postData['key'] !== $metadata->key)
+        ) {
             $this->errorJson(i::__('Não é permitido renomear chaves de metadados.'), 400);
         }
 
@@ -464,7 +470,9 @@ class Panel extends \MapasCulturais\Controller {
         $app = App::i();
         $data = $this->postData;
         $user = $this->_getManagedMetadataUser($data);
-        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity_type = isset($data['entityType']) && is_scalar($data['entityType'])
+            ? strtolower((string) $data['entityType'])
+            : '';
         $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
         $metadata_class = $entity->getMetadataClassName();
         $meta_id = isset($this->postData['metaId']) ? filter_var($this->postData['metaId'], FILTER_VALIDATE_INT) : false;
@@ -522,11 +530,11 @@ class Panel extends \MapasCulturais\Controller {
 
     private function _getManagedMetadataEntityTypes() {
         return [
-            'agent' => ['class' => 'MapasCulturais\\Entities\\Agent', 'label' => i::__('Agente'), 'table' => 'agent_meta'],
-            'space' => ['class' => 'MapasCulturais\\Entities\\Space', 'label' => i::__('Espaço'), 'table' => 'space_meta'],
-            'event' => ['class' => 'MapasCulturais\\Entities\\Event', 'label' => i::__('Evento'), 'table' => 'event_meta'],
-            'project' => ['class' => 'MapasCulturais\\Entities\\Project', 'label' => i::__('Projeto'), 'table' => 'project_meta'],
-            'opportunity' => ['class' => 'MapasCulturais\\Entities\\Opportunity', 'label' => i::__('Oportunidade'), 'table' => 'opportunity_meta'],
+            'agent' => ['class' => 'MapasCulturais\\Entities\\Agent', 'label' => i::__('Agente')],
+            'space' => ['class' => 'MapasCulturais\\Entities\\Space', 'label' => i::__('Espaço')],
+            'event' => ['class' => 'MapasCulturais\\Entities\\Event', 'label' => i::__('Evento')],
+            'project' => ['class' => 'MapasCulturais\\Entities\\Project', 'label' => i::__('Projeto')],
+            'opportunity' => ['class' => 'MapasCulturais\\Entities\\Opportunity', 'label' => i::__('Oportunidade')],
         ];
     }
 
