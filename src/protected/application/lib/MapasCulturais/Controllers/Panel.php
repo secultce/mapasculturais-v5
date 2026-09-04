@@ -5,6 +5,7 @@ namespace MapasCulturais\Controllers;
 use Diligence\Entities\Tado;
 use MapasCulturais\ApiQuery;
 use MapasCulturais\App;
+use MapasCulturais\Entities\EntityRevision;
 use MapasCulturais\Entities\Space;
 use MapasCulturais\Entities\Seal;
 use Diligence\Repositories\Diligence as DiligenceRepo;
@@ -446,18 +447,37 @@ class Panel extends \MapasCulturais\Controller {
             $this->errorJson(i::__('Não é permitido renomear chaves de metadados.'), 400);
         }
 
+        $metadata_changed = false;
+        $revision_data = null;
+
         if (array_key_exists('value', $this->postData)) {
             if (!is_scalar($this->postData['value']) && !is_null($this->postData['value'])) {
                 $this->errorJson(i::__('O valor do metadado deve ser um texto.'), 400);
             }
-            $metadata->value = is_null($this->postData['value']) ? null : (string) $this->postData['value'];
+
+            $new_value = is_null($this->postData['value']) ? null : (string) $this->postData['value'];
+            if ($new_value !== $metadata->value) {
+                $revision_data = $entity->_getRevisionData();
+                $revision_data[$metadata->key] = $new_value;
+                $metadata->value = $new_value;
+                $metadata_changed = true;
+            }
         }
 
         // Entity metadata delegates modify permission inconsistently between
         // entity types. Authorization and ownership were checked
         // above; persisting directly keeps Doctrine lifecycle hooks intact.
         $app->em->persist($metadata);
-        $app->em->flush();
+
+        if ($metadata_changed) {
+            $this->_saveManagedMetadataRevision(
+                $entity,
+                $revision_data,
+                sprintf(i::__('Metadado "%s" atualizado pelo gerenciamento de usuários.'), $metadata->key)
+            );
+        } else {
+            $app->em->flush();
+        }
 
         $this->json(['success' => true, 'id' => $metadata->id]);
     }
@@ -486,11 +506,20 @@ class Panel extends \MapasCulturais\Controller {
             $this->errorJson(i::__('Metadado não encontrado para esta entidade.'), 404);
         }
 
+        $metadata_key = $metadata->key;
+        $revision_data = $entity->_getRevisionData();
+        $revision_data[$metadata_key] = null;
+
         // Calling Metadata::delete() delegates "remove" to the owner. Profile
         // agents deliberately deny that action, so remove only the authorized
         // metadata row directly and retain Doctrine lifecycle callbacks.
         $app->em->remove($metadata);
-        $app->em->flush();
+
+        $this->_saveManagedMetadataRevision(
+            $entity,
+            $revision_data,
+            sprintf(i::__('Metadado "%s" excluído pelo gerenciamento de usuários.'), $metadata_key)
+        );
 
         $this->json(['success' => true]);
     }
@@ -536,6 +565,16 @@ class Panel extends \MapasCulturais\Controller {
             'project' => ['class' => 'MapasCulturais\\Entities\\Project', 'label' => i::__('Projeto')],
             'opportunity' => ['class' => 'MapasCulturais\\Entities\\Opportunity', 'label' => i::__('Oportunidade')],
         ];
+    }
+
+    private function _saveManagedMetadataRevision($entity, array $revision_data, $message) {
+        $revision = new EntityRevision(
+            $revision_data,
+            $entity,
+            EntityRevision::ACTION_MODIFIED,
+            $message
+        );
+        $revision->save(true);
     }
 
     private function _canManageEntityMetadata() {
