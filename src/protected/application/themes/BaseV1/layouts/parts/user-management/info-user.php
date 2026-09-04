@@ -242,7 +242,7 @@
         <?php $this->part('user-management/user-info/info-registrations', array('registrations' => $user->getRegistrationsByStatus(3))); ?>
       </div>
     </div>
-  
+
     <div id="permissoes" class="aba-content">
       <div>
 
@@ -371,3 +371,7 @@
   </div>
   <?php $this->applyTemplateHook("tabs-content", 'after') ?>
 </div>
+
+<?php if (!empty($canManageEntityMetadata)): ?>
+  <?php $this->part('user-management/user-info/entity-metadata-dialog'); ?>
+<?php endif; ?>

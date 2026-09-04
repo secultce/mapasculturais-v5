@@ -302,6 +302,121 @@
             });
         }
 
+        function entityMetadataError(response) {
+            var message = 'Não foi possível alterar o metadado.';
+            if(response && response.responseJSON && response.responseJSON.data) {
+                message = response.responseJSON.data;
+            } else if(response && response.data) {
+                message = response.data;
+            }
+            MapasCulturais.Messages.error(message);
+        }
+
+        function loadEntityMetadata(request) {
+            var dialog = $('#entity-metadata-dialog');
+            var content = dialog.find('.js-entity-metadata-dialog-content');
+
+            dialog.data('entity-metadata-request', request);
+            content.html('<p class="entity-metadata-loading">Carregando metadados...</p>');
+            $('#blockdiv').show();
+            $('body').css('overflow', 'hidden');
+            MapasCulturais.Modal.open(dialog);
+
+            return $.get(dialog.data('load-url'), request)
+                .done(function(response) {
+                    if(response && response.error) {
+                        entityMetadataError(response);
+                        return;
+                    }
+
+                    dialog.children('h2').first().text(response.title || 'Metadados da entidade');
+                    content.html(response.html);
+                    MapasCulturais.Modal.open(dialog);
+                })
+                .fail(function(response) {
+                    content.html('<p class="entity-metadata-load-error">Não foi possível carregar os metadados desta entidade.</p>');
+                    entityMetadataError(response);
+                });
+        }
+
+        $('.user-managerment-infos').on('click', '.js-open-entity-metadata', function() {
+            var button = $(this);
+            var request = {
+                userId: button.data('user-id'),
+                entityType: button.data('entity-type'),
+                entityId: button.data('entity-id')
+            };
+
+            button.prop('disabled', true);
+            loadEntityMetadata(request).always(function() {
+                button.prop('disabled', false);
+            });
+        });
+
+        $('#entity-metadata-dialog').on('click', '.js-save-entity-metadata', function() {
+            var manager = $(this).closest('.entity-metadata-manager');
+            var row = $(this).closest('.js-entity-metadata-row');
+            var button = $(this);
+            var value = row.find('.js-entity-metadata-value').val();
+            var data = {
+                userId: manager.data('user-id'),
+                entityType: manager.data('entity-type'),
+                entityId: manager.data('entity-id'),
+                metaId: row.data('meta-id')
+            };
+
+            // A blank protected input means that the existing secret should
+            // remain unchanged.
+            if(row.data('sensitive') !== 1 || value !== '') {
+                data.value = value;
+            }
+
+            button.prop('disabled', true);
+            $.post(manager.data('save-url'), data)
+                .done(function(response) {
+                    if(response && response.error) {
+                        entityMetadataError({responseJSON: response});
+                        return;
+                    }
+                    MapasCulturais.Messages.success('Metadado salvo com sucesso.');
+                    loadEntityMetadata($('#entity-metadata-dialog').data('entity-metadata-request'));
+                })
+                .fail(entityMetadataError)
+                .always(function() {
+                    button.prop('disabled', false);
+                });
+        });
+
+        $('#entity-metadata-dialog').on('click', '.js-delete-entity-metadata', function() {
+            if(!window.confirm('Deseja excluir este metadado?')) {
+                return;
+            }
+
+            var manager = $(this).closest('.entity-metadata-manager');
+            var row = $(this).closest('.js-entity-metadata-row');
+            var button = $(this);
+
+            button.prop('disabled', true);
+            $.post(manager.data('delete-url'), {
+                userId: manager.data('user-id'),
+                entityType: manager.data('entity-type'),
+                entityId: manager.data('entity-id'),
+                metaId: row.data('meta-id')
+            })
+                .done(function(response) {
+                    if(response && response.error) {
+                        entityMetadataError({responseJSON: response});
+                        return;
+                    }
+                    MapasCulturais.Messages.success('Metadado excluído com sucesso.');
+                    loadEntityMetadata($('#entity-metadata-dialog').data('entity-metadata-request'));
+                })
+                .fail(entityMetadataError)
+                .always(function() {
+                    button.prop('disabled', false);
+                });
+        });
+
         $(".tablinks").click(function() {
             var tab = $(this).data('tab');
             var entity = $(this).data('entity');

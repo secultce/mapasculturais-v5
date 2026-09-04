@@ -9,6 +9,7 @@ use MapasCulturais\Entities\Space;
 use MapasCulturais\Entities\Seal;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 use MapasCulturais\Utils;
+use MapasCulturais\i;
 
 /**
  * User Panel Controller
@@ -365,8 +366,180 @@ class Panel extends \MapasCulturais\Controller {
             }
         } else {
             $user = $app->repo('User')->find($this->getData['userId']);
+            if (!$user) {
+                $app->pass();
+            }
+
             $roles = $app->repo('User')->getRoles($this->getData['userId']);
-            $this->render('user-management', ['user' => $user, 'roles' => $roles]);
+            $can_manage_entity_metadata = $this->_canManageEntityMetadata();
+
+            $this->render('user-management', [
+                'user' => $user,
+                'roles' => $roles,
+                'canManageEntityMetadata' => $can_manage_entity_metadata,
+            ]);
+        }
+    }
+
+    /**
+     * Returns the metadata editor for one entity in the user-management modal.
+     */
+    function GET_entityMetadata() {
+        $this->_requireEntityMetadataManager();
+        $app = App::i();
+        $data = $this->getData;
+        $user = $this->_getManagedMetadataUser($data);
+        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
+        $metadata_class = $entity->getMetadataClassName();
+        $metadata = $app->repo($metadata_class)->findBy(
+            ['owner' => $entity],
+            ['key' => 'ASC', 'id' => 'ASC']
+        );
+        $types = $this->_getManagedMetadataEntityTypes();
+
+        $html = $app->view->partialRender('user-management/user-info/info-metadata', [
+            'user' => $user,
+            'entity' => $entity,
+            'entityType' => $entity_type,
+            'metadata' => $metadata,
+            'registeredMetadata' => $entity->getRegisteredMetadata(null, true),
+        ], true);
+
+        $this->json([
+            'success' => true,
+            'title' => sprintf(i::__('Metadados de %s #%d'), $types[$entity_type]['label'], $entity->id),
+            'html' => $html,
+        ]);
+    }
+
+    /**
+     * Updates metadata belonging to an Agent, Space, Event, Project or
+     * Opportunity from the user-management panel.
+     */
+    function POST_entityMetadata() {
+        $this->_requireEntityMetadataManager();
+        $app = App::i();
+        $data = $this->postData;
+        $user = $this->_getManagedMetadataUser($data);
+        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
+        $metadata_class = $entity->getMetadataClassName();
+        $meta_id = isset($this->postData['metaId']) ? filter_var($this->postData['metaId'], FILTER_VALIDATE_INT) : false;
+
+        if (!$meta_id) {
+            $this->errorJson(i::__('A criação de novas chaves de metadados não é permitida por esta ferramenta.'), 400);
+        }
+
+        $metadata = $app->repo($metadata_class)->find($meta_id);
+        if (!$metadata || !$metadata->owner || $metadata->owner->id !== $entity->id) {
+            $this->errorJson(i::__('Metadado não encontrado para esta entidade.'), 404);
+        }
+
+        if (array_key_exists('key', $this->postData) && (string) $this->postData['key'] !== $metadata->key) {
+            $this->errorJson(i::__('Não é permitido renomear chaves de metadados.'), 400);
+        }
+
+        if (array_key_exists('value', $this->postData)) {
+            if (!is_scalar($this->postData['value']) && !is_null($this->postData['value'])) {
+                $this->errorJson(i::__('O valor do metadado deve ser um texto.'), 400);
+            }
+            $metadata->value = is_null($this->postData['value']) ? null : (string) $this->postData['value'];
+        }
+
+        // Entity metadata delegates modify permission inconsistently between
+        // entity types. Authorization and ownership were checked
+        // above; persisting directly keeps Doctrine lifecycle hooks intact.
+        $app->em->persist($metadata);
+        $app->em->flush();
+
+        $this->json(['success' => true, 'id' => $metadata->id]);
+    }
+
+    /**
+     * Deletes metadata belonging to one of the supported entity types.
+     */
+    function POST_deleteEntityMetadata() {
+        $this->_requireEntityMetadataManager();
+        $app = App::i();
+        $data = $this->postData;
+        $user = $this->_getManagedMetadataUser($data);
+        $entity_type = strtolower((string) ($data['entityType'] ?? ''));
+        $entity = $this->_getManagedMetadataEntity($user, $entity_type, $data);
+        $metadata_class = $entity->getMetadataClassName();
+        $meta_id = isset($this->postData['metaId']) ? filter_var($this->postData['metaId'], FILTER_VALIDATE_INT) : false;
+
+        if (!$meta_id) {
+            $this->errorJson(i::__('Metadado inválido.'), 400);
+        }
+
+        $metadata = $app->repo($metadata_class)->find($meta_id);
+        if (!$metadata || !$metadata->owner || $metadata->owner->id !== $entity->id) {
+            $this->errorJson(i::__('Metadado não encontrado para esta entidade.'), 404);
+        }
+
+        // Calling Metadata::delete() delegates "remove" to the owner. Profile
+        // agents deliberately deny that action, so remove only the authorized
+        // metadata row directly and retain Doctrine lifecycle callbacks.
+        $app->em->remove($metadata);
+        $app->em->flush();
+
+        $this->json(['success' => true]);
+    }
+
+    private function _getManagedMetadataUser(array $data) {
+        $app = App::i();
+        $user_id = isset($data['userId']) ? filter_var($data['userId'], FILTER_VALIDATE_INT) : false;
+        $user = $user_id ? $app->repo('User')->find($user_id) : null;
+
+        if (!$user) {
+            $this->errorJson(i::__('Usuário não encontrado.'), 404);
+        }
+
+        return $user;
+    }
+
+    private function _getManagedMetadataEntity($user, $entity_type, array $data) {
+        $app = App::i();
+        $types = $this->_getManagedMetadataEntityTypes();
+        $entity_id = isset($data['entityId']) ? filter_var($data['entityId'], FILTER_VALIDATE_INT) : false;
+
+        if (!$entity_id || !isset($types[$entity_type])) {
+            $this->errorJson(i::__('Entidade de metadados inválida.'), 400);
+        }
+
+        $entity = $app->repo($types[$entity_type]['class'])->find($entity_id);
+        if (!$entity || !$entity->getOwnerUser() || $entity->getOwnerUser()->id !== $user->id) {
+            $this->errorJson(i::__('Entidade não encontrada para este usuário.'), 404);
+        }
+
+        if (!$entity->canUser('modify')) {
+            $this->errorJson(i::__('Você não pode gerenciar os metadados desta entidade.'), 403);
+        }
+
+        return $entity;
+    }
+
+    private function _getManagedMetadataEntityTypes() {
+        return [
+            'agent' => ['class' => 'MapasCulturais\\Entities\\Agent', 'label' => i::__('Agente'), 'table' => 'agent_meta'],
+            'space' => ['class' => 'MapasCulturais\\Entities\\Space', 'label' => i::__('Espaço'), 'table' => 'space_meta'],
+            'event' => ['class' => 'MapasCulturais\\Entities\\Event', 'label' => i::__('Evento'), 'table' => 'event_meta'],
+            'project' => ['class' => 'MapasCulturais\\Entities\\Project', 'label' => i::__('Projeto'), 'table' => 'project_meta'],
+            'opportunity' => ['class' => 'MapasCulturais\\Entities\\Opportunity', 'label' => i::__('Oportunidade'), 'table' => 'opportunity_meta'],
+        ];
+    }
+
+    private function _canManageEntityMetadata() {
+        $user = App::i()->user;
+        return $user->is('saasSuperAdmin') || $user->is('superAdmin');
+    }
+
+    private function _requireEntityMetadataManager() {
+        $this->requireAuthentication();
+
+        if (!$this->_canManageEntityMetadata()) {
+            $this->errorJson(i::__('Apenas super administradores podem gerenciar metadados.'), 403);
         }
     }
 
