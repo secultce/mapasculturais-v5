@@ -330,8 +330,16 @@
     box-sizing: border-box;
     max-height: calc(100vh - 4rem);
     max-width: 1200px;
-    overflow-y: auto;
+    overflow: hidden;
     width: calc(100% - 4rem);
+
+    .js-entity-metadata-dialog-content {
+        max-height: calc(100vh - 12rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
 
     .entity-metadata-help {
         border-left: 4px solid $table-caption-bg;
@@ -418,6 +426,10 @@
     .entity-metadata-dialog {
         padding: 1rem;
         width: calc(100% - 1rem);
+
+        .js-entity-metadata-dialog-content {
+            max-height: calc(100vh - 9rem);
+        }
 
         .entity-metadata-table {
             display: block;
