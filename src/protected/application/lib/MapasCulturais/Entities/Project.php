@@ -19,6 +19,7 @@ class Project extends \MapasCulturais\Entity
     use Traits\EntityOwnerAgent,
         Traits\EntityTypes,
         Traits\EntityMetadata,
+        Traits\EntityRevision,
         Traits\EntityFiles,
         Traits\EntityAvatar,
         Traits\EntityMetaLists,
