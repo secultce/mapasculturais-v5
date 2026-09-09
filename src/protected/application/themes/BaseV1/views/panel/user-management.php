@@ -25,7 +25,11 @@
     <?php
       if(isset($user)) {
         $this->jsObject['userProfileId'] = $user->profile->id;
-        $this->part('user-management/info-user', ['user' => $user, 'roles' => $roles]);
+        $this->part('user-management/info-user', [
+          'user' => $user,
+          'roles' => $roles,
+          'canManageEntityMetadata' => !empty($canManageEntityMetadata),
+        ]);
       } else if(isset($admin)) {
         $this->part('user-management/info-admin');
       } else {

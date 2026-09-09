@@ -325,3 +325,161 @@
         }
     }
 }
+
+.entity-metadata-dialog {
+    box-sizing: border-box;
+    max-height: calc(100vh - 4rem);
+    max-width: 1200px;
+    overflow: hidden;
+    width: calc(100% - 4rem);
+
+    .js-entity-metadata-dialog-content {
+        max-height: calc(100vh - 12rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .entity-metadata-help {
+        border-left: 4px solid $table-caption-bg;
+        margin-bottom: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .entity-metadata-loading,
+    .entity-metadata-load-error {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .entity-metadata-load-error {
+        color: #a00;
+    }
+
+    .entity-metadata-table-wrapper {
+        overflow-x: visible;
+    }
+
+    .entity-metadata-table {
+        table-layout: fixed;
+        width: 100%;
+
+        td {
+            overflow-wrap: anywhere;
+            vertical-align: top;
+            word-break: break-word;
+        }
+
+        td:nth-child(1) {
+            width: 4rem;
+        }
+
+        td:nth-child(2) {
+            width: 22%;
+        }
+
+        td:nth-child(3) {
+            width: 18%;
+        }
+
+        td:nth-child(5) {
+            width: 9rem;
+        }
+
+        input,
+        textarea {
+            box-sizing: border-box;
+            margin: 0;
+            min-width: 0;
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 4.5rem;
+            resize: vertical;
+        }
+
+        .entity-metadata-key {
+            overflow-wrap: anywhere;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .entity-metadata-actions {
+            white-space: nowrap;
+
+            .btn {
+                display: inline-block;
+                float: none;
+                margin: 0 0.25rem 0.25rem 0;
+            }
+        }
+
+        .entity-metadata-empty-row td {
+            text-align: center;
+        }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .entity-metadata-dialog {
+        padding: 1rem;
+        width: calc(100% - 1rem);
+
+        .js-entity-metadata-dialog-content {
+            max-height: calc(100vh - 9rem);
+        }
+
+        .entity-metadata-table {
+            display: block;
+
+            thead {
+                display: none;
+            }
+
+            tbody,
+            tr,
+            td {
+                box-sizing: border-box;
+                display: block;
+                width: 100% !important;
+            }
+
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 1rem;
+            }
+
+            td {
+                border-left: 0;
+                padding: 0.6rem;
+
+                &:before {
+                    color: #555;
+                    content: attr(data-label);
+                    display: block;
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    margin-bottom: 0.25rem;
+                    text-transform: uppercase;
+                }
+            }
+
+            .entity-metadata-empty-row td:before {
+                content: none;
+            }
+
+            .entity-metadata-actions {
+                white-space: normal;
+
+                .btn {
+                    box-sizing: border-box;
+                    margin: 0.25rem 0;
+                    text-align: center;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
