@@ -195,12 +195,21 @@ class Diligence{
      * @param int $status
      * @return void
      */
-    public static function updateStatusByRegistration($reg, int $status): void
+    public static function updateLatestStatusByRegistration($reg, int $status): void
     {
+        // O TADO pertence à inscrição; somente a última rodada deve ser encerrada.
+        $diligence = App::i()->repo(self::$className)->findOneBy(
+            ['registration' => $reg],
+            ['id' => 'desc']
+        );
+        if (!$diligence) {
+            return;
+        }
+
         App::i()->getEm()->createQueryBuilder()->update(DiligenceEntity::class, 'd')
             ->set('d.status', ':status')
-            ->where('d.registration = :registration')
-            ->setParameter('registration', $reg)
+            ->where('d.id = :diligence')
+            ->setParameter('diligence', $diligence->id)
             ->setParameter('status', $status)
             ->getQuery()
             ->execute();
