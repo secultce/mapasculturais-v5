@@ -1,10 +1,6 @@
 const counterArgumentCommon = {
     view(text) {
-        Swal.fire({
-            title: 'Contrarrazão',
-            html: text,
-            width: 700,
-        })
+       McMessages.custom('Contrarrazão', null, text, true);
     },
     viewResponse(text) {
         Swal.fire({

@@ -41,33 +41,23 @@ const counterArgumentAdmin = {
             },
             dataType: "json",
             success(res) {
-                Swal.fire({
-                    title: 'Resposta salva',
-                    text: res.message,
-                    icon: 'success',
-                    allowOutsideClick: false,
-                }).then(res => {
-                    if (res.isConfirmed) window.location.reload()
+                McMessages.success('Resposta salva', res.message).then((res) => {
+                    if (res.isConfirmed) {
+                        window.location.reload()
+                    }
                 })
             },
             error(err) {
                 if (err.status === 403) {
-                    Swal.fire({
-                        title: 'Sua resposta não foi salva',
-                        text: err.responseJSON.message,
-                        icon: 'warning',
-                        allowOutsideClick: false,
-                    }).then(res => {
+                    McMessages.error(
+                        'Sua resposta não foi salva', 
+                        err.responseJSON.message
+                    ).then(res => {
                         if (res.isConfirmed) window.location.reload()
                     })
                     return
                 }
-
-                Swal.fire({
-                    title: 'Erro ao responder contrarrazão',
-                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
-                    icon: 'error',
-                })
+                McMessages.error('Erro ao responder contrarrazão', 'Entre em contato com o suporte ou tente novamente mais tarde.')
             }
         })
     },
@@ -78,30 +68,25 @@ const counterArgumentAdmin = {
             data: { opportunityId },
             dataType: "json",
             success(res) {
-                Swal.fire({
-                    title: 'Respostas publicadas',
-                    text: res.message,
-                    icon: 'success',
-                    allowOutsideClick: false,
-                }).then(res => {
+                McMessages.success(
+                    'Respostas publicadas',
+                    res.message,
+                ).then(res => {
                     if (res.isConfirmed) window.location.reload()
                 })
             },
             error(err) {
                 if (err.status === 403) {
-                    Swal.fire({
-                        title: 'Respostas não publicadas',
-                        text: err.responseJSON.message,
-                        icon: 'warning',
-                    })
+                    McMessages.error(
+                        'Respostas não publicadas',
+                        err.responseJSON.message,
+                    )
                     return
                 }
-
-                Swal.fire({
-                    title: 'Erro ao publicar respostas',
-                    text: 'Entre em contato com o suporte ou tente novamente mais tarde.',
-                    icon: 'error',
-                })
+                McMessages.error(
+                    'Erro ao publicar respostas',
+                    'Entre em contato com o suporte ou tente novamente mais tarde.'
+                )
             }
         })
     },
@@ -116,10 +101,10 @@ $(() => {
         const status = event.currentTarget.dataset.status
         const statuses = new Map(Object.entries(counterArgumentAdmin.statuses).sort((a, b) => a[1].localeCompare(b[1])))
 
-        let quillEditor
-
-        Swal.fire({
+        QuillEditor.open({
             title: 'Responder Contrarrazão',
+            initialHtml: text,
+            entityId: counterArgumentId,
             html: `
                 <p class="sweetalert-plain-text">Digite sua resposta para esta contrarrazão e selecione sua situação</p>
                 <div>
@@ -150,31 +135,27 @@ $(() => {
                 counterArgumentAdmin.setStatus($('#counter-argument-status').val())
             },
         }).then(res => {
+            console.log(res)
+            const { conteudo, entityId, customFields } = res.value;
+            console.log(customFields)
             if (res.isConfirmed) {
-                if (!quillEditor.getText().trim() || counterArgumentAdmin.getStatus() === null) {
-                    Swal.fire({
-                        title: 'Sua resposta não foi salva',
-                        text: 'Digite o texto da resposta e selecione uma situação',
-                        icon: 'warning',
-                    })
+                if (!conteudo.trim() || customFields['counter-argument-status'] === null ) {
+                    McMessages.error('Sua resposta não foi salva', 'Digite o texto da resposta e selecione uma situação')
                     return
                 }
-
                 counterArgumentAdmin.respond(counterArgumentId)
             }
         })
     })
-
     $('#btn-publish-responses-counter-arguments').on('click', function (event) {
         const opportunityId = event.currentTarget.dataset.opportunityId
 
-        Swal.fire({
-            title: 'Publicar respostas',
-            text: 'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?',
-            confirmButtonText: 'Publicar',
-            cancelButtonText: 'Cancelar',
-            showCancelButton: true,
-        }).then(res => {
+        McMessages.messageConfirm(
+            'Publicar respostas',
+            'Ao publicar as respostas, não será mais possível editá-las. Deseja continuar?',
+            'Cancelar',
+            'Publicar',
+        ).then(res => {
             if (res.isConfirmed) counterArgumentAdmin.publishResponses(opportunityId)
         })
     })
