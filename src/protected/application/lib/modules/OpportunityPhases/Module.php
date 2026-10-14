@@ -434,7 +434,7 @@ class Module extends \MapasCulturais\Module{
             }
 
             $registrations = array_reverse($registrations);
-//
+
             $this->addEntityToJs($first);
             $this->addRegistrationToJs($first);
             $this->addOpportunityToJs($first->opportunity);
@@ -823,36 +823,38 @@ class Module extends \MapasCulturais\Module{
             }
         });
 
-        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
-           $app = App::i();
+        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function ($opportunity, &$new_registrations) {
+            if (empty($new_registrations)) {
+                return;
+            }
 
-            // Dados para envio para mensageria
-            $bodyMessageRegistration = array_map(function ($reg) {
-                return [
-                    'registration' => $reg->id,
-                    'opp_id' => $reg->opportunity->id,
-                    'opp_name' => $reg->opportunity->name,
-                    'number' => $reg->number,
-                    'agent_name' => $reg->owner->name,
-                    'agent_email' => $reg->owner->user->email
-                ];
-            }, $new_registrations);
-            $registration = $new_registrations[0];
-            $owner = $registration->opportunity->owner;
+            $app = App::i();
+
+            $owner = $opportunity->owner;
             $sealIds = $owner->getRelatedSealIds();
-            if(in_array(2,$sealIds)) {
-                // instanciando e enviando para a mensageria
+
+            if (in_array(2, $sealIds)) {
                 $queueService = new AmqpQueueService();
-                $queueService->sendMessage(
-                    $app->config['rabbitmq']['exchange_default'],
-                    $app->config['rabbitmq']['routing']['module_import_registration_draft'],
-                    $bodyMessageRegistration,
-                    $app->config['rabbitmq']['queues']['queue_import_registration']
-                );
+
+                foreach ($new_registrations as $reg) {
+                    $bodyMessageRegistration = [
+                        'registration' => $reg->id,
+                        'opp_id'       => $opportunity->id,
+                        'opp_name'     => $opportunity->name,
+                        'number'       => $reg->number,
+                        'agent_name'   => $reg->owner->name,
+                        'agent_email'  => $reg->owner->user->email,
+                    ];
+
+                    $queueService->sendMessage(
+                        $app->config['rabbitmq']['exchange_default'],
+                        $app->config['rabbitmq']['routing']['module_import_registration_draft'],
+                        $bodyMessageRegistration,
+                        $app->config['rabbitmq']['queues']['queue_import_registration']
+                    );
+                }
             }
         });
-
-
     }
 
     function register () {
@@ -956,7 +958,7 @@ class Module extends \MapasCulturais\Module{
 
         $opp_repo->find($target_opportunity->id)->save(true);
         
-        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
+        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [$target_opportunity, &$new_registrations]);
 
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();
