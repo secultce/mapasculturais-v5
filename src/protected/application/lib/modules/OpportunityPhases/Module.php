@@ -838,12 +838,17 @@ class Module extends \MapasCulturais\Module{
 
                 foreach ($new_registrations as $reg) {
                     $bodyMessageRegistration = [
+                        'message_id' => bin2hex(random_bytes(16)),
+                        'event_type' => 'registration.import_requested',
+                        'schema_version' => 1,
+                        'occurred_at' => gmdate('c'),
+
                         'registration' => $reg->id,
-                        'opp_id'       => $opportunity->id,
-                        'opp_name'     => $opportunity->name,
-                        'number'       => $reg->number,
-                        'agent_name'   => $reg->owner->name,
-                        'agent_email'  => $reg->owner->user->email,
+                        'opportunity_id' => $opportunity->id,
+                        'opportunity_name' => $opportunity->name,
+                        'number' => $reg->number,
+                        'agent_name' => $reg->owner->name,
+                        'agent_email' => $reg->owner->user->email,
                     ];
 
                     $queueService->sendMessage(
