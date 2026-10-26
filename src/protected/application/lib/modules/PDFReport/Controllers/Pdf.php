@@ -6,6 +6,7 @@ use MapasCulturais\App;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use PDFReport\Entities\Pdf as EntitiesPdf;
+use PDFReport\Services\RegistrationJson;
 
 class Pdf extends \MapasCulturais\Controller
 {
@@ -138,6 +139,52 @@ class Pdf extends \MapasCulturais\Controller
     {
         $allPhases = true;
         $this->generatePdfRegistration($allPhases);
+    }
+
+    /**
+     * JSON formatado da inscrição com todas as fases, espelho do PDF
+     * imprimir_inscricao_todas_as_fases.
+     *
+     * ?until_latest=1 não corta as fases na inscrição informada e devolve a última inscrição
+     * ?summary=1 devolve as fases sem o conteúdo (sections)
+     */
+    public function GET_inscricao_json_todas_as_fases()
+    {
+        $app = App::i();
+
+        if ($app->user->is('guest')) {
+            $this->json(['error' => true, 'message' => 'Autenticação necessária'], 401);
+        }
+
+        $id = isset($this->data['id']) ? $this->data['id'] : null;
+        $reg = is_numeric($id) ? $app->repo('Registration')->find((int) $id) : null;
+
+        if (!$reg) {
+            $this->json(['error' => true, 'message' => 'Inscrição não encontrada'], 404);
+        }
+
+        if (!$this->userCanAccessRegistration($reg)) {
+            $this->json(['error' => true, 'message' => 'Você não tem permissão'], 403);
+        }
+
+        $this->json(RegistrationJson::buildAll($reg, !empty($this->getData['until_latest']), !empty($this->getData['summary'])));
+    }
+
+    private function userCanAccessRegistration($reg)
+    {
+        $app = App::i();
+
+        if ($reg->owner->userId == $app->user->id) {
+            return true;
+        }
+
+        foreach ($reg->opportunity->agentRelations as $relation) {
+            if ($relation->agent->user->id == $app->user->id) {
+                return true;
+            }
+        }
+
+        return $reg->opportunity->owner->canUser('@control');
     }
 
     private function generatePdfRegistration($allPhases)
