@@ -10,6 +10,7 @@ use MapasCulturais\App,
 use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Services\SentryService;
 use MapasCulturais\Services\AmqpQueueService;
+use MapasCulturais\Utils;
 
 class Module extends \MapasCulturais\Module{
 
@@ -831,28 +832,54 @@ class Module extends \MapasCulturais\Module{
             $app = App::i();
 
             $owner = $opportunity->owner;
+
+            if (!$owner) {
+                $app->log->warning('Não foi possível publicar notificações: oportunidade sem proprietário.');
+                return;
+            }
+
             $sealIds = $owner->getRelatedSealIds();
 
-            if (in_array(2, $sealIds)) {
-                $queueService = new AmqpQueueService();
+            if (!in_array(2, $sealIds, true)) {
+                return;
+            }
 
-                foreach ($new_registrations as $reg) {
-                    $bodyMessageRegistration = [
-                        'registration' => $reg->id,
-                        'opp_id'       => $opportunity->id,
-                        'opp_name'     => $opportunity->name,
-                        'number'       => $reg->number,
-                        'agent_name'   => $reg->owner->name,
-                        'agent_email'  => $reg->owner->user->email,
-                    ];
+            $queueService = new AmqpQueueService();
 
-                    $queueService->sendMessage(
-                        $app->config['rabbitmq']['exchange_default'],
-                        $app->config['rabbitmq']['routing']['module_import_registration_draft'],
-                        $bodyMessageRegistration,
-                        $app->config['rabbitmq']['queues']['queue_import_registration']
-                    );
+            foreach ($new_registrations as $reg) {
+                $agent = $reg->owner;
+                $email = $agent && $agent->user
+                    ? $agent->user->email
+                    : null;
+
+                if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $app->log->warning(sprintf('Notificação não publicada: e-mail inválido para inscrição %s.', $reg->id));
+
+                    continue;
                 }
+
+                $messageId = Utils::generateV4();
+
+                $bodyMessageRegistration = [
+                    'message_id' => $messageId,
+                    'event_type' => 'registration.import_requested',
+                    'schema_version' => 1,
+                    'occurred_at' => gmdate('c'),
+
+                    'registration' => $reg->id,
+                    'opportunity_id' => $opportunity->id,
+                    'opportunity_name' => $opportunity->name,
+                    'number' => $reg->number,
+                    'agent_name' => $agent->name,
+                    'agent_email' => $email,
+                ];
+
+                $queueService->sendMessage(
+                    $app->config['rabbitmq']['exchange_default'],
+                    $app->config['rabbitmq']['routing']['module_import_registration_draft'],
+                    $bodyMessageRegistration,
+                    $app->config['rabbitmq']['queues']['queue_import_registration']
+                );
             }
         });
     }
