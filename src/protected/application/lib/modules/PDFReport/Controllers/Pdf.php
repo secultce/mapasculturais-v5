@@ -156,35 +156,19 @@ class Pdf extends \MapasCulturais\Controller
             $this->json(['error' => true, 'message' => 'Autenticação necessária'], 401);
         }
 
-        $id = isset($this->data['id']) ? $this->data['id'] : null;
+        $id = $this->data['id'] ?? null;
         $reg = is_numeric($id) ? $app->repo('Registration')->find((int) $id) : null;
 
         if (!$reg) {
             $this->json(['error' => true, 'message' => 'Inscrição não encontrada'], 404);
         }
 
-        if (!$this->userCanAccessRegistration($reg)) {
+        // mesma regra do Mapas para ver a inscrição; as demais fases são checadas uma a uma no RegistrationJson
+        if (!$reg->canUser('view')) {
             $this->json(['error' => true, 'message' => 'Você não tem permissão'], 403);
         }
 
         $this->json(RegistrationJson::buildAll($reg, !empty($this->getData['until_latest']), !empty($this->getData['summary'])));
-    }
-
-    private function userCanAccessRegistration($reg)
-    {
-        $app = App::i();
-
-        if ($reg->owner->userId == $app->user->id) {
-            return true;
-        }
-
-        foreach ($reg->opportunity->agentRelations as $relation) {
-            if ($relation->agent->user->id == $app->user->id) {
-                return true;
-            }
-        }
-
-        return $reg->opportunity->owner->canUser('@control');
     }
 
     private function generatePdfRegistration($allPhases)

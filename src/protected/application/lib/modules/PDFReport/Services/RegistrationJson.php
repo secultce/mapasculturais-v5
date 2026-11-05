@@ -20,6 +20,7 @@ class RegistrationJson
     const AGENT_METADATA = [
         'site',
         'genero',
+        'dataDeNascimento',
         'orientacaoSexual',
         'raca',
         'emailPrivado',
@@ -36,7 +37,7 @@ class RegistrationJson
      * @param bool $untilLatest não corta a lista na fase informada e devolve a última inscrição
      * @param bool $summary devolve as fases sem o conteúdo (sections) e sem o agente
      */
-    public static function buildAll(Registration $reg, $untilLatest = false, $summary = false)
+    public static function buildAll(Registration $reg, bool $untilLatest = false, bool $summary = false): array
     {
         $app = App::i();
 
@@ -63,11 +64,12 @@ class RegistrationJson
                 ? $reg
                 : $app->repo('Registration')->findOneBy(['opportunity' => $opportunity, 'number' => $reg->number]);
 
-            if (!$phaseReg) {
+            // a permissão é por inscrição: fase sem inscrição ou que o usuário não pode ver não aparece
+            if (!$phaseReg || ($phaseReg !== $reg && !$phaseReg->canUser('view'))) {
                 continue;
             }
 
-            $next = isset($opportunities[$i + 1]) ? $opportunities[$i + 1] : null;
+            $next = $opportunities[$i + 1] ?? null;
 
             $phase = [
                 'order' => $i + 1,
@@ -133,9 +135,9 @@ class RegistrationJson
      *
      * @return Opportunity[]
      */
-    private static function phaseOpportunities(Registration $reg, $publishedOnly)
+    private static function phaseOpportunities(Registration $reg, bool $publishedOnly): array
     {
-        $first = $reg->opportunity->firstPhase;
+        $first = $reg->opportunity->firstPhase ?: $reg->opportunity;
 
         $opportunities = [];
         if ($first->status !== Opportunity::STATUS_TRASH) {
@@ -155,7 +157,7 @@ class RegistrationJson
     private static function registrationInfo(Registration $reg)
     {
         $opportunity = $reg->opportunity;
-        $avatar = isset($opportunity->files['avatar']) ? $opportunity->files['avatar'] : null;
+        $avatar = $opportunity->files['avatar'] ?? null;
         $header = $opportunity->getFile('img:header');
 
         return [
@@ -175,9 +177,15 @@ class RegistrationJson
         ];
     }
 
-    private static function agentInfo($owner)
+    /**
+     * Metadados privados do agente (e-mail, telefone, raça...) só saem para quem pode vê-los
+     * pela regra do próprio Mapas; os demais ficam `null`, mantendo o formato da resposta.
+     */
+    private static function agentInfo($owner): array
     {
         $metadata = $owner->metadata;
+        $definitions = $owner->getMetadataMetadata();
+        $canViewPrivate = $owner->canUser('viewPrivateData');
 
         $agent = [
             'id' => $owner->id,
@@ -186,13 +194,12 @@ class RegistrationJson
         ];
 
         foreach (self::AGENT_METADATA as $key) {
-            $agent[$key] = self::emptyToNull(isset($metadata[$key]) ? $metadata[$key] : null);
+            $isPrivate = !empty($definitions[$key]['private']);
+            $value = $isPrivate && !$canViewPrivate ? null : ($metadata[$key] ?? null);
 
-            if ($key === 'genero') {
-                $agent['dataDeNascimento'] = self::formatBirthDate(
-                    isset($metadata['dataDeNascimento']) ? $metadata['dataDeNascimento'] : null
-                );
-            }
+            $agent[$key] = $key === 'dataDeNascimento'
+                ? self::formatBirthDate($value)
+                : self::emptyToNull($value);
         }
 
         return $agent;
@@ -261,7 +268,7 @@ class RegistrationJson
     private static function formatValue(array $field, $raw)
     {
         $type = $field['fieldType'];
-        $entityField = isset($field['config']['entityField']) ? $field['config']['entityField'] : '';
+        $entityField = $field['config']['entityField'] ?? '';
 
         if ($type === 'checkbox') {
             return ['value' => $raw ? $field['description'] : null, 'checked' => (bool) $raw];
@@ -340,7 +347,7 @@ class RegistrationJson
                 $list[] = $entry[$valueKey];
             } else {
                 $list[] = [
-                    'title' => self::emptyToNull(isset($entry[$titleKey]) ? $entry[$titleKey] : null),
+                    'title' => self::emptyToNull($entry[$titleKey] ?? null),
                     'url' => $entry[$valueKey],
                 ];
             }
@@ -390,7 +397,7 @@ class RegistrationJson
         return $text === '' || $text === 'Não informado' ? null : $text;
     }
 
-    private static function formatBirthDate($value)
+    private static function formatBirthDate($value): ?string
     {
         $value = str_replace('"', '', (string) $value);
         $time = $value !== '' ? strtotime($value) : false;
