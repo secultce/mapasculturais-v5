@@ -213,9 +213,14 @@ class RegistrationJson
     {
         $sections = [];
         $current = ['title' => null, 'fields' => []];
+        $conditions = self::fieldConditions($reg);
 
         foreach (Pdf::showAllFieldAndFile($reg) as $field) {
-            if (!self::isVisibleForCategory($reg, $field) || !Pdf::getDependenciesField($reg, $field)) {
+            if (
+                !self::isVisibleForCategory($reg, $field)
+                || !Pdf::getDependenciesField($reg, $field)
+                || !self::isConditionMet($reg, $conditions[self::conditionKey($field)] ?? null)
+            ) {
                 continue;
             }
 
@@ -235,6 +240,60 @@ class RegistrationJson
         }
 
         return $sections;
+    }
+
+    /**
+     * Regra condicional das configurações de campo e de anexo (colunas conditional*), que o
+     * Pdf::getDependenciesField não lê: ele só enxerga a regra guardada em `config`.
+     *
+     * @return array<string, array{field: string, value: string}> indexada por conditionKey()
+     */
+    private static function fieldConditions(Registration $reg): array
+    {
+        $opportunity = $reg->opportunity;
+        $conditions = [];
+
+        foreach ([
+            'field' => $opportunity->registrationFieldConfigurations,
+            'file' => $opportunity->registrationFileConfigurations,
+        ] as $kind => $configurations) {
+            foreach ($configurations as $configuration) {
+                if ($configuration->conditional && $configuration->conditionalField) {
+                    $conditions["{$kind}:{$configuration->id}"] = [
+                        'field' => $configuration->conditionalField,
+                        'value' => (string) $configuration->conditionalValue,
+                    ];
+                }
+            }
+        }
+
+        return $conditions;
+    }
+
+    private static function conditionKey(array $field): string
+    {
+        return ($field['fieldType'] === 'file' ? 'file' : 'field') . ':' . $field['id'];
+    }
+
+    /**
+     * O campo condicional só aparece se a resposta do campo de que depende for o valor esperado
+     * (ou, em campos de múltipla escolha, uma das opções marcadas).
+     */
+    private static function isConditionMet(Registration $reg, ?array $condition): bool
+    {
+        if ($condition === null) {
+            return true;
+        }
+
+        $meta = App::i()->repo('RegistrationMeta')->findOneBy(['owner' => $reg, 'key' => $condition['field']]);
+        $answer = $meta ? $meta->value : null;
+
+        $decoded = json_decode((string) $answer, true);
+        if (is_array($decoded)) {
+            return in_array($condition['value'], $decoded);
+        }
+
+        return (string) $answer === $condition['value'];
     }
 
     private static function isVisibleForCategory(Registration $reg, array $field)
@@ -271,7 +330,7 @@ class RegistrationJson
         $entityField = $field['config']['entityField'] ?? '';
 
         if ($type === 'checkbox') {
-            return ['value' => $raw ? $field['description'] : null, 'checked' => (bool) $raw];
+            return ['value' => $raw ? self::emptyToNull($field['description']) : null, 'checked' => (bool) $raw];
         }
 
         if ($raw === null || $raw === '') {
