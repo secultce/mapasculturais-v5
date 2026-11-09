@@ -445,7 +445,7 @@ class RegistrationJson
         ob_start();
         try {
             $show();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             ob_end_clean();
             return null;
         }
