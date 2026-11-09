@@ -168,7 +168,15 @@ class Pdf extends \MapasCulturais\Controller
             $this->json(['error' => true, 'message' => 'Você não tem permissão'], 403);
         }
 
-        $this->json(RegistrationJson::buildAll($reg, !empty($this->getData['until_latest']), !empty($this->getData['summary'])));
+        $this->json(RegistrationJson::buildAll($reg, $this->booleanParam('until_latest'), $this->booleanParam('summary')));
+    }
+
+    /**
+     * Parâmetro de query como booleano: 1, true, on e yes ligam; ausente, vazio, 0, false e off desligam.
+     */
+    private function booleanParam(string $name): bool
+    {
+        return filter_var($this->getData[$name] ?? false, FILTER_VALIDATE_BOOLEAN);
     }
 
     private function generatePdfRegistration($allPhases)
