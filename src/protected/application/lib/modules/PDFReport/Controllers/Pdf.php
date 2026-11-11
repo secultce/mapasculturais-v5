@@ -6,6 +6,7 @@ use MapasCulturais\App;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use PDFReport\Entities\Pdf as EntitiesPdf;
+use PDFReport\Services\RegistrationJson;
 
 class Pdf extends \MapasCulturais\Controller
 {
@@ -138,6 +139,44 @@ class Pdf extends \MapasCulturais\Controller
     {
         $allPhases = true;
         $this->generatePdfRegistration($allPhases);
+    }
+
+    /**
+     * JSON formatado da inscrição com todas as fases, espelho do PDF
+     * imprimir_inscricao_todas_as_fases.
+     *
+     * ?until_latest=1 não corta as fases na inscrição informada e devolve a última inscrição
+     * ?summary=1 devolve as fases sem o conteúdo (sections)
+     */
+    public function GET_inscricao_json_todas_as_fases()
+    {
+        $app = App::i();
+
+        if ($app->user->is('guest')) {
+            $this->json(['error' => true, 'message' => 'Autenticação necessária'], 401);
+        }
+
+        $id = $this->data['id'] ?? null;
+        $reg = is_numeric($id) ? $app->repo('Registration')->find((int) $id) : null;
+
+        if (!$reg) {
+            $this->json(['error' => true, 'message' => 'Inscrição não encontrada'], 404);
+        }
+
+        // mesma regra do Mapas para ver a inscrição; as demais fases são checadas uma a uma no RegistrationJson
+        if (!$reg->canUser('view')) {
+            $this->json(['error' => true, 'message' => 'Você não tem permissão'], 403);
+        }
+
+        $this->json(RegistrationJson::buildAll($reg, $this->booleanParam('until_latest'), $this->booleanParam('summary')));
+    }
+
+    /**
+     * Parâmetro de query como booleano: 1, true, on e yes ligam; ausente, vazio, 0, false e off desligam.
+     */
+    private function booleanParam(string $name): bool
+    {
+        return filter_var($this->getData[$name] ?? false, FILTER_VALIDATE_BOOLEAN);
     }
 
     private function generatePdfRegistration($allPhases)
