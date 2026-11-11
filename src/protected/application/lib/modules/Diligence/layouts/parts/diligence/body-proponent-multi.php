@@ -8,7 +8,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
 
 if ($diligenceAndAnswers) {
     $diligencesSent = array_filter($diligenceAndAnswers, function ($value, $key) use ($diligenceAndAnswers) {
-        return ($key % 2 != 0 && $diligenceAndAnswers[$key - 1]->status == EntityDiligence::STATUS_SEND) || ($key % 2 == 0 && !is_null($value) && $value->status == EntityDiligence::STATUS_SEND);
+        return ($key % 2 != 0 && $diligenceAndAnswers[$key - 1]->isSent()) || ($key % 2 == 0 && !is_null($value) && $value->isSent());
     }, ARRAY_FILTER_USE_BOTH);
     $diligencesSentReindexed = array_values($diligencesSent);
 }
@@ -39,7 +39,7 @@ if ($diligenceAndAnswers) {
             <?php i::_e('Diligências recebidas'); ?>
         </h5>
         <div style="margin-top: 25px;">
-            <?php if (isset($diligencesSentReindexed[0]) && $diligencesSentReindexed[0]->status == EntityDiligence::STATUS_SEND) : ?>
+            <?php if (isset($diligencesSentReindexed[0]) && $diligencesSentReindexed[0]->isSent()) : ?>
                 <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                     <label>
                         <b>Diligência (atual):</b>
@@ -48,7 +48,7 @@ if ($diligenceAndAnswers) {
                         <p>
                             <label for="">
                                 <strong><?= i::_e('Assunto(s)'); ?></strong>
-                                <?php echo $diligenceAndAnswers[0]->getSubject(); ?>
+                                <?php echo $diligencesSentReindexed[0]->getSubject(); ?>
                             </label>
                         </p>
                     </label>
@@ -103,7 +103,7 @@ if ($diligenceAndAnswers) {
                         $dtSend         = $dt->isoFormat('LLL');
                     }
                     if ($key > 1) :
-                        if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->status == EntityDiligence::STATUS_SEND) : ?>
+                        if ($resultsDiligence instanceof EntityDiligence && !is_null($resultsDiligence) && $resultsDiligence->isSent()) : ?>
                             <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                                 <label style="font-size: 14px">
                                     <b>Diligência:</b>

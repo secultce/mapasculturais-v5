@@ -145,6 +145,14 @@ class Diligence extends \MapasCulturais\Entity implements DiligenceInterface
     protected $subject;
 
     /**
+     * Diligências enviadas continuam visíveis após a resposta e a conclusão.
+     */
+    public function isSent(): bool
+    {
+        return in_array($this->status, [self::STATUS_SEND, self::STATUS_ANSWERED, self::STATUS_COMPLETE]);
+    }
+
+    /**
      * Envia para a fila do RabbitMQ
      *
      * @param [array] $userDestination
