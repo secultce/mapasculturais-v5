@@ -27,33 +27,7 @@ var McValidations = (function () {
     }
 
     function isValidYouTube(url, errorKey, $errorTag, labels) {
-        let parsed;
-        try {
-            parsed = new URL(url);
-        } catch {
-            return false;
-        }
-
-        const host = parsed.hostname.replace(/^www\./, '');
-        const youtubeHosts = ['youtube.com', 'youtu.be'];
-
-        if (!youtubeHosts.some(h => host.endsWith(h))) {
-            return false;
-        }
-
-        let videoId = null;
-
-        if (host.endsWith('youtu.be')) {
-            videoId = parsed.pathname.slice(1);
-        } else if (host.endsWith('youtube.com')) {
-            videoId = parsed.searchParams.get('v');
-        }
-
-        if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
-            return false;
-        }
-
-        return true;
+        return !!MapasCulturais.Video.getYoutubeID(url);
     }
 
     function isValidVimeo(url, errorKey, $errorTag, labels) {
