@@ -3,6 +3,7 @@ namespace OpinionManagement;
 
 use MapasCulturais\App,
     OpinionManagement\Controllers\OpinionManagement;
+use MapasCulturais\Entities\EvaluationMethodConfigurationAgentRelation;
 use MapasCulturais\Entities\Opportunity as OpportunityEntity;
 use MapasCulturais\Entities\Registration;
 
@@ -11,7 +12,7 @@ use MapasCulturais\Entities\Registration;
  * @property mixed|null $controller
  */
 class Module extends \MapasCulturais\Module {
-   function _init () 
+   function _init ()
    {
         $app = (new App)->i();
         // Load assets in head
@@ -39,7 +40,7 @@ class Module extends \MapasCulturais\Module {
         });
 
         $plugin = $this;
-      
+
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app, $plugin) {
             $opportunity = $this->controller->requestedEntity;
 
@@ -78,7 +79,10 @@ class Module extends \MapasCulturais\Module {
                 && !$opportunity->publishedOpinions
                 && $opportunity->canUser('@control')//Verifica a gestão
             ) {
-                $this->part('OpinionManagement/admin-btn-publish-opinions.php', ['opportunity' => $opportunity]);
+                $this->part('OpinionManagement/admin-btn-publish-opinions.php', [
+                    'opportunity' => $opportunity,
+                    'allEvaluationsSent' => $plugin::areAllEvaluationsSent($opportunity),
+                ]);
             }
             });
 
@@ -114,7 +118,7 @@ class Module extends \MapasCulturais\Module {
             }
         });
    }
-   
+
      /**
      * @throws \Exception
      */
@@ -144,5 +148,28 @@ class Module extends \MapasCulturais\Module {
     {
         return $opportunity->evaluationMethodConfiguration->type == 'documentary'
             || $opportunity->evaluationMethodConfiguration->type == 'technical';
+    }
+
+    public static function areAllEvaluationsSent(OpportunityEntity $opportunity): bool
+    {
+        $relations = $opportunity->evaluationMethodConfiguration->getAgentRelations();
+        $hasActiveValuers = false;
+
+        foreach ($relations as $relation) {
+            if (
+                $relation->group !== 'group-admin'
+                || $relation->status === EvaluationMethodConfigurationAgentRelation::STATUS_DISABLED
+            ) {
+                continue;
+            }
+
+            $hasActiveValuers = true;
+
+            if ($relation->status !== EvaluationMethodConfigurationAgentRelation::STATUS_SENT) {
+                return false;
+            }
+        }
+
+        return $hasActiveValuers;
     }
 }

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use EvaluationMethodTechnical\Plugin as EvaluationTechnicalPlugin;
 use MapasCulturais\App;
+use MapasCulturais\i;
 use MapasCulturais\Entities\EvaluationMethodConfigurationMeta;
 use MapasCulturais\Entities\Notification;
 use MapasCulturais\Entities\Opportunity;
@@ -16,6 +17,7 @@ use MapasCulturais\Entities\RegistrationEvaluation;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
 use OpinionManagement\Helpers\EvaluationList;
+use OpinionManagement\Module;
 use MapasCulturais\Services\AmqpQueueService;
 
 class Controller extends  \MapasCulturais\Controller
@@ -78,10 +80,23 @@ class Controller extends  \MapasCulturais\Controller
             $app->redirect($app->getBaseUrl());
         }
 
-        $opportunity = $app->repo('Opportunity')->find($this->postData['id']);
+        $opportunityId = $this->postData['id'] ?? null;
+        $opportunity = $opportunityId ? $app->repo('Opportunity')->find($opportunityId) : null;
+
+        if (!$opportunity) {
+            $this->json(['error' => i::__('Oportunidade não encontrada.')], 404);
+            return;
+        }
 
         if(!$opportunity->canUser('@control', $app->user)) {
             $this->json(['permission-denied'], 403);
+            return;
+        }
+
+        if (!Module::areAllEvaluationsSent($opportunity)) {
+            $this->json([
+                'error' => i::__('É necessário aguardar o envio de todas as avaliações antes de publicar os pareceres.'),
+            ], 409);
             return;
         }
 

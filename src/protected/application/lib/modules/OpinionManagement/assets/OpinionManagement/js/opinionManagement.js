@@ -190,7 +190,11 @@ const publishOpinions = target => {
                             throw new Error('Guest');
                         }
                         if (!response.ok) {
-                            throw new Error(response.statusText);
+                            return response.json()
+                                .catch(() => ({}))
+                                .then(data => {
+                                    throw new Error(data.error || response.statusText);
+                                });
                         }
                         return response.json();
                     })
@@ -210,7 +214,7 @@ const publishOpinions = target => {
                             message = 'É necessário estar autenticado.';
                         }
 
-                        errorAlert(message);
+                        errorAlert(message, 'PublishOpinions');
                     });
             }
         });
@@ -220,6 +224,13 @@ const errorAlert = (message, errorType = '') => {
     if (errorType === 'Not Found') {
         Swal.fire({
             title: "Oops...",
+            text: message,
+            showConfirmButton: false,
+            showCloseButton: true,
+        });
+    } else if (errorType === 'PublishOpinions') {
+        Swal.fire({
+            title: "Não foi possível publicar os pareceres",
             text: message,
             showConfirmButton: false,
             showCloseButton: true,
