@@ -25,7 +25,7 @@ class Controller extends  \MapasCulturais\Controller
     public function GET_index(): void
     {
         $app = App::i();
-        
+
         if(!$app->user->is('superAdmin')) {
             $this->layout = 'error-404';
             return;
@@ -42,15 +42,26 @@ class Controller extends  \MapasCulturais\Controller
     {
         $app = App::i();
         $this->requireAuthentication();
-        
+
         /**
          * @var $registration Registration
          */
 
-        $registration = $app->repo(Registration::class)->find($this->data['id']);
-        if ($registration->canUser('view')) {
+        $registrationId = $this->data['id'] ?? null;
+        $registration = $registrationId ? $app->repo(Registration::class)->find($registrationId) : null;
+
+        if (!$registration) {
+            $this->json(['error' => i::__('Inscrição não encontrada.')], 404);
+            return;
+        }
+
+        $opportunity = $registration->opportunity;
+        $canManageOpportunity = $opportunity->canUser('@control', $app->user);
+        $canViewPublishedOpinions = $opportunity->publishedOpinions && $registration->canUser('view', $app->user);
+
+        if ($canManageOpportunity || $canViewPublishedOpinions) {
             $evaluationsAvg = $this->getEvaluationsAvg($registration);
-        
+
             (new EvaluationTechnicalPlugin())->applyAffirmativePolicies($evaluationsAvg, $registration);
 
             $opinions = new EvaluationList($registration);
@@ -198,7 +209,7 @@ class Controller extends  \MapasCulturais\Controller
             ],
         ];
 
-        // Observar padrão usado na documentação para uso do mapa cultural 
+        // Observar padrão usado na documentação para uso do mapa cultural
         $queueService = new AmqpQueueService();
         $queueService->sendMessage(
             $app->config['rabbitmq']['exchange_default'],
@@ -229,11 +240,11 @@ class Controller extends  \MapasCulturais\Controller
         $app = App::i();
 
         $evaluations = $app->repo(RegistrationEvaluation::class)->findBy(['registration' => $registration]);
-        
+
         if (empty($evaluations)) {
             $this->json(['not-found'], 404);
         }
-        
+
         $evaluationsAvg = 0;
 
         foreach ($evaluations as $evaluation) {

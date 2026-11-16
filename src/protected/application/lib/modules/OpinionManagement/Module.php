@@ -92,7 +92,7 @@ class Module extends \MapasCulturais\Module {
 
             if($plugin::isEvaluationMethodValid($opportunity)
                 && $opportunity->publishedOpinions
-                && $opportunity->canUser('@control')
+                && ($registration->canUser('@control') || $opportunity->canUser('@control'))
             ) {
                 $this->part('OpinionManagement/user-btn-show-opinion.php');
             }
