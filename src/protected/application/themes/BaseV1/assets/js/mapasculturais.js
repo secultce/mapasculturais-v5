@@ -45,10 +45,14 @@ function copyToClipboard(element) {
 function alertPublish(id){
     MapasCulturais.confirm('ATENÇÃO, Essa ação é uma ação irreversível. Caso a próxima fase seja uma prestação de contas, primeiro crie a fase de prestação de contas para só depois fazer a publicação.', function () {
         var url = MapasCulturais.createUrl('opportunity', 'publishRegistrations', [id]);
-        $.get(url, function() {
-            MapasCulturais.Messages.success('Resultado publicado');
-        });
-        location.reload();
+        $.get(url)
+            .done(function() {
+                MapasCulturais.Messages.success('Resultado publicado');
+                window.location.reload();
+            })
+            .fail(function() {
+                MapasCulturais.Messages.error('Não foi possível publicar os resultados.');
+            });
     });
 }
 

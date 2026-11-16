@@ -111,10 +111,30 @@ class Module extends \MapasCulturais\Module {
             }
             });
 
-            $app->hook('entity(Opportunity).publishRegistrations:before', function () {
+        $app->hook('can(Opportunity.publishRegistrations)', function ($user, &$result) use ($plugin) {
+            if ($result && $plugin::isEvaluationMethodValid($this) && !$plugin::areAllEvaluationsSent($this)) {
+                $result = false;
+            }
+        });
+
+        $app->hook('entity(Opportunity).publishRegistrations:before', function () {
             if($this->autopublishOpinions === 'Sim') {
                 $this->setMetadata('publishedOpinions', true);
-                Controller::notificateUsers($this->id);
+            }
+        });
+
+        $app->hook('entity(Opportunity).publishRegistrations:after', function () use ($app) {
+            if($this->autopublishOpinions !== 'Sim') {
+                return;
+            }
+
+            try {
+                Controller::notificateUsers($this->id, false);
+            } catch (\Throwable $exception) {
+                $app->log->error(
+                    "Não foi possível notificar os proponentes sobre a publicação dos pareceres " .
+                    "da oportunidade {$this->id}: {$exception->getMessage()}"
+                );
             }
         });
    }

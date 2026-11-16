@@ -286,7 +286,7 @@ alertPublish = id => {
                 return;
             }
 
-            let loading = Swal.fire({
+            Swal.fire({
                 title: "Verificando se há notificações a serem enviadas.",
                 allowOutsideClick: false,
                 showConfirmButton: false,
@@ -296,10 +296,16 @@ alertPublish = id => {
             });
 
             let url = MapasCulturais.createUrl('opportunity', 'publishRegistrations', [id]);
-            $.get(url, function() {
-                loading.close();
-                MapasCulturais.Messages.success('Resultado publicado');
-            });
-            location.reload();
+            $.get(url)
+                .done(() => {
+                    Swal.close();
+                    MapasCulturais.Messages.success('Resultado publicado');
+                    window.location.reload();
+                })
+                .fail(response => {
+                    Swal.close();
+                    const message = response.responseJSON?.error || 'Não foi possível publicar os resultados.';
+                    MapasCulturais.Messages.error(message);
+                });
         });
 }
