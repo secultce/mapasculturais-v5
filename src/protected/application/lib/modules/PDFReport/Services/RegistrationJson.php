@@ -278,6 +278,11 @@ class RegistrationJson
     /**
      * O campo condicional só aparece se a resposta do campo de que depende for o valor esperado
      * (ou, em campos de múltipla escolha, uma das opções marcadas).
+     *
+     * Reproduz a comparação do core (Registration::getValidationErrors) e do formulário, que é
+     * feita sobre o valor desserializado: textos e listas gravados em JSON são decodificados
+     * antes de comparar. A leitura é direta em registration_meta porque `$reg->field_N` depende
+     * de os metadados da oportunidade estarem registrados e de `viewPrivateData`.
      */
     private static function isConditionMet(Registration $reg, ?array $condition): bool
     {
@@ -285,15 +290,27 @@ class RegistrationJson
             return true;
         }
 
-        $meta = App::i()->repo('RegistrationMeta')->findOneBy(['owner' => $reg, 'key' => $condition['field']]);
-        $answer = $meta ? $meta->value : null;
+        // com linhas duplicadas, vale a resposta mais recente
+        $metas = App::i()->repo('RegistrationMeta')->findBy(
+            ['owner' => $reg, 'key' => $condition['field']],
+            ['id' => 'DESC'],
+            1
+        );
+        $answer = $metas ? $metas[0]->value : null;
 
-        $decoded = json_decode((string) $answer, true);
-        if (is_array($decoded)) {
-            return in_array($condition['value'], $decoded);
+        // só texto ("Sim") e lista (["a","b"]) em JSON; número e booleano ficam como foram gravados
+        if (is_string($answer) && $answer !== '' && ($answer[0] === '"' || $answer[0] === '[')) {
+            $decoded = json_decode($answer, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $answer = $decoded;
+            }
         }
 
-        return (string) $answer === $condition['value'];
+        if (is_array($answer)) {
+            return in_array($condition['value'], $answer);
+        }
+
+        return $answer == $condition['value'];
     }
 
     private static function isVisibleForCategory(Registration $reg, array $field)
