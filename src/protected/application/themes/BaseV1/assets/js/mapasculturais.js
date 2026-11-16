@@ -1031,9 +1031,37 @@ MapasCulturais.Video = {
     isYoutube: function (parsedURL) {
         return parsedURL.attr('host').indexOf('youtube') != -1;
     },
+    /**
+     * Extrai o ID (11 caracteres) de uma URL de vídeo do YouTube.
+     * Aceita youtu.be/ID, youtube.com/watch?v=ID e youtube.com/{live,embed,shorts,v}/ID,
+     * inclusive nos subdomínios (www., m.). Retorna null se a URL não for válida.
+     */
+    getYoutubeID: function (url) {
+        var parsed;
+        try {
+            parsed = new URL(String(url).trim());
+        } catch (e) {
+            return null;
+        }
+
+        var host = parsed.hostname.toLowerCase();
+        var isHost = function (domain) {
+            return host === domain || host.endsWith('.' + domain);
+        };
+
+        var videoID = null;
+        if (isHost('youtu.be')) {
+            videoID = parsed.pathname.split('/')[1];
+        } else if (isHost('youtube.com')) {
+            var match = parsed.pathname.match(/^\/(?:live|embed|shorts|v)\/([^/?#]+)/);
+            videoID = parsed.searchParams.get('v') || (match && match[1]);
+        }
+
+        return videoID && /^[a-zA-Z0-9_-]{11}$/.test(videoID) ? videoID : null;
+    },
     getYoutubeData: function (youtubeVideoID) {
         return {
-            thumbnalURL: 'http://img.youtube.com/vi/' + videoID + '/0.jpg',
+            thumbnalURL: 'https://img.youtube.com/vi/' + videoID + '/0.jpg',
             playerURL: '//www.youtube.com/embed/' + videoID + '?html5=1'
         }
     },
@@ -1042,9 +1070,10 @@ MapasCulturais.Video = {
         var host = parsedURL.attr('host');
         var provider = '';
         var videoID = '';
-        if (parsedURL.attr('host').indexOf('youtube') != -1) {
+        var youtubeID = this.getYoutubeID(url);
+        if (youtubeID) {
             provider = 'youtube';
-            videoID = parsedURL.param('v');
+            videoID = youtubeID;
         } else if (parsedURL.attr('host').indexOf('vimeo') != -1) {
             provider = 'vimeo';
             videoID = parsedURL.attr('path').split('/')[1];
@@ -1112,10 +1141,11 @@ MapasCulturais.Video = {
             details: {}
         };
 
-        if (videoData.parsedURL.attr('host').indexOf('youtube') != -1) {
+        var youtubeID = MapasCulturais.Video.getYoutubeID(videoURL);
+        if (youtubeID) {
             videoData.provider = 'youtube';
-            videoData.videoID = videoData.parsedURL.param('v');
-            videoData.thumbnailURL = 'http://img.youtube.com/vi/' + videoData.videoID + '/0.jpg';
+            videoData.videoID = youtubeID;
+            videoData.thumbnailURL = 'https://img.youtube.com/vi/' + videoData.videoID + '/0.jpg';
             videoData.playerURL = '//www.youtube.com/embed/' + videoData.videoID + '?html5=1';
             callback(videoData, $element);
             $.getJSON('https://gdata.youtube.com/feeds/api/videos/' + videoData.videoID + '?v=2&alt=json', function (data) {
