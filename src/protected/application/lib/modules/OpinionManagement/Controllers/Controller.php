@@ -100,7 +100,9 @@ class Controller extends  \MapasCulturais\Controller
         }
 
         if(!$opportunity->canUser('@control', $app->user)) {
-            $this->json(['permission-denied'], 403);
+            $this->json([
+                'error' => i::__('Você não tem permissão para publicar os pareceres desta oportunidade.'),
+            ], 403);
             return;
         }
 
@@ -115,7 +117,12 @@ class Controller extends  \MapasCulturais\Controller
             $opportunity->setMetadata('publishedOpinions', true);
             $opportunity->save(true);
         } catch (\Exception $e) {
-            $this->json(['error' => new \PDOException('Cannot save this data', 0, $e)], 500);
+            $app->log->error("Não foi possível publicar os pareceres da oportunidade {$opportunity->id}: {$e->getMessage()}");
+
+            $this->json([
+                'error' => i::__('Não foi possível publicar os pareceres. Tente novamente.'),
+            ], 500);
+
             return;
         }
 
@@ -146,8 +153,15 @@ class Controller extends  \MapasCulturais\Controller
         $registrations = $app->repo('Registration')->matching($criteria);
 
         if (in_array(2, $sealIds)) {
-            self::sendToMailQueue($registrations);
-            $app->log->debug("Processo de envio de emails enviado para a fila.");
+            try {
+                self::sendToMailQueue($registrations);
+                $app->log->debug("Processo de envio de emails enviado para a fila.");
+            } catch (\Throwable $exception) {
+                $app->log->error(
+                    "Não foi possível enviar os emails de publicação de pareceres da oportunidade " .
+                    "{$opportunityId} para a fila: {$exception->getMessage()}"
+                );
+            }
         }
 
         $count = count($registrations);
@@ -189,6 +203,11 @@ class Controller extends  \MapasCulturais\Controller
     private static function sendToMailQueue(Collection $registrations): void
     {
         $app = App::i();
+        $registration = $registrations->first();
+        if (!$registration) {
+            return;
+        }
+
         $registrationsData = [];
         foreach ($registrations as $registration) {
             $registrationsData[] = [

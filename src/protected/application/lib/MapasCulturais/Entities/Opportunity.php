@@ -592,6 +592,8 @@ abstract class Opportunity extends \MapasCulturais\Entity
         $app->applyHookBoundTo($this, "entity({$this->hookClassPath}).publishRegistrations:after");
 
         $app->em->commit();
+
+        $app->applyHookBoundTo($this, "entity({$this->hookClassPath}).publishRegistrations:committed");
     }
 
     function sendUserEvaluations($user = null){

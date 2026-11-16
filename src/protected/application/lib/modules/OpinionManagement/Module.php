@@ -1,11 +1,12 @@
 <?php
 namespace OpinionManagement;
 
-use MapasCulturais\App,
-    OpinionManagement\Controllers\OpinionManagement;
+use MapasCulturais\App;
 use MapasCulturais\Entities\EvaluationMethodConfigurationAgentRelation;
 use MapasCulturais\Entities\Opportunity as OpportunityEntity;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Entities\RegistrationEvaluation;
+use OpinionManagement\Controllers\Controller;
 
 /**
  * @method part(string $string,  array $args = [])
@@ -112,7 +113,12 @@ class Module extends \MapasCulturais\Module {
             });
 
         $app->hook('can(Opportunity.publishRegistrations)', function ($user, &$result) use ($plugin) {
-            if ($result && $plugin::isEvaluationMethodValid($this) && !$plugin::areAllEvaluationsSent($this)) {
+            if (
+                $result
+                && $this->autopublishOpinions === 'Sim'
+                && $plugin::isEvaluationMethodValid($this)
+                && !$plugin::areAllEvaluationsSent($this)
+            ) {
                 $result = false;
             }
         });
@@ -123,13 +129,15 @@ class Module extends \MapasCulturais\Module {
             }
         });
 
-        $app->hook('entity(Opportunity).publishRegistrations:after', function () use ($app) {
-            if($this->autopublishOpinions !== 'Sim') {
-                return;
-            }
-
+        $app->hook('entity(Opportunity).publishRegistrations:committed', function () use ($app) {
             try {
-                Controller::notificateUsers($this->id, false);
+                $opportunity = $app->repo(OpportunityEntity::class)->find($this->id);
+                if (!$opportunity || $opportunity->autopublishOpinions !== 'Sim') {
+                    return;
+                }
+
+                $sealIds = $opportunity->owner->getRelatedSealIds();
+                Controller::notificateUsers($opportunity->id, false, $sealIds);
             } catch (\Throwable $exception) {
                 $app->log->error(
                     "Não foi possível notificar os proponentes sobre a publicação dos pareceres " .
@@ -166,16 +174,21 @@ class Module extends \MapasCulturais\Module {
 
     public static function isEvaluationMethodValid(OpportunityEntity $opportunity): bool
     {
-        return $opportunity->evaluationMethodConfiguration->type == 'documentary'
-            || $opportunity->evaluationMethodConfiguration->type == 'technical';
+        $configuration = $opportunity->evaluationMethodConfiguration;
+
+        return $configuration && in_array($configuration->type, ['documentary', 'technical'], true);
     }
 
     public static function areAllEvaluationsSent(OpportunityEntity $opportunity): bool
     {
-        $relations = $opportunity->evaluationMethodConfiguration->getAgentRelations();
-        $hasActiveValuers = false;
+        $configuration = $opportunity->evaluationMethodConfiguration;
+        if (!$configuration) {
+            return false;
+        }
 
-        foreach ($relations as $relation) {
+        $valuerUserIds = [];
+
+        foreach ($configuration->getAgentRelations(null, true) as $relation) {
             if (
                 $relation->group !== 'group-admin'
                 || $relation->status === EvaluationMethodConfigurationAgentRelation::STATUS_DISABLED
@@ -183,13 +196,30 @@ class Module extends \MapasCulturais\Module {
                 continue;
             }
 
-            $hasActiveValuers = true;
-
-            if ($relation->status !== EvaluationMethodConfigurationAgentRelation::STATUS_SENT) {
-                return false;
+            $userId = $relation->agent->user->id ?? null;
+            if ($userId) {
+                $valuerUserIds[$userId] = $userId;
             }
         }
 
-        return $hasActiveValuers;
+        if (!$valuerUserIds) {
+            return false;
+        }
+
+        $repository = App::i()->repo(RegistrationEvaluation::class);
+        $valuerUserIds = array_values($valuerUserIds);
+        $evaluationsCount = $repository->countByOpportunityAndUsersAndStatus($opportunity, $valuerUserIds);
+
+        if (!$evaluationsCount) {
+            return false;
+        }
+
+        $sentEvaluationsCount = $repository->countByOpportunityAndUsersAndStatus(
+            $opportunity,
+            $valuerUserIds,
+            [RegistrationEvaluation::STATUS_SENT]
+        );
+
+        return $evaluationsCount === $sentEvaluationsCount;
     }
 }

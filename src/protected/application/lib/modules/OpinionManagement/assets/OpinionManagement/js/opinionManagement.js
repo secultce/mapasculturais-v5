@@ -151,6 +151,31 @@ const showOpinions = registrationId => {
         });
 }
 
+const getOpinionManagementErrorMessage = (payload, fallback) => {
+    if (typeof payload === 'string' && payload.trim()) {
+        return payload;
+    }
+
+    if (Array.isArray(payload)) {
+        const messages = payload
+            .map(item => getOpinionManagementErrorMessage(item, ''))
+            .filter(Boolean);
+
+        return messages.length ? messages.join(' ') : fallback;
+    }
+
+    if (payload && typeof payload === 'object') {
+        for (const key of ['data', 'error', 'message']) {
+            const message = getOpinionManagementErrorMessage(payload[key], '');
+            if (message) {
+                return message;
+            }
+        }
+    }
+
+    return fallback;
+}
+
 const publishOpinions = target => {
     const opportunityId = target.getAttribute('data-id');
 
@@ -190,10 +215,14 @@ const publishOpinions = target => {
                             throw new Error('Guest');
                         }
                         if (!response.ok) {
+                            const fallback = response.status === 403
+                                ? 'Você não tem permissão para acessar este recurso.'
+                                : 'Não foi possível publicar os pareceres. Tente novamente.';
+
                             return response.json()
                                 .catch(() => ({}))
                                 .then(data => {
-                                    throw new Error(data.error || response.statusText);
+                                    throw new Error(getOpinionManagementErrorMessage(data, fallback));
                                 });
                         }
                         return response.json();
@@ -304,7 +333,10 @@ alertPublish = id => {
                 })
                 .fail(response => {
                     Swal.close();
-                    const message = response.responseJSON?.error || 'Não foi possível publicar os resultados.';
+                    const message = getOpinionManagementErrorMessage(
+                        response.responseJSON,
+                        'Não foi possível publicar os resultados.'
+                    );
                     MapasCulturais.Messages.error(message);
                 });
         });
