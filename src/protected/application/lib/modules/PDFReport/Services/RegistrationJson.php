@@ -363,22 +363,9 @@ class RegistrationJson
                 return ['value' => $items ?: null];
 
             case 'space-field':
-                return ['value' => self::capture(function () use ($entityField, $raw) {
-                    Pdf::showSpaceField($entityField, $raw);
-                })];
-
             case 'agent-collective-field':
-                return ['value' => self::capture(function () use ($entityField, $raw) {
-                    Pdf::showAgentCollectiveField($entityField, $raw);
-                })];
-
             case 'agent-owner-field':
-                if ($entityField === '@location' && !is_array(json_decode($raw, true))) {
-                    return ['value' => null];
-                }
-                return ['value' => self::capture(function () use ($field, $raw) {
-                    Pdf::showAgenteOwnerField($field, $raw);
-                })];
+                return self::entityFieldValue($entityField, $raw, $type === 'agent-owner-field');
         }
 
         return ['value' => $raw];
@@ -437,31 +424,109 @@ class RegistrationJson
     }
 
     /**
-     * Os helpers `show*` de Entities/Pdf.php fazem echo de HTML; aqui o resultado
-     * é capturado e reduzido a texto.
+     * Valor dos campos que espelham um dado do agente ou do espaço (`agent-owner-field`,
+     * `agent-collective-field` e `space-field`), formatado a partir do que foi gravado na
+     * inscrição. Não usa os helpers `show*` de Entities/Pdf.php: eles só conhecem parte
+     * dos campos e descartam o que não é letra (telefone, e-mail, CEP).
+     *
+     * @return array com `value` e, nos documentos, `rawValue`
      */
-    private static function capture(callable $show)
+    private static function entityFieldValue(string $entityField, $raw, bool $labelledAddress): array
     {
-        ob_start();
-        try {
-            $show();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            return null;
+        $decoded = json_decode($raw, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $decoded = $raw;
         }
-        $output = ob_get_clean();
 
-        $text = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($output))));
+        if ($decoded === null || $decoded === '' || $decoded === []) {
+            return ['value' => null];
+        }
 
-        return $text === '' || $text === 'Não informado' ? null : $text;
+        switch ($entityField) {
+            case '@location':
+                return ['value' => is_array($decoded) ? self::formatAddress($decoded, $labelledAddress) : null];
+
+            case '@links':
+                return ['value' => self::decodeList($raw, 'value', 'title')];
+
+            case '@terms:area':
+                $areas = array_values(array_filter(array_map('trim', (array) $decoded), 'strlen'));
+                return ['value' => $areas ?: null];
+        }
+
+        if (!is_scalar($decoded)) {
+            return ['value' => $decoded];
+        }
+
+        $text = trim((string) $decoded);
+        if ($text === '') {
+            return ['value' => null];
+        }
+
+        switch ($entityField) {
+            case 'dataDeNascimento':
+                return ['value' => self::formatBirthDate($text) ?: $text];
+
+            case 'documento':
+            case 'cpf':
+            case 'cnpj':
+                $digits = preg_replace('/\D/', '', $text);
+                if (strlen($digits) === 11) {
+                    return ['value' => Pdf::mask($digits, '###.###.###-##'), 'rawValue' => $digits];
+                }
+                if (strlen($digits) === 14) {
+                    return ['value' => Pdf::mask($digits, '##.###.###/####-##'), 'rawValue' => $digits];
+                }
+                return ['value' => $text, 'rawValue' => self::emptyToNull($digits)];
+        }
+
+        return ['value' => $text];
+    }
+
+    /**
+     * Endereço em uma linha. O campo do agente responsável mantém os rótulos que o PDF usa
+     * ("CEP: ..., Logradouro: ..."); agente coletivo e espaço saem só com as partes.
+     */
+    private static function formatAddress(array $address, bool $labelled): ?string
+    {
+        $parts = $labelled ? [
+            'CEP: ' => 'En_CEP',
+            'Logradouro: ' => 'En_Nome_Logradouro',
+            'Nº: ' => 'En_Num',
+            'Comp: ' => 'En_Complemento',
+            'Bairro: ' => 'En_Bairro',
+            'Cidade: ' => 'En_Municipio',
+            'UF: ' => 'En_Estado',
+        ] : [
+            'En_Nome_Logradouro',
+            'En_Num',
+            'En_Complemento',
+            'En_Bairro',
+            'En_CEP',
+            'En_Municipio',
+            'En_Estado',
+        ];
+
+        $line = [];
+        foreach ($parts as $label => $key) {
+            $value = is_scalar($address[$key] ?? null) ? trim((string) $address[$key]) : '';
+            if ($value !== '') {
+                $line[] = ($labelled ? $label : '') . $value;
+            }
+        }
+
+        return $line ? implode(', ', $line) : null;
     }
 
     private static function formatBirthDate($value): ?string
     {
         $value = str_replace('"', '', (string) $value);
-        $time = $value !== '' ? strtotime($value) : false;
+        if ($value === '' || !strtotime($value)) {
+            return null;
+        }
 
-        return $time ? date('d/m/Y', $time) : null;
+        // DateTime preserva o fuso do próprio valor ("...T00:00:00.000Z"); date() mudaria o dia
+        return (new \DateTime($value))->format('d/m/Y');
     }
 
     private static function formatDate($date, $format)
