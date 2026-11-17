@@ -221,25 +221,27 @@ class Opportunity extends EntityController {
 
         } else {
 
-            if (!isset($this->urlData['output']) || $this->urlData['output'] == 'xls') {
-                $response = $app->response();
-                $response['Content-Encoding'] = 'UTF-8';
-                $response['Content-Type'] = 'application/force-download';
-                $response['Content-Disposition'] = 'attachment; filename=' . $filename . '.xls';
-                $response['Pragma'] = 'no-cache';
-
-                $app->contentType('application/vnd.ms-excel; charset=UTF-8');
-            }
-
             ob_start();
             $this->partial($view, $view_params);
             $output = ob_get_clean();
-            echo mb_convert_encoding($output, "HTML-ENTITIES", "UTF-8");
 
+            if (!isset($this->urlData['output']) || in_array($this->urlData['output'], ['xls', 'xlsx'])) {
+                $xlsx = \MapasCulturais\Utils::htmlTableToXlsx($output, i::__('Avaliações'));
+
+                $response = $app->response();
+                $response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                $response['Content-Disposition'] = 'attachment; filename="' . $filename . '.xlsx"';
+                $response['Content-Length'] = strlen($xlsx);
+                $response['Pragma'] = 'no-cache';
+                $response->body($xlsx);
+                return;
+            }
+
+            $app->contentType('text/html; charset=UTF-8');
+            echo $output;
         }
 
     }
-
 
     function API_findByUserApprovedRegistration(){
         ini_set('max_execution_time', 0);
