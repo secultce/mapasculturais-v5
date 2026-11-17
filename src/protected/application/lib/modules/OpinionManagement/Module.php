@@ -1,17 +1,19 @@
 <?php
 namespace OpinionManagement;
 
-use MapasCulturais\App,
-    OpinionManagement\Controllers\OpinionManagement;
+use MapasCulturais\App;
+use MapasCulturais\Entities\EvaluationMethodConfigurationAgentRelation;
 use MapasCulturais\Entities\Opportunity as OpportunityEntity;
 use MapasCulturais\Entities\Registration;
+use MapasCulturais\Entities\RegistrationEvaluation;
+use OpinionManagement\Controllers\Controller;
 
 /**
  * @method part(string $string,  array $args = [])
  * @property mixed|null $controller
  */
 class Module extends \MapasCulturais\Module {
-   function _init () 
+   function _init ()
    {
         $app = (new App)->i();
         // Load assets in head
@@ -39,7 +41,7 @@ class Module extends \MapasCulturais\Module {
         });
 
         $plugin = $this;
-      
+
         $app->hook('template(opportunity.edit.evaluations-config):begin', function () use ($app, $plugin) {
             $opportunity = $this->controller->requestedEntity;
 
@@ -78,7 +80,10 @@ class Module extends \MapasCulturais\Module {
                 && !$opportunity->publishedOpinions
                 && $opportunity->canUser('@control')//Verifica a gestão
             ) {
-                $this->part('OpinionManagement/admin-btn-publish-opinions.php', ['opportunity' => $opportunity]);
+                $this->part('OpinionManagement/admin-btn-publish-opinions.php', [
+                    'opportunity' => $opportunity,
+                    'allEvaluationsSent' => $plugin::areAllEvaluationsSent($opportunity),
+                ]);
             }
             });
 
@@ -88,7 +93,7 @@ class Module extends \MapasCulturais\Module {
 
             if($plugin::isEvaluationMethodValid($opportunity)
                 && $opportunity->publishedOpinions
-                && $opportunity->canUser('@control')
+                && ($registration->canUser('@control') || $opportunity->canUser('@control'))
             ) {
                 $this->part('OpinionManagement/user-btn-show-opinion.php');
             }
@@ -107,14 +112,41 @@ class Module extends \MapasCulturais\Module {
             }
             });
 
-            $app->hook('entity(Opportunity).publishRegistrations:before', function () {
+        $app->hook('can(Opportunity.publishRegistrations)', function ($user, &$result) use ($plugin) {
+            if (
+                $result
+                && $this->autopublishOpinions === 'Sim'
+                && $plugin::isEvaluationMethodValid($this)
+                && !$plugin::areAllEvaluationsSent($this)
+            ) {
+                $result = false;
+            }
+        });
+
+        $app->hook('entity(Opportunity).publishRegistrations:before', function () {
             if($this->autopublishOpinions === 'Sim') {
                 $this->setMetadata('publishedOpinions', true);
-                Controller::notificateUsers($this->id);
+            }
+        });
+
+        $app->hook('entity(Opportunity).publishRegistrations:committed', function () use ($app) {
+            try {
+                $opportunity = $app->repo(OpportunityEntity::class)->find($this->id);
+                if (!$opportunity || $opportunity->autopublishOpinions !== 'Sim') {
+                    return;
+                }
+
+                $sealIds = $opportunity->owner->getRelatedSealIds();
+                Controller::notificateUsers($opportunity->id, false, $sealIds);
+            } catch (\Throwable $exception) {
+                $app->log->error(
+                    "Não foi possível notificar os proponentes sobre a publicação dos pareceres " .
+                    "da oportunidade {$this->id}: {$exception->getMessage()}"
+                );
             }
         });
    }
-   
+
      /**
      * @throws \Exception
      */
@@ -142,7 +174,52 @@ class Module extends \MapasCulturais\Module {
 
     public static function isEvaluationMethodValid(OpportunityEntity $opportunity): bool
     {
-        return $opportunity->evaluationMethodConfiguration->type == 'documentary'
-            || $opportunity->evaluationMethodConfiguration->type == 'technical';
+        $configuration = $opportunity->evaluationMethodConfiguration;
+
+        return $configuration && in_array($configuration->type, ['documentary', 'technical'], true);
+    }
+
+    public static function areAllEvaluationsSent(OpportunityEntity $opportunity): bool
+    {
+        $configuration = $opportunity->evaluationMethodConfiguration;
+        if (!$configuration) {
+            return false;
+        }
+
+        $valuerUserIds = [];
+
+        foreach ($configuration->getAgentRelations(null, true) as $relation) {
+            if (
+                $relation->group !== 'group-admin'
+                || $relation->status === EvaluationMethodConfigurationAgentRelation::STATUS_DISABLED
+            ) {
+                continue;
+            }
+
+            $userId = $relation->agent->user->id ?? null;
+            if ($userId) {
+                $valuerUserIds[$userId] = $userId;
+            }
+        }
+
+        if (!$valuerUserIds) {
+            return false;
+        }
+
+        $repository = App::i()->repo(RegistrationEvaluation::class);
+        $valuerUserIds = array_values($valuerUserIds);
+        $evaluationsCount = $repository->countByOpportunityAndUsersAndStatus($opportunity, $valuerUserIds);
+
+        if (!$evaluationsCount) {
+            return false;
+        }
+
+        $sentEvaluationsCount = $repository->countByOpportunityAndUsersAndStatus(
+            $opportunity,
+            $valuerUserIds,
+            [RegistrationEvaluation::STATUS_SENT]
+        );
+
+        return $evaluationsCount === $sentEvaluationsCount;
     }
 }

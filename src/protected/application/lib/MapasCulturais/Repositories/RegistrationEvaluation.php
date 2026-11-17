@@ -92,6 +92,39 @@ class RegistrationEvaluation extends \MapasCulturais\Repository{
     }
 
     /**
+     * @param \MapasCulturais\Entities\Opportunity $opportunity
+     * @param array $users
+     * @param array|null $status
+     */
+    function countByOpportunityAndUsersAndStatus(\MapasCulturais\Entities\Opportunity $opportunity, array $users, $status = null): int
+    {
+        if (!$users) {
+            return 0;
+        }
+
+        $dql = "SELECT COUNT(e.id)
+                FROM MapasCulturais\Entities\RegistrationEvaluation e
+                JOIN e.registration r
+                WHERE r.opportunity = :opportunity
+                AND e.user IN (:uids)";
+
+        $params = [
+            'opportunity' => $opportunity,
+            'uids' => $users,
+        ];
+
+        if (!is_null($status)) {
+            $dql .= " AND e.status IN (:status)";
+            $params['status'] = $status;
+        }
+
+        return (int) $this->_em
+            ->createQuery($dql)
+            ->setParameters($params)
+            ->getSingleScalarResult();
+    }
+
+    /**
      *
      * @param \MapasCulturais\Entities\Registration $registration
      * @param array $users

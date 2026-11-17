@@ -151,6 +151,31 @@ const showOpinions = registrationId => {
         });
 }
 
+const getOpinionManagementErrorMessage = (payload, fallback) => {
+    if (typeof payload === 'string' && payload.trim()) {
+        return payload;
+    }
+
+    if (Array.isArray(payload)) {
+        const messages = payload
+            .map(item => getOpinionManagementErrorMessage(item, ''))
+            .filter(Boolean);
+
+        return messages.length ? messages.join(' ') : fallback;
+    }
+
+    if (payload && typeof payload === 'object') {
+        for (const key of ['data', 'error', 'message']) {
+            const message = getOpinionManagementErrorMessage(payload[key], '');
+            if (message) {
+                return message;
+            }
+        }
+    }
+
+    return fallback;
+}
+
 const publishOpinions = target => {
     const opportunityId = target.getAttribute('data-id');
 
@@ -190,7 +215,15 @@ const publishOpinions = target => {
                             throw new Error('Guest');
                         }
                         if (!response.ok) {
-                            throw new Error(response.statusText);
+                            const fallback = response.status === 403
+                                ? 'Você não tem permissão para acessar este recurso.'
+                                : 'Não foi possível publicar os pareceres. Tente novamente.';
+
+                            return response.json()
+                                .catch(() => ({}))
+                                .then(data => {
+                                    throw new Error(getOpinionManagementErrorMessage(data, fallback));
+                                });
                         }
                         return response.json();
                     })
@@ -210,7 +243,7 @@ const publishOpinions = target => {
                             message = 'É necessário estar autenticado.';
                         }
 
-                        errorAlert(message);
+                        errorAlert(message, 'PublishOpinions');
                     });
             }
         });
@@ -220,6 +253,13 @@ const errorAlert = (message, errorType = '') => {
     if (errorType === 'Not Found') {
         Swal.fire({
             title: "Oops...",
+            text: message,
+            showConfirmButton: false,
+            showCloseButton: true,
+        });
+    } else if (errorType === 'PublishOpinions') {
+        Swal.fire({
+            title: "Não foi possível publicar os pareceres",
             text: message,
             showConfirmButton: false,
             showCloseButton: true,
@@ -275,7 +315,7 @@ alertPublish = id => {
                 return;
             }
 
-            let loading = Swal.fire({
+            Swal.fire({
                 title: "Verificando se há notificações a serem enviadas.",
                 allowOutsideClick: false,
                 showConfirmButton: false,
@@ -285,10 +325,19 @@ alertPublish = id => {
             });
 
             let url = MapasCulturais.createUrl('opportunity', 'publishRegistrations', [id]);
-            $.get(url, function() {
-                loading.close();
-                MapasCulturais.Messages.success('Resultado publicado');
-            });
-            location.reload();
+            $.get(url)
+                .done(() => {
+                    Swal.close();
+                    MapasCulturais.Messages.success('Resultado publicado');
+                    window.location.reload();
+                })
+                .fail(response => {
+                    Swal.close();
+                    const message = getOpinionManagementErrorMessage(
+                        response.responseJSON,
+                        'Não foi possível publicar os resultados.'
+                    );
+                    MapasCulturais.Messages.error(message);
+                });
         });
 }
