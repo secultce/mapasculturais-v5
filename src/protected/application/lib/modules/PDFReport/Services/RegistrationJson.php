@@ -347,7 +347,9 @@ class RegistrationJson
         $entityField = $field['config']['entityField'] ?? '';
 
         if ($type === 'checkbox') {
-            return ['value' => $raw ? self::emptyToNull($field['description']) : null, 'checked' => (bool) $raw];
+            // o core grava 'true' quando marcado e 'false' quando desmarcado; (bool) 'false' seria true
+            $checked = $raw === 'true';
+            return ['value' => $checked ? self::emptyToNull($field['description']) : null, 'checked' => $checked];
         }
 
         if ($raw === null || $raw === '') {
