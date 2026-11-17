@@ -98,7 +98,7 @@ class Tado extends \MapasCulturais\Controller
             $entity = self::saveEntity($tado);
             if ($entity["entityId"]) {
                 if ($this->data['status'] == 1) {
-                    Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
+                    Diligence::updateLatestStatusByRegistration($tado->registration, EntityDiligence::STATUS_COMPLETE);
                     self::returnRequestJson(
                         'O seu documento foi gerado!',
                         'TADO finalizado e realizado o download para o seu computador.',
@@ -116,6 +116,7 @@ class Tado extends \MapasCulturais\Controller
         $app = App::i();
         $tado = $app->repo('Diligence\Entities\Tado')->find($request->data['idTado']);
         $app->repo('Registration')->find($request->data['id']);
+        $wasFinished = $tado->status == self::STATUS_FINISH;
         $tado->number           = $request->data['numbertec'];
         $tado->periodFrom       = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodInitial"]} 00:00");
         $tado->periodTo         = Carbon::createFromFormat('d/m/Y H:i', "{$request->data["datePeriodEnd"]} 00:00");
@@ -131,7 +132,9 @@ class Tado extends \MapasCulturais\Controller
 
         if($entity["entityId"]){
             if ($request->data['status'] == 1) {
-                Diligence::updateStatusByRegistration((int)$this->data['id'], EntityDiligence::STATUS_COMPLETE);
+                if (!$wasFinished) {
+                    Diligence::updateLatestStatusByRegistration($tado->registration, EntityDiligence::STATUS_COMPLETE);
+                }
                 self::returnRequestJson(
                     'O seu documento foi gerado!',
                     'TADO finalizado e realizado o download para o seu computador.',

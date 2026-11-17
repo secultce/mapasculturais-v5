@@ -34,7 +34,7 @@ DiligenceRepo::getIsAuditor($entity->id);
     </div>
 
     <?php if ($diligenceAndAnswers):
-        if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND): ?>
+        if ($diligenceAndAnswers[0]->isSent()): ?>
             <div>
                 <div style="display: flex;justify-content: space-between;">
                     <h5>
@@ -146,8 +146,7 @@ DiligenceRepo::getIsAuditor($entity->id);
                         if (
                             $resultsDiligence instanceof EntityDiligence &&
                             !is_null($resultsDiligence) &&
-                            $resultsDiligence->status ==
-                            EntityDiligence::STATUS_SEND
+                            $resultsDiligence->isSent()
                         ): ?>
                             <div style="display: flex; justify-content: space-between;" class="div-accordion-diligence">
                                 <label style="font-size: 14px">

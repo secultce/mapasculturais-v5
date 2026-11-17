@@ -10,6 +10,7 @@ use MapasCulturais\App,
 use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Services\SentryService;
 use MapasCulturais\Services\AmqpQueueService;
+use MapasCulturais\Utils;
 
 class Module extends \MapasCulturais\Module{
 
@@ -434,7 +435,7 @@ class Module extends \MapasCulturais\Module{
             }
 
             $registrations = array_reverse($registrations);
-//
+
             $this->addEntityToJs($first);
             $this->addRegistrationToJs($first);
             $this->addOpportunityToJs($first->opportunity);
@@ -823,26 +824,56 @@ class Module extends \MapasCulturais\Module{
             }
         });
 
-        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function(&$new_registrations) {
-           $app = App::i();
+        $app->hook('entity(OpportunityPhases).importLastPhaseRegistrations', function ($opportunity, &$new_registrations) {
+            if (empty($new_registrations)) {
+                return;
+            }
 
-            // Dados para envio para mensageria
-            $bodyMessageRegistration = array_map(function ($reg) {
-                return [
-                    'registration' => $reg->id,
-                    'opp_id' => $reg->opportunity->id,
-                    'opp_name' => $reg->opportunity->name,
-                    'number' => $reg->number,
-                    'agent_name' => $reg->owner->name,
-                    'agent_email' => $reg->owner->user->email
-                ];
-            }, $new_registrations);
-            $registration = $new_registrations[0];
-            $owner = $registration->opportunity->owner;
+            $app = App::i();
+
+            $owner = $opportunity->owner;
+
+            if (!$owner) {
+                $app->log->warning('Não foi possível publicar notificações: oportunidade sem proprietário.');
+                return;
+            }
+
             $sealIds = $owner->getRelatedSealIds();
-            if(in_array(2,$sealIds)) {
-                // instanciando e enviando para a mensageria
-                $queueService = new AmqpQueueService();
+
+            if (!in_array(2, $sealIds, true)) {
+                return;
+            }
+
+            $queueService = new AmqpQueueService();
+
+            foreach ($new_registrations as $reg) {
+                $agent = $reg->owner;
+                $email = $agent && $agent->user
+                    ? $agent->user->email
+                    : null;
+
+                if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $app->log->warning(sprintf('Notificação não publicada: e-mail inválido para inscrição %s.', $reg->id));
+
+                    continue;
+                }
+
+                $messageId = Utils::generateV4();
+
+                $bodyMessageRegistration = [
+                    'message_id' => $messageId,
+                    'event_type' => 'registration.import_requested',
+                    'schema_version' => 1,
+                    'occurred_at' => gmdate('c'),
+
+                    'registration' => $reg->id,
+                    'opportunity_id' => $opportunity->id,
+                    'opportunity_name' => $opportunity->name,
+                    'number' => $reg->number,
+                    'agent_name' => $agent->name,
+                    'agent_email' => $email,
+                ];
+
                 $queueService->sendMessage(
                     $app->config['rabbitmq']['exchange_default'],
                     $app->config['rabbitmq']['routing']['module_import_registration_draft'],
@@ -851,8 +882,6 @@ class Module extends \MapasCulturais\Module{
                 );
             }
         });
-
-
     }
 
     function register () {
@@ -956,7 +985,7 @@ class Module extends \MapasCulturais\Module{
 
         $opp_repo->find($target_opportunity->id)->save(true);
         
-        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [&$new_registrations]);
+        $app->applyHook('entity(OpportunityPhases).importLastPhaseRegistrations', [$previous_phase, &$new_registrations]);
 
         $app->enqueueEntityToPCacheRecreation($target_opportunity);
         $app->enableAccessControl();

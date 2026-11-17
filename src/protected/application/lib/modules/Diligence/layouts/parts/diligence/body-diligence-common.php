@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Diligence\Repositories\Diligence as DiligenceRepo;
 
 if ($diligenceAndAnswers) : ?>
-    <?php if ($diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
+    <?php if ($diligenceAndAnswers[0]->isSent()) : ?>
         <div>
             <h5>
                 <?php i::_e('Diligência ao proponente'); ?>

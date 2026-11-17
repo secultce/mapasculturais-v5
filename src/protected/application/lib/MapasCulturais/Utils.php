@@ -385,4 +385,156 @@ class Utils {
 
         return trim($text);
     }
+
+    public static function generateV4(): string
+    {
+        $bytes = random_bytes(16);
+
+        // Define a versão 4 do UUID.
+        $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+
+        // Define a variante RFC 4122.
+        $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+
+        $hex = bin2hex($bytes);
+
+        return sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($hex, 0, 8),
+            substr($hex, 8, 4),
+            substr($hex, 12, 4),
+            substr($hex, 16, 4),
+            substr($hex, 20, 12)
+        );
+    }
+
+    /**
+     * Converte a(s) tabela(s) HTML de um relatório em um arquivo .xlsx real.
+     *
+     * - th viram células em negrito, centralizadas e com a cor de fundo do atributo bgcolor
+     * - colspan vira célula mesclada
+     * - somente números "simples" são gravados como número; identificadores (CPF, CNPJ,
+     *   números de inscrição, valores com zero à esquerda ou muito longos) são gravados como texto
+     *
+     * @param string $html
+     * @param string $sheetTitle nome da aba (máx. 31 caracteres)
+     * @return string conteúdo binário do arquivo .xlsx
+     */
+    public static function htmlTableToXlsx(string $html, string $sheetTitle = 'Planilha'): string
+    {
+        // remove comentários HTML injetados pelo tema (ex: <!-- view.php # BEGIN -->)
+        $html = preg_replace('/<!--.*?-->/s', '', $html);
+
+        $dom = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_COMPACT | LIBXML_PARSEHUGE | LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle(mb_substr(str_replace(['*', ':', '/', '\\', '?', '[', ']'], '', $sheetTitle), 0, 31));
+
+        $row = 0;
+        $max_col = 0;
+        $header_rows = 0;
+        foreach ($dom->getElementsByTagName('tr') as $tr) {
+            $row++;
+            $col = 1;
+            $is_header_row = true;
+
+            foreach ($tr->childNodes as $cell) {
+                if (!$cell instanceof \DOMElement || !in_array($cell->nodeName, ['td', 'th'])) {
+                    continue;
+                }
+
+                $is_header = $cell->nodeName === 'th';
+                $is_header_row = $is_header_row && $is_header;
+                $colspan = max(1, (int) $cell->getAttribute('colspan'));
+                $coord = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . $row;
+                $value = trim(preg_replace('/\s+/u', ' ', $cell->textContent));
+
+                if ($value !== '') {
+                    if (!$is_header && preg_match('/^-?(0|[1-9]\d{0,9})(\.\d+)?$/', $value)) {
+                        $sheet->setCellValueExplicit($coord, $value + 0, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC);
+                    } else {
+                        $sheet->setCellValueExplicit($coord, $value, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                    }
+                }
+
+                $range = $coord;
+                if ($colspan > 1) {
+                    $range .= ':' . \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col + $colspan - 1) . $row;
+                    $sheet->mergeCells($range);
+                }
+
+                $style = [];
+                if ($is_header) {
+                    $style['font']['bold'] = true;
+                }
+                if (strpos($cell->getAttribute('style'), 'italic') !== false) {
+                    $style['font']['italic'] = true;
+                }
+                if ($color = self::htmlColorToRgb($cell->getAttribute('bgcolor'))) {
+                    $style['fill'] = [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => $color],
+                    ];
+                }
+                if ($style) {
+                    $sheet->getStyle($range)->applyFromArray($style);
+                }
+
+                $col += $colspan;
+            }
+
+            $max_col = max($max_col, $col - 1);
+            if ($is_header_row && $row === $header_rows + 1) {
+                $header_rows = $row;
+            }
+        }
+
+        if ($row > 0 && $max_col > 0) {
+            $sheet->getStyle('A1:' . \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($max_col) . $row)
+                ->getAlignment()
+                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
+                ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        }
+
+        for ($i = 1; $i <= $max_col; $i++) {
+            $sheet->getColumnDimension(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i))->setAutoSize(true);
+        }
+        if ($header_rows > 0) {
+            $sheet->freezePane('A' . ($header_rows + 1));
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'report-xlsx-');
+        try {
+            (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save($tmp);
+            return file_get_contents($tmp);
+        } finally {
+            @unlink($tmp);
+            $spreadsheet->disconnectWorksheets();
+        }
+    }
+
+    /**
+     * Converte uma cor HTML (#RGB, #RRGGBB ou nome) para RRGGBB
+     */
+    public static function htmlColorToRgb(string $color): ?string
+    {
+        $color = trim($color);
+        if ($color === '') {
+            return null;
+        }
+        if ($color[0] === '#') {
+            $hex = substr($color, 1);
+            if (strlen($hex) === 3) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+            return preg_match('/^[0-9a-f]{6}$/i', $hex) ? strtoupper($hex) : null;
+        }
+        $rgb = \PhpOffice\PhpSpreadsheet\Helper\Html::colourNameLookup(strtolower($color));
+        return $rgb !== '' ? $rgb : null;
+    }
 }

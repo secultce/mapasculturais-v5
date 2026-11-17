@@ -21,7 +21,7 @@ use Diligence\Repositories\Diligence as DiligenceRepo;
         <?php i::_e('Diligência enviada a você'); ?>
     </h5>
     <div style="margin-top: 25px;">
-        <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->status == EntityDiligence::STATUS_SEND) : ?>
+        <?php if (!is_null($diligenceAndAnswers[0]) && $diligenceAndAnswers[0]->isSent()) : ?>
             <div style="font-size: 14px; padding: 10px; margin-bottom: 10px;">
                 <label>
                     <b>Diligência:</b>

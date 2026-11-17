@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use EvaluationMethodTechnical\Plugin as EvaluationTechnicalPlugin;
 use MapasCulturais\App;
+use MapasCulturais\i;
 use MapasCulturais\Entities\EvaluationMethodConfigurationMeta;
 use MapasCulturais\Entities\Notification;
 use MapasCulturais\Entities\Opportunity;
@@ -16,6 +17,7 @@ use MapasCulturais\Entities\RegistrationEvaluation;
 use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
 use OpinionManagement\Helpers\EvaluationList;
+use OpinionManagement\Module;
 use MapasCulturais\Services\AmqpQueueService;
 
 class Controller extends  \MapasCulturais\Controller
@@ -23,7 +25,7 @@ class Controller extends  \MapasCulturais\Controller
     public function GET_index(): void
     {
         $app = App::i();
-        
+
         if(!$app->user->is('superAdmin')) {
             $this->layout = 'error-404';
             return;
@@ -40,15 +42,26 @@ class Controller extends  \MapasCulturais\Controller
     {
         $app = App::i();
         $this->requireAuthentication();
-        
+
         /**
          * @var $registration Registration
          */
 
-        $registration = $app->repo(Registration::class)->find($this->data['id']);
-        if ($registration->canUser('view')) {
+        $registrationId = $this->data['id'] ?? null;
+        $registration = $registrationId ? $app->repo(Registration::class)->find($registrationId) : null;
+
+        if (!$registration) {
+            $this->json(['error' => i::__('Inscrição não encontrada.')], 404);
+            return;
+        }
+
+        $opportunity = $registration->opportunity;
+        $canManageOpportunity = $opportunity->canUser('@control', $app->user);
+        $canViewPublishedOpinions = $opportunity->publishedOpinions && $registration->canUser('view', $app->user);
+
+        if ($canManageOpportunity || $canViewPublishedOpinions) {
             $evaluationsAvg = $this->getEvaluationsAvg($registration);
-        
+
             (new EvaluationTechnicalPlugin())->applyAffirmativePolicies($evaluationsAvg, $registration);
 
             $opinions = new EvaluationList($registration);
@@ -78,10 +91,25 @@ class Controller extends  \MapasCulturais\Controller
             $app->redirect($app->getBaseUrl());
         }
 
-        $opportunity = $app->repo('Opportunity')->find($this->postData['id']);
+        $opportunityId = $this->postData['id'] ?? null;
+        $opportunity = $opportunityId ? $app->repo('Opportunity')->find($opportunityId) : null;
+
+        if (!$opportunity) {
+            $this->json(['error' => i::__('Oportunidade não encontrada.')], 404);
+            return;
+        }
 
         if(!$opportunity->canUser('@control', $app->user)) {
-            $this->json(['permission-denied'], 403);
+            $this->json([
+                'error' => i::__('Você não tem permissão para publicar os pareceres desta oportunidade.'),
+            ], 403);
+            return;
+        }
+
+        if (!Module::areAllEvaluationsSent($opportunity)) {
+            $this->json([
+                'error' => i::__('É necessário aguardar o envio de todas as avaliações antes de publicar os pareceres.'),
+            ], 409);
             return;
         }
 
@@ -89,7 +117,12 @@ class Controller extends  \MapasCulturais\Controller
             $opportunity->setMetadata('publishedOpinions', true);
             $opportunity->save(true);
         } catch (\Exception $e) {
-            $this->json(['error' => new \PDOException('Cannot save this data', 0, $e)], 500);
+            $app->log->error("Não foi possível publicar os pareceres da oportunidade {$opportunity->id}: {$e->getMessage()}");
+
+            $this->json([
+                'error' => i::__('Não foi possível publicar os pareceres. Tente novamente.'),
+            ], 500);
+
             return;
         }
 
@@ -120,8 +153,15 @@ class Controller extends  \MapasCulturais\Controller
         $registrations = $app->repo('Registration')->matching($criteria);
 
         if (in_array(2, $sealIds)) {
-            self::sendToMailQueue($registrations);
-            $app->log->debug("Processo de envio de emails enviado para a fila.");
+            try {
+                self::sendToMailQueue($registrations);
+                $app->log->debug("Processo de envio de emails enviado para a fila.");
+            } catch (\Throwable $exception) {
+                $app->log->error(
+                    "Não foi possível enviar os emails de publicação de pareceres da oportunidade " .
+                    "{$opportunityId} para a fila: {$exception->getMessage()}"
+                );
+            }
         }
 
         $count = count($registrations);
@@ -163,6 +203,11 @@ class Controller extends  \MapasCulturais\Controller
     private static function sendToMailQueue(Collection $registrations): void
     {
         $app = App::i();
+        $registration = $registrations->first();
+        if (!$registration) {
+            return;
+        }
+
         $registrationsData = [];
         foreach ($registrations as $registration) {
             $registrationsData[] = [
@@ -183,7 +228,7 @@ class Controller extends  \MapasCulturais\Controller
             ],
         ];
 
-        // Observar padrão usado na documentação para uso do mapa cultural 
+        // Observar padrão usado na documentação para uso do mapa cultural
         $queueService = new AmqpQueueService();
         $queueService->sendMessage(
             $app->config['rabbitmq']['exchange_default'],
@@ -214,11 +259,11 @@ class Controller extends  \MapasCulturais\Controller
         $app = App::i();
 
         $evaluations = $app->repo(RegistrationEvaluation::class)->findBy(['registration' => $registration]);
-        
+
         if (empty($evaluations)) {
             $this->json(['not-found'], 404);
         }
-        
+
         $evaluationsAvg = 0;
 
         foreach ($evaluations as $evaluation) {
