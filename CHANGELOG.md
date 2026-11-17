@@ -8,6 +8,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Corrigido
 - Corrige a validação de ocorrências do importador de eventos para considerar data e hora ao importar eventos que terminam no dia seguinte.
 
+## [5.12.1] - 2026-04-16
+### Adicionado
+- Endpoint para consultar inscrições em P.C
+- Endpoint para consultar uma inscrição específica
+- Endpoint para consultar uma inscrição com dados de todas as fases
+
 ## [5.12.0] - 2026-03-17
 ### Adicionado
 - Contrar
