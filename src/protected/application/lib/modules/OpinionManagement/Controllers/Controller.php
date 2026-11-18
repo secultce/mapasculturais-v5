@@ -18,6 +18,7 @@ use MapasCulturais\Exceptions\PermissionDenied;
 use MapasCulturais\Exceptions\WorkflowRequest;
 use OpinionManagement\Helpers\EvaluationList;
 use OpinionManagement\Module;
+use OpinionManagement\Services\OpinionPublication;
 use MapasCulturais\Services\AmqpQueueService;
 
 class Controller extends  \MapasCulturais\Controller
@@ -57,7 +58,7 @@ class Controller extends  \MapasCulturais\Controller
 
         $opportunity = $registration->opportunity;
         $canManageOpportunity = $opportunity->canUser('@control', $app->user);
-        $canViewPublishedOpinions = $opportunity->publishedOpinions && $registration->canUser('view', $app->user);
+        $canViewPublishedOpinions = OpinionPublication::isPublished($registration) && $registration->canUser('view', $app->user);
 
         if ($canManageOpportunity || $canViewPublishedOpinions) {
             $evaluationsAvg = $this->getEvaluationsAvg($registration);
@@ -106,6 +107,11 @@ class Controller extends  \MapasCulturais\Controller
             return;
         }
 
+        if ($opportunity->publishedOpinions) {
+            $this->json(['success' => true]);
+            return;
+        }
+
         if (!Module::areAllEvaluationsSent($opportunity)) {
             $this->json([
                 'error' => i::__('É necessário aguardar o envio de todas as avaliações antes de publicar os pareceres.'),
@@ -132,6 +138,78 @@ class Controller extends  \MapasCulturais\Controller
         $this->json(['success' => true]);
     }
 
+    public function POST_registrationStates(): void
+    {
+        $this->selectedOpinions(false);
+    }
+
+    public function POST_publishSelectedOpinions(): void
+    {
+        $this->selectedOpinions(true);
+    }
+
+    private function selectedOpinions(bool $publish): void
+    {
+        $this->requireAuthentication();
+        $app = App::i();
+        $opportunity = $app->repo(Opportunity::class)->find($this->postData['id'] ?? 0);
+        if (!$opportunity) {
+            $this->json(['error' => i::__('Oportunidade não encontrada.')], 404);
+            return;
+        }
+        if (!$opportunity->canUser('@control', $app->user)) {
+            $this->json(['error' => i::__('Você não tem permissão para publicar os pareceres desta oportunidade.')], 403);
+            return;
+        }
+        if (!Module::isEvaluationMethodValid($opportunity)) {
+            $this->json(['error' => i::__('Este método de avaliação não permite a publicação de pareceres.')], 409);
+            return;
+        }
+        $ids = $this->postData['registrationIds'] ?? [];
+        if (!is_array($ids) || !$ids || count($ids) > 500) {
+            $this->json(['error' => i::__('Selecione entre 1 e 500 inscrições.')], 400);
+            return;
+        }
+        foreach ($ids as $id) {
+            if (!is_scalar($id) || !ctype_digit((string) $id) || (int) $id < 1) {
+                $this->json(['error' => i::__('Seleção de inscrições inválida.')], 400);
+                return;
+            }
+        }
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        $service = new OpinionPublication();
+        try {
+            if ($publish) {
+                $published = $service->publish($opportunity, $ids);
+                try {
+                    self::notifyRegistrations($published, $opportunity->owner->getRelatedSealIds());
+                } catch (\Throwable $exception) {
+                    $app->log->error("Pareceres publicados, mas houve falha nas notificações da oportunidade {$opportunity->id}: {$exception->getMessage()}");
+                }
+                $response = ['success' => true, 'publishedIds' => $published->map(function ($registration) {
+                    return $registration->id;
+                })->getValues()];
+            } else {
+                $registrations = $app->repo(Registration::class)->findBy(['id' => $ids, 'opportunity' => $opportunity]);
+                if (count($registrations) !== count($ids)) {
+                    throw new \InvalidArgumentException('A seleção contém inscrições inexistentes ou de outra oportunidade.');
+                }
+                $response = ['states' => $service->states($opportunity, $registrations)];
+            }
+        } catch (\InvalidArgumentException $exception) {
+            $this->json(['error' => $exception->getMessage()], 400);
+            return;
+        } catch (\DomainException $exception) {
+            $this->json(['error' => $exception->getMessage()], 409);
+            return;
+        } catch (\Throwable $exception) {
+            $app->log->error("Falha na publicação de pareceres da oportunidade {$opportunity->id}: {$exception->getMessage()}");
+            $this->json(['error' => i::__('Não foi possível processar os pareceres. Tente novamente.')], 500);
+            return;
+        }
+        $this->json($response);
+    }
+
      /**
      * @throws WorkflowRequest
      * @throws PermissionDenied
@@ -150,7 +228,20 @@ class Controller extends  \MapasCulturais\Controller
         $criteria->where($criteria->expr()->eq('opportunity', $opportunity));
         $criteria->andWhere($criteria->expr()->gt('status', '0'));
 
-        $registrations = $app->repo('Registration')->matching($criteria);
+        $registrations = $app->repo('Registration')->matching($criteria)->filter(function (Registration $registration) {
+            // Individual publications have already notified these proponents.
+            return !$registration->getMetadata('opinionPublication');
+        });
+
+        return self::notifyRegistrations($registrations, $sealIds);
+    }
+
+    private static function notifyRegistrations(Collection $registrations, array $sealIds): bool
+    {
+        $app = App::i();
+        if ($registrations->isEmpty()) {
+            return true;
+        }
 
         if (in_array(2, $sealIds)) {
             try {
@@ -159,7 +250,7 @@ class Controller extends  \MapasCulturais\Controller
             } catch (\Throwable $exception) {
                 $app->log->error(
                     "Não foi possível enviar os emails de publicação de pareceres da oportunidade " .
-                    "{$opportunityId} para a fila: {$exception->getMessage()}"
+                    "para a fila: {$exception->getMessage()}"
                 );
             }
         }

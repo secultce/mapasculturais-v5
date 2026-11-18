@@ -430,6 +430,16 @@ class Module extends \MapasCulturais\Module {
         if($opportunity->publishedRegistrations || $opportunity->publishedOpinions)
             return false;
 
+        // Individual opinion publication also closes the diligence configuration.
+        $publishedOpinion = App::i()->em->getConnection()->fetchOne(
+            'SELECT 1 FROM registration_meta m JOIN registration r ON r.id = m.object_id
+             WHERE r.opportunity_id = :opportunity AND m.key = :key AND m.value IS NOT NULL LIMIT 1',
+            ['opportunity' => $opportunity->id, 'key' => 'opinionPublication']
+        );
+        if ($publishedOpinion) {
+            return false;
+        }
+
         // Traz as diligências referentes a essa oportunidade
         $app = App::i();
         $qb = $app->em->createQueryBuilder()

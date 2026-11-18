@@ -1,3 +1,3 @@
-<th
-    class='registration-status-col'
-></th><?= \MapasCulturais\i::__('Administrador') ?></th>
+<th class="registration-status-col" scope="col">
+    <?php \MapasCulturais\i::_e('Pareceres'); ?>
+</th>

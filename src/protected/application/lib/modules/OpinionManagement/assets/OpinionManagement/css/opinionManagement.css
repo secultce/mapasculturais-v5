@@ -161,3 +161,50 @@ div:has(>.showOpinion) {
 .opinions-section hr {
     width: 100%;
 }
+
+.opinions-section > h3,
+.opinions-section > p,
+.opinions-selection-actions {
+    width: 100%;
+}
+
+.opinions-selection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f7f7f7;
+    box-sizing: border-box;
+}
+
+.opinions-selection-actions > span {
+    flex-basis: 100%;
+    font-size: 12px;
+}
+
+.opinions-publish-all {
+    margin-bottom: 12px;
+}
+
+.opinion-registration {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 170px;
+}
+
+.opinion-registration label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.opinion-registration input[type="checkbox"],
+.opinions-selection-actions input[type="checkbox"] {
+    margin: 0;
+}
