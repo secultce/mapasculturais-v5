@@ -7,6 +7,7 @@ use MapasCulturais\Entities\Opportunity as OpportunityEntity;
 use MapasCulturais\Entities\Registration;
 use MapasCulturais\Entities\RegistrationEvaluation;
 use OpinionManagement\Controllers\Controller;
+use OpinionManagement\Services\OpinionPublication;
 
 /**
  * @method part(string $string,  array $args = [])
@@ -54,11 +55,16 @@ class Module extends \MapasCulturais\Module {
             $opportunity = $this->controller->requestedEntity;
 
             if($plugin::isEvaluationMethodValid($opportunity) && $opportunity->canUser('@control')) {
+                $this->jsObject['opinionPublication'] = [
+                    'published' => (bool) $opportunity->publishedOpinions,
+                    'manual' => $opportunity->autopublishOpinions !== 'Sim',
+                ];
                 $this->part('OpinionManagement/admin-registrations-table-column.php');
                 $app->view->enqueueScript(
                     'app',
                     'opinion-management-tab-registrations',
-                    'OpinionManagement/js/admin-tab-registrations.js'
+                    'OpinionManagement/js/admin-tab-registrations.js',
+                    ['entity.module.opportunity']
                 );
 
                 $app->hook('template(opportunity.single.registration-list-item):end', function() {
@@ -68,7 +74,7 @@ class Module extends \MapasCulturais\Module {
             });
 
             $app->hook('template(opportunity.single.user-registration-table--registration--status):end', function ($registration, $opportunity) use ($app) {
-            if($opportunity->publishedOpinions === true && $registration->canUser('@control')) {
+            if(OpinionPublication::isPublished($registration) && $registration->canUser('@control')) {
                 $this->part('OpinionManagement/user-btn-show-opinion.php', ['registration' => $registration]);
             }
             });
@@ -76,13 +82,13 @@ class Module extends \MapasCulturais\Module {
             $app->hook('template(opportunity.single.opportunity-registrations--tables):begin', function () use ($app, $plugin) {
             $opportunity = $this->controller->requestedEntity;
             if($plugin::isEvaluationMethodValid($opportunity)
-                && $opportunity->autopublishOpinions !== 'Sim'
                 && !$opportunity->publishedOpinions
                 && $opportunity->canUser('@control')//Verifica a gestão
             ) {
                 $this->part('OpinionManagement/admin-btn-publish-opinions.php', [
                     'opportunity' => $opportunity,
                     'allEvaluationsSent' => $plugin::areAllEvaluationsSent($opportunity),
+                    'manualPublication' => $opportunity->autopublishOpinions !== 'Sim',
                 ]);
             }
             });
@@ -92,7 +98,7 @@ class Module extends \MapasCulturais\Module {
             $opportunity = $registration->opportunity;
 
             if($plugin::isEvaluationMethodValid($opportunity)
-                && $opportunity->publishedOpinions
+                && OpinionPublication::isPublished($registration)
                 && ($registration->canUser('@control') || $opportunity->canUser('@control'))
             ) {
                 $this->part('OpinionManagement/user-btn-show-opinion.php');
@@ -100,7 +106,7 @@ class Module extends \MapasCulturais\Module {
             });
 
             $app->hook('template(panel.<<registrations|index>>.panel-registration):end', function (Registration $registration) use ($app,$plugin) {
-            if($registration->opportunity->publishedOpinions
+            if(OpinionPublication::isPublished($registration)
                 && $plugin::isEvaluationMethodValid($registration->opportunity)
             ) {
                 $this->part('OpinionManagement/user-btn-show-opinion.php', ['registration' => $registration]);
@@ -154,6 +160,19 @@ class Module extends \MapasCulturais\Module {
          $app = App::i();
          $app->registerController('opinionManagement', Controllers\Controller::class);
 
+        $this->registerRegistrationMetadata('opinionPublication', [
+            'type' => 'json',
+            'label' => \MapasCulturais\i::__('Publicação dos pareceres'),
+            'private' => true,
+        ]);
+
+        // Publication metadata can only be written by the opportunity management.
+        $app->hook('can(RegistrationMeta.<<create|modify|remove>>)', function ($user, &$result) {
+            if ($this->key === 'opinionPublication') {
+                $result = $this->owner->opportunity->canUser('@control', $user);
+            }
+        });
+
         $this->registerOpportunityMetadata('autopublishOpinions', [
             'type' => 'select',
             'default_value' => 'Não',
@@ -176,7 +195,7 @@ class Module extends \MapasCulturais\Module {
     {
         $configuration = $opportunity->evaluationMethodConfiguration;
 
-        return $configuration && in_array($configuration->type, ['documentary', 'technical'], true);
+        return $configuration && in_array($configuration->type->id, ['documentary', 'technical'], true);
     }
 
     public static function areAllEvaluationsSent(OpportunityEntity $opportunity): bool
