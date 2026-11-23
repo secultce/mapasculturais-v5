@@ -13,5 +13,6 @@ return [
         'PublicConsultation' => ['namespace' => 'PublicConsultation'],
         'BigSheetImporter' => ['namespace' => 'BigSheetImporter'],
         'Accessibility' => ['namespace' => 'Accessibility'],
+        'ConectaEnte' => ['namespace' => 'ConectaEnte'],
     ]
 ];

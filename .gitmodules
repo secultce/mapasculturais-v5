@@ -29,3 +29,7 @@
 	path = src/protected/application/plugins/MultipleLocalAuth
 	url = https://github.com/secultce/plugin-MultipleLocalAuth.git
 	branch = main
+[submodule "src/protected/application/plugins/ConectaEnte"]
+	path = src/protected/application/plugins/ConectaEnte
+	url = https://github.com/culturagovbr/plugin-ConectaEnte.git
+	branch = feature/v5
