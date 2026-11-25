@@ -230,10 +230,10 @@ const publishOpinions = target => {
                     .then(response => {
                         Swal.fire({
                             title: "Pareceres publicados com sucesso!",
-                            text: "Os pareceres desta inscrição agora encontram-se publicados.",
+                            text: "Os pareceres de todas as inscrições agora encontram-se publicados.",
                             showConfirmButton: false,
                             showCloseButton: true,
-                        });
+                        }).then(() => window.location.reload());
                     })
                     .catch(error => {
                         let { message } = error;
