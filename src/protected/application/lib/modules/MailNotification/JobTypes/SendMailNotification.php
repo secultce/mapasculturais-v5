@@ -5,6 +5,7 @@ namespace MailNotification\JobTypes;
 use MapasCulturais\App;
 use MapasCulturais\Definitions\JobType;
 use MapasCulturais\Entities\Job;
+use MapasCulturais\Services\AmqpQueueService;
 
 class SendMailNotification extends JobType
 {
@@ -24,7 +25,7 @@ class SendMailNotification extends JobType
        
         $message = $app->renderMailerTemplate($job->template, [
             'siteName' => $app->view->dict('site: name', false),
-            'baseUrl' => $app->getBaseUrl(),
+            'baseUrl' => $job->baseUrl ?: $app->getBaseUrl(),
             'userName' => $registration->owner->name,
             'projectId' => $registration->opportunity->id,
             'projectName' => $registration->opportunity->name,
@@ -41,6 +42,29 @@ class SendMailNotification extends JobType
             'body' => $message['body'],
         ];
 
-        return $app->createAndSendMailMessage($email_params);
+        if (env('MAIL_NOTIFICATION_TRANSPORT', 'rabbitmq') === 'smtp') {
+            return $app->createAndSendMailMessage($email_params);
+        }
+
+        $queueService = new AmqpQueueService();
+        $queueService->sendMessage(
+            $app->config['rabbitmq']['exchange_default'],
+            $app->config['rabbitmq']['routing']['module_mail_notification'],
+            [
+                'message_id' => $job->id,
+                'event' => $job->template === 'start_registration' ? 'registration.start' : 'registration.send',
+                'template' => $job->template,
+                'locale' => $app->config['app.lcode'],
+                'registration_id' => $registration->id,
+                'to' => $email_params['to'],
+                'from' => $email_params['from'],
+                'subject' => $email_params['subject'],
+                'body' => $email_params['body'],
+                'created_at' => date('c'),
+            ],
+            $app->config['rabbitmq']['queues']['queue_mail_notification']
+        );
+
+        return true;
     }
 }

@@ -64,6 +64,8 @@ class Module extends \MapasCulturais\Module
             $data = [
                 'template' => $template,
                 'registrationId' => $registration->id,
+                // Capturado na requisição HTTP: o worker não tem HTTP_HOST e cairia em localhost
+                'baseUrl' => $app->getBaseUrl(),
             ];
 
             $app->enqueueJob(SendMailNotification::SLUG, $data);
@@ -83,6 +85,8 @@ class Module extends \MapasCulturais\Module
             $data = [
                 'template' => $template,
                 'registrationId' => $registration->id,
+                // Capturado na requisição HTTP: o worker não tem HTTP_HOST e cairia em localhost
+                'baseUrl' => $app->getBaseUrl(),
             ];
 
             $app->enqueueJob(SendMailNotification::SLUG, $data);
