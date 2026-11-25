@@ -39,6 +39,7 @@
             const vm = this;
             const opportunityId = $element.attr('data-opportunity-id');
             let version = 0;
+            let pending = {};
             vm.loading = false;
             vm.busy = false;
             vm.error = '';
@@ -67,29 +68,46 @@
                 return getOpinionManagementErrorMessage(error.data || error.message, 'Não foi possível processar os pareceres. Tente novamente.');
             }
 
-            vm.refresh = function () {
-                const currentVersion = ++version;
-                const ids = registrations().map(reg => reg.id);
+            function invalidate() {
+                version++;
+                pending = {};
+                selection.states = {};
+                selection.checked = {};
+                vm.loading = false;
+            }
+
+            function loadStates() {
+                const currentVersion = version;
+                const ids = Array.from(new Set(registrations().map(reg => reg.id)))
+                    .filter(id => !selection.states[id] && !pending[id]);
                 const requests = [];
-                vm.loading = ids.length > 0;
                 vm.error = '';
                 for (let offset = 0; offset < ids.length; offset += 500) {
-                    requests.push(request('registrationStates', ids.slice(offset, offset + 500)));
+                    const batch = ids.slice(offset, offset + 500);
+                    batch.forEach(id => { pending[id] = true; });
+                    requests.push(request('registrationStates', batch).then(result => {
+                        if (currentVersion !== version) return;
+                        Object.assign(selection.states, result.states);
+                        Object.keys(selection.checked).forEach(id => {
+                            if (!selection.states[id] || !selection.states[id].ready) delete selection.checked[id];
+                        });
+                    }).finally(() => {
+                        if (currentVersion !== version) return;
+                        batch.forEach(id => { delete pending[id]; });
+                        vm.loading = Object.keys(pending).length > 0;
+                    }));
                 }
-                return $q.all(requests).then(results => {
+                vm.loading = Object.keys(pending).length > 0;
+                return $q.all(requests).catch(error => {
                     if (currentVersion !== version) return;
-                    selection.states = Object.assign({}, ...results.map(result => result.states));
-                    Object.keys(selection.checked).forEach(id => {
-                        if (!selection.states[id] || !selection.states[id].ready) delete selection.checked[id];
-                    });
-                }).catch(error => {
-                    if (currentVersion !== version) return;
-                    selection.states = {};
-                    selection.checked = {};
+                    invalidate();
                     vm.error = errorMessage(error);
-                }).finally(() => {
-                    if (currentVersion === version) vm.loading = false;
                 });
+            }
+
+            vm.refresh = function () {
+                invalidate();
+                return loadStates();
             };
 
             vm.publish = function () {
@@ -122,10 +140,18 @@
                 });
             };
 
-            $scope.$watchCollection(() => registrations().map(reg => reg.id + ':' + reg.status), vm.refresh);
-            $scope.$watch('registrationsFilters', () => { selection.checked = {}; }, true);
-            $scope.$watch('data.registrationsFilter', () => { selection.checked = {}; });
-            $scope.$on('$destroy', () => { version++; selection.checked = {}; });
+            $scope.$watchCollection(() => registrations().map(reg => reg.id + ':' + reg.status), (current, previous) => {
+                const loaded = new Set(current);
+                if (previous && previous.some(value => !loaded.has(value))) return vm.refresh();
+                return loadStates();
+            });
+            function filtersChanged(current, previous) {
+                selection.checked = {};
+                if (current !== previous) return vm.refresh();
+            }
+            $scope.$watch('registrationsFilters', filtersChanged, true);
+            $scope.$watch('data.registrationsFilter', filtersChanged);
+            $scope.$on('$destroy', invalidate);
         }
     ]);
 })(angular);

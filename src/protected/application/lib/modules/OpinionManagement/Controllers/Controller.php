@@ -182,7 +182,7 @@ class Controller extends  \MapasCulturais\Controller
             if ($publish) {
                 $published = $service->publish($opportunity, $ids);
                 try {
-                    self::notifyRegistrations($published, $opportunity->owner->getRelatedSealIds());
+                    self::notifyRegistrations($published, $opportunity->owner->getRelatedSealIds(), $opportunity->id);
                 } catch (\Throwable $exception) {
                     $app->log->error("Pareceres publicados, mas houve falha nas notificações da oportunidade {$opportunity->id}: {$exception->getMessage()}");
                 }
@@ -222,22 +222,25 @@ class Controller extends  \MapasCulturais\Controller
             return false;
         }
 
-        set_time_limit(500);
-
         $criteria = new Criteria();
         $criteria->where($criteria->expr()->eq('opportunity', $opportunity));
         $criteria->andWhere($criteria->expr()->gt('status', '0'));
 
-        $registrations = $app->repo('Registration')->matching($criteria)->filter(function (Registration $registration) {
+        $registrations = $app->repo('Registration')->matching($criteria);
+        $individualStates = OpinionPublication::individualPublicationStates($registrations->map(function (Registration $registration) {
+            return $registration->id;
+        })->getValues());
+        $registrations = $registrations->filter(function (Registration $registration) use ($individualStates) {
             // Individual publications have already notified these proponents.
-            return !$registration->getMetadata('opinionPublication');
+            return !($individualStates[$registration->id] ?? false);
         });
 
-        return self::notifyRegistrations($registrations, $sealIds);
+        return self::notifyRegistrations($registrations, $sealIds, $opportunityId);
     }
 
-    private static function notifyRegistrations(Collection $registrations, array $sealIds): bool
+    private static function notifyRegistrations(Collection $registrations, array $sealIds, int $opportunityId): bool
     {
+        set_time_limit(500);
         $app = App::i();
         if ($registrations->isEmpty()) {
             return true;
@@ -249,7 +252,7 @@ class Controller extends  \MapasCulturais\Controller
                 $app->log->debug("Processo de envio de emails enviado para a fila.");
             } catch (\Throwable $exception) {
                 $app->log->error(
-                    "Não foi possível enviar os emails de publicação de pareceres da oportunidade " .
+                    "Não foi possível enviar os emails de publicação de pareceres da oportunidade {$opportunityId} " .
                     "para a fila: {$exception->getMessage()}"
                 );
             }

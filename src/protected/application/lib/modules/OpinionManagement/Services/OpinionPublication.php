@@ -13,6 +13,22 @@ use MapasCulturais\Entities\RegistrationEvaluation;
 
 class OpinionPublication
 {
+    /** @return array<int, bool> Individual publication flags, without loading entity metadata collections. */
+    public static function individualPublicationStates(array $registrationIds): array
+    {
+        if (!$registrationIds) {
+            return [];
+        }
+
+        $values = App::i()->em->getConnection()->fetchAllKeyValue(
+            'SELECT object_id, value FROM registration_meta WHERE key = :key AND object_id IN (:ids)',
+            ['key' => 'opinionPublication', 'ids' => array_values(array_unique($registrationIds))],
+            ['ids' => Connection::PARAM_INT_ARRAY]
+        );
+
+        return array_map(function ($value) { return (bool) $value; }, $values);
+    }
+
     public static function isPublished(Registration $registration): bool
     {
         return (bool) $registration->opportunity->publishedOpinions
@@ -39,10 +55,12 @@ class OpinionPublication
             ['ids' => Connection::PARAM_INT_ARRAY, 'valuerUsers' => Connection::PARAM_INT_ARRAY]
         ) : [];
         $counts = array_column($rows, null, 'registration_id');
+        $globallyPublished = (bool) $opportunity->publishedOpinions;
+        $individualStates = $globallyPublished ? [] : self::individualPublicationStates($ids);
         $states = [];
         foreach ($registrations as $registration) {
             $count = $counts[$registration->id] ?? ['total' => 0, 'sent' => 0];
-            $published = self::isPublished($registration);
+            $published = $globallyPublished || ($individualStates[$registration->id] ?? false);
             $ready = $registration->status > 0 && (int) $count['total'] > 0
                 && (int) $count['total'] === (int) $count['sent'];
             $states[$registration->id] = [
@@ -68,6 +86,9 @@ class OpinionPublication
         try {
             $connection->executeQuery('SELECT id FROM opportunity WHERE id = ? FOR UPDATE', [$opportunity->id]);
             $app->em->refresh($opportunity);
+            if ($opportunity->autopublishOpinions === 'Sim') {
+                throw new \DomainException('Os pareceres desta oportunidade serão publicados automaticamente ao publicar o resultado.');
+            }
             $registrations = $app->repo(Registration::class)->findBy(['id' => $ids, 'opportunity' => $opportunity]);
             if (count($registrations) !== count($ids)) {
                 throw new \InvalidArgumentException('A seleção contém inscrições inexistentes ou de outra oportunidade.');

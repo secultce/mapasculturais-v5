@@ -28,6 +28,8 @@ class OpinionPublicationTest extends TestCase
     private $repository;
     private $opportunity;
     private $relations;
+    private $individualPublications;
+    private $publicationMode;
 
     protected function setUp(): void
     {
@@ -37,6 +39,11 @@ class OpinionPublicationTest extends TestCase
         $app = $this->getMockBuilder(App::class)->disableOriginalConstructor()
             ->setMethods(['__get', 'repo'])->getMock();
         $this->connection = $this->createMock(Connection::class);
+        $this->individualPublications = [];
+        $this->publicationMode = 'Não';
+        $this->connection->method('fetchAllKeyValue')->willReturnCallback(function () {
+            return $this->individualPublications;
+        });
         $this->em = $this->createMock(EntityManager::class);
         $this->em->method('getConnection')->willReturn($this->connection);
         $this->repository = $this->getMockBuilder(EvaluationRepository::class)->disableOriginalConstructor()->getMock();
@@ -54,9 +61,10 @@ class OpinionPublicationTest extends TestCase
             return $this->relations;
         });
         $this->opportunity = $this->getMockBuilder(ProjectOpportunity::class)->disableOriginalConstructor()->setMethods(['__get'])->getMock();
-        $this->opportunity->method('__get')->willReturnMap([
-            ['id', 10], ['publishedOpinions', false], ['evaluationMethodConfiguration', $configuration],
-        ]);
+        $this->opportunity->method('__get')->willReturnCallback(function ($key) use ($configuration) {
+            return ['id' => 10, 'publishedOpinions' => false, 'evaluationMethodConfiguration' => $configuration,
+                'autopublishOpinions' => $this->publicationMode][$key] ?? null;
+        });
     }
 
     protected function tearDown(): void
@@ -66,6 +74,9 @@ class OpinionPublicationTest extends TestCase
 
     private function registration(int $id, bool $published = false, int $status = 1)
     {
+        if ($published) {
+            $this->individualPublications[$id] = '{"publishedBy":42}';
+        }
         $registration = $this->getMockBuilder(Registration::class)->disableOriginalConstructor()
             ->setMethods(['__get', 'getMetadata', 'setMetadata'])->getMock();
         $registration->method('__get')->willReturnMap([
@@ -221,5 +232,59 @@ class OpinionPublicationTest extends TestCase
         $this->opportunity = $this->getMockBuilder(ProjectOpportunity::class)->disableOriginalConstructor()->setMethods(['__get'])->getMock();
         $this->opportunity->method('__get')->willReturnMap([['id', 10], ['publishedOpinions', true]]);
         $this->assertTrue(OpinionPublication::isPublished($this->registration(1)[0]));
+    }
+
+    public function testAutomaticPublicationIsRejectedAfterRefreshingOpportunity(): void
+    {
+        $this->em->expects($this->once())->method('refresh')->with($this->opportunity)->willReturnCallback(function () {
+            $this->publicationMode = 'Sim';
+        });
+        $this->repository->expects($this->never())->method('findBy');
+        $this->em->expects($this->never())->method('flush');
+        $this->connection->expects($this->once())->method('rollBack');
+        $this->connection->expects($this->never())->method('commit');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('automaticamente');
+        (new OpinionPublication())->publish($this->opportunity, [1]);
+    }
+
+    public function testAutomaticModeStillAllowsReadingStates(): void
+    {
+        $this->publicationMode = 'Sim';
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['registration_id' => 1, 'total' => 1, 'sent' => 1],
+        ]);
+        $states = (new OpinionPublication())->states($this->opportunity, [$this->registration(1)[0]]);
+        $this->assertTrue($states[1]['ready']);
+    }
+
+    public function testStatesFetchPublicationMetadataOnceWithoutLoadingCollections(): void
+    {
+        $this->individualPublications = [1 => '{"publishedBy":42}', 2 => '', 3 => '0', 4 => null, 5 => 'false'];
+        $this->connection->expects($this->once())->method('fetchAllKeyValue')->with(
+            $this->stringContains('FROM registration_meta'),
+            ['key' => 'opinionPublication', 'ids' => [1, 2, 3, 4, 5, 6]],
+            ['ids' => Connection::PARAM_INT_ARRAY]
+        );
+        $registrations = [];
+        foreach (range(1, 6) as $id) {
+            [$registration] = $this->registration($id);
+            $registration->expects($this->never())->method('getMetadata');
+            $registrations[] = $registration;
+        }
+        $states = (new OpinionPublication())->states($this->opportunity, $registrations);
+        $this->assertSame([true, false, false, false, true, false], array_column($states, 'published'));
+    }
+
+    public function testGlobalPublicationSkipsIndividualMetadataLookup(): void
+    {
+        $this->opportunity = $this->getMockBuilder(ProjectOpportunity::class)->disableOriginalConstructor()->setMethods(['__get'])->getMock();
+        $this->opportunity->method('__get')->willReturnMap([['id', 10], ['publishedOpinions', true]]);
+        $this->connection->expects($this->never())->method('fetchAllKeyValue');
+        [$registration] = $this->registration(1);
+        $registration->expects($this->never())->method('getMetadata');
+        $states = (new OpinionPublication())->states($this->opportunity, [$registration]);
+        $this->assertTrue($states[1]['published']);
+        $this->assertFalse($states[1]['ready']);
     }
 }
