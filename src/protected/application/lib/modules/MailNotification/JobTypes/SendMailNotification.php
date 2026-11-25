@@ -35,7 +35,12 @@ class SendMailNotification extends JobType
             'statusTitle' => $registration->getStatusNameById($registration->status),
             'statusNum' => $registration->status,
         ]);
-      
+
+        // Imagens do cabeçalho/rodapé ({{asset:...}}) usam a URL de assets do worker (localhost)
+        if ($job->baseUrl) {
+            $message['body'] = str_replace($app->getAssetUrl(), $job->baseUrl . 'assets/', $message['body']);
+        }
+
         $email_params = [
             'from' => $app->config['mailer.from'],
             'to' => $registration->owner->emailPrivado ?: $registration->owner->user->email,
