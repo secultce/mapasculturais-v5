@@ -21,5 +21,10 @@ return [
             'plugin_published_recourses' => env('PLUGIN_PUBLISHED_RECOURSES', 'plugin_published_recourses'),
             'module_mail_notification' => env('MODULE_MAIL_NOTIFICATION', 'module_mail_notification'),
         ],
+        'mail_notification' => [
+            'transport' => env('MAIL_NOTIFICATION_TRANSPORT', 'rabbitmq'), // rabbitmq | smtp
+            'max_attempts' => max(1, (int) env('MAIL_NOTIFICATION_MAX_ATTEMPTS', 5)),
+            'retry_delay_minutes' => max(1, (int) env('MAIL_NOTIFICATION_RETRY_DELAY_MINUTES', 5)),
+        ],
     ]
 ];

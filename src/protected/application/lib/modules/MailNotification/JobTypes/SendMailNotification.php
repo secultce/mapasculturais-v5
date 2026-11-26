@@ -12,6 +12,9 @@ class SendMailNotification extends JobType
 {
     const SLUG = "sendmailnotification";
 
+    const TRANSPORT_RABBITMQ = 'rabbitmq';
+    const TRANSPORT_SMTP = 'smtp';
+
     protected function _generateId(array $data, string $start_string, string $interval_string, int $iterations)
     {
         return "sendmailnotification:{$data['registrationId']}".uniqid();
@@ -48,7 +51,7 @@ class SendMailNotification extends JobType
             'body' => $message['body'],
         ];
 
-        if (env('MAIL_NOTIFICATION_TRANSPORT', 'rabbitmq') === 'smtp') {
+        if ($app->config['rabbitmq']['mail_notification']['transport'] === self::TRANSPORT_SMTP) {
             return $app->createAndSendMailMessage($email_params);
         }
 
@@ -88,7 +91,8 @@ class SendMailNotification extends JobType
         $app = App::i();
 
         $attempts = (int) $job->publishAttempts + 1;
-        $max_attempts = (int) env('MAIL_NOTIFICATION_MAX_ATTEMPTS', 5);
+        $max_attempts = $app->config['rabbitmq']['mail_notification']['max_attempts'];
+        $retry_delay = $app->config['rabbitmq']['mail_notification']['retry_delay_minutes'];
 
         if ($attempts >= $max_attempts) {
             $app->log->error("Job {$job->id}: falha ao publicar na fila após {$attempts} tentativas, desistindo: {$e->getMessage()}");
@@ -96,11 +100,11 @@ class SendMailNotification extends JobType
             return;
         }
 
-        $app->log->warning("Job {$job->id}: falha ao publicar na fila (tentativa {$attempts} de {$max_attempts}), nova tentativa em 5 minutos: {$e->getMessage()}");
+        $app->log->warning("Job {$job->id}: falha ao publicar na fila (tentativa {$attempts} de {$max_attempts}), nova tentativa em {$retry_delay} minutos: {$e->getMessage()}");
 
         $job->publishAttempts = $attempts;
         $job->status = Job::STATUS_WAITING;
-        $job->nextExecutionTimestamp = new \DateTime('+5 minutes');
+        $job->nextExecutionTimestamp = new \DateTime("+{$retry_delay} minutes");
         $job->save(true);
     }
 }
