@@ -64,6 +64,7 @@ class Module extends \MapasCulturais\Module
             $data = [
                 'template' => $template,
                 'registrationId' => $registration->id,
+                'baseUrl' => $app->getBaseUrl(),
             ];
 
             $app->enqueueJob(SendMailNotification::SLUG, $data);
@@ -83,6 +84,7 @@ class Module extends \MapasCulturais\Module
             $data = [
                 'template' => $template,
                 'registrationId' => $registration->id,
+                'baseUrl' => $app->getBaseUrl(),
             ];
 
             $app->enqueueJob(SendMailNotification::SLUG, $data);
