@@ -5,10 +5,15 @@ namespace MailNotification\JobTypes;
 use MapasCulturais\App;
 use MapasCulturais\Definitions\JobType;
 use MapasCulturais\Entities\Job;
+use MapasCulturais\Services\AmqpQueueService;
+use MapasCulturais\Services\SentryService;
 
 class SendMailNotification extends JobType
 {
     const SLUG = "sendmailnotification";
+
+    const TRANSPORT_RABBITMQ = 'rabbitmq';
+    const TRANSPORT_SMTP = 'smtp';
 
     protected function _generateId(array $data, string $start_string, string $interval_string, int $iterations)
     {
@@ -24,7 +29,7 @@ class SendMailNotification extends JobType
        
         $message = $app->renderMailerTemplate($job->template, [
             'siteName' => $app->view->dict('site: name', false),
-            'baseUrl' => $app->getBaseUrl(),
+            'baseUrl' => $job->baseUrl ?: $app->getBaseUrl(),
             'userName' => $registration->owner->name,
             'projectId' => $registration->opportunity->id,
             'projectName' => $registration->opportunity->name,
@@ -33,14 +38,73 @@ class SendMailNotification extends JobType
             'statusTitle' => $registration->getStatusNameById($registration->status),
             'statusNum' => $registration->status,
         ]);
-      
+
+        // Imagens do cabeçalho/rodapé ({{asset:...}}) usam a URL de assets do worker (localhost)
+        if ($job->baseUrl) {
+            $message['body'] = str_replace($app->getAssetUrl(), $job->baseUrl . 'assets/', $message['body']);
+        }
+
         $email_params = [
             'from' => $app->config['mailer.from'],
-            'to' => $registration->owner->emailPrivado,
+            'to' => $registration->owner->emailPrivado ?: $registration->owner->user->email,
             'subject' => $message['title'],
             'body' => $message['body'],
         ];
 
-        return $app->createAndSendMailMessage($email_params);
+        if ($app->config['rabbitmq']['mail_notification']['transport'] === self::TRANSPORT_SMTP) {
+            return $app->createAndSendMailMessage($email_params);
+        }
+
+        try {
+            $queueService = new AmqpQueueService();
+            $queueService->sendMessage(
+                $app->config['rabbitmq']['exchange_default'],
+                $app->config['rabbitmq']['routing']['module_mail_notification'],
+                [
+                    'message_id' => $job->id,
+                    'event' => $job->template === 'start_registration' ? 'registration.start' : 'registration.send',
+                    'template' => $job->template,
+                    'locale' => $app->config['app.lcode'],
+                    'registration_id' => $registration->id,
+                    'to' => $email_params['to'],
+                    'from' => $email_params['from'],
+                    'subject' => $email_params['subject'],
+                    'body' => $email_params['body'],
+                    'created_at' => date('c'),
+                ],
+                $app->config['rabbitmq']['queues']['queue_mail_notification']
+            );
+        } catch (\Throwable $e) {
+            $this->scheduleRetry($job, $e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * O executor de jobs não reprocessa jobs com erro (ficam com status 1 para sempre).
+     * Então, em caso de falha na publicação, o próprio job volta para a fila.
+     */
+    protected function scheduleRetry(Job $job, \Throwable $e)
+    {
+        $app = App::i();
+
+        $attempts = (int) $job->publishAttempts + 1;
+        $max_attempts = $app->config['rabbitmq']['mail_notification']['max_attempts'];
+        $retry_delay = $app->config['rabbitmq']['mail_notification']['retry_delay_minutes'];
+
+        if ($attempts >= $max_attempts) {
+            $app->log->error("Job {$job->id}: falha ao publicar na fila após {$attempts} tentativas, desistindo: {$e->getMessage()}");
+            SentryService::captureExceptions($e);
+            return;
+        }
+
+        $app->log->warning("Job {$job->id}: falha ao publicar na fila (tentativa {$attempts} de {$max_attempts}), nova tentativa em {$retry_delay} minutos: {$e->getMessage()}");
+
+        $job->publishAttempts = $attempts;
+        $job->status = Job::STATUS_WAITING;
+        $job->nextExecutionTimestamp = new \DateTime("+{$retry_delay} minutes");
+        $job->save(true);
     }
 }
